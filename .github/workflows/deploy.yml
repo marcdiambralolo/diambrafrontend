@@ -1,24 +1,22 @@
 # ============================================================================
-#  Déploiement automatique sur VPS LWS (diambra.net) depuis GitHub Actions
+#  Déploiement automatique sur VPS LWS (diambra.net)
 # ============================================================================
 #
-#  Configurer ces Secrets dans GitHub (Settings → Secrets and variables → Actions) :
+#  Configuration des Secrets GitHub (Settings → Secrets and variables → Actions) :
 #
-#  Secrets obligatoires :
 #    VPS_HOST       : 31.207.38.248
 #    VPS_USER       : root
-#    VPS_SSH_KEY    : Contenu de votre clé privée (cat ~/.ssh/id_rsa)
-#
-#  Secrets optionnels :
-#    VPS_PORT       : Port SSH (par défaut: 22)
-#    VPS_APP_DIR    : Dossier de l'application (défaut: /var/www/diambrafrontend)
-#    VPS_PM2_NAME   : Nom du process PM2 (défaut: diambrafrontend)
+#    VPS_SSH_KEY    : Clé privée (contenu COMPLET avec début/fin)
+#    VPS_SSH_PORT   : 22 (optionnel)
 #
 #  ============================================================================
-#  Générer une clé SSH sur votre VPS (si pas déjà fait) :
-#    ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -N ""
-#    cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
-#    cat ~/.ssh/id_ed25519  # Copier cette clé privée dans GitHub Secret
+#  Générer et formater la clé SSH sur votre VPS :
+#
+#    ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+#    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+#    cat ~/.ssh/id_rsa
+#
+#  Copier la sortie COMPLÈTE (y compris "-----BEGIN OPENSSH PRIVATE KEY-----")
 #  ============================================================================
 
 name: 🚀 Déployer sur VPS
@@ -26,9 +24,8 @@ name: 🚀 Déployer sur VPS
 on:
   push:
     branches: [main, master]
-  workflow_dispatch:  # Permet un déclenchement manuel depuis GitHub
+  workflow_dispatch:
 
-# Annule les déploiements en cours si un nouveau push arrive
 concurrency:
   group: deploy-vps-${{ github.ref }}
   cancel-in-progress: true
@@ -40,92 +37,63 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: 🔌 Connexion SSH et déploiement
+      - name: 📥 Vérification du code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Installation de PM2 globalement (via SSH)
         uses: appleboy/ssh-action@v1.2.5
-        env:
-          GIT_BRANCH: ${{ github.ref_name }}
-          APP_DIR: ${{ secrets.VPS_APP_DIR || '/var/www/diambrafrontend' }}
-          PM2_NAME: ${{ secrets.VPS_PM2_NAME || 'diambrafrontend' }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || '22' }}
+          port: ${{ secrets.VPS_SSH_PORT || '22' }}
           command_timeout: 10m
-          script_stop: true
-          envs: GIT_BRANCH,APP_DIR,PM2_NAME
           script: |
-            #!/bin/bash
-            set -euo pipefail  # Mode strict : erreur = arrêt
-
-            # Couleurs pour les logs
-            RED='\033[0;31m'
-            GREEN='\033[0;32m'
-            YELLOW='\033[1;33m'
-            NC='\033[0m'
-
-            echo -e "${GREEN}========================================${NC}"
-            echo -e "${GREEN}🚀 Déploiement: ${PM2_NAME}${NC}"
-            echo -e "${GREEN}📂 Dossier: ${APP_DIR}${NC}"
-            echo -e "${GREEN}🌿 Branche: ${GIT_BRANCH}${NC}"
-            echo -e "${GREEN}🕐 $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-            echo -e "${GREEN}========================================${NC}"
-
-            # Vérification du dossier
-            if [ ! -d "$APP_DIR" ]; then
-                echo -e "${RED}❌ Le dossier ${APP_DIR} n'existe pas !${NC}"
-                exit 1
+            # Installation de PM2 si nécessaire
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
             fi
 
+      - name: 🚀 Déploiement de l'application
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || '22' }}
+          command_timeout: 10m
+          script: |
+            set -e
+            APP_DIR="/var/www/diambrafrontend"
+            PM2_NAME="diambrafrontend"
+            
+            echo "========================================="
+            echo "🚀 Déploiement: $PM2_NAME"
+            echo "📂 Dossier: $APP_DIR"
+            echo "🕐 $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "========================================="
+            
             cd "$APP_DIR"
-
-            # Sauvegarde de l'état avant déploiement
-            echo -e "${YELLOW}📦 Sauvegarde du package.json...${NC}"
-            cp package.json package.json.bak 2>/dev/null || true
-
-            # Récupération des dernières modifications
-            echo -e "${YELLOW}📥 Git pull...${NC}"
-            git fetch origin "$GIT_BRANCH"
-            git checkout "$GIT_BRANCH"
-            git pull --ff-only origin "$GIT_BRANCH"
-
-            # Vérification des modifications de dépendances
-            if ! cmp -s package.json package.json.bak 2>/dev/null; then
-                echo -e "${YELLOW}📦 package.json modifié → npm install...${NC}"
-                npm install --production=false
-            else
-                echo -e "${GREEN}✅ Pas de changement de dépendances${NC}"
-            fi
-
-            # Build de l'application
-            echo -e "${YELLOW}🔨 Build Next.js...${NC}"
+            
+            # Git pull
+            git fetch origin
+            git checkout main
+            git pull origin main
+            
+            # Installation des dépendances
+            npm install
+            
+            # Build
             npm run build
-            echo -e "${GREEN}✅ Build terminé${NC}"
-
+            
             # Redémarrage PM2
-            echo -e "${YELLOW}🔄 Redémarrage PM2...${NC}"
             if pm2 list | grep -q "$PM2_NAME"; then
-                pm2 restart "$PM2_NAME" --update-env
-                echo -e "${GREEN}✅ Application redémarrée${NC}"
+              pm2 restart "$PM2_NAME" --update-env
             else
-                echo -e "${YELLOW}⚠️  Process non trouvé, création...${NC}"
-                pm2 start npm --name "$PM2_NAME" -- start
-                echo -e "${GREEN}✅ Application démarrée${NC}"
+              pm2 start npm --name "$PM2_NAME" -- start
             fi
-
-            # Sauvegarde de la configuration PM2
+            
             pm2 save
-
-            # Test de disponibilité
-            echo -e "${YELLOW}🔍 Vérification du site...${NC}"
-            sleep 2
-            if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|304"; then
-                echo -e "${GREEN}✅ Site accessible (port 3000)${NC}"
-            else
-                echo -e "${RED}⚠️  Site non accessible, vérifiez les logs${NC}"
-            fi
-
-            echo -e "${GREEN}========================================${NC}"
-            echo -e "${GREEN}🎉 Déploiement terminé avec succès !${NC}"
-            echo -e "${GREEN}🌐 https://diambra.net${NC}"
-            echo -e "${GREEN}========================================${NC}"
+            
+            echo "✅ Déploiement terminé !"
+            echo "🌐 https://diambra.net"

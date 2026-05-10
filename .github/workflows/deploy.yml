@@ -4,7 +4,6 @@
 #
 #  Configuration des Secrets GitHub (Settings → Secrets and variables → Actions) :
 #
-#    VPS_HOST       : 31.207.38.248
 #    VPS_USER       : root
 #    VPS_SSH_KEY    : Clé privée (contenu COMPLET avec début/fin)
 #    VPS_SSH_PORT   : 22 (optionnel)

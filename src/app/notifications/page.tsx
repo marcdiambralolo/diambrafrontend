@@ -8,7 +8,7 @@ export default function NotificationsPage() {
         Retrouvez ici les alertes du jeu, du compte et des autres services Diambra.
       </p>
       <div className="mt-8 rounded-2xl border border-dashed border-border-subtle bg-surface-muted/40 px-6 py-12 text-center text-sm text-foreground/50 dark:bg-surface-muted/25">
-        Aucune notification pour le moment.
+        Aucune notification pour le moment
       </div>
     </main>
   );

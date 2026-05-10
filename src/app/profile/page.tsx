@@ -5,6 +5,7 @@ export default function ProfilePage() {
       <p className="mt-3 max-w-lg text-sm leading-relaxed text-foreground/65">
         Paramètres du compte, avatar et préférences seront disponibles ici après connexion.
       </p>
+      
       <div className="mt-8 rounded-2xl border border-border-subtle bg-surface/80 px-6 py-8 dark:bg-surface/60">
         <p className="text-sm text-foreground/55">
           Connectez-vous ou créez un compte pour personnaliser votre profil.

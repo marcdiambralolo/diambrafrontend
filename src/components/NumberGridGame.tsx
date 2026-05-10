@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, RefreshCw, Zap, Target, Trophy, Sparkles } from "lucide-react";
+import { Trash2, RefreshCw, Zap, Target, Trophy, Sparkles, MousePointerClick, Move } from "lucide-react";
 
 const SLOT_COUNT = 4;
 const DIGITS = [0,1,2,3,4,5,6,7,8,9] as const;
@@ -18,6 +18,7 @@ export function NumberGridGame() {
   const [isDragging, setIsDragging] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [completionCount, setCompletionCount] = useState(0);
+  const [mode, setMode] = useState<'drag' | 'click'>('click');
 
   const dragStartRef = useRef<{ value:number; index?:number } | null>(null);
 
@@ -35,12 +36,39 @@ export function NumberGridGame() {
     if (isComplete) {
       const uniqueValues = new Set(slots);
       if (uniqueValues.size === SLOT_COUNT) {
-       // setShowSuccess(true);
-        //setCompletionCount(prev => prev + 1);
+      //  setShowSuccess(true);
+       // setCompletionCount(prev => prev + 1);
         setTimeout(() => setShowSuccess(false), 2000);
       }
     }
   }, [isComplete, slots]);
+
+  /* =============================
+      PLACEMENT PAR CLIC
+  ==============================*/
+  const placeSelectedDigitInSlot = useCallback((slotIndex: number) => {
+    if (selected === null) return;
+    if (used.has(selected)) {
+      // Le chiffre est déjà utilisé, ne rien faire
+      return;
+    }
+
+    setSlots(prev => {
+      const next = [...prev];
+      const currentSlotValue = next[slotIndex];
+
+      // Si la case est déjà remplie, ne rien faire (ou on pourrait échanger, mais on laisse simple)
+      if (currentSlotValue !== null) {
+        return prev;
+      }
+
+      next[slotIndex] = selected;
+      return next;
+    });
+
+    // Désélectionner après placement
+    setSelected(null);
+  }, [selected, used]);
 
   /* =============================
       DRAG START
@@ -143,9 +171,11 @@ export function NumberGridGame() {
   const removeFromSlot = (index: number) => {
     setSlots(prev => {
       const next = [...prev];
+      const removedValue = next[index];
       next[index] = null;
       return next;
     });
+    setSelected(null);
   };
 
   const reset = useCallback(() => {
@@ -196,8 +226,34 @@ export function NumberGridGame() {
           Quatre Cases
         </h1>
         <p className="text-gray-600 text-sm">
-          Glissez-déposez les chiffres dans les cases vides
+          Choisissez un chiffre, puis cliquez sur une case vide pour le placer — ou glissez-déposez !
         </p>
+      </div>
+
+      {/* MODE SELECTOR */}
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setMode('click')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+            mode === 'click'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          <MousePointerClick className="w-4 h-4" />
+          Mode Clic
+        </button>
+        <button
+          onClick={() => setMode('drag')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+            mode === 'drag'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          <Move className="w-4 h-4" />
+          Mode Glisser
+        </button>
       </div>
 
       {/* SLOTS */}
@@ -205,15 +261,24 @@ export function NumberGridGame() {
         {slots.map((value, i) => (
           <div key={i} className="relative">
             <div
-              onDragOver={(e) => handleDragOver(e, i)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, i)}
+              onDragOver={(e) => mode === 'drag' && handleDragOver(e, i)}
+              onDragLeave={mode === 'drag' ? handleDragLeave : undefined}
+              onDrop={(e) => mode === 'drag' && handleDrop(e, i)}
+              onClick={() => {
+                if (mode === 'click' && value === null && selected !== null) {
+                  placeSelectedDigitInSlot(i);
+                } else if (mode === 'click' && value !== null) {
+                  removeFromSlot(i);
+                }
+              }}
               className={`
                 h-28 w-24 flex items-center justify-center rounded-2xl border-2 transition-all duration-300 cursor-pointer
                 ${value !== null
                   ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg"
-                  : dragOverSlot === i
+                  : dragOverSlot === i && mode === 'drag'
                   ? "border-purple-500 bg-purple-100 shadow-md"
+                  : selected !== null && mode === 'click' && value === null
+                  ? "border-purple-400 bg-purple-100 shadow-md ring-2 ring-purple-300"
                   : "border-dashed border-purple-300 bg-purple-50 hover:bg-purple-100"
                 }
               `}
@@ -221,59 +286,97 @@ export function NumberGridGame() {
               {value !== null ? (
                 <>
                   <span
-                    draggable
-                    onDragStart={(e: React.DragEvent<HTMLSpanElement>) => handleDragStart(e, value, i)}
+                    draggable={mode === 'drag'}
+                    onDragStart={(e: React.DragEvent<HTMLSpanElement>) => mode === 'drag' && handleDragStart(e, value, i)}
                     className="text-5xl font-black cursor-grab active:cursor-grabbing select-none"
                   >
                     {value}
                   </span>
                   <button
-                    onClick={() => removeFromSlot(i)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromSlot(i);
+                    }}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg transition-all hover:scale-110 hover:bg-red-600"
                   >
                     <Trash2 size={14} />
                   </button>
                 </>
               ) : (
-                <Target className="text-purple-300 w-8 h-8" />
+                <div className="text-center">
+                  <Target className="text-purple-300 w-8 h-8 mx-auto" />
+                  {mode === 'click' && selected !== null && (
+                    <span className="text-xs text-purple-500 mt-1 block animate-pulse">
+                      Cliquez pour placer
+                    </span>
+                  )}
+                </div>
               )}
             </div>
+            {mode === 'click' && selected !== null && value === null && (
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-purple-500 whitespace-nowrap">
+                ↓ Déposer ici ↓
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* DIGITS */}
-      <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
-        {DIGITS.map(d => {
-          const isUsed = used.has(d);
-          const isSelected = selected === d;
-          
-          return (
-            <button
-              key={d}
-              draggable={!isUsed}
-              disabled={isUsed}
-              onDragStart={(e: React.DragEvent<HTMLButtonElement>) => !isUsed && handleDragStart(e, d)}
-              onDragEnd={() => setIsDragging(false)}
-              onClick={() => !isUsed && setSelected(isSelected ? null : d)}
-              className={`
-                relative h-14 rounded-xl font-bold transition-all duration-300
-                ${isUsed
-                  ? "bg-gray-100 text-gray-400 line-through cursor-not-allowed opacity-60"
-                  : isSelected
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg ring-2 ring-purple-400 ring-offset-2"
-                  : "border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-700 hover:border-purple-400 hover:shadow-md hover:scale-105"
-                }
-              `}
-            >
-              <span className="text-xl">{d}</span>
-              {!isUsed && !isSelected && (
-                <Zap className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500" />
-              )}
-            </button>
-          );
-        })}
+      <div className="space-y-3">
+        <p className="text-center text-xs font-semibold uppercase tracking-wider text-purple-600">
+          {mode === 'click' ? "🖱️ Choisissez un chiffre" : "🎯 Glissez un chiffre vers une case"}
+        </p>
+        <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
+          {DIGITS.map(d => {
+            const isUsed = used.has(d);
+            const isSelected = selected === d;
+            
+            return (
+              <button
+                key={d}
+                draggable={mode === 'drag' && !isUsed}
+                disabled={isUsed}
+                onDragStart={(e: React.DragEvent<HTMLButtonElement>) => mode === 'drag' && !isUsed && handleDragStart(e, d)}
+                onDragEnd={() => setIsDragging(false)}
+                onClick={() => {
+                  if (mode === 'click' && !isUsed) {
+                    setSelected(isSelected ? null : d);
+                  }
+                }}
+                className={`
+                  relative h-14 rounded-xl font-bold transition-all duration-300
+                  ${isUsed
+                    ? "bg-gray-100 text-gray-400 line-through cursor-not-allowed opacity-60"
+                    : isSelected && mode === 'click'
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg ring-2 ring-purple-400 ring-offset-2 scale-105"
+                    : "border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-700 hover:border-purple-400 hover:shadow-md hover:scale-105"
+                  }
+                `}
+              >
+                <span className="text-xl">{d}</span>
+                {!isUsed && mode === 'click' && !isSelected && (
+                  <MousePointerClick className="absolute -top-2 -right-2 w-4 h-4 text-purple-500" />
+                )}
+                {!isUsed && mode === 'drag' && (
+                  <Move className="absolute -top-2 -right-2 w-4 h-4 text-purple-500" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* INDICATEUR DE SÉLECTION EN MODE CLIC */}
+      {mode === 'click' && selected !== null && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-sm font-semibold text-purple-600 bg-purple-50 p-2 rounded-lg"
+        >
+          ✨ Chiffre {selected} sélectionné — cliquez sur une case vide pour le placer ✨
+        </motion.div>
+      )}
 
       <div className="text-center">
         <button
@@ -286,7 +389,9 @@ export function NumberGridGame() {
       </div>
 
       <div className="text-center text-xs text-purple-600 bg-purple-50 p-3 rounded-lg">
-        💡 Astuce : Glissez les chiffres vers les cases vides. Cliquez sur une case remplie pour la vider.
+        💡 Astuce : {mode === 'click' 
+          ? "Cliquez sur un chiffre pour le sélectionner, puis cliquez sur une case vide pour le placer." 
+          : "Glissez les chiffres vers les cases vides. Cliquez sur une case remplie pour la vider."}
       </div>
 
       <AnimatePresence>

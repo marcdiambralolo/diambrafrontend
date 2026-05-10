@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           Une expérience{" "}
           <span className="font-medium text-foreground/65">Diambra</span>
         </p>
-        <BackendStatus />
+        {/* <BackendStatus /> */}
       </footer>
     </div>
   );

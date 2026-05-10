@@ -1,130 +1,306 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, RefreshCw, Zap, Target, Trophy, Sparkles } from "lucide-react";
 
 const SLOT_COUNT = 4;
-const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+const DIGITS = [0,1,2,3,4,5,6,7,8,9] as const;
 
 export function NumberGridGame() {
+
   const [slots, setSlots] = useState<(number | null)[]>(
-    () => Array.from({ length: SLOT_COUNT }, () => null),
+    () => Array.from({ length: SLOT_COUNT }, () => null)
   );
+
   const [selected, setSelected] = useState<number | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [completionCount, setCompletionCount] = useState(0);
+
+  const dragStartRef = useRef<{ value:number; index?:number } | null>(null);
 
   const used = useMemo(
     () => new Set(slots.filter((v): v is number => v !== null)),
-    [slots],
+    [slots]
   );
 
-  const placeInSlot = useCallback(
-    (index: number) => {
-      setSlots((prev) => {
-        const next = [...prev];
-        const current = next[index];
+  const isComplete = useMemo(
+    () => slots.every(s => s !== null),
+    [slots]
+  );
 
-        if (current !== null) {
-          next[index] = null;
+  useEffect(() => {
+    if (isComplete) {
+      const uniqueValues = new Set(slots);
+      if (uniqueValues.size === SLOT_COUNT) {
+       // setShowSuccess(true);
+        //setCompletionCount(prev => prev + 1);
+        setTimeout(() => setShowSuccess(false), 2000);
+      }
+    }
+  }, [isComplete, slots]);
+
+  /* =============================
+      DRAG START
+  ==============================*/
+  const handleDragStart = (
+    e: React.DragEvent<HTMLSpanElement> | React.DragEvent<HTMLButtonElement>,
+    value: number,
+    fromSlot?: number
+  ) => {
+    e.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify({ value, fromSlot })
+    );
+    e.dataTransfer.effectAllowed = "move";
+
+    dragStartRef.current = { value, index: fromSlot };
+    setIsDragging(true);
+
+    const dragIcon = document.createElement("div");
+    dragIcon.textContent = value.toString();
+    dragIcon.className =
+      "fixed top-0 left-0 bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold";
+
+    document.body.appendChild(dragIcon);
+    e.dataTransfer.setDragImage(dragIcon, 20, 20);
+
+    setTimeout(() => document.body.removeChild(dragIcon), 0);
+  };
+
+  /* =============================
+      DROP
+  ==============================*/
+  const handleDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    index: number
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setDragOverSlot(null);
+    setIsDragging(false);
+
+    try {
+      const rawData = e.dataTransfer.getData("text/plain");
+      if (!rawData) return;
+      
+      const { value, fromSlot } = JSON.parse(rawData);
+
+      setSlots(prev => {
+        const next = [...prev];
+        const currentSlotValue = next[index];
+
+        // swap entre cases
+        if (fromSlot !== undefined) {
+          const movingValue = next[fromSlot];
+          const targetValue = next[index];
+
+          // Vérifier si on peut échanger
+          if (movingValue !== null && targetValue !== null) {
+            // Échange entre deux cases remplies
+            next[fromSlot] = targetValue;
+            next[index] = movingValue;
+          } else if (movingValue !== null && targetValue === null) {
+            // Déplacement d'une case remplie vers une case vide
+            next[fromSlot] = null;
+            next[index] = movingValue;
+          }
           return next;
         }
 
-        if (selected === null) return prev;
-        if (used.has(selected)) return prev;
+        // depuis la grille - placer un nouveau chiffre
+        if (value !== undefined && !used.has(value) && currentSlotValue === null) {
+          next[index] = value;
+          setSelected(null);
+        }
 
-        next[index] = selected;
         return next;
       });
-      setSelected(null);
-    },
-    [selected, used],
-  );
+
+    } catch(err) {
+      console.error("Drop error:", err);
+    }
+
+    dragStartRef.current = null;
+  };
+
+  const handleDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    index: number
+  ) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverSlot(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverSlot(null);
+  };
+
+  const removeFromSlot = (index: number) => {
+    setSlots(prev => {
+      const next = [...prev];
+      next[index] = null;
+      return next;
+    });
+  };
 
   const reset = useCallback(() => {
     setSlots(Array.from({ length: SLOT_COUNT }, () => null));
     setSelected(null);
+    setCompletionCount(0);
+    setShowSuccess(false);
   }, []);
 
+  /* =============================
+      UI
+  ==============================*/
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-8 px-4 sm:gap-10 sm:px-6">
-      <div className="rounded-3xl border border-border-subtle bg-surface/90 p-6 shadow-[0_1px_0_rgb(0_0_0_/0.04),0_16px_48px_-12px_rgb(79_70_229_/0.12)] backdrop-blur-sm dark:bg-surface/80 dark:shadow-[0_1px_0_rgb(255_255_255_/0.06),0_20px_56px_-16px_rgb(99_102_241_/0.25)] sm:p-8">
-        <header className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.65rem]">
-            Quatre cases
-          </h1>
-          <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-foreground/65">
-            Choisissez un chiffre (0–9), puis une case vide pour le placer. Un
-            même chiffre ne peut pas être utilisé deux fois. Cliquez une case
-            remplie pour la vider.
-          </p>
-        </header>
-
-        <section
-          aria-label="Cases"
-          className="mt-8 flex justify-center gap-3 sm:mt-10 sm:gap-4"
-        >
-          {slots.map((value, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => placeInSlot(i)}
-              className={[
-                "flex h-20 w-16 shrink-0 items-center justify-center rounded-2xl border-2 text-3xl font-semibold tabular-nums transition-[color,background-color,border-color,box-shadow,transform] duration-150 sm:h-24 sm:w-20",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                value === null
-                  ? "border-dashed border-foreground/20 bg-surface-muted/90 text-foreground/35 hover:border-brand-500/35 hover:bg-brand-500/[0.06] hover:text-foreground/50 active:scale-[0.98] dark:bg-surface-muted/40"
-                  : "border-brand-500/25 bg-gradient-to-br from-brand-500/15 to-accent-500/10 text-foreground shadow-md shadow-brand-600/10 dark:shadow-brand-500/20",
-              ].join(" ")}
-              aria-label={
-                value === null
-                  ? `Case ${i + 1}, vide`
-                  : `Case ${i + 1}, contient ${value}. Cliquer pour vider.`
-              }
-            >
-              {value ?? "·"}
-            </button>
-          ))}
-        </section>
-
-        <section aria-label="Chiffres" className="mt-8 space-y-3 sm:mt-10">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.14em] text-brand-600/90 dark:text-brand-400/95">
-            Chiffre à placer
-          </p>
-          <div className="grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-2">
-            {DIGITS.map((d) => {
-              const isUsed = used.has(d);
-              const isSelected = selected === d;
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  disabled={isUsed}
-                  onClick={() => setSelected(isSelected ? null : d)}
-                  className={[
-                    "flex h-11 items-center justify-center rounded-xl text-base font-semibold tabular-nums transition-[color,background-color,border-color,box-shadow,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-35",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    isSelected
-                      ? "bg-gradient-to-br from-brand-600 to-accent-600 text-white shadow-md shadow-brand-600/25 ring-2 ring-brand-400/40 ring-offset-2 ring-offset-background dark:from-brand-500 dark:to-accent-500"
-                      : "border border-border-subtle bg-surface-muted/70 hover:border-brand-500/25 hover:bg-brand-500/[0.08] active:scale-[0.96] dark:bg-surface-muted/50",
-                  ].join(" ")}
-                  aria-pressed={isSelected}
-                  aria-label={`Chiffre ${d}${isUsed ? ", déjà utilisé" : ""}`}
-                >
-                  {d}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <div className="mt-8 flex justify-center sm:mt-10">
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-full border border-border-subtle bg-background/60 px-6 py-2.5 text-sm font-medium text-foreground/80 backdrop-blur-sm transition-[background-color,border-color,color] hover:border-accent-500/30 hover:bg-accent-500/10 hover:text-foreground dark:bg-background/40"
+    <div
+      className="mx-auto max-w-4xl p-8 space-y-8"
+      onDragOver={(e) => e.preventDefault()}
+    >
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
           >
-            Tout effacer
-          </button>
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-2xl shadow-2xl">
+              <p className="text-2xl font-bold">🎉 Félicitations ! 🎉</p>
+              <p className="text-sm">Combinaison parfaite !</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* HEADER */}
+      <div className="text-center space-y-3">
+        <div className="flex justify-center gap-3">
+          <div className="flex items-center gap-1 bg-gradient-to-r from-purple-100 to-indigo-100 px-3 py-1 rounded-full">
+            <Trophy className="w-4 h-4 text-yellow-500" />
+            <span className="text-sm font-semibold text-purple-700">{completionCount} succès</span>
+          </div>
+          <div className="flex items-center gap-1 bg-gradient-to-r from-emerald-100 to-teal-100 px-3 py-1 rounded-full">
+            <Sparkles className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-semibold text-emerald-700">{used.size}/4 placés</span>
+          </div>
         </div>
+
+        <h1 className="text-4xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          Quatre Cases
+        </h1>
+        <p className="text-gray-600 text-sm">
+          Glissez-déposez les chiffres dans les cases vides
+        </p>
       </div>
+
+      {/* SLOTS */}
+      <div className="flex justify-center gap-5">
+        {slots.map((value, i) => (
+          <div key={i} className="relative">
+            <div
+              onDragOver={(e) => handleDragOver(e, i)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, i)}
+              className={`
+                h-28 w-24 flex items-center justify-center rounded-2xl border-2 transition-all duration-300 cursor-pointer
+                ${value !== null
+                  ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg"
+                  : dragOverSlot === i
+                  ? "border-purple-500 bg-purple-100 shadow-md"
+                  : "border-dashed border-purple-300 bg-purple-50 hover:bg-purple-100"
+                }
+              `}
+            >
+              {value !== null ? (
+                <>
+                  <span
+                    draggable
+                    onDragStart={(e: React.DragEvent<HTMLSpanElement>) => handleDragStart(e, value, i)}
+                    className="text-5xl font-black cursor-grab active:cursor-grabbing select-none"
+                  >
+                    {value}
+                  </span>
+                  <button
+                    onClick={() => removeFromSlot(i)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg transition-all hover:scale-110 hover:bg-red-600"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </>
+              ) : (
+                <Target className="text-purple-300 w-8 h-8" />
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DIGITS */}
+      <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
+        {DIGITS.map(d => {
+          const isUsed = used.has(d);
+          const isSelected = selected === d;
+          
+          return (
+            <button
+              key={d}
+              draggable={!isUsed}
+              disabled={isUsed}
+              onDragStart={(e: React.DragEvent<HTMLButtonElement>) => !isUsed && handleDragStart(e, d)}
+              onDragEnd={() => setIsDragging(false)}
+              onClick={() => !isUsed && setSelected(isSelected ? null : d)}
+              className={`
+                relative h-14 rounded-xl font-bold transition-all duration-300
+                ${isUsed
+                  ? "bg-gray-100 text-gray-400 line-through cursor-not-allowed opacity-60"
+                  : isSelected
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg ring-2 ring-purple-400 ring-offset-2"
+                  : "border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-700 hover:border-purple-400 hover:shadow-md hover:scale-105"
+                }
+              `}
+            >
+              <span className="text-xl">{d}</span>
+              {!isUsed && !isSelected && (
+                <Zap className="absolute -top-1 -right-1 w-3 h-3 text-yellow-500" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="text-center">
+        <button
+          onClick={reset}
+          className="bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-2.5 rounded-full flex items-center gap-2 mx-auto font-semibold text-gray-700 shadow-md transition-all hover:shadow-lg hover:scale-105"
+        >
+          <RefreshCw size={16} />
+          Nouvelle partie
+        </button>
+      </div>
+
+      <div className="text-center text-xs text-purple-600 bg-purple-50 p-3 rounded-lg">
+        💡 Astuce : Glissez les chiffres vers les cases vides. Cliquez sur une case remplie pour la vider.
+      </div>
+
+      <AnimatePresence>
+        {isDragging && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-full shadow-lg"
+          >
+            Déposez sur une case vide
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

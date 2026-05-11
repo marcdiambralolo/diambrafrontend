@@ -146,7 +146,7 @@ export function MobileNav() {
                     </motion.div>
                     <div>
                       <h2 className="font-bold text-gray-900 flex items-center gap-1.5">
-                        Mon Étoile
+                        Diambra
                         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       </h2>
                       <p className="text-xs text-gray-600 font-medium">Administration</p>

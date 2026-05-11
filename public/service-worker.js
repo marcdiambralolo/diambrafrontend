@@ -1,9 +1,9 @@
-// Service Worker avancé pour Mon Étoile
+// Service Worker avancé pour Diambra
 // - Cache-First pour assets statiques/images, Network-Only pour pages/API/auth
 // - Fallback offline, gestion fine de l'expiration, éviction LRU, sécurité headers
 // - Incrémentez CACHE_VERSION pour forcer la mise à jour
 
-const CACHE_VERSION = 'v224';
+const CACHE_VERSION = 'v2';
 const CACHE_STATIC = `monetoile-${CACHE_VERSION}-static`;
 const CACHE_IMAGES = `monetoile-${CACHE_VERSION}-images`;
 

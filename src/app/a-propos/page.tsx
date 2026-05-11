@@ -2,14 +2,14 @@ import AboutPage from "@/components/about/AboutPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "À propos — Mon Étoile",
+    title: "À propos — Diambra",
     description:
-        "Mon Étoile est une plateforme initiatique dédiée à la connaissance de soi, la guidance spirituelle et l’élévation de la conscience : astrologie, numérologie, rituels, librairie, enseignements et système de grades.",
+        "Diambra est un jeu.",
     alternates: { canonical: "/a-propos" },
     openGraph: {
-        title: "À propos — Mon Étoile",
+        title: "À propos — Diambra",
         description:
-            "Plateforme initiatique de connaissance de soi : 6 piliers, système de grades, offrande sacrée avant consultation.",
+            "Diambra est un jeu de rôle en ligne.",
         url: "/a-propos",
         type: "website",
         images: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
                 url: "/logo.png",
                 width: 512,
                 height: 512,
-                alt: "Logo Mon Étoile",
+                alt: "Logo Diambra",
             },
         ],
     },

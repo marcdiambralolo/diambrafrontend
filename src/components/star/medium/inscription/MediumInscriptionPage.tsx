@@ -238,7 +238,7 @@ export default function MediumInscriptionPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-gray-600 max-w-2xl mx-auto"
           >
-            Rejoignez la plateforme Mon Étoile et offrez vos services à des milliers de personnes en quête de guidance.
+            Rejoignez la plateforme Diambra et offrez vos services à des milliers de personnes en quête de guidance.
           </motion.p>
         </div>
       </div>
@@ -289,7 +289,7 @@ export default function MediumInscriptionPage() {
                   className="mt-0.5 w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="text-sm text-gray-700">
-                  Je reconnais avoir lu et accepté le règlement et les conditions générales de <span className="font-bold">MON ÉTOILE</span>.
+                  Je reconnais avoir lu et accepté le règlement et les conditions générales de <span className="font-bold">Diambra</span>.
                 </span>
               </label>
 

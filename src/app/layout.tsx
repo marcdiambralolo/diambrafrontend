@@ -7,7 +7,6 @@ import { memo } from "react";
 import "./globals.css";
 import { Providers, RootPortals, RootSkipLink } from "./providers";
  
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

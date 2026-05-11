@@ -26,7 +26,7 @@ export const mediumTermsSections: MediumTermsSection[] = [
         items: [
             'Vous êtes seul responsable des consultations, conseils et services que vous proposez.',
             'Les propos, recommandations ou orientations que vous donnez aux consultants n’engagent que vous.',
-            'La plateforme MON ÉTOILE agit uniquement comme interface de mise en relation entre vous et les personnes qui souhaitent vous consulter.',
+            'La plateforme Diambra agit uniquement comme interface de mise en relation entre vous et les personnes qui souhaitent vous consulter.',
         ],
     },
     {
@@ -60,7 +60,7 @@ export const mediumTermsSections: MediumTermsSection[] = [
     },
     {
         title: '5. Engagement moral',
-        intro: 'En rejoignant la plateforme MON ÉTOILE, vous reconnaissez exercer une activité qui touche à la dimension intime et spirituelle de la vie des personnes.',
+        intro: 'En rejoignant la plateforme Diambra, vous reconnaissez exercer une activité qui touche à la dimension intime et spirituelle de la vie des personnes.',
         footer: 'Cette responsabilité exige une conduite empreinte de sagesse, de discernement et d’intégrité. La plateforme encourage ainsi une pratique de la voyance et de l’accompagnement spirituel éthique, responsable et respectueuse de la dignité humaine.',
     },
 ];

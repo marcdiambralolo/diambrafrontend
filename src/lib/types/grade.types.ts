@@ -122,7 +122,7 @@ export const GRADE_NAMES: Record<Grade, string> = {
  */
 export const GRADE_MESSAGES: Record<Grade, { welcome: string; congratulations: string }> = {
   [Grade.NEOPHYTE]: {
-    welcome: `Bienvenue sur Mon Étoile ! Vous débutez votre parcours spirituel en tant que Néophyte.
+    welcome: `Bienvenue sur Diambra ! Vous débutez votre parcours spirituel en tant que Néophyte.
 
 Ce grade marque l'entrée dans l'univers de la connaissance de soi et des sciences ancestrales. Prenez le temps de découvrir les outils, d'explorer les ressources et de vous familiariser avec votre espace personnel.
 

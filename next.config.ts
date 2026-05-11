@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Optimisations pour Tailwind CSS 4
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
+  // Transpilation des packages pour une meilleure compatibilité
+  transpilePackages: ["@tailwindcss/postcss"],
 };
 
 export default nextConfig;
+
+ 

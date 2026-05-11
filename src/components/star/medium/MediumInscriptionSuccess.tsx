@@ -23,7 +23,7 @@ export default function MediumInscriptionSuccess({ showButton = true }: { showBu
     <main className="max-w-2xl w-full mt-16 mx-auto flex flex-col items-center justify-center min-h-[80vh]">
       <div className="w-full bg-gradient-to-r from-[#2E5AA6] to-[#4F83D1] rounded-2xl shadow-lg p-8 flex flex-col items-center">
         <h1 className="text-3xl font-black text-white mb-2 text-center">🎉 Félicitations !</h1>
-        <p className="text-lg text-white mb-6 text-center font-semibold">Votre inscription a bien été prise en compte.<br />Bienvenue dans la communauté Mon Étoile !</p>
+        <p className="text-lg text-white mb-6 text-center font-semibold">Votre inscription a bien été prise en compte.<br />Bienvenue dans la communauté Diambra !</p>
 
         <div className="w-full bg-white/90 rounded-xl p-6 mb-6">
           <h2 className="text-xl font-bold text-cosmic-indigo mb-4 text-center">Vos informations</h2>

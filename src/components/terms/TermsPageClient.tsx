@@ -123,7 +123,7 @@ const ContactCard = memo(() => (
                         Adresse
                     </div>
                     <div className="text-sm font-medium text-gray-700">
-                        Mon Étoile, Abidjan, Côte d'Ivoire
+                        Diambra, Abidjan, Côte d'Ivoire
                     </div>
                 </div>
             </div>
@@ -230,7 +230,7 @@ export default function TermsPageClient() {
                             </div>
                             <div>
                                 <p className="text-sm font-semibold text-gray-800 mb-1">
-                                    En utilisant <span className="text-indigo-600">Mon Étoile</span>, vous acceptez ces conditions.
+                                    En utilisant <span className="text-indigo-600">Diambra</span>, vous acceptez ces conditions.
                                 </p>
                                 <p className="text-xs text-gray-600">
                                     Si vous n'êtes pas d'accord, veuillez ne pas utiliser notre plateforme.
@@ -297,7 +297,7 @@ export default function TermsPageClient() {
                     transition={{ delay: 0.5 }}
                     className="text-center text-[10px] text-gray-400 mt-8"
                 >
-                    © 2026 Mon Étoile - Tous droits réservés
+                    © 2026 Diambra - Tous droits réservés
                 </motion.p>
             </div>
         </div>

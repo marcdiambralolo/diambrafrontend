@@ -3,4 +3,4 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 Allow: /
-Sitemap: https://www.monetoile.org/sitemap.xml
+Sitemap: https://www.diambra.net/sitemap.xml

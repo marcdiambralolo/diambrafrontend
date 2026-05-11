@@ -35,7 +35,7 @@ export const SuccessState = () => (
     </motion.div>
 
     <motion.h2 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 sm:mb-3">Déconnexion réussie !</motion.h2>
-    <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="text-slate-600 text-sm sm:text-base">À bientôt sur Mon Étoile ✨</motion.p>
+    <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="text-slate-600 text-sm sm:text-base">À bientôt sur Diambra ✨</motion.p>
 
     <div className="mt-5 sm:mt-6 flex items-center justify-center gap-1.5 sm:gap-2">
       {Array.from({ length: CELEBRATION_STARS }, (_, i) => (

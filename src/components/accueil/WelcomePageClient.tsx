@@ -50,7 +50,7 @@ function WelcomePageClientContent() {
           ? 'bg-gradient-to-b from-[#0F1C3F] via-[#162A56] to-[#2E5AA6] text-white'
           : 'bg-white text-[#162A56]')
       }
-      aria-label="Page d'accueil Mon Étoile"
+      aria-label="Page d'accueil Diambra"
     >
       <button
         onClick={toggleTheme}
@@ -77,12 +77,12 @@ function WelcomePageClientContent() {
             >
               <Image
                 src="/logo.png"
-                alt="Mon Étoile"
+                alt="Diambra"
                 width={72}
                 height={72}
                 className="object-contain"
                 priority
-                aria-label="Mon Étoile"
+                aria-label="Diambra"
               />
             </motion.div>
           </div>
@@ -97,7 +97,7 @@ function WelcomePageClientContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.4, type: 'spring', stiffness: 60 }}
           >
-            MON ÉTOILE
+            Diambra
           </motion.h1>
         </motion.div>
 
@@ -146,7 +146,7 @@ function WelcomePageClientContent() {
             'relative overflow-hidden rounded-2xl border p-6 shadow-xl backdrop-blur-xl ' +
             (isDark ? 'border-blue-700 bg-[#0F1C3F]/80' : 'border-blue-300 bg-blue-100')
           }
-          aria-label="Présentation Mon Étoile"
+          aria-label="Présentation Diambra"
         >
           <div className="absolute top-2 right-2 animate-float opacity-60 pointer-events-none">
             <Sparkles className={isDark ? 'h-7 w-7 text-blue-300' : 'h-7 w-7 text-blue-400'} />

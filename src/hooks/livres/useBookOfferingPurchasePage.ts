@@ -47,7 +47,7 @@ export function useBookOfferingPurchasePage(bookId: string) {
         try {
             const shareData = {
                 title: `Découvre ce livre : ${title}`,
-                text: `Je te recommande le livre “${title}” sur Mon Étoile !`,
+                text: `Je te recommande le livre “${title}” sur Diambra !`,
                 url: shareUrl,
             };
 

@@ -1,226 +1,192 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@custom-variant dark (&:where(.dark, .dark *));
 
-
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-border-subtle: var(--border-subtle);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-
-  --color-accent-400: #22d3ee;
-  --color-accent-500: #06b6d4;
-  --color-accent-600: #0891b2;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-}
-
-
-/* Placeholders noirs pour tous les champs en mode clair */
-input::placeholder,
-textarea::placeholder,
-select::placeholder {
-  color: #000 !important;
-  opacity: 1;
-}
-
- :root {
+/* ============================================================
+   VARIABLES CSS NATIVES
+   ============================================================ */
+:root {
+  /* Couleurs de base */
   --background: #f8fafc;
   --foreground: #0f172a;
   --surface: #ffffff;
   --surface-muted: #f1f5f9;
   --border-subtle: rgb(15 23 42 / 0.08);
+
+  /* ----------------------------------------------------------
+     COULEUR PRIMAIRE — Indigo Nuit
+  ---------------------------------------------------------- */
+  --primary: #1E154A;
+  --primary-light: #2E2366;
+  --primary-dark: #130D32;
+
+  /* ----------------------------------------------------------
+     COULEUR SECONDAIRE — Améthyste
+  ---------------------------------------------------------- */
+  --secondary: #5C3D8F;
+  --secondary-light: #7350A8;
+  --secondary-dark: #452E6E;
+
+  /* ----------------------------------------------------------
+     ACCENT 1 — Or Stellaire
+  ---------------------------------------------------------- */
+  --accent-gold: #C2913B;
+  --accent-gold-light: #D4A85A;
+  --accent-gold-dark: #9E7428;
+
+  /* ----------------------------------------------------------
+     ACCENT 2 — Azur Céleste
+  ---------------------------------------------------------- */
+  --accent-violet: #7098C4;
+  --accent-violet-light: #92B4D8;
+  --accent-violet-dark: #4E7AAE;
+
+  /* ----------------------------------------------------------
+     PASTELS SOPHISTIQUÉS
+  ---------------------------------------------------------- */
+  --pastel-rose: #C9A0AC;
+  --pastel-emerald: #6B9E94;
+  --pastel-sky: #8AAEC6;
+
+  /* ----------------------------------------------------------
+     FONDS — MODE CLAIR
+  ---------------------------------------------------------- */
+  --bg-light: #F4F1EC;
+  --bg-light-alt: #EAE5DB;
+  --gradient-light: #E2DDD4;
+
+  /* ----------------------------------------------------------
+     FONDS — MODE SOMBRE
+  ---------------------------------------------------------- */
+  --bg-dark: #0C0B1D;
+  --bg-dark-alt: #141228;
+  --gradient-dark: #1C1938;
+
+  /* ----------------------------------------------------------
+     TEXTES — MODE CLAIR
+  ---------------------------------------------------------- */
+  --text-light: #1C1830;
+  --text-muted-light: #5C587A;
+
+  /* ----------------------------------------------------------
+     TEXTES — MODE SOMBRE
+  ---------------------------------------------------------- */
+  --text-dark: #EDE7D9;
+  --text-muted-dark: #9E97B8;
+
+  /* ----------------------------------------------------------
+     COULEURS THÈME (alias fonctionnels)
+  ---------------------------------------------------------- */
+  --theme-border: rgba(194, 145, 59, 0.18);
+  --theme-surface: rgba(30, 21, 74, 0.06);
 }
 
+/* ============================================================
+   MODE SOMBRE
+   ============================================================ */
 .dark {
   --background: #030712;
   --foreground: #f1f5f9;
   --surface: #0f172a;
   --surface-muted: #1e293b;
   --border-subtle: rgb(248 250 252 / 0.08);
-}
-
-:root {
-  /* ----------------------------------------------------------
-     COULEUR PRIMAIRE — Indigo Nuit
-     Identitaire dominant. Évoque la voûte céleste profonde,
-     la contemplation et la connaissance ésotérique.
-     HEX #1E154A | RGB (30, 21, 74)
-     Contraste sur fond clair : 14.8:1 ✓ WCAG AAA
-  ---------------------------------------------------------- */
-  --primary: #1E154A;
-  --primary-light: #2E2366;   /* variante éclairée (+12% luminosité) */
-  --primary-dark:  #130D32;   /* variante profonde */
-
-  /* ----------------------------------------------------------
-     COULEUR SECONDAIRE — Améthyste
-     Complémentaire à l'indigo. Pierre spirituelle par excellence,
-     symbolise la sagesse, la intuition et la transformation.
-     HEX #5C3D8F | RGB (92, 61, 143)
-     Contraste blanc sur fond : 5.9:1 ✓ WCAG AA
-  ---------------------------------------------------------- */
-  --secondary: #5C3D8F;
-  --secondary-light: #7350A8;  /* survol, focus states */
-  --secondary-dark:  #452E6E;  /* ombres, bordures profondes */
-
-  /* ----------------------------------------------------------
-     ACCENT 1 — Or Stellaire (CTA, boutons, éléments premium)
-    Or patiné naturel, éloigné d'un doré saturé.
-     Évoque les étoiles, la valeur et la noblesse spirituelle.
-     HEX #C2913B | RGB (194, 145, 59)
-     Contraste texte sombre sur or : 4.8:1 ✓ WCAG AA
-     Contraste or sur fond sombre #0C0B1D : 8.1:1 ✓ WCAG AAA
-  ---------------------------------------------------------- */
-  --accent-gold: #C2913B;
-  --accent-gold-light: #D4A85A; /* hover, badges clairs */
-  --accent-gold-dark:  #9E7428; /* ombres, bordures or profondes */
-
-  /* ----------------------------------------------------------
-     ACCENT 2 — Azur Céleste (badges, icônes, liens secondaires)
-     Bleu de la voûte étoilée, poudré et reposant.
-     Évoque la clarté mentale, l'infini et la sérénité.
-     HEX #7098C4 | RGB (112, 152, 196)
-     Contraste sur fond sombre : 4.6:1 ✓ WCAG AA
-  ---------------------------------------------------------- */
-  --accent-violet: #7098C4;    /* alias conservé pour compatibilité */
-  --accent-violet-light: #92B4D8;
-  --accent-violet-dark:  #4E7AAE;
-
-  /* ----------------------------------------------------------
-     PASTELS SOPHISTIQUÉS — touches délicates, badges, survols
-     Tous désaturés pour rester dans le registre premium.
-  ---------------------------------------------------------- */
-  --pastel-rose:    #C9A0AC; /* Rose mûre, chaleur douce */
-  --pastel-emerald: #6B9E94; /* Sauge apaisante, nature & guérison */
-  --pastel-sky:     #8AAEC6; /* Ciel d'aube, repos et introspection */
-
-  /* ----------------------------------------------------------
-     FONDS — MODE CLAIR (Parchemin & Ivoire)
-     Chaleur naturelle du parchemin ancien, évoque la sagesse
-     des manuscrits et la douceur du papier vélin.
-  ---------------------------------------------------------- */
-  --bg-light:       #F4F1EC; /* Parchemin ivoire – fond principal */
-  --bg-light-alt:   #EAE5DB; /* Ivoire sable – sections alternées */
-  --gradient-light: #E2DDD4; /* Grège doux – dégradés subtils */
-
-  /* ----------------------------------------------------------
-     FONDS — MODE SOMBRE (Nuit cosmique)
-     Bleu-nuit très profond sans être pur noir,
-     garde la profondeur sans écraser le contenu.
-  ---------------------------------------------------------- */
-  --bg-dark:        #0C0B1D; /* Nuit cosmique – fond principal */
-  --bg-dark-alt:    #141228; /* Indigo soyeux – sections alternées */
-  --gradient-dark:  #1C1938; /* Voile nocturne – dégradés */
-
-  /* ----------------------------------------------------------
-     TEXTES — MODE CLAIR
-     Encre nocturne : chaud, lisible, ancré dans l'univers.
-     Contraste sur fond clair #F4F1EC : 16.2:1 ✓ WCAG AAA
-  ---------------------------------------------------------- */
-  --text-light:      #1C1830; /* Corps de texte principal */
-  --text-muted-light:#5C587A; /* Sous-titres, légendes (contraste 5.4:1 ✓) */
-
-  /* ----------------------------------------------------------
-     TEXTES — MODE SOMBRE
-     Crème stellaire : chaleur de la lueur des étoiles.
-     Contraste sur fond sombre #0C0B1D : 18.1:1 ✓ WCAG AAA
-  ---------------------------------------------------------- */
-  --text-dark:       #EDE7D9; /* Corps de texte principal dark */
-  --text-muted-dark: #9E97B8; /* Sous-titres discrets (contraste 5.1:1 ✓) */
-
-  /* ----------------------------------------------------------
-     COULEURS THÈME (alias fonctionnels pour les composants)
-  ---------------------------------------------------------- */
-  --theme-border:   rgba(194, 145, 59, 0.18); /* bordures or subtiles */
-  --theme-surface:  rgba(30, 21, 74, 0.06);   /* surfaces légèrement teintées */
+  
+  --bg-light: var(--bg-dark);
+  --bg-light-alt: var(--bg-dark-alt);
+  --gradient-light: var(--gradient-dark);
+  --text-light: var(--text-dark);
+  --text-muted-light: var(--text-muted-dark);
+  --theme-border: rgba(194, 145, 59, 0.22);
+  --theme-surface: rgba(112, 152, 196, 0.08);
 }
 
 /* ============================================================
-   MODE SOMBRE — surcharge des variables de contexte
+   STYLES DE BASE
    ============================================================ */
-.dark {
-  --bg-light:       var(--bg-dark);
-  --bg-light-alt:   var(--bg-dark-alt);
-  --gradient-light: var(--gradient-dark);
-  --text-light:     var(--text-dark);
-  --text-muted-light: var(--text-muted-dark);
-  --theme-border:   rgba(194, 145, 59, 0.22);
-  --theme-surface:  rgba(112, 152, 196, 0.08);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-light);
-  color: var(--text-light);
-  transition: background 0.3s, color 0.3s;
-}
-
-/* Custom scrollbar harmonisé */
-::-webkit-scrollbar {
-  width: 12px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-light);
-}
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-violet), var(--accent-gold));
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--pastel-rose), var(--accent-violet));
-} 
-
-/* Animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
-  50% {
-    transform: translateY(-20px);
+
+  body {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    font-family: var(--font-inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Focus visible pour l'accessibilité */
+  :focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Sélection de texte */
+  ::selection {
+    background-color: var(--primary);
+    color: white;
   }
 }
 
-@keyframes glow {
-  0%, 100% {
+/* ============================================================
+   PLACEHOLDERS
+   ============================================================ */
+@layer components {
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: var(--text-muted-light);
+    opacity: 0.7;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder,
+  .dark select::placeholder {
+    color: var(--text-muted-dark);
     opacity: 0.5;
   }
-  50% {
-    opacity: 1;
+}
+
+/* ============================================================
+   SCROLLBAR PERSONNALISÉE
+   ============================================================ */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-light-alt);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-gold));
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--pastel-rose), var(--accent-violet));
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-violet) var(--bg-light-alt);
   }
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
- 
-/* Dans globals.css */
+/* ============================================================
+   TEXTURE DE FOND
+   ============================================================ */
 @layer base {
   body::after {
     content: '';
@@ -238,9 +204,47 @@ body {
         rgba(0, 0, 0, 0.03) 4px
       );
   }
-  
+
   .dark body::after {
     opacity: 0.025;
+  }
+}
+
+/* ============================================================
+   ANIMATIONS GLOBALES
+   ============================================================ */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-20px) translateX(0px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(-5px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.5;
+    filter: blur(2px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 
@@ -255,6 +259,92 @@ body {
   }
 }
 
+/* ============================================================
+   CLASSES D'ANIMATION
+   ============================================================ */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 .animate-border-pulse {
   animation: border-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   UTILITAIRES CUSTOM
+   ============================================================ */
+@layer utilities {
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+  }
+
+  .bg-gradient-cosmic {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--primary-light) 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .glass-effect {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ============================================================
+   OPTIMISATIONS POUR LE CLIENT
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   IMPRESSION
+   ============================================================ */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none;
+  }
 }

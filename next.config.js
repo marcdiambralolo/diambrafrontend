@@ -38,7 +38,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'monetoile.org',
+        hostname: 'diambra.net',
         port: '',
         pathname: '/uploads/**',
       },

@@ -1,6 +1,6 @@
-# Copilot Instructions for Mon Étoile
+# Copilot Instructions for Diambra
 
-Mon Étoile is a full-stack spiritual guidance platform (voyance, astrology, numerology) built with Next.js 14 App Router, TypeScript, and a separate backend API. These instructions help AI agents be immediately productive in this codebase.
+Diambra is a full-stack spiritual guidance platform (voyance, astrology, numerology) built with Next.js 14 App Router, TypeScript, and a separate backend API. These instructions help AI agents be immediately productive in this codebase.
 
 ## Project Overview
 - **Framework**: Next.js 14 (App Router) with TypeScript strict mode
@@ -99,7 +99,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 
 # Frontend URLs
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_BASE_URL=https://www.monetoile.org
+NEXT_PUBLIC_BASE_URL=https://www.diambra.net
 
 # Optional: City API (for location autocomplete)
 NEXT_PUBLIC_CITY_API_URL=

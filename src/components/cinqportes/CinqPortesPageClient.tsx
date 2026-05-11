@@ -28,7 +28,7 @@ const PageHeader = memo(() => (
     transition={{ duration: CONSTANTS.ANIMATION_DURATION }}
     className="text-2xl mb-6 sm:text-4xl lg:text-5xl dark:text-white font-black text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400"
   >
-    Les 5 Portes de mon Étoile
+    Les 5 Portes de Diambra
   </motion.h1>
 ));
 

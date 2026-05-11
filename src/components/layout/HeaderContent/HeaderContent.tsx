@@ -236,7 +236,7 @@ export function HeaderLogo() {
           <div className="w-full h-full rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
             <Image
               src="/logo.png"
-              alt="Mon Étoile"
+              alt="Diambra"
               width={36}
               height={36}
               className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
@@ -265,7 +265,7 @@ export function HeaderLogo() {
 
       <div className="hidden sm:block">
         <h1 className="flex items-center gap-1.5 bg-gradient-to-r from-[#244A8A] via-[#2E5AA6] to-[#4F83D1] bg-clip-text text-lg font-black text-transparent sm:text-xl">
-          Mon Étoile
+          Diambra
           <motion.div
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
@@ -277,7 +277,7 @@ export function HeaderLogo() {
 
       <div className="sm:hidden">
         <h1 className="bg-gradient-to-r from-[#244A8A] to-[#4F83D1] bg-clip-text text-base font-black text-transparent">
-          Mon Étoile
+          Diambra
         </h1>
       </div>
     </CacheLink>

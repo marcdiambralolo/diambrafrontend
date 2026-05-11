@@ -154,7 +154,7 @@ export default function AboutPageClient() {
           <ConicPanel>
             <h2 className="text-2xl font-black text-slate-900">Un parcours initiatique unique : le système de grades</h2>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
-              Mon Étoile repose sur un système structuré en 10 grades (0 à 9), pédagogique et psychologique.
+              Diambra repose sur un système structuré en 10 grades (0 à 9), pédagogique et psychologique.
             </p>
             <div className="mt-6 border-t border-slate-100 pt-6">
               <h3 className="text-lg font-black text-slate-900">Les grades</h3>

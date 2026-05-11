@@ -221,7 +221,7 @@ export default function MediumUpdatePage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-gray-600 max-w-2xl mx-auto"
           >
-            Mettez à jour vos informations pour continuer à offrir vos services sur Mon Étoile.
+            Mettez à jour vos informations pour continuer à offrir vos services sur Diambra.
           </motion.p>
         </div>
       </div>

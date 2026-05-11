@@ -9,7 +9,6 @@ const Loader = memo(function Loader() {
     <div className="fixed inset-0 z-50 grid place-items-center px-4">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#EEF4FF] via-[#DDE7FA] to-indigo-50 dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-slate-900" />
       <div className="absolute -z-10 h-[520px] w-[520px] rounded-full blur-3xl opacity-40 dark:opacity-30 bg-[radial-gradient(circle_at_center,rgba(46,90,166,0.35),rgba(79,131,209,0.20),transparent_65%)]" />
-
       <motion.section
         initial={reduce ? undefined : { opacity: 0, y: 10, filter: "blur(6px)" }}
         animate={reduce ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}

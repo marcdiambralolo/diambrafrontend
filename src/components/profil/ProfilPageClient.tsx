@@ -510,7 +510,7 @@ export default function ProfilPageClient() {
         ) : (
           <section className="mx-auto mt-8 w-full max-w-5xl flex flex-col items-center justify-center animate-fade-in-up">
             <h2 className="mb-4 text-balance text-3xl font-black sm:text-4xl text-cosmic-indigo dark:text-white text-center tracking-tight drop-shadow-glow">
-              Les 5 Portes de mon Étoile
+              Les 5 Portes de Diambra
             </h2>
 
             <p className="mx-auto max-w-3xl text-base font-semibold leading-relaxed text-slate-600 dark:text-[#D1D5DB] sm:text-lg text-center">

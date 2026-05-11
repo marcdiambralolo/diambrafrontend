@@ -102,7 +102,7 @@ export default function VoyanceDisclaimerContent() {
                 transition={{ delay: 0.5 }}
                 className="text-slate-700"
               >
-                La rubrique <span className="font-black text-amber-600">GUIDANCE</span> de la plateforme MON ÉTOILE est une interface permettant aux visiteurs d’entrer en contact avec des médiums, voyants et guides spirituels indépendants.
+                La rubrique <span className="font-black text-amber-600">GUIDANCE</span> de la plateforme Diambra est une interface permettant aux visiteurs d’entrer en contact avec des médiums, voyants et guides spirituels indépendants.
               </motion.p>
 
               <motion.p
@@ -124,9 +124,9 @@ export default function VoyanceDisclaimerContent() {
                     <p className="font-black text-slate-800 text-lg mb-3">Points essentiels à connaître :</p>
                     <ul className="space-y-3 text-slate-600">
                       {[
-                        "Les médiums et guides spirituels présents dans cette rubrique n'exercent pas pour le compte de MON ÉTOILE.",
+                        "Les médiums et guides spirituels présents dans cette rubrique n'exercent pas pour le compte de Diambra.",
                         "Ils interviennent en toute indépendance et demeurent seuls responsables des consultations, conseils et services qu'ils proposent.",
-                        "La plateforme MON ÉTOILE agit uniquement comme une interface de mise en relation entre les consultants et les praticiens."
+                        "La plateforme Diambra agit uniquement comme une interface de mise en relation entre les consultants et les praticiens."
                       ].map((item, idx) => (
                         <motion.li
                           key={idx}

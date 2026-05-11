@@ -122,7 +122,7 @@ const LoginForm = () => {
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
                 <Image
                   src="/logo.png"
-                  alt="Mon Étoile"
+                  alt="Diambra"
                   fill
                   sizes="(max-width: 768px) 120px, 160px"
                   className="object-contain p-3"
@@ -193,7 +193,7 @@ const LoginForm = () => {
           </div>
         </div>
         <p className="mt-6 text-center text-xs text-gray-400 mb-16">
-          © 2026 Mon Étoile. Tous droits réservés.
+          © 2026 Diambra. Tous droits réservés.
         </p>
       </div>
     </div>

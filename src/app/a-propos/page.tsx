@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "À propos — Diambra",
         description:
-            "Diambra est un jeu de rôle en ligne.",
+            "Diambra est un jeu en ligne.",
         url: "/a-propos",
         type: "website",
         images: [

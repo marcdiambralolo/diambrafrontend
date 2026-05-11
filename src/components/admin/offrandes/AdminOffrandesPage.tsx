@@ -1,12 +1,11 @@
 "use client";
 import OffrandesStats from '@/components/admin/offrandes/stats/OffrandesStats';
-import { CONSTANTS, SortKey, useAdminOffrandes, ViewMode } from '@/hooks/admin/offrandes/useAdminOffrandes';
+import { CONSTANTS, useAdminOffrandes, ViewMode } from '@/hooks/admin/offrandes/useAdminOffrandes';
 import { CATEGORIES_OFFRANDES } from '@/lib/constants';
 import { Offering } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Edit, Plus, RotateCcw, ShoppingBag, TrendingUp } from 'lucide-react';
-import Image from 'next/image';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback } from 'react';
 
 interface Category {
     value: string;
@@ -125,48 +124,21 @@ const OffrandesLoading = memo(() => (
                 className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full"
             />
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Chargement des offrandes...
+                Chargement des jetons...
             </p>
         </motion.div>
     </div>
-));
-
-// Fonction utilitaire pour sécuriser l'URL de l'image
-const getImageUrl = (url: string | undefined) => {
-    if (!url) return null;
-    // Si l'URL est déjà une URL d'image valide
-    if (url.startsWith('http') && url.match(/^https?:\/\/.+\/.+\.(jpg|jpeg|png|webp|gif)$/i)) {
-        return url;
-    }
-    // Sinon, essayer de corriger
-    try {
-        const urlObj = new URL(url);
-        const pathParts = urlObj.pathname.split('/');
-        const fileName = pathParts.pop();
-        if (fileName) {
-            const encodedFileName = encodeURIComponent(fileName);
-            pathParts.push(encodedFileName);
-            urlObj.pathname = pathParts.join('/');
-            return urlObj.toString();
-        }
-        return url;
-    } catch {
-        return url;
-    }
-};
+)); 
 
 const OffrandesCard = memo(({
     offering,
-    category,
     onEdit,
     index
 }: {
     offering: Offering;
-    category: Category | undefined;
     onEdit: (offering: Offering) => void;
     index: number;
 }) => {
-    const imageUrl = getImageUrl(offering.illustrationUrl);
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -175,46 +147,12 @@ const OffrandesCard = memo(({
             whileHover={{ y: -4 }}
             className="group relative rounded-2xl bg-white dark:bg-[#0F1C3F] border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
         >
-            {/* Badge de catégorie */}
-            <div className="absolute top-3 left-3 z-10">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${category?.color} bg-opacity-20`}>
-                    <span>{category?.emoji}</span>
-                    <span>{category?.label}</span>
-                </span>
-            </div>
-
-            {/* Image */}
-            <div className="relative h-48 w-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-                {imageUrl ? (
-                    <Image
-                        src={imageUrl}
-                        alt={offering.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        unoptimized={true}
-                        onError={(e: any) => {
-                            // Fallback si l'image ne charge pas
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center h-full">
-                        <ShoppingBag className="w-16 h-16 text-slate-400 dark:text-slate-600" />
-                    </div>
-                )}
-            </div>
-
-            {/* Contenu */}
+            
             <div className="p-4">
                 <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1 line-clamp-1">
                     {offering.name}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
-                    {offering.description}
-                </p>
-
-                {/* Prix */}
+                
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-500">Prix</p>
@@ -257,12 +195,10 @@ const OffrandesList = memo(({
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {offerings.map((offering, index) => {
-                const category = CATEGORIES_OFFRANDES.find(c => c.value === offering.category);
                 return (
                     <OffrandesCard
                         key={offering.id || index}
                         offering={offering}
-                        category={category}
                         onEdit={onEdit}
                         index={index}
                     />
@@ -270,85 +206,7 @@ const OffrandesList = memo(({
             })}
         </div>
     );
-});
-
-const OffrandesSortBar = memo(({
-    sortKey,
-    setSortKey,
-    sortOrder,
-    setSortOrder
-}: {
-    sortKey: SortKey;
-    setSortKey: (key: SortKey) => void;
-    sortOrder: 'asc' | 'desc';
-    setSortOrder: (order: 'asc' | 'desc') => void;
-}) => {
-    return (
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="flex items-center gap-2">
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Trier par :
-                </label>
-                <select
-                    value={sortKey}
-                    onChange={(e) => setSortKey(e.target.value as SortKey)}
-                    className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F1C3F] px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                >
-                    <option value="name">Nom</option>
-                    <option value="price">Prix</option>
-                    <option value="category">Catégorie</option>
-                </select>
-            </div>
-
-            <button
-                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F1C3F] text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-            >
-                {sortOrder === 'asc' ? '↑ Croissant' : '↓ Décroissant'}
-            </button>
-        </div>
-    );
-});
-
-OffrandesSortBar.displayName = 'OffrandesSortBar';
-
-const OffrandesCategoriesSummary = memo(({
-    categories,
-    offerings
-}: {
-    categories: Category[];
-    offerings: Offering[];
-}) => {
-    const stats = useMemo(() => {
-        return categories.map(cat => ({
-            ...cat,
-            count: offerings.filter(o => o.category === cat.value).length,
-            total: offerings.filter(o => o.category === cat.value).reduce((sum, o) => sum + o.price, 0),
-        }));
-    }, [categories, offerings]);
-
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {stats.map((cat) => (
-                <motion.div
-                    key={cat.value}
-                    whileHover={{ scale: 1.02 }}
-                    className={`rounded-2xl p-4 bg-gradient-to-br ${cat.color} text-white shadow-lg`}
-                >
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-3xl">{cat.emoji}</span>
-                        <div className="text-right">
-                            <div className="text-2xl font-black">{cat.count}</div>
-                            <div className="text-xs opacity-90">articles</div>
-                        </div>
-                    </div>
-                    <p className="text-sm font-bold opacity-90">{cat.label}</p>
-                    <p className="text-xs opacity-75 mt-1">{cat.total.toLocaleString()} F</p>
-                </motion.div>
-            ))}
-        </div>
-    );
-});
+}); 
 
 const EmptyState = memo(({ onAdd }: { onAdd: () => void }) => (
     <motion.div
@@ -408,10 +266,10 @@ const OffrandesTabs = memo(({
 
 export default function AdminOffrandesPage() {
     const {
-        setSortOrder, setSortKey, setErrorMessage, handleEdit, handleAdd,
+        setErrorMessage, handleEdit, handleAdd,
         handleRefresh, setPage, setActiveTab,
         offerings, statsData, loading, statsLoading, successMessage, errorMessage,
-        activeTab, sortKey, sortOrder, page, totalPages, paginatedOfferings,
+        activeTab, page, totalPages, paginatedOfferings,
     } = useAdminOffrandes();
 
     return (
@@ -426,10 +284,10 @@ export default function AdminOffrandesPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                Offrandes
+                                Jetons
                             </h1>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                Gérez vos offrandes et suivez les ventes
+                                Gérez vos jetons et suivez les ventes
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -446,7 +304,7 @@ export default function AdminOffrandesPage() {
                                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-5 py-2 text-sm font-bold text-white shadow-lg hover:from-indigo-700 hover:to-indigo-800 transition"
                             >
                                 <Plus className="w-4 h-4" />
-                                Nouvelle offrande
+                                Nouveau jeton
                             </button>
                         </div>
                     </div>
@@ -494,16 +352,7 @@ export default function AdminOffrandesPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: CONSTANTS.ANIMATION_DURATION }}
-                        >
-                            <OffrandesCategoriesSummary categories={CATEGORIES_OFFRANDES} offerings={offerings} />
-
-                            <OffrandesSortBar
-                                sortKey={sortKey}
-                                setSortKey={setSortKey}
-                                sortOrder={sortOrder}
-                                setSortOrder={setSortOrder}
-                            />
-
+                        >                        
                             {loading ? (
                                 <OffrandesLoading />
                             ) : offerings.length === 0 ? (

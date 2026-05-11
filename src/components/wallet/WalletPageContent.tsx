@@ -58,8 +58,7 @@ export function normalizeItem(item: TransactionItem) {
       ...item.offeringId,
       quantity: item.quantity,
       price: item.price ?? item.offeringId.price,
-      name: item.offeringId.name,
-      illustrationUrl: item.illustrationUrl,
+      name: item.offeringId.name ?? 'Offrande',
     };
   }
 
@@ -78,16 +77,16 @@ export function WalletHero() {
       <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 mb-4">
         <Wallet className="h-3.5 w-3.5 text-indigo-600" />
         <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
-          Porte-monnaie spirituel
+          Porte-monnaie 
         </span>
       </div>
 
       <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
-        Mon Panier d'Offrandes
+        Mon Porte feuille
       </h1>
 
       <p className="mx-auto mt-3 max-w-md text-sm text-gray-500">
-        Gérez vos offrandes disponibles, suivez vos dépenses et retrouvez
+        Gérez vos jetons disponibles, suivez vos dépenses et retrouvez
         vos dernières transactions dans une interface claire et premium.
       </p>
     </motion.div>
@@ -148,7 +147,7 @@ export function WalletTabs({
         type="button"
       >
         <Gift className="h-4 w-4 inline mr-2" />
-        Offrandes disponibles
+        Jetons disponibles
       </button>
       <button
         className={cx(
@@ -255,17 +254,9 @@ const OfferingItemCard = memo(function OfferingItemCard({
       className="flex items-center gap-3 rounded-lg bg-gray-50 p-3"
     >
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
-        {item.illustrationUrl ? (
-          <Image
-            src={item.illustrationUrl}
-            alt={item.name}
-            width={32}
-            height={32}
-            className="h-8 w-8 rounded-lg object-cover"
-          />
-        ) : (
-          <Package className="h-4 w-4 text-indigo-600" />
-        )}
+      <Package className="h-4 w-4 text-indigo-600" />
+     
+        
       </div>
 
       <div className="flex-1">
@@ -356,17 +347,8 @@ export const TransactionCard = memo(function TransactionCard({
                 key={idx}
                 className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-indigo-100 to-purple-100"
               >
-                {item.illustrationUrl ? (
-                  <Image
-                    src={item.illustrationUrl}
-                    alt={item.name}
-                    width={24}
-                    height={24}
-                    className="h-5 w-5 rounded-full object-cover"
-                  />
-                ) : (
-                  <Package className="h-3 w-3 text-indigo-600" />
-                )}
+                 <Package className="h-3 w-3 text-indigo-600" />
+                 
               </div>
             ))}
             {normalizedItems.length > 3 && (
@@ -453,7 +435,7 @@ export function UnusedOfferingsSection({
       ) : unusedOfferings.length === 0 ? (
         <div className="rounded-xl bg-white border border-gray-100 p-10 text-center shadow-sm">
           <Gift className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Aucune offrande disponible</p>
+          <p className="text-gray-500">Aucun jeton disponible</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -470,17 +452,8 @@ export function UnusedOfferingsSection({
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
-                    {o?.illustrationUrl ? (
-                      <Image
-                        src={o.illustrationUrl}
-                        alt={o?.name}
-                        width={112}
-                        height={112}
-                        className="h-28 w-28 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <Gift className="h-28 w-28 text-indigo-500" />
-                    )}
+                   <Gift className="h-28 w-28 text-indigo-500" />
+               
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -524,7 +497,7 @@ export function BottomCtas({ href, label }: { href: string; label: string }) {
         className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
       >
         <ShoppingBag className="h-4 w-4" />
-        Marché des Offrandes
+        Marché des Jetons
       </CacheLink>
     </motion.div>
   );

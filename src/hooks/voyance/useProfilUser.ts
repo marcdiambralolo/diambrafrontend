@@ -1,14 +1,8 @@
 import { api } from "@/lib/api/client";
-import { getRubriqueCinqEtoiles } from '@/lib/api/services/rubriques.service';
-import { QUERY_KEYS } from '@/lib/cache/queryClient';
 import type { User } from '@/lib/interfaces';
 import { useAuthStore } from "@/lib/store/auth.store";
-import { GradeConfig } from "@/lib/types/grade-config.types";
-import { getGradeName, Grade } from "@/lib/types/grade.types";
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Compass, LucideIcon, Stars } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 
 

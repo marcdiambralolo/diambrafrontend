@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/categorie/useToast";
 import { api } from "@/lib/api/client";
 import { getChoicesWithCount } from "@/lib/api/services/rubriques.service";
 import {
-  Consultation, ConsultationStatus, ConsultationType, GRADE_LEVEL, User,
+  Consultation, ConsultationStatus, ConsultationType, User,
   type ConsultationChoice, type Rubrique,
 } from "@/lib/interfaces";
 import { useAuthStore } from "@/lib/store/auth.store";
@@ -58,17 +58,7 @@ function createTempId() {
     return Math.random().toString(36).slice(2);
 }
 
-function resolveRequiredLevel(choice: ConsultationChoice): number {
-    const grade = choice.gradeId;
-    if (!grade) return 0;
-    if (typeof grade === "object" && "level" in grade && typeof grade.level === "number") {
-        return grade.level;
-    }
-    if (typeof grade === "string") {
-        return GRADE_LEVEL[grade as keyof typeof GRADE_LEVEL] ?? 0;
-    }
-    return 0;
-}
+ 
 
 function resolveUserGrade(user: User | null | undefined): string | null {
     if (!user?.grade) return null;
@@ -204,15 +194,12 @@ export function useCategoryClientViewChoix() {
     const enrichedChoices = useMemo(() => {
         if (!rubriqueCourante?.consultationChoices) return [];
 
-        const userLevel = GRADE_LEVEL[resolvedGrade as keyof typeof GRADE_LEVEL] ?? 0;
-
+ 
         return rubriqueCourante.consultationChoices.map((choice) => {
-            const requiredLevel = resolveRequiredLevel(choice);
-            const hasRequiredGrade = userLevel >= requiredLevel;
-            const existingConsultation = (choice as any).existingConsultation;
+ 
+             const existingConsultation = (choice as any).existingConsultation;
             const buttonStatus = ((): ButtonStatus => {
-                if (!hasRequiredGrade) return 'RÉPONSE EN ATTENTE';
-                if (existingConsultation) {
+                 if (existingConsultation) {
                     const status = existingConsultation.status;
                     if (status === 'COMPLETED') return "VOIR L'ANALYSE";
                     if (status === 'PENDING' || status === 'PROCESSING') return 'RÉPONSE EN ATTENTE';
@@ -247,14 +234,7 @@ export function useCategoryClientViewChoix() {
                 return;
             }
 
-            const requiredLevel = resolveRequiredLevel(choice);
-            const userLevel = GRADE_LEVEL[resolvedGrade as keyof typeof GRADE_LEVEL] ?? 0;
-
-            if (userLevel < requiredLevel) {
-                toast("⛔️ Vous n'avez pas encore atteint le grade requis pour cette consultation.");
-                return;
-            }
-
+             
             const choiceId = choice._id || choice.choiceId || "";
             const consultationId = createTempId();
             const now = new Date().toISOString();

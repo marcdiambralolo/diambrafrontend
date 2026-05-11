@@ -209,8 +209,7 @@ const ConsultationChoiceCard = memo(({
                     className="space-y-3 overflow-hidden"
                 >
                     <p className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-2">
-                        <Package className="w-4 h-4" />
-                        Alternatives d'offrandes (3 requises)
+                        <Package className="w-4 h-4" />Jetons
                     </p>
                     {choice.offering.alternatives.map((alt, idx) => (
                         <OfferingSelector

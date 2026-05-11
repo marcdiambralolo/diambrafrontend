@@ -4,9 +4,7 @@ import { useOfferingForm } from "@/hooks/admin/offrandes/useOfferingForm";
 
 export default function OffrandeCreatePageClient() {
   const {
-   illustrationFile, formData, saving, error, priceUSD, handleChange, handleCategoryChange, handleSubmit, handleCancel,
-    handleFileChange,  setIllustrationFile
-  } = useOfferingForm();
+   formData, saving, error, priceUSD, handleChange, handleSubmit, handleCancel  } = useOfferingForm();
 
   return (
     <div className="w-full flex items-center justify-center relative z-10 animate-fade-in">
@@ -16,12 +14,8 @@ export default function OffrandeCreatePageClient() {
         saving={saving}
         priceUSD={priceUSD}
         onChange={handleChange}
-        onCategoryChange={handleCategoryChange}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        handleFileChange={handleFileChange}
-        illustrationFile={illustrationFile}
-        setIllustrationFile={setIllustrationFile}
       />
     </div>
   );

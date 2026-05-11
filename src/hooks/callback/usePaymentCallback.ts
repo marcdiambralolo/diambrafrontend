@@ -281,7 +281,7 @@ export function usePaymentCallback() {
       ) {
         pollInterval = window.setInterval(() => {
           const nextState = readStoredPaymentCallbackState(token);
-         
+
           if (nextState?.state === 'done' && isStoredPaymentCallbackResultFresh(nextState.result)) {
             if (pollInterval) {
               window.clearInterval(pollInterval);
@@ -485,7 +485,7 @@ export function usePaymentCallback() {
   }, [router]);
 
   const handleGoHome = useCallback(() => {
-    router.replace(paymentKind === 'book' ? '/star/livres' : '/star/profil');
+    router.replace('/star/profil');
     router.refresh();
   }, [paymentKind, router]);
 

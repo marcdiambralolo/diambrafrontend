@@ -136,7 +136,7 @@ export function ConsultationsListLoading() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#102044] via-[#0F1C3F] to-[#070B1A]">
       <div className="text-center">
         <Loader2 className="w-12 h-12 text-white animate-spin mx-auto mb-4" />
-        <p className="text-lg text-[#E5E7EB]">Chargement de vos consultations...</p>
+        <p className="text-lg text-[#E5E7EB]">Chargement de vos jeux...</p>
       </div>
     </div>
   );

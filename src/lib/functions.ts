@@ -1,5 +1,5 @@
 import { config } from "@/lib/config";
-import { CarteDuCielData, CinqPortes, PractitionerReview, Rubrique, User } from "./interfaces";
+import {  PractitionerReview, Rubrique, User } from "./interfaces";
 
 export function isUrl(s: string) {
   return s.startsWith('http') || s.startsWith('/');
@@ -48,88 +48,7 @@ export function getRubriqueId(r: Rubrique): string | null {
   return r?._id || null;
 }
 
-const SIGNES_OPPOSES: Record<string, string> = {
-  'Bélier': 'Balance',
-  'Taureau': 'Scorpion',
-  'Gémeaux': 'Sagittaire',
-  'Cancer': 'Capricorne',
-  'Lion': 'Verseau',
-  'Vierge': 'Poissons',
-  'Balance': 'Bélier',
-  'Scorpion': 'Taureau',
-  'Sagittaire': 'Gémeaux',
-  'Capricorne': 'Cancer',
-  'Verseau': 'Lion',
-  'Poissons': 'Vierge'
-};
-
-export function extractCinqPortes(carteDuCiel: CarteDuCielData | null): CinqPortes | null {
-  if (!carteDuCiel?.positions || carteDuCiel.positions.length === 0) {
-    return null;
-  }
-
-  const { positions } = carteDuCiel;
-
-  // 1. Signe Solaire - Position du Soleil
-  const soleil = positions.find(p => typeof p.planete === 'string' && p.planete.toLowerCase() === 'soleil');
-  const signeSolaire = soleil?.signe || 'Non défini';
-
-  // 2. Ascendant - Signe à la Maison 1
-  const maison1 = positions.find(p => p.maison === 1);
-  const ascendant = maison1?.signe || 'Non défini';
-
-  // 3. Signe Lunaire - Position de la Lune
-  const lune = positions.find(p => typeof p.planete === 'string' && p.planete.toLowerCase() === 'lune');
-  const signeLunaire = lune?.signe || 'Non défini';
-
-  // 4. Milieu du Ciel - Signe à la Maison 10
-  const maison10 = positions.find(p => p.maison === 10);
-  const milieuDuCiel = maison10?.signe || 'Non défini';
-
-  // 5. Descendant - Opposé à l'Ascendant (ou Maison 7)
-  const maison7 = positions.find(p => p.maison === 7);
-  const descendant = maison7?.signe || SIGNES_OPPOSES[ascendant] || 'Non défini';
-
-  return {
-    signesolaire: {
-      label: 'Signe Solaire',
-      valeur: signeSolaire,
-      description: 'Votre essence profonde et votre identité fondamentale',
-      icon: '☀️',
-      gradient: 'from-yellow-400 via-orange-500 to-red-500'
-    },
-    ascendant: {
-      label: 'Ascendant',
-      valeur: ascendant,
-      description: 'Votre masque social et votre apparence extérieure',
-      icon: '🌅',
-      gradient: 'from-[#4F83D1] via-[#2E5AA6] to-[#163A74]'
-    },
-    signeLunaire: {
-      label: 'Signe Lunaire',
-      valeur: signeLunaire,
-      description: 'Votre monde émotionnel et vos besoins profonds',
-      icon: '🌙',
-      gradient: 'from-[#7BA9F1] via-[#4F83D1] to-[#2E5AA6]'
-    },
-    milieuDuCiel: {
-      label: 'Milieu du Ciel',
-      valeur: milieuDuCiel,
-      description: 'Votre vocation et votre direction de vie professionnelle',
-      icon: '⭐',
-      gradient: 'from-cyan-400 via-teal-500 to-emerald-500'
-    },
-    descendant: {
-      label: 'Descendant',
-      valeur: descendant,
-      description: 'Votre relation à l\'autre et vos partenariats',
-      icon: '💫',
-      gradient: 'from-[#9BC2FF] via-[#4F83D1] to-[#163A74]'
-    }
-  };
-}
-
-
+ 
 
 export function processUserData(userData: User | null): User | null {
   if (!userData) return null;

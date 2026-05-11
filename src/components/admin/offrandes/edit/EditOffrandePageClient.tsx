@@ -1,12 +1,9 @@
 "use client";
 import { useEditOffrande } from "@/hooks/admin/offrandes/useEditOffrande";
-import { CATEGORIES_OFFRANDES } from '@/lib/constants';
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowLeft, CheckCircle, Loader2, Save, Trash2, Upload, X } from "lucide-react";
-import Image from "next/image";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { AlertCircle, ArrowLeft, Loader2, Save, X } from "lucide-react";
+import React, { memo, useCallback, useState } from "react";
 
-// ==================== CONSTANTES ====================
 const CONSTANTS = {
     MAX_NAME_LENGTH: 64,
     MIN_NAME_LENGTH: 2,
@@ -14,8 +11,6 @@ const CONSTANTS = {
     MIN_DESCRIPTION_LENGTH: 4,
     EXCHANGE_RATE: 563.5,
     ANIMATION_DURATION: 0.3,
-    MAX_FILE_SIZE_MB: 5,
-    ACCEPTED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as string[],
 } as const;
 
 // ==================== TYPES ====================
@@ -33,19 +28,8 @@ interface EditOffrandeFormProps {
     saving: boolean;
     error: string | null;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    onCategory: (cat: 'animal' | 'vegetal' | 'beverage') => void;
     onCancel: () => void;
     onSubmit: (e: React.FormEvent) => Promise<void>;
-    // États d'image provenant du hook
-    imageState: {
-        file: File | null;
-        previewUrl: string | null;
-        shouldRemove: boolean;
-    };
-    setImageFile: (file: File | null) => void;
-    markImageForRemoval: () => void;
-    cancelImageRemoval: () => void;
-    clearNewImage: () => void;
 }
 
 // ==================== COMPOSANTS ====================
@@ -80,37 +64,7 @@ const FormField = memo(({
     </div>
 ));
 
-FormField.displayName = 'FormField';
-
-const CategoryButton = memo(({
-    category,
-    isActive,
-    onClick
-}: {
-    category: typeof CATEGORIES_OFFRANDES[0];
-    isActive: boolean;
-    onClick: () => void;
-}) => (
-    <motion.button
-        type="button"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onClick}
-        className={`flex-1 py-2.5 px-2 rounded-xl font-bold text-sm transition-all outline-none focus:ring-2 focus:ring-[#4F83D1] flex flex-col items-center gap-1 ${isActive
-            ? 'bg-gradient-to-r from-[#2E5AA6] to-[#4F83D1] text-white shadow-lg scale-105'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-[#13274C] dark:text-gray-300 dark:hover:bg-[#163A74]'
-            }`}
-    >
-        <span className="text-xl">{category.emoji}</span>
-        <span className="text-xs">{category.label}</span>
-    </motion.button>
-));
-
-CategoryButton.displayName = 'CategoryButton';
-
 const ImagePreview = memo(({
-    src,
-    alt,
     onRemove,
     isNew = false
 }: {
@@ -125,14 +79,7 @@ const ImagePreview = memo(({
         exit={{ opacity: 0, scale: 0.9 }}
         className="relative group"
     >
-        <Image
-            src={src}
-            alt={alt}
-            width={80}
-            height={80}
-            className="w-20 h-20 object-cover rounded-xl border-2 border-indigo-200 dark:border-indigo-800 shadow-md"
-            unoptimized={src.startsWith('blob:') || src.startsWith('data:')}
-        />
+
         {isNew && (
             <div className="absolute top-0 left-0 bg-green-500 text-white text-[8px] font-bold px-1 rounded-br-lg rounded-tl-lg">
                 NOUVEAU
@@ -157,27 +104,12 @@ export const EditOffrandeForm = memo(({
     saving,
     error,
     onChange,
-    onCategory,
     onCancel,
     onSubmit,
-    imageState,
-    setImageFile,
-    markImageForRemoval,
-    cancelImageRemoval,
-    clearNewImage,
 }: EditOffrandeFormProps) => {
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [uploadProgress, setUploadProgress] = useState(0);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Nettoyer les preview URLs au démontage
-    useEffect(() => {
-        return () => {
-            if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(imageState.previewUrl);
-            }
-        };
-    }, [imageState.previewUrl]);
 
     const validateField = useCallback((name: string, value: string | number) => {
         switch (name) {
@@ -206,48 +138,6 @@ export const EditOffrandeForm = memo(({
                 return '';
         }
     }, []);
-
-    const validateFile = useCallback((file: File): string | null => {
-        if (!CONSTANTS.ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-            return 'Format non supporté. Utilisez JPG, PNG, WebP ou GIF';
-        }
-        if (file.size > CONSTANTS.MAX_FILE_SIZE_MB * 1024 * 1024) {
-            return `L'image ne doit pas dépasser ${CONSTANTS.MAX_FILE_SIZE_MB} MB`;
-        }
-        return null;
-    }, []);
-
-    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-
-        if (file) {
-            const error = validateFile(file);
-            if (error) {
-                setFieldErrors(prev => ({ ...prev, illustration: error }));
-                return;
-            }
-
-            setImageFile(file);
-            setFieldErrors(prev => {
-                const { illustration, ...rest } = prev;
-                console.log('File valid, clearing illustration error' + illustration);
-                return rest;
-            });
-        } else {
-            clearNewImage();
-        }
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    }, [validateFile, setImageFile, clearNewImage]);
-
-    const handleRemoveNewImage = useCallback(() => {
-        clearNewImage();
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    }, [clearNewImage]);
 
     const handleLocalChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -294,12 +184,6 @@ export const EditOffrandeForm = memo(({
         }
     }, [formData, validateField, onSubmit]);
 
-    const hasExistingImage = formData.illustrationUrl &&
-        formData.illustrationUrl.trim() &&
-        !imageState.shouldRemove &&
-        !imageState.file;
-
-    const showExistingImage = hasExistingImage && !imageState.shouldRemove;
     const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH &&
         formData.description.length >= CONSTANTS.MIN_DESCRIPTION_LENGTH &&
         formData.price > 0 &&
@@ -325,7 +209,7 @@ export const EditOffrandeForm = memo(({
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                         <div>
-                            <h1 className="text-xl font-black text-white">Modifier l'offrande</h1>
+                            <h1 className="text-xl font-black text-white">Modifier</h1>
                             <p className="text-sm text-indigo-100">Mettez à jour les informations</p>
                         </div>
                     </div>
@@ -348,19 +232,7 @@ export const EditOffrandeForm = memo(({
                         />
                     </FormField>
 
-                    {/* Catégorie */}
-                    <FormField label="Catégorie" required>
-                        <div className="flex gap-2">
-                            {CATEGORIES_OFFRANDES.map(cat => (
-                                <CategoryButton
-                                    key={cat.value}
-                                    category={cat}
-                                    isActive={formData.category === cat.value}
-                                    onClick={() => onCategory(cat.value as 'animal' | 'vegetal' | 'beverage')}
-                                />
-                            ))}
-                        </div>
-                    </FormField>
+                   
 
                     {/* Prix */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -394,115 +266,7 @@ export const EditOffrandeForm = memo(({
                             </p>
                         </div>
                     </div>
-
-                    {/* Illustration */}
-                    <FormField label="Illustration" error={fieldErrors.illustration}>
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3 flex-wrap">
-                                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950 transition text-sm font-medium">
-                                    <Upload className="w-4 h-4" />
-                                    Choisir une nouvelle image
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                </label>
-                                <span className="text-xs text-slate-500">
-                                    {CONSTANTS.MAX_FILE_SIZE_MB}MB max • JPG, PNG, WebP
-                                </span>
-                            </div>
-
-                            <AnimatePresence mode="wait">
-                                {/* Nouvelle image sélectionnée */}
-                                {imageState.file && imageState.previewUrl && (
-                                    <div className="flex items-center gap-3">
-                                        <ImagePreview src={imageState.previewUrl} alt="Aperçu" onRemove={handleRemoveNewImage} isNew />
-                                        <div className="flex-1">
-                                            <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
-                                                <CheckCircle className="w-3 h-3" />
-                                                Nouvelle image prête à être uploadée
-                                            </span>
-                                            <p className="text-[10px] text-slate-500">
-                                                {(imageState.file.size / 1024).toFixed(1)} KB • {imageState.file.type.split('/')[1].toUpperCase()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Image existante */}
-                                {!imageState.file && showExistingImage && (
-                                    <div className="flex items-center gap-3">
-                                        <ImagePreview src={formData.illustrationUrl!} alt="Image actuelle" onRemove={markImageForRemoval} />
-                                        <div className="flex-1">
-                                            <span className="text-xs text-slate-500">Image actuelle</span>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Image supprimée - message de confirmation */}
-                                {!imageState.file && imageState.shouldRemove && (
-                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                                        <Trash2 className="w-5 h-5 text-amber-600" />
-                                        <div className="flex-1">
-                                            <span className="text-xs text-amber-700 dark:text-amber-400">
-                                                L'image sera supprimée lors de l'enregistrement
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={cancelImageRemoval}
-                                                className="ml-2 text-xs text-indigo-500 hover:text-indigo-600 underline"
-                                            >
-                                                Annuler
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* Barre de progression upload */}
-                            {saving && uploadProgress > 0 && uploadProgress < 100 && (
-                                <div className="w-full">
-                                    <div className="h-1 bg-slate-200 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${uploadProgress}%` }}
-                                            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                        />
-                                    </div>
-                                    <p className="text-[10px] text-slate-500 mt-1 text-center">
-                                        Upload en cours... {uploadProgress}%
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </FormField>
-
-                    {/* Description */}
-                    <FormField label="Description" required error={fieldErrors.description}>
-                        <textarea
-                            id="offrande-description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleLocalChange}
-                            placeholder="Décrivez l'offrande et sa signification spirituelle..."
-                            rows={3}
-                            maxLength={CONSTANTS.MAX_DESCRIPTION_LENGTH}
-                            className="w-full resize-none rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-[#13274C] px-4 py-2.5 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
-                        />
-                        <div className="flex justify-between items-center mt-1">
-                            <p className="text-[10px] text-slate-500">
-                                Minimum {CONSTANTS.MIN_DESCRIPTION_LENGTH} caractères
-                            </p>
-                            <p className={`text-[10px] ${formData.description.length > CONSTANTS.MAX_DESCRIPTION_LENGTH ? 'text-red-500' : 'text-slate-400'}`}>
-                                {formData.description.length}/{CONSTANTS.MAX_DESCRIPTION_LENGTH}
-                            </p>
-                        </div>
-                    </FormField>
-
-                    {/* Erreur générale */}
+ 
                     <AnimatePresence>
                         {error && (
                             <motion.div
@@ -552,8 +316,6 @@ export const EditOffrandeForm = memo(({
     );
 });
 
-EditOffrandeForm.displayName = 'EditOffrandeForm';
-
 // ==================== COMPOSANTS DE CHARGEMENT ET ERREUR ====================
 export const EditOffrandeLoading = memo(() => (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -567,9 +329,7 @@ export const EditOffrandeLoading = memo(() => (
         </motion.div>
     </div>
 ));
-
-EditOffrandeLoading.displayName = 'EditOffrandeLoading';
-
+ 
 export const EditOffrandeError = memo(({ error, onRetry }: { error: string; onRetry: () => void }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -608,13 +368,7 @@ export default function EditOffrandePageClient() {
         saving,
         error,
         priceUSD,
-        imageState,
-        setImageFile,
-        markImageForRemoval,
-        cancelImageRemoval,
-        clearNewImage,
         handleChange,
-        handleCategoryChange,
         handleSubmit,
         handleCancel,
         fetchData,
@@ -631,14 +385,8 @@ export default function EditOffrandePageClient() {
             saving={saving}
             error={error}
             onChange={handleChange}
-            onCategory={handleCategoryChange}
             onCancel={handleCancel}
             onSubmit={handleSubmit}
-            imageState={imageState}
-            setImageFile={setImageFile}
-            markImageForRemoval={markImageForRemoval}
-            cancelImageRemoval={cancelImageRemoval}
-            clearNewImage={clearNewImage}
         />
     );
 }

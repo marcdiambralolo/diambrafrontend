@@ -1,10 +1,6 @@
 ﻿import type { ToastState } from '@/hooks/admin/consultations/useAdminConsultationAnalysis';
-import { useAdminGrades } from '@/hooks/admin/grades/useAdminGrades';
 import { api } from "@/lib/api/client";
-import { offeringsService } from '@/lib/api/services/offerings.service';
 import type { Offering, Rubrique } from '@/lib/interfaces';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import type { GradeConfig } from '@/lib/types/grade-config.types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 
@@ -22,14 +18,8 @@ export function useAdminRubriquesPage() {
   const [activeTab, setActiveTab] = useState<'gestion' | 'overview'>('gestion');
   const [gestionView, setGestionView] = useState<'list' | 'edit' | 'addChoice'>('list');
 
-  const { grades } = useAdminGrades();
-  const setGrades = useMonEtoileStore((s) => s.setGrades);
 
-  useEffect(() => {
-    if (grades && grades.length > 0) {
-      setGrades(grades as GradeConfig[]);
-    }
-  }, [grades, setGrades]);
+
 
   const handleSelectRubrique = (rub: Rubrique) => {
     router.push(`/admin/rubriques/${rub._id}/list`);
@@ -50,7 +40,7 @@ export function useAdminRubriquesPage() {
     setGestionView('list');
   };
 
-   
+
 
   const fetchRubriques = useCallback(async () => {
     try {

@@ -13,7 +13,6 @@ export function useOfferingForm() {
     priceUSD: 0,
     category: '',
     description: '',
-    illustrationUrl: '',
   });
 
   const [illustrationFile, setIllustrationFile] = useState<File | null>(null);
@@ -58,12 +57,7 @@ export function useOfferingForm() {
       form.append('priceUSD', String(priceUSD));
       form.append('category', formData.category);
       form.append('description', formData.description.trim());
-      // Si un fichier est sélectionné, on l'envoie
-      if (illustrationFile) {
-        form.append('illustration', illustrationFile);
-      } else if (formData.illustrationUrl?.trim()) {
-        form.append('illustrationUrl', formData.illustrationUrl.trim());
-      }
+       
 
       const res = await api.post('/offerings', form, {
         headers: { 'Content-Type': 'multipart/form-data' },

@@ -28,19 +28,8 @@ export const OfferingCard: React.FC<OfferingCardProps> = ({ offering, onAddToCar
                      shadow-md hover:shadow-xl transition-all group cursor-pointer"
     >
       <div className="mb-3 sm:mb-4 text-center group-hover:scale-110 transition-transform">
-        {offering.illustrationUrl ? (
-          <NextImage
-            src={offering.illustrationUrl}
-            alt={offering.name + ' illustration'}
-            width={128}
-            height={128}
-            className="object-cover w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
-            style={{ width: 'auto', height: 'auto' }}
-            priority
-          />
-        ) : (
-          <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
-        )}
+                <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
+
       </div>
 
       <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white mb-1 text-center 

@@ -102,9 +102,8 @@ export function useHeaderState() {
     ] : []),
     { href: "/about", label: "A propos", icon: Stars },
     { href: "/star/monprofil", label: "Mon Profil", icon: User },
-    { href: "/star/consultations", label: "Mes Consultations", icon: FileText },
     { href: "/star/messagerie", label: "Messagerie", icon: MessageCircle },
-    { href: "/star/wallet", label: "Mon Panier", icon: Wallet },
+    { href: "/star/wallet", label: "Mon Portefeuille", icon: Wallet },
   ], [hasRole]);
 
   const hasMountedUser = mounted && Boolean(user);

@@ -33,10 +33,6 @@ interface UseEditOffrandeReturn {
   isDirty: boolean;
   validationErrors: Record<string, string>;
   imageState: ImageState;
-  setImageFile: (file: File | null) => void;
-  markImageForRemoval: () => void;
-  cancelImageRemoval: () => void;
-  clearNewImage: () => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleCategoryChange: (value: 'animal' | 'vegetal' | 'beverage') => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -70,71 +66,9 @@ export function useEditOffrande(): UseEditOffrandeReturn {
   });
 
   // Refs
-  const submitLockRef = useRef(false);
-
-  // ==================== GESTION DES IMAGES ====================
-  const setImageFile = useCallback((file: File | null) => {
-    if (file) {
-      // Nettoyer l'ancienne preview URL
-      if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageState.previewUrl);
-      }
-
-      const previewUrl = URL.createObjectURL(file);
-      setImageState({
-        file,
-        previewUrl,
-        shouldRemove: false,
-      });
-    } else {
-      if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageState.previewUrl);
-      }
-      setImageState({
-        file: null,
-        previewUrl: null,
-        shouldRemove: false,
-      });
-    }
-  }, [imageState.previewUrl]);
-
-  const markImageForRemoval = useCallback(() => {
-    // Nettoyer la nouvelle image si elle existe
-    if (imageState.file) {
-      if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageState.previewUrl);
-      }
-      setImageState({
-        file: null,
-        previewUrl: null,
-        shouldRemove: true,
-      });
-    } else {
-      setImageState(prev => ({ ...prev, shouldRemove: true }));
-    }
-
-    // Mettre à jour formData pour refléter la suppression
-    setFormData(prev => prev && ({ ...prev, illustrationUrl: undefined }));
-  }, [imageState.file, imageState.previewUrl]);
-
-  const cancelImageRemoval = useCallback(() => {
-    setImageState(prev => ({ ...prev, shouldRemove: false }));
-    // Restaurer l'URL d'image originale
-    if (originalData?.illustrationUrl) {
-      setFormData(prev => prev && ({ ...prev, illustrationUrl: originalData.illustrationUrl }));
-    }
-  }, [originalData?.illustrationUrl]);
-
-  const clearNewImage = useCallback(() => {
-    if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(imageState.previewUrl);
-    }
-    setImageState({
-      file: null,
-      previewUrl: null,
-      shouldRemove: false,
-    });
-  }, [imageState.previewUrl]);
+  const submitLockRef = useRef(false); 
+ 
+ 
 
   // ==================== VALIDATION ====================
   const validateField = useCallback((name: string, value: any): string => {
@@ -168,15 +102,7 @@ export function useEditOffrande(): UseEditOffrandeReturn {
         }
         return '';
 
-      case 'illustrationUrl':
-        if (value && typeof value === 'string') {
-          const urlPattern = /^(https?:\/\/|blob:|data:).+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i;
-          if (!urlPattern.test(value) && !value.startsWith('blob:') && !value.startsWith('data:')) {
-            return 'URL d\'image invalide (jpg, png, webp, gif)';
-          }
-        }
-        return '';
-
+      
       default:
         return '';
     }
@@ -244,10 +170,8 @@ export function useEditOffrande(): UseEditOffrandeReturn {
       setValidationErrors({});
       setError(null);
       // Réinitialiser l'état de l'image
-      clearNewImage();
-      setImageState({ file: null, previewUrl: null, shouldRemove: false });
-    }
-  }, [originalData, clearNewImage]);
+     }
+  }, [originalData,  setFormData, setValidationErrors, setError]);
 
   // ==================== CHARGEMENT DES DONNÉES (TanStack Query) ====================
   const {
@@ -404,10 +328,7 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     isDirty,
     validationErrors,
     imageState,
-    setImageFile,
-    markImageForRemoval,
-    cancelImageRemoval,
-    clearNewImage,
+
     handleChange,
     handleCategoryChange,
     handleSubmit,

@@ -1,11 +1,9 @@
-
 import { ConsultationChoiceStatusDto } from './api/services/consultation-status.service';
 export enum UserType {
   BASIQUE = 'BASIQUE',
   PREMIUM = 'PREMIUM',
   INTEGRAL = 'INTEGRAL',
 } 
-
 export type RubriqueOrNone = Rubrique | null;
 type UnknownRecord = Record<string, unknown>;
 export type Category = 'animal' | 'vegetal' | 'beverage';
@@ -45,76 +43,7 @@ export interface ConsultationData {
   alternatives: { offeringId: string; quantity: number }[];
   formData?: UnknownRecord;
   status: string;
-}
-
-export interface Book {
-  price: number | '' | null;
-  pageCount: number | null;
-  id?: string;
-  _id?: string;
-  bookId?: string; // ID unique du livre (ex: 'secrets-ancestraux')
-  title: string;
-  subtitle?: string;
-  description: string;
-  pages: number;
-  category: string;
-  author: string;
-  rating?: number;
-  coverImage?: string;
-  pdfFileName?: string;
-  offering: ConsultationOffering;
-  isAvailable?: boolean;
-  isActive: boolean;
-  downloadCount?: number;
-  purchaseCount?: number;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-  deletedAt?: string | Date;
-  offeringAlternatives?: OfferingAlternative[],
-
-  __v?: number;
-}
-
-export interface SubjectInfo {
-  nom: string;
-  prenoms: string;
-  dateNaissance: string;
-  lieuNaissance: string;
-  heureNaissance: string;
-}
-
-export interface Position {
-  planete?: string;
-  astre?: string;
-  signe?: string;
-  maison?: string | number;
-  degre?: number;
-  retrograde?: boolean;
-}
-
-export interface CarteDuCielBase {
-  sujet: SubjectInfo;
-  positions: Position[];
-  aspectsTexte: string;
-}
-
-export interface Sujet {
-  nom: string;
-  prenoms: string;
-  dateNaissance: string;
-  lieuNaissance: string;
-  heureNaissance: string;
-}
-
-export interface MissionDeVie {
-  titre: string;
-  contenu: string;
-}
-
-export interface Section {
-  titre: string;
-  contenu: string;
-}
+} 
 
 export interface Offering {
   createdAt?: string | Date;
@@ -128,19 +57,9 @@ export interface Offering {
   priceUSD: number;
   category: 'animal' | 'vegetal' | 'beverage';
   description: string;
-  quantity: number;
-  illustrationUrl?: string;
+  quantity: number; 
 }
-
-export type Article = {
-  _id: string;
-  title: string;
-  content: string;
-  illustrationUrl?: string;
-  published: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
+ 
 
 export interface OfferingAlternative {
   category: Category;
@@ -265,20 +184,7 @@ export interface Metadata {
   cached: boolean;
 }
 
-export interface AnalyseData {
-  consultationId: string;
-  sessionId: string;
-  timestamp: string;
-  carteDuCiel: CarteDuCielBase;
-  missionDeVie: MissionDeVie;
-  metadata: Metadata;
-  dateGeneration: string;
-  _id: string;
-  userId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  __v?: number;
-}
+ 
 
 export interface ConsultationData {
   _id: string;
@@ -327,65 +233,7 @@ export interface OfferingDetails {
   description?: string;
   illustrationUrl?: string;
 }
-
-
-
-export interface Tab {
-  id: HoroscopeTypeId;
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  subtitle: string;
-}
-
-export interface HoroscopeResult {
-  zodiacSign: string;
-  symbol: string;
-  element: string;
-  period: string;
-  horoscopeType: string;
-  generalForecast: string;
-  love: string;
-  work: string;
-  health: string;
-  spiritualAdvice: string;
-  luckyColor: string;
-  dominantPlanet: string;
-}
-
-export interface BackendHoroscope {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-  formData?: {
-    carteDuCiel?: {
-      carteDuCiel?: {
-        positions?: Array<{
-          planete: string;
-          signe: string;
-        }>;
-      };
-    };
-  };
-  completedDate?: string;
-  createdAt: string;
-}
-
-export interface SpiritualitePractice {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  category: string;
-  createdAt: string;
-  featured?: boolean;
-  readTime?: string;
-  author?: {
-    name: string;
-    avatar?: string;
-  };
-}
-
+   
 export interface ConsultationConfig {
   id: string;
   titre: string;
@@ -670,32 +518,7 @@ export enum Permission {
   MANAGE_PERMISSIONS = 'MANAGE_PERMISSIONS',
   SYSTEM_CONFIG = 'SYSTEM_CONFIG'
 }
-
-export interface CarteDuCielData {
-  sujet: {
-    nom: string;
-    prenoms: string;
-    dateNaissance: string;
-    lieuNaissance: string;
-    heureNaissance: string;
-  };
-  positions: Position[];
-  aspectsTexte: string;
-}
-
-export interface CarteDuCiel {
-  sessionId: string;
-  timestamp: string;
-  carteDuCiel: Position[];
-  positions: Position[];
-  aspectsTexte: string;
-  metadata: {
-    processingTime: number;
-    tokensUsed: number;
-    model: string;
-  };
-}
-
+  
 export interface ProcessedUserData {
   _id?: string;
   name: string;
@@ -712,58 +535,8 @@ export interface ProcessedUserData {
   credits: number;
   totalConsultations: number;
   rating: number;
-  carteDuCiel?: CarteDuCiel | CarteDuCielBase;
 }
-
-export interface CarteDuCielData {
-  sujet: {
-    nom: string;
-    prenoms: string;
-    dateNaissance: string;
-    lieuNaissance: string;
-    heureNaissance: string;
-  };
-  positions: Position[];
-}
-
-export interface CinqPortes {
-  signesolaire: {
-    label: string;
-    valeur: string;
-    description: string;
-    icon: string;
-    gradient: string;
-  };
-  ascendant: {
-    label: string;
-    valeur: string;
-    description: string;
-    icon: string;
-    gradient: string;
-  };
-  signeLunaire: {
-    label: string;
-    valeur: string;
-    description: string;
-    icon: string;
-    gradient: string;
-  };
-  milieuDuCiel: {
-    label: string;
-    valeur: string;
-    description: string;
-    icon: string;
-    gradient: string;
-  };
-  descendant: {
-    label: string;
-    valeur: string;
-    description: string;
-    icon: string;
-    gradient: string;
-  };
-}
-
+  
 export interface EnrichedChoice {
   consultationCount: undefined;
   choice: ConsultationChoice;
@@ -796,7 +569,6 @@ export interface Analysis {
   updatedAt: string;
 }
 
-
 export type TransactionFilter = "all" | "simulation" | "real";
 
 export interface Transaction {
@@ -815,97 +587,4 @@ export interface Transaction {
   type?: 'purchase' | 'consumption' | 'refund';
   metadata?: UnknownRecord;
 }
-
-export interface BlogPost {
-  _id: string;
-  title: string;
-  illustrationUrl?: string;
-  content: string;
-  createdAt?: string;
-};
-
-
-
-// Données des grades et utilitaires associés
-export type GradeKey =
-  | 'NEOPHYTE'
-  | 'ASPIRANT'
-  | 'CONTEMPLATEUR'
-  | 'CONSCIENT'
-  | 'INTEGRATEUR'
-  | 'TRANSMUTANT'
-  | 'ALIGNE'
-  | 'EVEILLE'
-  | 'SAGE'
-  | 'MAITRE_DE_SOI';
-
-
-
-
-
-
-
-
-export const GRADE_LEVEL: Record<GradeKey, number> & { [key: string]: number } = {
-  NEOPHYTE: 0,
-  ASPIRANT: 1,
-  CONTEMPLATEUR: 2,
-  CONSCIENT: 3,
-  INTEGRATEUR: 4,
-  TRANSMUTANT: 5,
-  ALIGNE: 6,
-  EVEILLE: 7,
-  SAGE: 8,
-  MAITRE_DE_SOI: 9,
-};
-
-export const LEVEL_TO_KEY: Record<number, GradeKey> = Object.fromEntries(
-  Object.entries(GRADE_LEVEL).map(([k, v]) => [v, k as GradeKey]),
-) as Record<number, GradeKey>;
-
-
-export type Stage = {
-  points: { label: string; text: string }[];
-};
-
-export const STAGES: Stage[] = [
-  {
-    points: [
-      { label: 'Découverte', text: 'Vous découvrez le chemin initiatique et ses principes.' },
-      { label: 'Intégration', text: 'Vous commencez à intégrer les premiers enseignements.' },
-      { label: 'Ouverture', text: 'Votre esprit s’ouvre à de nouvelles perspectives.' },
-    ],
-  },
-  {
-    points: [
-      { label: 'Pratique', text: 'Vous appliquez les rituels et exercices proposés.' },
-      { label: 'Observation', text: 'Vous observez les premiers changements en vous.' },
-      { label: 'Partage', text: 'Vous échangez avec la communauté sur vos expériences.' },
-    ],
-  },
-  {
-    points: [
-      { label: 'Maîtrise', text: 'Vous maîtrisez les bases et progressez vers l’autonomie.' },
-      { label: 'Transmission', text: 'Vous commencez à transmettre vos acquis.' },
-      { label: 'Élévation', text: 'Votre niveau de conscience s’élève.' },
-    ],
-  },
-  {
-    points: [
-      { label: 'Sagesse', text: 'Vous incarnez les valeurs du chemin initiatique.' },
-      { label: 'Rayonnement', text: 'Votre évolution inspire les autres.' },
-      { label: 'Accomplissement', text: 'Vous atteignez un état d’accomplissement personnel.' },
-    ],
-  },
-];
- 
-
-
-
-export type TierceItem = {
-  id: string;
-  nom?: string;
-  prenoms?: string;
-  dateNaissance?: string;
-  villeNaissance?: string;
-};
+  

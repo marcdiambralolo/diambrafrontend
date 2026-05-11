@@ -1,6 +1,5 @@
 ﻿"use client";
-import { formatDateFR } from "@/components/admin/consultations/DisplayConsultationCard/helpers";
-import { api } from "@/lib/api/client";
+ import { api } from "@/lib/api/client";
 import { safeTrim, wordCount } from "@/lib/functions";
 import type { Analysis } from "@/lib/interfaces";
 import { useParams, useRouter } from "next/navigation";
@@ -43,6 +42,15 @@ function isAbortError(error: unknown): boolean {
 
 function shallowEqualState(a: AdminAnalysisState, b: AdminAnalysisState) {
   return a.loading === b.loading && a.error === b.error && a.toast === b.toast;
+}
+
+export function formatDateFR(v?: string | number | Date | null) {
+  if (!v) return "";
+  try {
+    return new Date(v).toLocaleString("fr-FR");
+  } catch {
+    return "";
+  }
 }
 
 export function useAdminConsultationAnalysis() {

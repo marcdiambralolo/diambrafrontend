@@ -156,13 +156,7 @@ export function useWalletPageWithCache() {
     return 'home';
   }, [bookId, consultationId, categoryId]);
 
-  const backLink = useMemo(() => {
-    if (context === 'book' && bookId) {
-      return {
-        href: buildUrl(`/star/livres/${bookId}/achat`, {}),
-        label: 'Retour au livre',
-      };
-    }
+  const backLink = useMemo(() => {    
 
     if (context === 'consultation' && consultationId && categoryId) {
       return {

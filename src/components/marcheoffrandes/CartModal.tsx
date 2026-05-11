@@ -62,19 +62,8 @@ const CartModalItem: React.FC<CartModalItemProps> = ({ item, onUpdateQuantity, o
         <div
             className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-xl"
         >
-            {item.illustrationUrl ? (
-                <NextImage
-                    src={item.illustrationUrl}
-                    alt={item.name + ' illustration'}
-                    width={96}
-                    height={96}
-                    className="object-cover w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
-                    style={{ width: 'auto', height: 'auto' }}
-                    priority
-                />
-            ) : (
-                <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
-            )}
+                          <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
+ 
 
             <div className="flex-grow min-w-0">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">{item.name}</h3>

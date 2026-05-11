@@ -4,12 +4,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "À propos — Diambra",
     description:
-        "Diambra est un jeu de rôle en ligne.",
+        "Diambra est un jeu en ligne.",
     alternates: { canonical: "/a-propos" },
     openGraph: {
         title: "À propos — Diambra",
         description:
-            "Diambra est un jeu de rôle en ligne.",
+            "Diambra est un jeu en ligne.",
         url: "/a-propos",
         type: "website",
         images: [

@@ -1,6 +1,6 @@
-import ConsultationsPageClientEnded from "@/components/admin/consultations/attente/ConsultationsPageClientEnded";
+import ConsultationsPageClientEnded from "@/components/admin/consultations/ended/ConsultationsPageClientEnded";
 
-export default function ConsultationsPage() {
+export default function ConsultationsPage() {    
   
   return <ConsultationsPageClientEnded />;
 }

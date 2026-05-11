@@ -1,12 +1,12 @@
 "use client";
 import { cx } from "@/lib/functions";
 import {
-  ArrowLeft, BookOpen, ChevronRight, Flame, Info,
-  ScrollText, ShieldCheck, Sparkles, Stars, Users,
+  ArrowLeft, Brain, ChevronRight, Crown, Gamepad2, Info,
+  Lightbulb, Sparkles, Target, Trophy, Users, Zap,
+  Grid, Move, MousePointerClick, Trophy as TrophyIcon,
 } from "lucide-react";
 import CacheLink from "../commons/CacheLink";
 import { useEffect, useState } from "react";
-import { ImageWithFallback } from "../ui/ImageWithFallback";
 
 const useScrollReveal = () => {
   useEffect(() => {
@@ -27,22 +27,21 @@ const useScrollReveal = () => {
 };
 
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-extrabold text-white transition-all duration-300 " +
-  "bg-slate-900 hover:bg-slate-800 shadow-md hover:shadow-lg active:scale-95 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2";
+  "inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white transition-all duration-300 " +
+  "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg active:scale-95 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2";
 
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-extrabold transition-all duration-300 " +
-  "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50 shadow-sm hover:shadow-md active:scale-95 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2";
+  "inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-all duration-300 " +
+  "border-2 border-purple-200 bg-white text-purple-700 hover:bg-purple-50 shadow-sm hover:shadow-md active:scale-95 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2";
 
 export function ConicPanel({ children, className }: { children: React.ReactNode; className?: string }) {
-
   return (
-    <div className={cx("rounded-[28px] p-[1px] bg-gradient-to-br from-slate-100 via-white to-slate-50 shadow-sm", className)}>
-      <div className="relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 sm:p-7 shadow-lg">
+    <div className={cx("rounded-[28px] p-[1px] bg-gradient-to-br from-purple-100 via-white to-indigo-50 shadow-sm", className)}>
+      <div className="relative overflow-hidden rounded-[28px] border border-purple-100 bg-white p-5 sm:p-7 shadow-lg">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30"
-          style={{ background: "radial-gradient(circle at 1px 1px, #e2e8f0 1px, transparent 0)", backgroundSize: "14px 14px" }}
+          style={{ background: "radial-gradient(circle at 1px 1px, #e9d5ff 1px, transparent 0)", backgroundSize: "14px 14px" }}
         />
         <div className="relative">{children}</div>
       </div>
@@ -53,27 +52,27 @@ export function ConicPanel({ children, className }: { children: React.ReactNode;
 export function Pill({ icon, title, desc, tooltip }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string }) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
-    <div className="relative flex items-start gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-      <div className="mt-0.5 grid h-10 w-10 place-items-center rounded-2xl border border-slate-100 bg-slate-50 text-slate-900">
+    <div className="group relative flex items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+      <div className="mt-0.5 grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-700 group-hover:scale-110 transition-transform">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <div className="text-[12px] font-black text-slate-900">{title}</div>
+          <div className="text-[12px] font-bold text-purple-900">{title}</div>
           {tooltip && (
             <button
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
-              className="text-slate-400 hover:text-slate-600 transition"
+              className="text-purple-400 hover:text-purple-600 transition"
             >
               <Info className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
-        <div className="mt-1 text-[13px] leading-relaxed text-slate-600">{desc}</div>
+        <div className="mt-1 text-[13px] leading-relaxed text-purple-700">{desc}</div>
       </div>
       {tooltip && showTooltip && (
-        <div className="absolute left-0 top-full mt-2 z-10 w-48 rounded-lg bg-slate-800 px-3 py-2 text-xs text-white shadow-lg">
+        <div className="absolute left-0 top-full mt-2 z-10 w-48 rounded-lg bg-purple-900 px-3 py-2 text-xs text-white shadow-lg">
           {tooltip}
         </div>
       )}
@@ -85,17 +84,17 @@ export default function AboutPageClient() {
   useScrollReveal();
 
   return (
-    <main className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 text-purple-900 overflow-x-hidden">
       {/* Header sticky avec fond blanc */}
-      <nav className="sticky top-0 z-30 border-b border-slate-100 bg-white/90 backdrop-blur-md shadow-sm">
+      <nav className="sticky top-0 z-30 border-b border-purple-100 bg-white/90 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-3">
-          <CacheLink href="/" className="inline-flex items-center gap-2 text-sm font-extrabold text-slate-600 hover:text-slate-900 transition">
-            <ArrowLeft className="h-4 w-4" /> Accueil
+          <CacheLink href="/" className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">
+            <ArrowLeft className="h-4 w-4" /> Retour au jeu
           </CacheLink>
-          <div className="hidden sm:flex items-center gap-2 text-[13px] font-extrabold">
-            {["mission", "piliers", "grades", "offrandes", "ethique"].map((item) => (
-              <a key={item} className="text-slate-500 hover:text-slate-900 transition" href={`#${item}`}>
-                {item.charAt(0).toUpperCase() + item.slice(1)}
+          <div className="hidden sm:flex items-center gap-2 text-[13px] font-bold">
+            {["jeu", "regles", "stats", "pourquoi"].map((item) => (
+              <a key={item} className="text-purple-500 hover:text-purple-800 transition capitalize" href={`#${item}`}>
+                {item === "regles" ? "Règles" : item === "pourquoi" ? "Pourquoi jouer ?" : item}
               </a>
             ))}
           </div>
@@ -103,96 +102,149 @@ export default function AboutPageClient() {
       </nav>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
+        {/* Hero Section */}
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-          <h1 className="text-balance text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
-            Le premier pas dans la spiritualité, <br />c’est la connaissance de soi.
+          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 mb-6">
+            <Gamepad2 className="h-4 w-4 text-purple-600" />
+            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Jeu de logique</span>
+          </div>
+          <h1 className="text-balance text-4xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent sm:text-6xl">
+            Quatre Cases
           </h1>
-          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <CacheLink href="/star/profil?r=1" className={btnPrimary}>
-              Commencer le parcours <ChevronRight className="h-4 w-4" />
+          <p className="mt-4 text-lg text-purple-700 max-w-2xl mx-auto">
+            Entraînez votre cerveau avec ce puzzle de chiffres simple mais addictif.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <CacheLink href="/star/game" className={btnPrimary}>
+              Jouer maintenant <ChevronRight className="h-4 w-4" />
             </CacheLink>
-            <CacheLink href="/star/grade" className={btnSecondary}>
-              Comprendre les grades <ChevronRight className="h-4 w-4" />
+            <CacheLink href="/star/game?mode=tuto" className={btnSecondary}>
+              Mode démo <Zap className="h-4 w-4" />
             </CacheLink>
           </div>
         </section>
 
-        <section id="mission" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
+        {/* Section Règles du jeu */}
+        <section id="jeu" className="mt-12 sm:mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
           <ConicPanel>
-            <h2 className="text-xl font-black text-slate-900 sm:text-2xl">Qui sommes‑nous ?</h2>
-            <p className="mt-3 text-[13px] leading-relaxed text-slate-600 sm:text-sm">
-              Notre mission est simple, mais profonde : permettre à chacun de répondre à trois grandes questions de l’existence :
+            <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
+            <p className="mt-3 text-sm leading-relaxed text-purple-700">
+              Un jeu simple mais stratégique : remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
             </p>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-3">
-              {["Qui suis‑je ?", "D’où viens‑je ?", "Où vais‑je ?"].map((q) => (
-                <li key={q} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center text-[13px] font-extrabold text-slate-800">
-                  {q}
-                </li>
-              ))}
-            </ul>
-          </ConicPanel>
-        </section>
-
-        <section id="piliers" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
-          <div className="mb-4 text-center">
-            <h2 className="text-2xl font-black text-slate-900">Nos domaines d’exploration</h2>
-            <p className="mx-auto mt-2 max-w-3xl text-sm font-semibold text-slate-600">
-              La plateforme s’articule autour de 6 grands piliers complémentaires.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Pill icon={<Stars className="h-5 w-5" />} title="1) Astrologie" desc="Consultations personnalisées, horoscope, transits." tooltip="Notre IA Deepseek analyse votre thème astral en temps réel." />
-            <Pill icon={<ScrollText className="h-5 w-5" />} title="2) Numérologie" desc="Analyse des nombres : chemin de vie, cycles." />
-            <Pill icon={<Sparkles className="h-5 w-5" />} title="3) Testament de la connaissance" desc="Enseignements spirituels, lois invisibles." />
-            <Pill icon={<BookOpen className="h-5 w-5" />} title="4) Librairie ésotérique" desc="Ouvrages sélectionnés." />
-            <Pill icon={<Flame className="h-5 w-5" />} title="5) Rituels sacrés" desc="Pratiques énergétiques." />
-            <Pill icon={<Users className="h-5 w-5" />} title="6) Guidance" desc="Accès à des médiums certifiés." />
-          </div>
-        </section>
-
-        <section id="grades" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
-          <ConicPanel>
-            <h2 className="text-2xl font-black text-slate-900">Un parcours initiatique unique : le système de grades</h2>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
-              Diambra repose sur un système structuré en 10 grades (0 à 9), pédagogique et psychologique.
-            </p>
-            <div className="mt-6 border-t border-slate-100 pt-6">
-              <h3 className="text-lg font-black text-slate-900">Les grades</h3>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {["Néophyte (0)", "Aspirant (1)", "Contemplateur (2)", "Conscient (3)", "Intégrateur (4)", "Transmutant (5)", "Aligné (6)", "Éveillé (7)", "Sage (8)", "Maître de Soi (9)"].map((g) => (
-                  <div key={g} className="rounded-2xl border border-slate-100 bg-white p-3 text-[13px] font-extrabold text-slate-700 shadow-sm">
-                    {g}
-                  </div>
-                ))}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <MousePointerClick className="h-5 w-5 text-purple-600" />
+                  <h3 className="font-bold text-purple-800">Mode Clic</h3>
+                </div>
+                <p className="text-sm text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
+              </div>
+              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Move className="h-5 w-5 text-purple-600" />
+                  <h3 className="font-bold text-purple-800">Mode Glisser-Déposer</h3>
+                </div>
+                <p className="text-sm text-purple-600">Glissez un chiffre directement dans la case de votre choix.</p>
               </div>
             </div>
           </ConicPanel>
         </section>
 
-        <section id="offrandes" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
+        {/* Section Règles détaillées */}
+        <section id="regles" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
+          <div className="mb-4 text-center">
+            <h2 className="text-2xl font-black text-purple-900">📜 Règles du jeu</h2>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-purple-600">
+              4 cases, 10 chiffres, 1 combinaison gagnante
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Pill
+              icon={<Grid className="h-5 w-5" />}
+              title="4 cases à remplir"
+              desc="Chaque partie comporte 4 cases vides à compléter."
+              tooltip="Les cases sont numérotées de 1 à 4"
+            />
+            <Pill
+              icon={<Brain className="h-5 w-5" />}
+              title="Chiffres de 0 à 9"
+              desc="10 chiffres disponibles, mais seulement 4 seront utilisés."
+              tooltip="Utilisez votre logique pour choisir les bons"
+            />
+            <Pill
+              icon={<TrophyIcon className="h-5 w-5" />}
+              title="Pas de répétition"
+              desc="Un même chiffre ne peut être utilisé qu'une seule fois."
+              tooltip="Chaque chiffre est unique dans la combinaison"
+            />
+            <Pill
+              icon={<Target className="h-5 w-5" />}
+              title="Objectif"
+              desc="Trouvez la bonne combinaison pour gagner !"
+              tooltip="La solution est unique à chaque partie"
+            />
+          </div>
+        </section>
+
+        {/* Section Statistiques */}
+        <section id="stats" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
           <ConicPanel>
-            <h2 className="text-2xl font-black text-slate-900">Le système d’offrandes</h2>
-            <div className="mt-5 flex flex-col sm:flex-row gap-4 items-center">
-              <ImageWithFallback
-                src="https://placehold.co/80x80?text=Star"
-                alt="Offrande symbolique"
-                width={80}
-                height={80}
-                className="rounded-full shadow-md"
-              />
-              <p className="text-sm text-slate-600">Dans les traditions africaines, on n’achète pas la connaissance : on honore ce que l’on reçoit.</p>
+            <h2 className="text-2xl font-black text-purple-900">📊 Le jeu en chiffres</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="text-center p-4 rounded-2xl bg-purple-50">
+                <div className="text-4xl font-black text-purple-600">10</div>
+                <div className="text-sm font-semibold text-purple-700 mt-1">chiffres disponibles</div>
+              </div>
+              <div className="text-center p-4 rounded-2xl bg-indigo-50">
+                <div className="text-4xl font-black text-indigo-600">4</div>
+                <div className="text-sm font-semibold text-indigo-700 mt-1">cases à remplir</div>
+              </div>
+              <div className="text-center p-4 rounded-2xl bg-purple-50">
+                <div className="text-4xl font-black text-purple-600">5 040</div>
+                <div className="text-sm font-semibold text-purple-700 mt-1">combinaisons possibles</div>
+              </div>
             </div>
           </ConicPanel>
         </section>
 
-        <section id="ethique" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
+        {/* Section Pourquoi jouer */}
+        <section id="pourquoi" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
           <ConicPanel>
-            <h2 className="text-2xl font-black text-slate-900">Nos engagements</h2>
+            <h2 className="text-2xl font-black text-purple-900">✨ Pourquoi jouer à Quatre Cases ?</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Pill icon={<ShieldCheck className="h-5 w-5" />} title="Confidentialité" desc="Échanges sécurisés, vie privée respectée." />
-              <Pill icon={<ShieldCheck className="h-5 w-5" />} title="Cadre éthique strict" desc="Lutte contre les abus, responsabilisation." />
+              <Pill
+                icon={<Brain className="h-5 w-5" />}
+                title="Stimule votre logique"
+                desc="Développez votre raisonnement et votre capacité de déduction."
+              />
+              <Pill
+                icon={<Zap className="h-5 w-5" />}
+                title="Parties rapides"
+                desc="Idéal pour une pause cérébrale de quelques minutes."
+              />
+              <Pill
+                icon={<Trophy className="h-5 w-5" />}
+                title="Défiez-vous"
+                desc="Améliorez votre temps et battez vos propres records."
+              />
+              <Pill
+                icon={<Users className="h-5 w-5" />}
+                title="Gratuit et accessible"
+                desc="Jouez sans inscription, directement dans votre navigateur."
+              />
             </div>
           </ConicPanel>
+        </section>
+
+        {/* Section CTA Final */}
+        <section className="mt-12 text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-400">
+          <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
+            <h2 className="text-2xl font-black">Prêt à relever le défi ?</h2>
+            <p className="mt-2 text-purple-100">Testez votre logique dès maintenant !</p>
+            <CacheLink href="/star/game" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
+              Commencer la partie <ChevronRight className="h-4 w-4" />
+            </CacheLink>
+          </div>
         </section>
       </div>
     </main>

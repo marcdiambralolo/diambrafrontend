@@ -1,29 +1,203 @@
 'use client';
-import Toast from '@/components/admin/commons/Toast';
 import { useConsultationCard } from '@/hooks/consultations/useConsultationCard';
 import { useConsultationCardDisplay } from '@/hooks/consultations/useConsultationCardDisplay';
 import { Consultation } from '@/lib/interfaces';
-import { motion,Variants  } from 'framer-motion';
-import { AlertTriangle, CheckCircle2, Clock3, Loader2 } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
-import CardActions from './CardActions';
-import CardHeader from './CardHeader';
-import ClientInfo from './ClientInfo';
-import ConsultationBadges from './ConsultationBadges';
-import ConsultationCardGlowBar from './ConsultationCardGlowBar';
-import ConsultationCardParticles from './ConsultationCardParticles';
-import StatusBadge from './StatusBadge';
-import { cardVariants, shimmerVariants } from './consultationCardVariants';
+import { motion } from 'framer-motion';
+import { memo } from 'react';
+import { Phone, User, Users } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import { Variants } from "framer-motion";
+
+const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 25,
+            mass: 0.5
+        }
+    },
+    exit: {
+        opacity: 0,
+        y: -20,
+        scale: 0.95,
+        transition: { duration: 0.2 }
+    }
+};
+
+const shimmerVariants: Variants = {
+    animate: {
+        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+        transition: {
+            duration: 3,
+            repeat: Infinity,
+            ease: 'linear'
+        }
+    }
+};
+
+const floatingParticle1Variants: Variants = {
+    animate: {
+        y: [-10, 10, -10],
+        x: [-5, 5, -5],
+        transition: {
+            duration: 5,
+            repeat: Infinity,
+            ease: 'easeInOut'
+        }
+    }
+};
+
+const floatingParticle2Variants: Variants = {
+    animate: {
+        y: [10, -10, 10],
+        x: [5, -5, 5],
+        transition: {
+            duration: 6,
+            repeat: Infinity,
+            ease: 'easeInOut'
+        }
+    }
+};
+
+function ConsultationCardParticles() {
+    return (
+        <>
+            <motion.div
+                variants={floatingParticle1Variants}
+                animate="animate"
+                className="absolute top-4 right-4 h-2 w-2 rounded-full bg-[#4F83D1]/30 blur-sm"
+            />
+
+            <motion.div
+                variants={floatingParticle2Variants}
+                animate="animate"
+                className="absolute bottom-4 left-4 h-2 w-2 rounded-full bg-[#9BC2FF]/30 blur-sm"
+            />
+        </>
+    );
+}
+
+function ConsultationCardGlowBar({ gradient }: { gradient: string }) {
+
+    return (
+        <>
+            <motion.div
+                variants={{ animate: { opacity: [0.7, 1, 0.7], transition: { duration: 2, repeat: Infinity } } }}
+                animate="animate"
+                className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`}
+                style={{ backgroundSize: '200% 200%' }}
+            />
+            <motion.div
+                variants={{ animate: { opacity: [0.3, 0.7, 0.3], transition: { duration: 2, repeat: Infinity } } }}
+                animate="animate"
+                className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient} blur-sm`}
+                style={{ backgroundSize: '200% 200%' }}
+            />
+        </>
+    );
+}
+
+interface ConsultationBadgesProps {
+    formattedDate: string;
+}
+
+const badgeBase =
+    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+
+const ConsultationBadges = memo(
+    ({ formattedDate }: ConsultationBadgesProps) => {
+        return (
+            <div className="flex flex-wrap justify-center items-center gap-2 mb-2 w-full">
+                <motion.span
+                    whileHover={{ scale: 1.07 }}
+                    tabIndex={0}
+                    aria-label="Date de la consultation"
+                    className={
+                        badgeBase +
+                        ' bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-blue-500/30 dark:from-blue-700 dark:to-cyan-700 dark:shadow-blue-900/30'
+                    }
+                >
+                    <Calendar className="w-3 h-3" />
+                    {formattedDate}
+                </motion.span>
+            </div>
+        );
+    },
+    (prev, next) => prev.formattedDate === next.formattedDate
+);
+
+interface ClientInfoProps {
+    clientName: string;
+    phone?: string | null;
+    tierceName?: string | null;
+    hasTierce?: boolean;
+}
+
+const ClientInfo = memo(({ clientName, phone, tierceName, hasTierce }: ClientInfoProps) => {
+    return (
+        <div className="flex flex-col items-center gap-2 mb-3">
+            <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl
+                          bg-gradient-to-r from-blue-50 to-slate-50
+                          dark:from-[#13274C] dark:to-[#162A56]
+                          border border-blue-200/50 dark:border-[color:var(--theme-border)]
+                          w-full max-w-xs"
+            >
+                <User className="w-4 h-4 text-[#2E5AA6] dark:text-[#9BC2FF] flex-shrink-0" />
+                <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                    {clientName || 'Non renseigné'}
+                </span>
+            </motion.div>
+
+            {hasTierce && tierceName && (
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl
+                              bg-gradient-to-r from-blue-50 to-cyan-50
+                              dark:from-[#163A74] dark:to-[#13274C]
+                              border border-blue-200/50 dark:border-[color:var(--theme-border)]
+                              w-full max-w-xs"
+                >
+                    <Users className="w-4 h-4 text-[#2E5AA6] dark:text-[#9BC2FF] flex-shrink-0" />
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+                        {tierceName}
+                    </span>
+                </motion.div>
+            )}
+
+            {phone && (
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl
+                              bg-gradient-to-r from-emerald-50 to-teal-50
+                              dark:from-emerald-950/30 dark:to-teal-950/30
+                              border border-emerald-200/50 dark:border-emerald-800/50
+                              w-full max-w-xs"
+                >
+                    <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <span className="text-xs text-gray-700 dark:text-gray-300 truncate">
+                        {phone}
+                    </span>
+                </motion.div>
+            )}
+        </div>
+    );
+}, (prev, next) => {
+    return prev.clientName === next.clientName;
+});
+
 
 interface ConsultationCardProps {
     consultation: Consultation;
-    onGenerateAnalysis: (id: string) => void;
-    onNotify: (id: string) => void;
-    jobStatus?: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;
-    onRetryAnalysis?: (id: string) => void;
 }
 
-const ConsultationCard = memo(({ consultation, onGenerateAnalysis, onNotify, jobStatus = null, onRetryAnalysis }: ConsultationCardProps) => {
+const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
     const { typeConfig, hasTierce } = useConsultationCard(consultation);
     const { formattedDate, clientName, tierceName } = useConsultationCardDisplay(consultation);
     const clientPhone = consultation.clientId && 'phone' in consultation.clientId
@@ -32,60 +206,6 @@ const ConsultationCard = memo(({ consultation, onGenerateAnalysis, onNotify, job
     const phone = typeof clientPhone === 'string'
         ? clientPhone
         : (typeof consultation.formData?.numeroSend === 'string' ? consultation.formData.numeroSend : null);
-    const consultationId = String(consultation.id ?? consultation._id ?? '');
-
-    const [showToast, setShowToast] = useState(false);
-
-    const isCompleted = consultation.status?.toLowerCase() === 'completed' || jobStatus === 'COMPLETED';
-    const [isNotified, setIsNotified] = useState(Boolean(consultation.analysisNotified));
-    const jobBadge = useMemo(() => {
-        if (jobStatus === 'PROCESSING') {
-            return {
-                label: 'Analyse en cours',
-                icon: Loader2,
-                className: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800',
-                spin: true,
-            };
-        }
-
-        if (jobStatus === 'QUEUED') {
-            return {
-                label: 'Dans la file',
-                icon: Clock3,
-                className: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-300 dark:border-slate-700',
-                spin: false,
-            };
-        }
-
-        if (jobStatus === 'FAILED') {
-            return {
-                label: 'Echec du job',
-                icon: AlertTriangle,
-                className: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-800',
-                spin: false,
-            };
-        }
-
-        if (jobStatus === 'COMPLETED') {
-            return {
-                label: 'Analyse prête',
-                icon: CheckCircle2,
-                className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800',
-                spin: false,
-            };
-        }
-
-        return null;
-    }, [jobStatus]);
-
-    const handleNotify = (id: string) => {
-        if (onNotify) {
-            onNotify(id);
-            setShowToast(true);
-            setIsNotified(true);
-            setTimeout(() => setShowToast(false), 3500);
-        }
-    };
 
     return (
         <motion.div
@@ -109,49 +229,16 @@ const ConsultationCard = memo(({ consultation, onGenerateAnalysis, onNotify, job
 
             <ConsultationCardGlowBar gradient={typeConfig.gradient} />
 
-            <div className="absolute top-2 right-2 z-10">
-                <StatusBadge status={consultation.status} />
-            </div>
-
             <div className="flex flex-col items-center w-full gap-2 mt-2">
-                <CardHeader
-                    typeConfig={typeConfig}
-                    title={consultation.title}
-                />
                 <ClientInfo
                     clientName={clientName}
                     phone={phone}
                     tierceName={tierceName}
                     hasTierce={hasTierce}
                 />
-
                 <ConsultationBadges
                     formattedDate={formattedDate}
                 />
-
-                {jobBadge ? (
-                    <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold ${jobBadge.className}`}>
-                        <jobBadge.icon className={`h-3.5 w-3.5 ${jobBadge.spin ? 'animate-spin' : ''}`} />
-                        <span>{jobBadge.label}</span>
-                    </div>
-                ) : null}
-
-                <CardActions
-                    isCompleted={isCompleted}
-                    isNotified={isNotified}
-                    consultationId={consultationId}
-                    jobStatus={jobStatus}
-                    onGenerateAnalysis={onGenerateAnalysis}
-                    onRetry={onRetryAnalysis}
-                    onNotify={handleNotify}
-                />
-                {showToast && (
-                    <Toast
-                        message="Le client a bien été notifié."
-                        type="success"
-                        onClose={() => setShowToast(false)}
-                    />
-                )}
             </div>
 
             <ConsultationCardParticles />
@@ -160,7 +247,7 @@ const ConsultationCard = memo(({ consultation, onGenerateAnalysis, onNotify, job
 }, (prevProps, nextProps) => {
     const c1 = prevProps.consultation;
     const c2 = nextProps.consultation;
-    return (c1.id === c2.id && prevProps.jobStatus === nextProps.jobStatus);
+    return (c1.id === c2.id);
 });
 
 ConsultationCard.displayName = 'ConsultationCard';

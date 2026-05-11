@@ -1,7 +1,7 @@
 {
-  "name": "Diambra - Plateforme Spirituelle",
+  "name": "Diambra",
   "short_name": "Diambra",
-  "description": "Votre guide spirituel. Consultations de guidance, analyses astrologiques, numérologie et guidance spirituelle.",
+  "description": "Jeu de rôle en ligne",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

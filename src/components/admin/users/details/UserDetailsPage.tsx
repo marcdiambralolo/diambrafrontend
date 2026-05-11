@@ -1,7 +1,6 @@
 "use client";
 import CacheLink from '@/components/commons/CacheLink';
-import { formatDateFR } from "@/components/admin/consultations/DisplayConsultationCard/helpers";
-import { InfoRow } from "@/components/admin/users/details/InfoRow";
+ import { InfoRow } from "@/components/admin/users/details/InfoRow";
 import Section from "@/components/admin/users/details/SectionOne";
 import { StatPill } from "@/components/admin/users/details/StatPill";
 import UserAspectsTexte from "@/components/admin/users/details/UserAspectsTexte";
@@ -15,6 +14,15 @@ import {
     Activity, Calendar, Edit, Globe,
     Layers, Phone, Settings2, Shield, User as UserIcon
 } from "lucide-react";
+
+export function formatDateFR(v?: string | number | Date | null) {
+  if (!v) return "";
+  try {
+    return new Date(v).toLocaleString("fr-FR");
+  } catch {
+    return "";
+  }
+}
 
 export default function UserDetailsPage() {
     const { user, loading, error } = useUserDetailsPage();
@@ -48,8 +56,7 @@ export default function UserDetailsPage() {
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <StatPill label="Consultations" value={user.consultationsCount ?? user.totalConsultations ?? 0} />
                         <StatPill label="Terminées" value={user.consultationsCompleted ?? 0} />
-                        <StatPill label="Livres lus" value={user.booksRead ?? 0} />
-                    </div>
+                     </div>
                 </div>
             </div>
 

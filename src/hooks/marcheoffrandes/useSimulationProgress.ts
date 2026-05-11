@@ -22,7 +22,7 @@ type CartItem = {
 
 export const SIMULATION_STEPS = {
     processing: { duration: 20, label: "Traitement de la commande..." },
-    validating: { duration: 20, label: "Validation des offrandes..." },
+    validating: { duration: 20, label: "Validation des jetons..." },
     saving: { duration: 20, label: "Enregistrement de la transaction..." },
     success: { duration: 50, label: "Opération réalisée avec succès !" },
 };

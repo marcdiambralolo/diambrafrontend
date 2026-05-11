@@ -1,26 +1,20 @@
 import {
-  Award,
-  BookOpen,
   CreditCard,
   FileText,
   LayoutDashboard,
   Settings,
   Shield,
-  Sparkles,
   Users
 } from 'lucide-react';
 
 export const navItems = [
   { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard, color: 'amber' },
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, color: 'blue' },
-  { href: '/admin/offrandes', label: 'Offrandes', icon: Shield, color: 'cyan' },
+  { href: '/admin/offrandes', label: 'Jetons', icon: Shield, color: 'cyan' },
   { href: '/admin/rubriques', label: 'Rubriques', icon: FileText, color: 'blue' },
   { href: '/admin/categories', label: 'Catégories', icon: FileText, color: 'teal' },
-  { href: '/admin/consultations', label: 'Consultations', icon: FileText, color: 'green' },
-  { href: '/admin/books', label: 'Livres', icon: BookOpen, color: 'indigo' },
-  { href: '/admin/blog', label: 'Blog', icon: Sparkles, color: 'red' },
+  { href: '/admin/consultations', label: 'Jeux', icon: FileText, color: 'green' },
   { href: '/admin/payments', label: 'Paiements', icon: CreditCard, color: 'ocean' },
-  { href: '/admin/grades', label: 'Grades', icon: Award, color: 'emerald' },
   { href: '/admin/settings', label: 'Paramètres', icon: Settings, color: 'gray' },
 ];
 

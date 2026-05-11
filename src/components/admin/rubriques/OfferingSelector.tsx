@@ -69,8 +69,7 @@ const OfferingOption = memo(({ offering, isSelected, onClick }: {
                     : 'hover:bg-slate-50 border-2 border-transparent'
             }`}
         >
-            <OfferingImage src={offering.illustrationUrl} name={offering.name} />
-            <div className="flex-1 text-left">
+             <div className="flex-1 text-left">
                 <div className="flex items-center justify-between">
                     <span className="font-medium text-sm text-slate-900">
                         {offering.name}
@@ -152,8 +151,7 @@ export const OfferingSelector = memo(({
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-3 p-2 rounded-lg bg-white/50"
                 >
-                    <OfferingImage src={selectedOffering.illustrationUrl} name={selectedOffering.name} />
-                    <div className="flex-1">
+                     <div className="flex-1">
                         <div className="flex items-center justify-between">
                             <span className="font-semibold text-sm">
                                 {selectedOffering.name}

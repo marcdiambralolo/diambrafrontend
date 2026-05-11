@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Sparkles, Zap, Brain, Target, ArrowRight, Star, Trophy, Puzzle } from "lucide-react";
+import WelcomePageClient from "@/components/accueil/WelcomePageClient";
 
 const PARTICLE_COUNT = 30;
 
@@ -61,6 +62,8 @@ export default function Home() {
             <Zap className="h-4 w-4 text-orange-500" />
           </div>
         </div>
+
+        <WelcomePageClient />
 
         <article className="group relative rounded-[2rem] border border-purple-100 bg-white/95 p-8 shadow-[0_20px_60px_-15px_rgba(139,92,246,0.15),0_4px_20px_-5px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-[0_30px_80px_-15px_rgba(139,92,246,0.25)] sm:p-12">
           {/* Effet de brillance au hover */}

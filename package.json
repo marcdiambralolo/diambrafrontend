@@ -6,24 +6,44 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "env:local": "node scripts/switch-env.js local",
+    "env:prod": "node scripts/switch-env.js prod"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.3.1",
+    "@tanstack/query-sync-storage-persister": "^5.90.24",
+    "@tanstack/react-query": "^5.90.21",
+    "@tanstack/react-query-persist-client": "^5.90.24",
+    "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^1.14.0",
-    "next": "16.2.5",
+    "idb": "^8.0.3",
+    "ioredis": "^5.10.1",
+    "lucide-react": "^0.344.0",
+    "next": "16.2.6",
     "next-themes": "^0.4.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.6.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "socket.io-client": "^4.8.3",
+    "swr": "^2.4.1",
+    "zustand": "^5.0.11",
+    "zustand-persist": "^0.4.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.5",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@types/node": "^20.19.33",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.4.24",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "16.2.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "ts-prune": "^0.10.3",
+    "typescript": "^5.9.3"
   }
 }

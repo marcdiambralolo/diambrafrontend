@@ -29,7 +29,6 @@ export const config = {
     profile: '/profile',
   },
 
-  // Pagination
   pagination: {
     defaultLimit: 10,
     maxLimit: 100,

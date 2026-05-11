@@ -61,13 +61,6 @@ function createTempId() {
  
 
 function resolveUserGrade(user: User | null | undefined): string | null {
-    if (!user?.grade) return null;
-    if (typeof user.grade === "object" && user.grade !== null && "grade" in user.grade) {
-        return user.grade.grade ?? null;
-    }
-    if (typeof user.grade === "string") {
-        return user.grade;
-    }
     return null;
 }
 
@@ -106,7 +99,6 @@ export function useCategoryClientViewChoix() {
     const updateUser = useAuthStore((s) => s.updateUser);
     const category = useMonEtoileStore((s) => s.category);
     const setRubriqueEnCours = useMonEtoileStore((s) => s.setRubriqueEnCours);
-    const setCurrentGrade = useMonEtoileStore((s) => s.setCurrentGrade);
     const setChoixConsultationEnCours = useMonEtoileStore((s) => s.setChoixConsultationEnCours);
 
     const rubriqueId = searchParams?.get("rubriqueId") || "";
@@ -151,9 +143,7 @@ export function useCategoryClientViewChoix() {
         if (shouldUpdateUserStore(user, freshUser)) {
             updateUser(freshUser);
         }
-        const nextGrade = resolveUserGrade(freshUser);
-        setCurrentGrade(nextGrade);
-    }, [freshUser, user, updateUser, setCurrentGrade]);
+    }, [freshUser, user, updateUser, ]);
 
     const resolvedGrade = useMemo(
         () => resolveUserGrade(freshUser ?? user) ?? "NEOPHYTE",

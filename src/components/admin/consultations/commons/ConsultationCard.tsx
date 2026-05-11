@@ -1,12 +1,9 @@
 'use client';
-import { useConsultationCard } from '@/hooks/consultations/useConsultationCard';
 import { useConsultationCardDisplay } from '@/hooks/consultations/useConsultationCardDisplay';
 import { Consultation } from '@/lib/interfaces';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
+import { Calendar, Phone, User } from 'lucide-react';
 import { memo } from 'react';
-import { Phone, User, Users } from 'lucide-react';
-import { Calendar } from 'lucide-react';
-import { Variants } from "framer-motion";
 
 const cardVariants: Variants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -82,20 +79,20 @@ function ConsultationCardParticles() {
     );
 }
 
-function ConsultationCardGlowBar({ gradient }: { gradient: string }) {
+function ConsultationCardGlowBar( ) {
 
     return (
         <>
             <motion.div
                 variants={{ animate: { opacity: [0.7, 1, 0.7], transition: { duration: 2, repeat: Infinity } } }}
                 animate="animate"
-                className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`}
+                className={`absolute top-0 left-0 right-0 h-1 bg-green`}
                 style={{ backgroundSize: '200% 200%' }}
             />
             <motion.div
                 variants={{ animate: { opacity: [0.3, 0.7, 0.3], transition: { duration: 2, repeat: Infinity } } }}
                 animate="animate"
-                className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient} blur-sm`}
+                className={`absolute top-0 left-0 right-0 h-1 bg-green blur-sm`}
                 style={{ backgroundSize: '200% 200%' }}
             />
         </>
@@ -134,11 +131,9 @@ const ConsultationBadges = memo(
 interface ClientInfoProps {
     clientName: string;
     phone?: string | null;
-    tierceName?: string | null;
-    hasTierce?: boolean;
 }
 
-const ClientInfo = memo(({ clientName, phone, tierceName, hasTierce }: ClientInfoProps) => {
+const ClientInfo = memo(({ clientName, phone }: ClientInfoProps) => {
     return (
         <div className="flex flex-col items-center gap-2 mb-3">
             <motion.div
@@ -154,22 +149,6 @@ const ClientInfo = memo(({ clientName, phone, tierceName, hasTierce }: ClientInf
                     {clientName || 'Non renseigné'}
                 </span>
             </motion.div>
-
-            {hasTierce && tierceName && (
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl
-                              bg-gradient-to-r from-blue-50 to-cyan-50
-                              dark:from-[#163A74] dark:to-[#13274C]
-                              border border-blue-200/50 dark:border-[color:var(--theme-border)]
-                              w-full max-w-xs"
-                >
-                    <Users className="w-4 h-4 text-[#2E5AA6] dark:text-[#9BC2FF] flex-shrink-0" />
-                    <span className="text-xs font-semibold text-gray-900 dark:text-white truncate">
-                        {tierceName}
-                    </span>
-                </motion.div>
-            )}
 
             {phone && (
                 <motion.div
@@ -198,8 +177,8 @@ interface ConsultationCardProps {
 }
 
 const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
-    const { typeConfig, hasTierce } = useConsultationCard(consultation);
-    const { formattedDate, clientName, tierceName } = useConsultationCardDisplay(consultation);
+ 
+    const { formattedDate, clientName } = useConsultationCardDisplay(consultation);
     const clientPhone = consultation.clientId && 'phone' in consultation.clientId
         ? consultation.clientId.phone
         : undefined;
@@ -222,19 +201,17 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
                 animate="animate"
                 className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                 style={{
-                    background: `linear-gradient(90deg, transparent, ${typeConfig.gradient.includes('emerald') ? 'rgba(79, 131, 209, 0.08)' : 'rgba(46, 90, 166, 0.12)'}, transparent)`,
+                    background: `linear-gradient(90deg, transparent,   rgba(46, 90, 166, 0.12), transparent)`,
                     backgroundSize: '200% 100%'
                 }}
             />
 
-            <ConsultationCardGlowBar gradient={typeConfig.gradient} />
+            <ConsultationCardGlowBar  />
 
             <div className="flex flex-col items-center w-full gap-2 mt-2">
                 <ClientInfo
                     clientName={clientName}
                     phone={phone}
-                    tierceName={tierceName}
-                    hasTierce={hasTierce}
                 />
                 <ConsultationBadges
                     formattedDate={formattedDate}

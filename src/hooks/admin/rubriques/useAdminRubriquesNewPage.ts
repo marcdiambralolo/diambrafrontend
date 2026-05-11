@@ -13,8 +13,8 @@ export function useAdminRubriquesNewPage() {
     description: '',
     categorie: 'GENERAL',
     consultationChoices: [],
-    typeconsultation: ConsultationType.SPIRITUALITE,
-    type: ConsultationType.SPIRITUALITE,
+    typeconsultation: ConsultationType.AUTRE,
+    type: ConsultationType.AUTRE,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -52,11 +52,7 @@ export function useAdminRubriquesNewPage() {
 
     try {
       await api.post('/rubriques', newRubrique);
-      setToast({ type: 'success', message: 'Rubrique créée avec succès' });
-
-
-
-      // Redirection après 1.5 secondes
+      setToast({ type: 'success', message: 'Rubrique créée avec succès' }); 
       setTimeout(() => router.push('/admin/rubriques'), 1500);
     } catch (error: unknown) {
       setToast({

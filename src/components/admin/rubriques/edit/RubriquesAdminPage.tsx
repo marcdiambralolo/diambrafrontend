@@ -3,7 +3,6 @@ import { RubriquesLoader } from '@/components/admin/rubriques/RubriquesLoader';
 import { RubriquesToast } from '@/components/admin/rubriques/RubriquesToast';
 import { ANIMATION_VARIANTS } from '@/hooks/admin/rubriques/useAdminRubriquesAddPage';
 import { useAdminRubriquesEditPage } from '@/hooks/admin/rubriques/useAdminRubriquesEditPage';
-import { FrequenceConsultation, TypeParticipants } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -100,7 +99,7 @@ const PARTICIPANTS_LABELS: Record<string, string> = {
 export default function RubriquesAdminEditPage() {
   const {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange, handleCancelEdit, handleDeleteChoice, grades,
+    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,  
     expandedSection, totalCost, isFormValid, loading, saving, offerings,
     offeringsLoading, choice, view, editingRubrique, toast, originalChoice,
   } = useAdminRubriquesEditPage();
@@ -233,68 +232,7 @@ export default function RubriquesAdminEditPage() {
                             />
                           </div>
                         </FormField>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          {/* Grade selection */}
-                          <FormField label="Grade associé" required error={!choice.gradeId ? 'Grade requis' : undefined}>
-                            <select
-                              value={typeof choice.gradeId === 'string' ? choice.gradeId : (choice.gradeId && typeof choice.gradeId === 'object' ? (choice.gradeId as any)._id : '')}
-                              onChange={async e => {
-                                const gradeId = e.target.value;
-                                handleUpdateChoice({ ...choice, gradeId });
-                              }}
-                              className={`w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#0F1C3F] text-black transition ${!choice.gradeId
-                                ? 'border-red-400 focus:ring-red-400'
-                                : 'border-slate-300 dark:border-slate-600'
-                                }`}
-                              required
-                            >
-                              <option value="">Sélectionner un grade</option>
-                              {grades.map(grade => (
-                                <option key={grade._id} value={grade._id}>
-                                  {grade.name}
-                                </option>
-                              ))}
-                            </select>
-                          </FormField>
-
-                          {/* Frequency */}
-                          <FormField label="Fréquence">
-                            <div className="relative">
-                              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                              <select
-                                value={choice.frequence || ''}
-                                onChange={e => handleUpdateChoice({ ...choice, frequence: e.target.value as FrequenceConsultation })}
-                                className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-slate-300 bg-white dark:bg-[#0F1C3F] dark:border-slate-600 text-black"
-                              >
-                                <option value="">Sélectionner</option>
-                                <option value="UNE_FOIS_VIE">🔮 Une fois dans la vie</option>
-                                <option value="ANNUELLE">📅 Chaque année</option>
-                                <option value="MENSUELLE">📆 Chaque mois</option>
-                                <option value="QUOTIDIENNE">⭐ Chaque jour</option>
-                                <option value="LIBRE">🕊️ À tout moment</option>
-                              </select>
-                            </div>
-                          </FormField>
-
-                          {/* Participants */}
-                          <FormField label="Participants">
-                            <div className="relative">
-                              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                              <select
-                                value={choice.participants || ''}
-                                onChange={e => handleUpdateChoice({ ...choice, participants: e.target.value as TypeParticipants })}
-                                className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-slate-300 bg-white dark:bg-[#0F1C3F] dark:border-slate-600 text-black"
-                              >
-                                <option value="">Sélectionner</option>
-                                <option value="SOLO">👤 Solo</option>
-                                <option value="AVEC_TIERS">👥 Avec tiers</option>
-                                <option value="POUR_TIERS">🎁 Pour un tiers</option>
-                                <option value="GROUPE">👨‍👩‍👧‍👦 Groupe</option>
-                              </select>
-                            </div>
-                          </FormField>
-                        </div>
+ 
 
                         {/* Description */}
                         <FormField label="Description" description="Décrivez ce choix en détail">

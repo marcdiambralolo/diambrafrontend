@@ -136,7 +136,7 @@ const RubriqueConsultationCard = memo(function RubriqueConsultationCard({
         if (grade && typeof grade === 'object' && grade !== null) {
             return (
                 <>
-                    Niveau requis : {grade.name} (niveau {grade.level})
+                    Niveau requis : {grade.name} 
                 </>
             );
         }

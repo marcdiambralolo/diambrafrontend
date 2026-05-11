@@ -64,7 +64,7 @@ export default function RubriquesAdminPage() {
                           onChange={(e) =>
                             setEditingRubrique({ ...editingRubrique, titre: e.target.value })
                           }
-                          placeholder="Ex: Astrologie Africaine, Numérologie..."
+                          placeholder="Ex: jeu"
                           className="w-full px-4 py-3 text-lg rounded-xl border border-[#2E5AA6]/20 bg-white focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0A0F2A] dark:text-slate-100 dark:focus:ring-[#4F83D1]/40 transition-all"
                         />
                       </div>

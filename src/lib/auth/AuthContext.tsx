@@ -164,7 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Déconnexion utilisateur avec nettoyage complet
    */
-  const clearBlogArticles = useMonEtoileStore((s) => s.clearBlogArticles);
+ 
  
 
   const logout = useCallback(async (): Promise<void> => {
@@ -183,12 +183,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
       } catch { }
       setAccessToken(null);
-      clearBlogArticles();
       persistLogout();
       await clearClientApplicationState();
       setIsLoading(false);
     }
-  }, [clearBlogArticles, logoutStore, persistLogout]);
+  }, [ logoutStore, persistLogout]);
 
   /**
    * Rafraîchit les données utilisateur depuis l'API

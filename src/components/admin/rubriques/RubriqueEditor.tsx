@@ -43,17 +43,6 @@ const RubriqueEditor = memo(({
           className="w-full px-4 py-3 rounded-xl border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] bg-white text-base font-semibold dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
         >
           <option value="" disabled>Type de consultation</option>
-          <option value="SPIRITUALITE">Spiritualité</option>
-          <option value="VIE_PERSONNELLE">Vie personnelle</option>
-          <option value="RELATIONS">Relations</option>
-          <option value="PROFESSIONNEL">Professionnel</option>
-          <option value="OFFRANDES">Offrandes</option>
-          <option value="ASTROLOGIE_AFRICAINE">Astrologie africaine</option>
-          <option value="HOROSCOPE">Horoscope</option>
-          <option value="NOMBRES_PERSONNELS">Nombres personnels</option>
-          <option value="CYCLES_PERSONNELS">Cycles personnels</option>
-          <option value="CINQ_ETOILES">Cinq étoiles</option>
-          <option value="NUMEROLOGIE">Numérologie</option>
           <option value="AUTRE">Autre</option>
         </select>
         <textarea

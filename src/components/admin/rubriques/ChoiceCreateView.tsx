@@ -1,8 +1,8 @@
 "use client";
+import type { ConsultationChoice, Offering } from "@/lib/interfaces";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, X } from "lucide-react";
 import { memo, useState } from "react";
-import type { ConsultationChoice, Offering, FrequenceConsultation, TypeParticipants } from "@/lib/interfaces";
 
 interface ChoiceCreateViewProps {
   onSave: (choice: ConsultationChoice) => void;
@@ -85,48 +85,7 @@ const ChoiceCreateView = memo(function ChoiceCreateView({ onSave, onCancel }: Ch
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-xs font-bold text-slate-700 dark:text-slate-300">Fréquence</label>
-            <select
-              value={newChoice.frequence || ""}
-              onChange={(e) =>
-                setNewChoice({
-                  ...newChoice,
-                  frequence: (e.target.value || undefined) as FrequenceConsultation | undefined,
-                })
-              }
-              className="theme-dark-input w-full rounded-lg px-3 py-2 text-sm text-black"
-            >
-              <option value="">-- Sélectionner --</option>
-              <option value="UNE_FOIS_VIE">Une fois dans la vie</option>
-              <option value="ANNUELLE">Annuelle</option>
-              <option value="MENSUELLE">Mensuelle</option>
-              <option value="QUOTIDIENNE">Quotidienne</option>
-              <option value="LIBRE">Libre</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-bold text-slate-700 dark:text-slate-300">Participants</label>
-            <select
-              value={newChoice.participants || ""}
-              onChange={(e) =>
-                setNewChoice({
-                  ...newChoice,
-                  participants: (e.target.value || undefined) as TypeParticipants | undefined,
-                })
-              }
-              className="theme-dark-input w-full rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="">-- Sélectionner --</option>
-              <option value="SOLO">Solo</option>
-              <option value="AVEC_TIERS">Avec une tierce personne</option>
-              <option value="POUR_TIERS">Pour une personne tierce</option>
-              <option value="GROUPE">Groupe</option>
-            </select>
-          </div>
-        </div>
+    
       </div>
 
       {/* Actions */}

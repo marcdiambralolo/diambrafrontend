@@ -62,11 +62,6 @@ export function useAdminRubriquesAddPage() {
   const router = useRouter();
   const params = useParams();
   const rubriqueId = params?.id as string;
-
-  // Store
-  const grades = useMonEtoileStore(s => s.grades) as GradeConfig[];
-  const setGrades = useMonEtoileStore((s) => s.setGrades);
-
   // États
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
   const [editingRubrique, setEditingRubrique] = useState<Rubrique | null>(null);
@@ -112,13 +107,6 @@ export function useAdminRubriquesAddPage() {
       }
     };
   }, []);
-
-  // Synchronisation des grades
-  useEffect(() => {
-    if (grades && grades.length > 0) {
-      setGrades(grades);
-    }
-  }, [grades, setGrades]);
 
   // Navigation retour
   const handleBackToList = useCallback(() => {
@@ -348,7 +336,7 @@ export function useAdminRubriquesAddPage() {
 
   return {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange, grades, expandedSection, totalCost, isFormValid,
+    handleAlternativeChange,   expandedSection, totalCost, isFormValid,
     loading, saving, offerings, offeringsLoading, choice, view, editingRubrique, toast,
   };
 }

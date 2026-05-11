@@ -1,5 +1,4 @@
-import { config } from "@/lib/config";
-import {  PractitionerReview, Rubrique, User } from "./interfaces";
+import { Rubrique, User } from "./interfaces";
 
 export function isUrl(s: string) {
   return s.startsWith('http') || s.startsWith('/');
@@ -48,8 +47,6 @@ export function getRubriqueId(r: Rubrique): string | null {
   return r?._id || null;
 }
 
- 
-
 export function processUserData(userData: User | null): User | null {
   if (!userData) return null;
 
@@ -65,7 +62,7 @@ export function processUserData(userData: User | null): User | null {
     credits: userData.credits ?? 0,
     totalConsultations: userData.totalConsultations ?? 0,
     rating: userData.rating ?? 0,
-    nomconsultant: userData.nomconsultant||userData.username,
+    nomconsultant: userData.nomconsultant || userData.username,
     ...userData
   };
 }
@@ -73,7 +70,6 @@ export function processUserData(userData: User | null): User | null {
 export function cleanText(s: unknown) {
   return String(s ?? "").replace(/\s+/g, " ").trim();
 }
-
 
 export function getId(x: { _id?: unknown; id?: unknown } | null | undefined): string {
   return String(x?._id ?? x?.id ?? "");
@@ -102,13 +98,11 @@ export function getStableRubriqueId(r: Rubrique): string {
   return `rub_${h.toString(16)}`; // stable
 }
 
-
 export const formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return num.toString();
 };
-
 
 /** @deprecated Use safeTrim instead */
 export function safeText(v: unknown) {
@@ -152,15 +146,11 @@ export function buildUrl(pathname: string, params: Record<string, string | undef
     if (v !== undefined && v !== null && String(v).length > 0) sp.set(k, String(v));
   });
 
-  // anti-cache / force refresh soft
   sp.set('r', String(Date.now()));
 
   const qs = sp.toString();
   return qs ? `${pathname}?${qs}` : pathname;
 }
-
-
-
 
 export function formatDateFRTiret(iso?: string) {
   if (!iso) return "—";
@@ -206,30 +196,6 @@ export function slugify(input: string) {
 
 export type TocItem = { id: string; text: string; level: 2 | 3 };
 
-export function buildTocFromMarkdown(md: string): TocItem[] {
-  const lines = (md || "").split("\n");
-  const items: TocItem[] = [];
-  const used = new Map<string, number>();
-
-  for (const line of lines) {
-    const m2 = line.match(/^##\s+(.+)$/);
-    const m3 = line.match(/^###\s+(.+)$/);
-    const text = (m2?.[1] || m3?.[1] || "").trim();
-    const level = m2 ? 2 : m3 ? 3 : null;
-    if (!level || !text) continue;
-
-    let id = slugify(text);
-    const count = used.get(id) ?? 0;
-    used.set(id, count + 1);
-    if (count > 0) id = `${id}-${count + 1}`;
-
-    items.push({ id, text, level });
-  }
-
-  return items.slice(0, 18);
-}
-
-
 export function fmtDuration(ms: number) {
   const s = Math.max(0, Math.round(ms / 1000));
   const m = Math.floor(s / 60);
@@ -238,7 +204,6 @@ export function fmtDuration(ms: number) {
   return `${m}m ${String(r).padStart(2, '0')}s`;
 }
 
-
 export function createReviewId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
@@ -246,95 +211,6 @@ export function createReviewId() {
 export function normalizeReviewRating(value: number) {
   return Math.max(1, Math.min(5, Math.round(value)));
 }
-
-export function readStoredReviews(storageKey: string): PractitionerReview[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return [];
-
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed
-      .map((entry) => ({
-        id: typeof entry?.id === "string" ? entry.id : createReviewId(),
-        author:
-          typeof entry?.author === "string" && entry.author.trim()
-            ? entry.author.trim()
-            : "Membre Mon Etoile",
-        rating: normalizeReviewRating(Number(entry?.rating ?? 5)),
-        comment: typeof entry?.comment === "string" ? entry.comment.trim() : "",
-        createdAt: Number(entry?.createdAt ?? Date.now()),
-      }))
-      .filter((entry) => entry.comment.length > 0);
-  } catch {
-    return [];
-  }
-}
-
-
-
-export function toMediaUrl(pathLike?: string | null) {
-  if (!pathLike) return null;
-  if (/^https?:\/\//i.test(pathLike)) return pathLike;
-  const normalized = pathLike.replaceAll("\\", "/").replace(/^\/+/, "");
-  const baseUrl = config.api.baseURL.replace(/\/+$/, "");
-  return `${baseUrl}/${normalized}`;
-}
-
-export function toYouTubeEmbedUrl(rawUrl?: string | null) {
-  if (!rawUrl) return null;
-
-  try {
-    const url = new URL(rawUrl);
-    const host = url.hostname.toLowerCase();
-
-    if (host.includes("youtu.be")) {
-      const id = url.pathname.replace(/^\//, "");
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-
-    if (host.includes("youtube.com")) {
-      const id = url.searchParams.get("v");
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
-export function extractYouTubeId(rawUrl?: string | null) {
-  if (!rawUrl) return null;
-
-  try {
-    const url = new URL(rawUrl);
-    const host = url.hostname.toLowerCase();
-
-    if (host.includes("youtu.be")) {
-      return url.pathname.replace(/^\//, "") || null;
-    }
-
-    if (host.includes("youtube.com")) {
-      return url.searchParams.get("v");
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
-export function toYouTubeThumbnailUrl(rawUrl?: string | null) {
-  const id = extractYouTubeId(rawUrl);
-  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
-}
-
-
-
 
 export function getPageNumbers(page: number, total: number) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -356,14 +232,6 @@ export function getPageNumbers(page: number, total: number) {
   }
   return out;
 }
-
- 
-
-export function makeExcerpt(content: string, max = 160) {
-  return content.length <= max ? content : content.slice(0, max).trimEnd() + '…';
-}
-
- 
 
 export function clamp(s: string, max = 140) {
   const t = cleanText(s);

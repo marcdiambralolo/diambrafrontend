@@ -66,9 +66,7 @@ export function useAdminRubriquesEditPage() {
   const rubriqueId = params?.id as string;
   const choiceId = searchParams?.get('idchoice') || searchParams?.get('id') || '';
 
-  // Store
-  const grades = useMonEtoileStore(s => s.grades) as GradeConfig[];
-  const setGrades = useMonEtoileStore((s) => s.setGrades);
+ 
 
   // États
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
@@ -115,13 +113,7 @@ export function useAdminRubriquesEditPage() {
       }
     };
   }, []);
-
-  // Synchronisation des grades
-  useEffect(() => {
-    if (grades && grades.length > 0) {
-      setGrades(grades);
-    }
-  }, [grades, setGrades]);
+ 
 
   // Navigation retour
   const handleBackToList = useCallback(() => {
@@ -403,7 +395,7 @@ export function useAdminRubriquesEditPage() {
 
   return {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange, handleCancelEdit, handleDeleteChoice, grades,
+    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,  
     expandedSection, totalCost, isFormValid, loading, saving, offerings,
     offeringsLoading, choice, view, editingRubrique, toast, originalChoice,
   };

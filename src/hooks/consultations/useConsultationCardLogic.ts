@@ -54,8 +54,7 @@ export function useConsultationCardLogic(
     }
 
     const normalizedStatus = String(consultation.status ?? '').toUpperCase();
-    const isFreeCinqPortes = consultation.type === "CINQ_ETOILES";
-    const isPaid = isFreeCinqPortes || consultation.isPaid === true || Boolean(consultation.paymentId);
+     const isPaid =  consultation.isPaid === true || Boolean(consultation.paymentId);
     const hasAnalysisArtifacts = Boolean(
       consultation.dateGeneration
       || consultation.completedAt
@@ -64,7 +63,7 @@ export function useConsultationCardLogic(
       || consultation.pdfFile
       || consultation.result
     );
-    const normalizedStatusForDisplay = isFreeCinqPortes && normalizedStatus === 'AWAITING_PAYMENT'
+    const normalizedStatusForDisplay =  normalizedStatus === 'AWAITING_PAYMENT'
       ? 'PENDING'
       : normalizedStatus;
 

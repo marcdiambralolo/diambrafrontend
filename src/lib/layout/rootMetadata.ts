@@ -6,20 +6,20 @@ const faviconAnySize = `${'an'}y`;
 export function getRootMetadata() {
   return {
     title: {
-      default: "Diambra - Votre Guide Spirituel  | guidance & Astrologie",
+      default: "Diambra",
       template: "%s | Diambra",
     },
     description:
-      "✨ Découvrez votre destinée avec Diambra : consultations de guidance authentiques, analyses astrologiques personnalisées, numérologie avancée et guidance spirituelle par des experts certifiés. Révélez votre potentiel cosmique dès maintenant",
+      "✨ Jouez dès maintenant",
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://www.diambra.net"),
     openGraph: {
       type: "website",
       locale: "fr_FR",
       url: "/",
       siteName: "Diambra",
-      title: "Diambra ✨ Votre Destinée Révélée",
+      title: "Diambra",
       description:
-        "🔮 Consultations spirituelles professionnelles • Analyses astrologiques détaillées • Guidance authentique • Révélez votre potentiel cosmique avec nos experts certifiés.",
+        "🔮 Jeu.",
       images: [
         { url: "/og-image.jpg", width: 1200, height: 630, alt: "Diambra - Plateforme Spirituelle", type: "image/jpeg" },
         { url: "/og-image-square.jpg", width: 800, height: 800, alt: "Diambra Logo", type: "image/jpeg" },
@@ -27,10 +27,10 @@ export function getRootMetadata() {
     },
     twitter: {
       card: "summary_large_image",
-      site: "@MonEtoileApp",
-      creator: "@MonEtoileApp",
-      title: "Diambra ✨ Guidance & Astrologie Africaines",
-      description: "🔮 Votre guide spirituel personnalisé. Consultations professionnelles, analyses astrologiques et guidance cosmique.",
+      site: "@DiambraApp",
+      creator: "@DiambraApp",
+      title: "Diambra ",
+      description: "🔮 Jeu.",
       images: ["/twitter-image.jpg"],
     },
     icons: {

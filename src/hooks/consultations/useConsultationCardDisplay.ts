@@ -29,15 +29,6 @@ export function useConsultationCardDisplay(consultation: Consultation) {
     return `${firstName} ${lastName}`.trim();
   }, [consultation.clientDisplayName, consultation.formData]);
 
-  const tierceName = useMemo(() => {
-    if (!consultation.tierce) return null;
 
-    const tierceRecord = consultation.tierce as Record<string, unknown>;
-    const prenoms = typeof tierceRecord.prenoms === 'string' ? tierceRecord.prenoms : '';
-    const nom = typeof tierceRecord.nom === 'string' ? tierceRecord.nom : '';
-
-    return `${prenoms} ${nom}`.trim();
-  }, [consultation.tierce]);
-
-  return { formattedDate, clientName, tierceName };
+  return { formattedDate, clientName };
 }

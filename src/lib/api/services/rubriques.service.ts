@@ -4,7 +4,6 @@ export async function updateConsultationChoice(rubriqueId: string, choiceId: str
   return res.data;
 }
 import { api } from '@/lib/api/client';
-import { isFreeCinqPortesConsultation } from '@/lib/consultations/isFreeCinqPortes';
 import { Consultation, ConsultationChoice, ConsultationOffering, Rubrique } from '@/lib/interfaces';
 
 // Ajouter un choix de consultation à une rubrique
@@ -117,13 +116,12 @@ function shouldDisplayRubriqueConsultation(consultation: Consultation) {
     return false;
   }
   const normalizedStatus = String(consultation.status ?? '').toUpperCase();
-  const isFreeCinqPortes = isFreeCinqPortesConsultation(consultation);
-  const isPaid = isFreeCinqPortes || consultation.isPaid === true || Boolean(consultation.paymentId);
+   const isPaid =   consultation.isPaid === true || Boolean(consultation.paymentId);
 
   if (hasAnalysisArtifacts(consultation)) {
     return true;
   }
-  if (!isFreeCinqPortes && HIDDEN_STATUSES.includes(normalizedStatus as typeof HIDDEN_STATUSES[number])) {
+  if (  HIDDEN_STATUSES.includes(normalizedStatus as typeof HIDDEN_STATUSES[number])) {
     return false;
   }
   if (!isPaid) {

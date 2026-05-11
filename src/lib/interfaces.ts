@@ -1,40 +1,27 @@
 import { ConsultationChoiceStatusDto } from './api/services/consultation-status.service';
+
 export enum UserType {
   BASIQUE = 'BASIQUE',
   PREMIUM = 'PREMIUM',
   INTEGRAL = 'INTEGRAL',
-} 
-export type RubriqueOrNone = Rubrique | null;
+}
+
 type UnknownRecord = Record<string, unknown>;
 export type Category = 'animal' | 'vegetal' | 'beverage';
 export type StepType = 'selection' | 'form' | 'offering' | 'processing' | 'success' | 'confirm';
 export type GenerationStep = 'loading' | 'success' | 'error';
 export type SortOrder = "newest" | "oldest" | "amount_high" | "amount_low";
 export type OfferingCategory = "animal" | "vegetal" | "beverage";
-export type HoroscopeTypeId = 'mensuel' | 'annuel';
 
 export type PractitionerReview = {
-    id: string;
-    author: string;
-    rating: number;
-    comment: string;
-    createdAt: number;
+  id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
 };
 
 export type ReviewFeedbackTone = "success" | "error";
-
-export type FrequenceConsultation =
-  | 'UNE_FOIS_VIE'      // Consultation faite une seule fois dans la vie
-  | 'ANNUELLE'          // Peut être faite chaque année
-  | 'MENSUELLE'         // Peut être faite chaque mois
-  | 'QUOTIDIENNE'       // Peut être faite chaque jour
-  | 'LIBRE';            // Peut être faite à tout moment
-
-export type TypeParticipants =
-  | 'SOLO'              // Uniquement l'utilisateur
-  | 'AVEC_TIERS'        // Utilisateur + une personne tierce
-  | 'POUR_TIERS'
-  | 'GROUPE';
 
 export interface ConsultationData {
   _id: string;
@@ -43,7 +30,7 @@ export interface ConsultationData {
   alternatives: { offeringId: string; quantity: number }[];
   formData?: UnknownRecord;
   status: string;
-} 
+}
 
 export interface Offering {
   createdAt?: string | Date;
@@ -57,9 +44,8 @@ export interface Offering {
   priceUSD: number;
   category: 'animal' | 'vegetal' | 'beverage';
   description: string;
-  quantity: number; 
+  quantity: number;
 }
- 
 
 export interface OfferingAlternative {
   category: Category;
@@ -73,8 +59,6 @@ export interface OfferingAlternative {
   updatedAt?: string;
   _id?: string;
   priceUSD?: number;
-  pdfFileName?: string;
-  illustrationUrl?: string;
 }
 
 export interface WalletOffering {
@@ -104,8 +88,6 @@ export interface OfferingAlternative {
   updatedAt?: string;
   _id?: string;
   priceUSD?: number;
-  pdfFileName?: string;
-  illustrationUrl?: string;
 }
 
 export interface ConsultationOffering {
@@ -121,8 +103,8 @@ export interface ConsultationChoice {
   _id?: string;
   title: string;
   description: string;
-  frequence?: FrequenceConsultation;
-  participants?: TypeParticipants;
+  frequence?: any;
+  participants?: any;
   order?: number;
   offering: ConsultationOffering;
   consultationCount?: number;
@@ -167,33 +149,8 @@ export interface Rubrique {
   createdAt?: string;
   updatedAt?: string;
   categorieId?: string;
-  pdfFile?: string;
-  prompt?: string;
-  gradeId?: string | GradeConfig;
-}
-
-export interface MissionDeVie {
-  titre: string;
-  contenu: string;
-}
-
-export interface Metadata {
-  processingTime: number;
-  tokensUsed: number;
-  model: string;
-  cached: boolean;
-}
-
+} 
  
-
-export interface ConsultationData {
-  _id: string;
-  title: string;
-  description: string;
-  alternatives: { offeringId: string; quantity: number }[];
-  status: string;
-}
-
 export interface ConsultationFormData {
   nom: string;
   prenoms: string;
@@ -205,9 +162,6 @@ export interface ConsultationFormData {
   numeroSend?: string;
   phone?: string;
 }
-
-
-
 
 export interface Stats {
   totalTransactions: number;
@@ -233,13 +187,13 @@ export interface OfferingDetails {
   description?: string;
   illustrationUrl?: string;
 }
-   
+
 export interface ConsultationConfig {
   id: string;
   titre: string;
   description: string;
-  frequence: FrequenceConsultation;
-  typeParticipants: TypeParticipants;
+  frequence: any;
+  participants: any;
   typeTechnique: string;
   offering: {
     alternatives: Array<{
@@ -366,17 +320,6 @@ export interface SpiritualPractice {
 }
 
 export enum ConsultationType {
-  HOROSCOPE = 'HOROSCOPE',
-  NUMEROLOGIE = 'NUMEROLOGIE',
-  VIE_PERSONNELLE = 'VIE_PERSONNELLE',
-  RELATIONS = 'RELATIONS',
-  PROFESSIONNEL = 'PROFESSIONNEL',
-  ASTROLOGIE_AFRICAINE = 'ASTROLOGIE_AFRICAINE',
-  SPIRITUALITE = 'SPIRITUALITE',
-  OFFRANDES = 'OFFRANDES',
-  NOMBRES_PERSONNELS = 'NOMBRES_PERSONNELS',
-  CYCLES_PERSONNELS = 'CYCLES_PERSONNELS',
-  CINQ_ETOILES = 'CINQ_ETOILES',
   AUTRE = 'AUTRE',
 }
 
@@ -395,23 +338,7 @@ export enum ConsultationStatus {
 export type ConsultationUiState = 'ready' | 'queued' | 'processing' | 'failed' | 'awaiting_payment';
 export type ConsultationUiTone = 'amber' | 'emerald' | 'rose' | 'sky';
 
-export interface ConsultationUi {
-  normalizedStatus: ConsultationStatus | string;
-  state: ConsultationUiState;
-  statusLabel: string;
-  statusTone: ConsultationUiTone;
-  helperText: string;
-  canView: boolean;
-  canDownload: boolean;
-  viewLabel: string;
-  consultButtonStatus: string;
-  isFreeConsultation: boolean;
-  effectiveIsPaid: boolean;
-  requiresPayment: boolean;
-  hasAnalysisArtifacts: boolean;
-  isPending: boolean;
-  isCompleted: boolean;
-}
+ 
 
 export interface Consultation {
   _id: string;
@@ -445,7 +372,7 @@ export interface Consultation {
   updatedAt: string;
   clientName?: string;
   normalizedStatus?: ConsultationStatus | string;
-  ui?: ConsultationUi;
+  ui?: any;
   completedAt?: string;
   pdfFile?: string;
   [key: string]: unknown;
@@ -518,7 +445,7 @@ export enum Permission {
   MANAGE_PERMISSIONS = 'MANAGE_PERMISSIONS',
   SYSTEM_CONFIG = 'SYSTEM_CONFIG'
 }
-  
+
 export interface ProcessedUserData {
   _id?: string;
   name: string;
@@ -536,7 +463,7 @@ export interface ProcessedUserData {
   totalConsultations: number;
   rating: number;
 }
-  
+
 export interface EnrichedChoice {
   consultationCount: undefined;
   choice: ConsultationChoice;
@@ -565,7 +492,7 @@ export interface Analysis {
   title?: string;
   titre?: string;
   type?: string;
-  ui?: ConsultationUi;
+  ui?: any;
   updatedAt: string;
 }
 
@@ -587,4 +514,3 @@ export interface Transaction {
   type?: 'purchase' | 'consumption' | 'refund';
   metadata?: UnknownRecord;
 }
-  

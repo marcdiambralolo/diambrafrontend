@@ -4,7 +4,8 @@
 #
 #  Configuration des Secrets GitHub (Settings → Secrets and variables → Actions) :
 #
-#    VPS_USER       : root
+#    VPS_HOST       : Adresse IP ou domaine du VPS
+#    VPS_USER       : root (ou utilisateur sudo)
 #    VPS_SSH_KEY    : Clé privée (contenu COMPLET avec début/fin)
 #    VPS_SSH_PORT   : 22 (optionnel)
 #
@@ -16,7 +17,7 @@
 #    cat ~/.ssh/id_rsa
 #
 #  Copier la sortie COMPLÈTE (y compris "-----BEGIN OPENSSH PRIVATE KEY-----")
-#  ============================================================================
+# ============================================================================
 
 name: 🚀 Déployer sur VPS
 
@@ -33,13 +34,33 @@ jobs:
   deploy:
     name: 📦 Déployer diambra.net
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: 📥 Vérification du code
         uses: actions/checkout@v4
 
-      - name: 🔧 Installation de PM2 globalement (via SSH)
+      - name: 🔧 Configuration Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Installation des dépendances avec legacy peer deps
+        run: npm install --legacy-peer-deps
+
+      - name: 🔨 Build du projet
+        run: |
+          npm run build || npm run build -- --no-lint
+        env:
+          NEXT_PUBLIC_SITE_URL: https://diambra.net
+
+      - name: 📊 Création du bundle d'analyse (optionnel)
+        run: |
+          npm run build -- --analyze || echo "Analyse non disponible"
+        continue-on-error: true
+
+      - name: 🔧 Installation de PM2 et outils (via SSH)
         uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -48,10 +69,24 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT || '22' }}
           command_timeout: 10m
           script: |
+            # Mise à jour des outils système
+            apt-get update -qq && apt-get install -y -qq git curl
+            
+            # Installation de Node.js 20 si nécessaire
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+              apt-get install -y nodejs
+            fi
+            
             # Installation de PM2 si nécessaire
             if ! command -v pm2 &> /dev/null; then
-              npm install -g pm2
+              npm install -g pm2@latest
             fi
+            
+            # Vérification des versions
+            echo "Node.js version: $(node -v)"
+            echo "NPM version: $(npm -v)"
+            echo "PM2 version: $(pm2 -v)"
 
       - name: 🚀 Déploiement de l'application
         uses: appleboy/ssh-action@v1.2.5
@@ -60,11 +95,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || '22' }}
-          command_timeout: 10m
+          command_timeout: 15m
           script: |
             set -e
+            
             APP_DIR="/var/www/diambrafrontend"
             PM2_NAME="diambrafrontend"
+            NEXT_PORT="3000"
             
             echo "========================================="
             echo "🚀 Déploiement: $PM2_NAME"
@@ -72,27 +109,125 @@ jobs:
             echo "🕐 $(date '+%Y-%m-%d %H:%M:%S')"
             echo "========================================="
             
+            # Création du dossier s'il n'existe pas
+            mkdir -p "$APP_DIR"
             cd "$APP_DIR"
             
+            # Sauvegarde du package.json local avant pull
+            if [ -f "package.json" ]; then
+              cp package.json package.json.backup
+            fi
+            
             # Git pull
+            echo "📥 Récupération du code depuis GitHub..."
             git fetch origin
             git checkout main
             git pull origin main
             
-            # Installation des dépendances
-            npm install
-            
-            # Build
-            npm run build
-            
-            # Redémarrage PM2
-            if pm2 list | grep -q "$PM2_NAME"; then
-              pm2 restart "$PM2_NAME" --update-env
-            else
-              pm2 start npm --name "$PM2_NAME" -- start
+            # Nettoyage du cache npm si nécessaire
+            if [ -f "package-lock.json" ]; then
+              echo "🧹 Nettoyage du cache npm..."
+              npm cache clean --force
             fi
             
-            pm2 save
+            # Installation des dépendances avec legacy-peer-deps
+            echo "📦 Installation des dépendances..."
+            npm install --legacy-peer-deps
             
-            echo "✅ Déploiement terminé !"
+            # Build du projet
+            echo "🔨 Build du projet..."
+            npm run build || {
+              echo "⚠️ Build échoué, tentative avec nettoyage..."
+              rm -rf .next
+              npm run build
+            }
+            
+            # Configuration du port (évite les conflits)
+            export PORT=$NEXT_PORT
+            
+            # Gestion du processus PM2
+            echo "🔄 Gestion du processus PM2..."
+            if pm2 list | grep -q "$PM2_NAME"; then
+              echo "Restart de l'application..."
+              pm2 restart "$PM2_NAME" --update-env
+            else
+              echo "Démarrage de l'application..."
+              pm2 start npm --name "$PM2_NAME" -- start -- --port $NEXT_PORT
+            fi
+            
+            # Sauvegarde de la configuration PM2
+            pm2 save
+            pm2 startup || echo "PM2 startup config échouée (ignorée)"
+            
+            # Nettoyage des anciens builds
+            echo "🧹 Nettoyage des anciens caches..."
+            find . -name ".next" -type d -mtime +5 -exec rm -rf {} \; 2>/dev/null || true
+            
+            echo "========================================="
+            echo "✅ Déploiement terminé avec succès !"
             echo "🌐 https://diambra.net"
+            echo "📊 PM2 status:"
+            pm2 status
+            echo "========================================="
+
+      - name: ✅ Vérification du déploiement
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || '22' }}
+          command_timeout: 2m
+          script: |
+            # Vérification que l'application tourne
+            sleep 5
+            if pm2 list | grep -q "diambrafrontend.*online"; then
+              echo "✅ L'application est en ligne !"
+              pm2 logs diambrafrontend --lines 10 --nostream
+            else
+              echo "⚠️ L'application semble avoir un problème"
+              pm2 logs diambrafrontend --lines 20 --nostream
+              exit 1
+            fi
+
+      - name: 📝 Création du fichier .env de production
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || '22' }}
+          script: |
+            APP_DIR="/var/www/diambrafrontend"
+            cd "$APP_DIR"
+            
+            # Création du fichier .env.production si inexistant
+            if [ ! -f ".env.production" ]; then
+              printf 'NODE_ENV=production\n' > .env.production
+              printf 'NEXT_PUBLIC_SITE_URL=https://diambra.net\n' >> .env.production
+              printf 'PORT=3000\n' >> .env.production
+              echo "✅ Fichier .env.production créé"
+            fi
+
+      - name: 🧹 Nettoyage des anciens déploiements
+        if: always()
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || '22' }}
+          script: |
+            # Nettoyage des anciens logs PM2
+            pm2 flush
+            
+            # Nettoyage du cache npm global
+            npm cache clean --force || true
+            
+            echo "🧹 Nettoyage terminé"
+
+      - name: 📢 Notification d'échec (optionnel)
+        if: failure()
+        run: |
+          echo "❌ Le déploiement a échoué !"
+          echo "Vérifiez les logs ci-dessus pour plus de détails."

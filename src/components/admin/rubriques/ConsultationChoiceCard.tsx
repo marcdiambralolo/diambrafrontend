@@ -1,6 +1,6 @@
 'use client';
 import type { Offering, OfferingAlternative } from "@/lib/interfaces";
-import { ConsultationChoice, FrequenceConsultation, TypeParticipants } from "@/lib/interfaces";
+import { ConsultationChoice } from "@/lib/interfaces";
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { GradeConfig } from '@/lib/types/grade-config.types';
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,7 +24,7 @@ const ConsultationChoiceCard = memo(({
     onMoveUp?: () => void;
     onMoveDown?: () => void;
 }) => {
-    const grades = useMonEtoileStore(s => s.grades) as GradeConfig[];
+    
 
     const handleAlternativeChange = useCallback((idx: number, updated: OfferingAlternative) => {
         const newAlternatives = [...choice.offering.alternatives];
@@ -56,62 +56,8 @@ const ConsultationChoiceCard = memo(({
                         onChange={(e) => onUpdate({ ...choice, title: e.target.value })}
                         placeholder="Titre du choix"
                         className="w-full px-3 py-2 text-sm font-bold rounded-lg border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-                    />
-
-                    <div className="flex flex-col gap-1 mt-1">
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs font-semibold">Grade associé :</label>
-                            <select
-                                value={typeof choice.gradeId === 'string' ? choice.gradeId : (choice.gradeId && typeof choice.gradeId === 'object' ? choice.gradeId._id : '')}
-                                onChange={async e => {
-                                    const gradeId = e.target.value;
-                                    onUpdate({ ...choice, gradeId });
-                                }}
-                                className={`px-2 py-1 text-xs rounded border bg-white ${!choice.gradeId ? 'border-red-400 focus:ring-red-400' : 'border-slate-300'}`}
-                                required
-                                aria-invalid={!choice.gradeId}
-                            >
-                                <option value="">-- Sélectionner un grade --</option>
-                                {grades.map(grade => (
-                                    <option key={grade._id} value={grade._id}>{grade.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        {!choice.gradeId && (
-                            <span className="text-xs text-red-500 font-medium ml-1">Le grade est obligatoire</span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-1">
-                        <label className="text-xs font-semibold">Fréquence:</label>
-                        <select
-                            value={choice.frequence || ''}
-                            onChange={e => onUpdate({ ...choice, frequence: e.target.value as FrequenceConsultation })}
-                            className="px-2 py-1 text-xs rounded border border-slate-300 bg-white"
-                        >
-                            <option value="">--</option>
-                            <option value="UNE_FOIS_VIE">Une fois dans la vie</option>
-                            <option value="ANNUELLE">Chaque année</option>
-                            <option value="MENSUELLE">Chaque mois</option>
-                            <option value="QUOTIDIENNE">Chaque jour</option>
-                            <option value="LIBRE">À tout moment</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-1">
-                        <label className="text-xs font-semibold">Participants:</label>
-                        <select
-                            value={choice.participants || ''}
-                            onChange={e => onUpdate({ ...choice, participants: e.target.value as TypeParticipants })}
-                            className="px-2 py-1 text-xs rounded border border-slate-300 bg-white"
-                        >
-                            <option value="">--</option>
-                            <option value="SOLO">Solo (utilisateur seul)</option>
-                            <option value="AVEC_TIERS">Avec une personne tierce</option>
-                            <option value="POUR_TIERS">Pour une personne tierce</option>
-                            <option value="GROUPE">En groupe (équipe)</option>
-                        </select>
-                    </div>
+                    />         
+                                   
 
                     <div className="space-y-1">
                         <label htmlFor={`choice-desc-0`} className="text-xs font-semibold text-slate-700">

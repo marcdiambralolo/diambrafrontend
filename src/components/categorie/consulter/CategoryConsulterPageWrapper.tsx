@@ -52,16 +52,7 @@ export const OfferingCard: React.FC<OfferingCardProps> = memo(({ offering, isSel
           : "bg-gray-100 dark:bg-gray-700"
         }
       `}>
-        {offering.illustrationUrl && (
-          <Image
-            src={offering.illustrationUrl}
-            alt={offering.name + ' illustration'}
-            width={60}
-            height={60}
-            className="object-cover w-14 h-14 rounded-xl"
-            unoptimized={offering.illustrationUrl.startsWith('blob:') || offering.illustrationUrl.startsWith('data:')}
-          />
-        )}
+         .
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">

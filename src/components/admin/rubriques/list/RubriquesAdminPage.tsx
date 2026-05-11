@@ -1,9 +1,8 @@
 'use client';
 import { RubriquesLoader } from '@/components/admin/rubriques/RubriquesLoader';
 import { RubriquesToast } from '@/components/admin/rubriques/RubriquesToast';
-import { ANIMATION_VARIANTS } from '@/hooks/admin/rubriques/useAdminRubriquesAddPage';
 import { useAdminRubriquesListPage } from '@/hooks/admin/rubriques/useAdminRubriquesListPage';
-import { AnimatePresence, motion,Variants  } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft, Award, Calendar, ChevronDown, ChevronUp, Clock, Copy, DollarSign, Edit3,
   Eye, FileText, Gift, MoreVertical, Plus, Shield, Sparkles, Trash2, TrendingUp, Users, Zap,

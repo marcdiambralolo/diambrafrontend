@@ -24,8 +24,7 @@ export function useAdminRubriquesListPage() {
   const params = useParams();
   const rubriqueId = params?.id as string;
 
-  const grades = useMonEtoileStore(s => s.grades) as GradeConfig[];
-  const setGrades = useMonEtoileStore((s) => s.setGrades);
+ 
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
   const [editingRubrique, setEditingRubrique] = useState<Rubrique | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -45,12 +44,7 @@ export function useAdminRubriquesListPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (grades && grades.length > 0) {
-      setGrades(grades);
-    }
-  }, [grades, setGrades]);
-
+ 
   const handleBackToList = useCallback(() => {
     router.push("/admin/rubriques");
   }, [router]);

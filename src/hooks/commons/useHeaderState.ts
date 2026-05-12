@@ -85,10 +85,7 @@ export function useHeaderState() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   }, [theme, setTheme]);
 
-  const userBadge = useMemo(() => {
-    if (user?.grade) {
-      return { text: String(user.grade), label: `Grade: ${String(user.grade)}` };
-    }
+  const userBadge = useMemo(() => {     
     if (hasRole(Role.ADMIN) || hasRole(Role.SUPER_ADMIN)) {
       return { text: 'Admin ⚡', label: 'Membre Admin' };
     }

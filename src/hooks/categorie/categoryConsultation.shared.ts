@@ -11,8 +11,6 @@ export type ConsultationCreateResponse = {
 };
 
 type CreateCategoryConsultationParams = {
-    category: Pick<CategorieAdmin, "typeconsultation">;
-    rubrique?: Pick<Rubrique, "_id" | "typeconsultation"> | null;
     choice: ConsultationChoice;
     user: User | null;
     extraPayload?: Record<string, unknown>;
@@ -138,22 +136,20 @@ export function buildCategoryChoicePath(
 }
 
 export async function createCategoryConsultation({
-    category,
-    rubrique,
     choice,
     user,
     extraPayload,
 }: CreateCategoryConsultationParams): Promise<string> {
     const payload: Record<string, unknown> = {
         serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
-        type: rubrique?.typeconsultation || category.typeconsultation,
+        type: "CATÉGORIE",
         title: choice.title || "Consultation",
         formData: mapFormDataToBackend(user),
         description: choice.description || "",
         status: "PENDING",
         alternatives: choice.offering?.alternatives || [],
         choice,
-        rubriqueId: rubrique?._id || "",
+        rubriqueId: "694cde9bde3392d3751a0fe9" ,
         ...extraPayload,
     };
 
@@ -172,7 +168,6 @@ export function getCreatedConsultationDestination({
     consultationId,
     rubriqueId,
     choiceId,
-    consultationType,
 }: ConsultationDestinationParams): string {  
 
     return buildCategoryConsultationPath(categoryId, "consulter", {

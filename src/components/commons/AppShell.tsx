@@ -1,5 +1,5 @@
-import { BackendStatus } from "@/components/BackendStatus";
-import { TopNav } from "@/components/TopNav";
+import { BackendStatus } from "@/components/commons/BackendStatus";
+import { TopNav } from "@/components/commons/TopNav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (

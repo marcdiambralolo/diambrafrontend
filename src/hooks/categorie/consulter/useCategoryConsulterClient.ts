@@ -1,6 +1,6 @@
 import {
     createCategoryConsultation, getCategoryErrorMessage,
-    getCreatedConsultationDestination, type CategoryContextInfo,
+    getCreatedConsultationDestination
 } from '@/hooks/categorie/categoryConsultation.shared';
 import { getChoiceAlternatives } from '@/lib/api/services/alternatives.service';
 import { walletService } from '@/lib/api/services/wallet.service';
@@ -10,47 +10,66 @@ import type { WalletOffering } from '@/lib/interfaces';
 import { OfferingAlternative } from '@/lib/interfaces';
 import { useAuthStore } from '@/lib/store/auth.store';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
+import { Variants } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type Category = 'animal' | 'vegetal' | 'beverage';
 
-type ConsultationLike = {
-    title?: string;
-    alternatives?: OfferingAlternative[];
+export const ANIMATION_CONFIG = {
+    spring: {
+        type: 'spring' as const,
+        stiffness: 280,
+        damping: 22
+    },
+    duration: {
+        fast: 0.2,
+        normal: 0.3
+    }
+} as const;
+
+export const toastVariants: Variants = {
+    hidden: { opacity: 0, x: 100, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        x: 0,
+        scale: 1,
+        transition: ANIMATION_CONFIG.spring
+    },
+    exit: {
+        opacity: 0,
+        x: 100,
+        scale: 0.95,
+        transition: { duration: ANIMATION_CONFIG.duration.fast }
+    }
 };
 
 export function useCategoryConsulterClient() {
     const router = useRouter();
     const user = useAuthStore((s) => s.user);
 
-    const category = useMonEtoileStore((s) => s.category);
-    const rubriqueEnCours = useMonEtoileStore((s) => s.rubriqueEnCours);
     const choixConsultationEnCours = useMonEtoileStore((s) => s.choixConsultationEnCours);
+    console.log('🔍 useCategoryConsulterClient - choixConsultationEnCours from store:', choixConsultationEnCours);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [walletOfferings, setWalletOfferings] = useState<WalletOffering[]>([]);
     const [showError, setShowError] = useState(false);
 
-    const contextInfo: CategoryContextInfo = useMemo(() => ({
-        rubrique: rubriqueEnCours ?? undefined,
-        choix: (choixConsultationEnCours as any)?.choice ?? undefined,
-    }), [rubriqueEnCours, choixConsultationEnCours]);
 
     const handleGoToMarket = useCallback(() => {
         const params = new URLSearchParams();
         if (choixConsultationEnCours?._id) params.set('consultationId', choixConsultationEnCours?._id);
-        if (category?._id) params.set('categoryId', category?._id);
+        params.set('categoryId', "695ab7ee53c5ed748115c405");
 
         const url = `/star/marcheoffrandes${params.toString() ? `?${params.toString()}` : ''}`;
         router.push(url);
-    }, [(choixConsultationEnCours?._id), (category?._id), router]);
+    }, [(choixConsultationEnCours?._id), router]);
 
     const handleValidation = useCallback(async (selectedAlternative: OfferingAlternative) => {
         setLoading(true);
         setError(null);
         setShowError(false);
-  
+
         const getAltOfferingId = (alt: OfferingAlternative) => {
             if (alt && typeof alt.offeringId === 'object' && alt.offeringId !== null && '_id' in alt.offeringId) {
                 return (alt.offeringId as any)._id;
@@ -58,13 +77,13 @@ export function useCategoryConsulterClient() {
             return alt.offeringId;
         };
         try {
-            if (!category || !rubriqueEnCours || !choixConsultationEnCours) {
+            if (!choixConsultationEnCours) {
                 throw new Error('Données manquantes pour la création de la consultation');
             }
             const choice = (choixConsultationEnCours as any)?.choice ?? choixConsultationEnCours;
             const id = await createCategoryConsultation({
-                category,
-                rubrique: rubriqueEnCours,
+
+
                 choice,
                 user: user || null,
                 extraPayload: {
@@ -86,9 +105,9 @@ export function useCategoryConsulterClient() {
             // Redirection conditionnelle selon la présence d'un PDF
             const hasPdf = choice && typeof choice === 'object' && 'pdfFile' in choice && choice.pdfFile;
             const segment = hasPdf ? 'documentpdf' : 'genereanalyse';
-            router.push(buildCategoryConsultationPath(category._id, segment, {
+            router.push(buildCategoryConsultationPath("695ab7ee53c5ed748115c405", segment, {
                 consultationId: id,
-                rubriqueId: rubriqueEnCours._id || '',
+                rubriqueId: "694cde9bde3392d3751a0fe9",
                 choiceId: choice._id,
                 r: Date.now(),
             }));
@@ -99,7 +118,7 @@ export function useCategoryConsulterClient() {
         } finally {
             setLoading(false);
         }
-    }, [category, rubriqueEnCours, choixConsultationEnCours, user, router]);
+    }, [choixConsultationEnCours, user, router]);
 
     const clearError = useCallback(() => {
         setShowError(false);
@@ -129,14 +148,14 @@ export function useCategoryConsulterClient() {
     useEffect(() => {
         if (!choixConsultationEnCours?._id || !choixConsultationEnCours) return;
         router.replace(getCreatedConsultationDestination({
-            categoryId: category?._id ?? '',
+            categoryId: "695ab7ee53c5ed748115c405",
             consultationId: choixConsultationEnCours._id,
-            rubriqueId: rubriqueEnCours?._id ?? '',
+            rubriqueId: "694cde9bde3392d3751a0fe9",
             choiceId: choixConsultationEnCours._id,
             consultationType: (choixConsultationEnCours as any)?.type || null,
             refreshToken: Date.now(),
         }));
-    }, [category?._id, choixConsultationEnCours, rubriqueEnCours?._id, router]);
+    }, [choixConsultationEnCours, router]);
 
 
     const [alternatives, setAlternatives] = useState<OfferingAlternative[]>([]);
@@ -148,7 +167,7 @@ export function useCategoryConsulterClient() {
             if (choice?._id) {
                 try {
                     const alts = await getChoiceAlternatives(choice._id);
-                     setAlternatives(alts);
+                    setAlternatives(alts);
                 } catch (err) {
                     console.error('❌ Error fetching alternatives:', err);
                     setAlternatives([]);
@@ -232,16 +251,24 @@ export function useCategoryConsulterClient() {
         }));
     }, [offeringsByCategory, activeTab]);
 
+
     const state = {
         handleTabChange, setSelectedId, handleSelect, setActiveTab, handleNext,
         selectedId, activeTab, walletMap, offeringsByCategory, categoryCounts,
         selectedOffering, availableQty, canProceed, currentOfferings
     };
-    
+
+    const pot = state.currentOfferings[0];
+
+    const handleNextNew = useCallback(() => {
+        if (state.canProceed) {
+            state.handleNext();
+        }
+    }, [state.canProceed, state.handleNext]);
+
     return {
-        consultation: choixConsultationEnCours as ConsultationLike | null,
-        clearError, contextInfo, title: category?.nom || "Categorie", showError, walletOfferings, dataLoading: loading,
-        dataError: error, state, currentError: showError ? error : null,
-        handleGoToMarket, handleValidation,
+
+        handleGoToMarket, handleNextNew, clearError, showError, walletOfferings, dataLoading: loading,
+        dataError: error, state, currentError: showError ? error : null, pot,
     };
 }

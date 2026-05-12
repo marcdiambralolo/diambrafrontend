@@ -1,10 +1,8 @@
 "use client";
 import Loader from '@/app/loading';
-import { useAuthStore } from '@/lib/store/auth.store';
 import { ArrowRight, Brain, Puzzle, Sparkles, Star, Target, Trophy, Zap } from 'lucide-react';
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import { memo, Suspense, useEffect } from 'react';
+import { memo, Suspense } from 'react';
 
 const PARTICLE_COUNT = 30;
 
@@ -30,14 +28,7 @@ const LoadingFallback = memo(() => (
 LoadingFallback.displayName = 'LoadingFallback';
 
 export default function WelcomePageClient() {
-  const router = useRouter();
-  const user = useAuthStore((s) => s.user);
 
-  useEffect(() => {
-    if (user) {
-      router.replace('/star/profil');
-    }
-  }, [user, router]);
 
   return (
     <Suspense fallback={<LoadingFallback />}>
@@ -47,14 +38,7 @@ export default function WelcomePageClient() {
 }
 
 export function WelcomePageClientContent() {
-  const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-
-  useEffect(() => {
-    if (user) {
-      router.replace('/star/profil');
-    }
-  }, [user, router]);
+ 
   return (
     <main className="relative flex min-h-screen flex-1 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 px-4 py-12 sm:py-16">
       {/* Effet de fond animé - couleurs pastel */}

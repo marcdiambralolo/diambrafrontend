@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useRef, useSyncExternalStore, useState, useEffect } from "react";
 import type { SVGProps } from "react";
-import { DiambraLogo } from "@/components/DiambraLogo";
+import { DiambraLogo } from "@/components/commons/DiambraLogo";
 
 const noopSubscribe = () => () => {};
 

@@ -70,18 +70,7 @@ export const endpoints = {
     markAllAsRead: '/notifications/read-all',
     preferences: '/notifications/preferences',
   },
-
-  // Grades
-  grades: {
-    info: '/grades/info',
-    myProgress: '/grades/progress',
-    userProgress: (userId: string) => `/grades/progress/${userId}`,
-    checkGrade: (userId: string) => `/grades/check/${userId}`,
-    incrementConsultations: '/grades/increment-consultations',
-    incrementRituels: '/grades/increment-rituels',
-    incrementBooks: '/grades/increment-books',
-    welcomeMessage: '/grades/welcome-message',
-  },
+ 
 
   // Admin Grades
   adminGrades: {

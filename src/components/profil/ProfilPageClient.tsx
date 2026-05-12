@@ -4,7 +4,7 @@ import { cx, formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
 import { AlertCircle, Eye, TrendingUp, Users } from "lucide-react";
 import React, { memo, useMemo } from 'react';
-import { NumberGridGame } from "../NumberGridGame";
+import { NumberGridGame } from "../commons/NumberGridGame";
  
 
 export function ProfilPageLoader() {

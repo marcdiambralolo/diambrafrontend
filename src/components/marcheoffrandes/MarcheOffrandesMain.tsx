@@ -2,7 +2,7 @@
 import NextImage from '@/components/commons/NextImage';
 import { CategoryInfo, fadeInUp, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
 import { Offering } from '@/lib/interfaces';
-import { motion,Variants  } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { AlertCircle, Leaf, Package, Plus, ShoppingCart, Sparkles, Wine } from 'lucide-react';
 import React from 'react';
 import { CartModal } from './CartModal';
@@ -28,7 +28,7 @@ export const OfferingCard: React.FC<OfferingCardProps> = ({ offering, onAddToCar
                      shadow-md hover:shadow-xl transition-all group cursor-pointer"
     >
       <div className="mb-3 sm:mb-4 text-center group-hover:scale-110 transition-transform">
-                <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
+        <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
 
       </div>
 
@@ -44,10 +44,6 @@ export const OfferingCard: React.FC<OfferingCardProps> = ({ offering, onAddToCar
       <div className="text-center mb-3 sm:mb-4 py-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
         <p className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
           {offering.price.toLocaleString()} F
-        </p>
-
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          ≈ ${offering.priceUSD.toFixed(1)} USD
         </p>
       </div>
       <div className="space-y-2">
@@ -177,9 +173,7 @@ export default function MarcheOffrandesMain() {
 
   const categories: CategoryInfo[] = [
     { id: 'all', name: 'Tout', icon: Sparkles, count: offerings.length },
-    { id: 'animal', name: 'Animales', icon: Package, count: offerings.filter(o => o.category === 'animal').length },
-    { id: 'vegetal', name: 'Végétales', icon: Leaf, count: offerings.filter(o => o.category === 'vegetal').length },
-    { id: 'beverage', name: 'Boissons', icon: Wine, count: offerings.filter(o => o.category === 'beverage').length },
+    { id: 'banque', name: 'Banque', icon: Package, count: offerings.filter(o => o.category === 'banque').length },
   ];
 
   if (loading) return <LoadingState />;

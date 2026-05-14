@@ -1,10 +1,9 @@
 ﻿import { api } from '@/lib/api/client';
-import { type Analysis } from '@/lib/interfaces';
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-export function extractMarkdown(c: Analysis): string | null {
+export function extractMarkdown(c: any): string | null {
   const v = c?.texte ?? null;
   const s = typeof v === "string" ? v.trim() : "";
   return s ? s : null;
@@ -28,7 +27,7 @@ const CONSTANTS = {
 type ResultState = {
   loading: boolean;
   error: string | null;
-  analyse: Analysis | null;
+  analyse: any | null;
   jobStatus: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;
 };
 
@@ -63,7 +62,7 @@ export function useConsultationResult() {
       if (
         data && typeof data === 'object' && 'analysis' in data && data.analysis
       ) {
-        setState({ loading: false, error: null, analyse: data.analysis as Analysis, jobStatus: 'COMPLETED' });
+        setState({ loading: false, error: null, analyse: data.analysis as any, jobStatus: 'COMPLETED' });
       } else {
         setState((s) => ({ ...s, error: CONSTANTS.ERROR.ANALYSIS_NOT_FOUND, loading: false }));
       }

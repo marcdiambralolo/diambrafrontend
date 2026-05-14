@@ -231,9 +231,7 @@ export function useAdminConsultationsPageFinished() {
   );
 
   return {
-    consultations: allConsultations, // toutes les consultations (toutes pages)
-    paginatedConsultations: ended.consultations, // consultations paginées (page courante)
-    total: ended.total, tab: 'ended',
+    consultations: allConsultations, total: ended.total, tab: 'ended',
     totalPages: ended.totalPages, currentPage: endedPage,
     error: ended.error, loading: ended.loading, isRefreshing,
     handleRefresh, handlePageChange,

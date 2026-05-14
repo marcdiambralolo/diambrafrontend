@@ -62,7 +62,6 @@ export function processUserData(userData: User | null): User | null {
     credits: userData.credits ?? 0,
     totalConsultations: userData.totalConsultations ?? 0,
     rating: userData.rating ?? 0,
-    nomconsultant: userData.nomconsultant || userData.username,
     ...userData
   };
 }

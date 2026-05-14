@@ -38,7 +38,7 @@ export function useOfferingForm() {
     setFormData(prev => ({ ...prev, illustrationUrl: '' }));
   }
 
-  function handleCategoryChange(value: 'animal' | 'vegetal' | 'beverage') {
+  function handleCategoryChange(value: 'banque') {
     setFormData(prev => ({ ...prev, category: value }));
   }
 

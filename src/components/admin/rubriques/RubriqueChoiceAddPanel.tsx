@@ -40,24 +40,14 @@ export function RubriqueChoiceAddPanel({ editingRubrique, setEditingRubrique, on
    const [choice, setChoice] = useState<ConsultationChoice>({
       title: "",
       description: "",
-      frequence: undefined,
-      participants: undefined,
       offering: {
         alternatives: [
-          { category: "animal", offeringId: "", quantity: 1 },
-          { category: "vegetal", offeringId: "", quantity: 1 },
-          { category: "beverage", offeringId: "", quantity: 1 },
+          { category: "banque", offeringId: "", quantity: 1 },
         ],
       },
-      order: 0,
       choiceId: "",
       choiceTitle: "",
-      buttonStatus: 'CONSULTER',
-      consultButtonStatus: 'CONSULTER',
-      hasActiveConsultation: false,
       consultationId: null,
-      consultationCount: 0,
-      gradeId: "",
     });  
 
   return (

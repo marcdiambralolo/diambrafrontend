@@ -1,7 +1,6 @@
 "use client";
 import OffrandesStats from '@/components/admin/offrandes/stats/OffrandesStats';
 import { CONSTANTS, useAdminOffrandes, ViewMode } from '@/hooks/admin/offrandes/useAdminOffrandes';
-import { CATEGORIES_OFFRANDES } from '@/lib/constants';
 import { Offering } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Edit, Plus, RotateCcw, ShoppingBag, TrendingUp } from 'lucide-react';
@@ -158,12 +157,6 @@ const OffrandesCard = memo(({
                         <p className="text-[10px] text-slate-500 dark:text-slate-500">Prix</p>
                         <p className="text-lg font-black text-slate-900 dark:text-white">
                             {offering.price.toLocaleString()} F
-                        </p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[10px] text-slate-500 dark:text-slate-500">USD</p>
-                        <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">
-                            ${offering.priceUSD}
                         </p>
                     </div>
                 </div>

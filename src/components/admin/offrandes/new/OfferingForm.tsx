@@ -1,14 +1,18 @@
-import { CATEGORIES_OFFRANDES } from '@/lib/constants';
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import React, { useRef } from "react";
 import { MobileHint } from './MobileHint';
 
+export const CATEGORIES_OFFRANDES = [
+  { value: 'banque', label: 'Banque', emoji: '🏦', color: 'from-blue-500 to-indigo-500' },
+ ]; 
+
+
 export interface OfferingFormData {
   name: string;
   price: number;
   priceUSD: number;
-  category: 'animal' | 'vegetal' | 'beverage' | '';
+  category: 'banque' | '';
   description: string; 
 }
 

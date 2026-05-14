@@ -1,8 +1,5 @@
 import type { Viewport } from "next";
 
-/**
- * Configuration du viewport pour tous les appareils
- */
 export const rootViewport: Viewport = {
   width: "device-width",
   initialScale: 1,

@@ -25,7 +25,7 @@ export function buildConsultationSearchParams(params: ConsultationNavigationPara
 
 export function buildCategoryConsultationPath(
   categoryId: string,
-  segment: 'consulter' | 'genereanalyse' | 'documentpdf',
+  segment: 'consulter',
   params: ConsultationNavigationParams,
 ): string {
   const query = buildConsultationSearchParams(params);

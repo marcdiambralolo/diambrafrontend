@@ -1,7 +1,6 @@
 'use client';
 import { RubriquesToast } from '@/components/admin/rubriques/RubriquesToast';
-import { ConsultationType } from '@/hooks/admin/consultations/useAdminConsultationsPageNotnotified';
-import { useAdminRubriquesNewPage } from '@/hooks/admin/rubriques/useAdminRubriquesNewPage';
+ import { useAdminRubriquesNewPage } from '@/hooks/admin/rubriques/useAdminRubriquesNewPage';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Save, X } from 'lucide-react';
 
@@ -69,37 +68,7 @@ export default function RubriquesAdminPage() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                          Type de consultation *
-                        </label>
-                        <select
-                          value={editingRubrique.typeconsultation || ''}
-                          onChange={(e) =>
-                            setEditingRubrique({
-                              ...editingRubrique,
-                              typeconsultation: e.target.value as ConsultationType,
-                            })
-                          }
-                          className="w-full px-4 py-3 rounded-xl border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] bg-white text-base font-medium dark:border-white/10 dark:bg-[#0A0F2A] dark:text-slate-100 transition-all"
-                        >
-                          <option value="" disabled>
-                            Sélectionnez un type
-                          </option>
-                          <option value="SPIRITUALITE">Spiritualité</option>
-                          <option value="VIE_PERSONNELLE">Vie personnelle</option>
-                          <option value="RELATIONS">Relations</option>
-                          <option value="PROFESSIONNEL">Professionnel</option>
-                          <option value="OFFRANDES">Offrandes</option>
-                          <option value="ASTROLOGIE_AFRICAINE">Astrologie africaine</option>
-                          <option value="HOROSCOPE">Horoscope</option>
-                          <option value="NOMBRES_PERSONNELS">Nombres personnels</option>
-                          <option value="CYCLES_PERSONNELS">Cycles personnels</option>
-                          <option value="CINQ_ETOILES">Cinq étoiles</option>
-                          <option value="NUMEROLOGIE">Numérologie</option>
-                          <option value="AUTRE">Autre</option>
-                        </select>
-                      </div>
+                    
 
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">

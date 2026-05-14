@@ -4,27 +4,15 @@ import type { Offering, OfferingAlternative } from "@/lib/interfaces";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-type OfferingCategory = "animal" | "vegetal" | "beverage";
+type OfferingCategory = "banque";
 
 const CATEGORY_CONFIG: Record<OfferingCategory, { icon: string; label: string; color: string; bgColor: string }> = {
-    animal: {
-        icon: "🐾",
-        label: "Animal",
+    banque: {
+        icon: "🏦",
+        label: "Banque",
         color: "text-amber-700 border-amber-300",
         bgColor: "bg-amber-50"
     },
-    vegetal: {
-        icon: "🌿",
-        label: "Végétal",
-        color: "text-green-700 border-green-300",
-        bgColor: "bg-green-50"
-    },
-    beverage: {
-        icon: "🥤",
-        label: "Boisson",
-        color: "text-blue-700 border-blue-300",
-        bgColor: "bg-blue-50"
-    }
 };
 
 // Composant pour afficher l'image ou un fallback
@@ -264,11 +252,6 @@ export const OfferingSelector = memo(({
                         <div className="text-xs font-semibold text-indigo-600">
                             Total: {selectedOffering.price * alternative.quantity} FCFA
                         </div>
-                        {selectedOffering.priceUSD && (
-                            <div className="text-xs text-slate-500">
-                                ${(selectedOffering.priceUSD * alternative.quantity).toFixed(2)}
-                            </div>
-                        )}
                     </div>
                 </motion.div>
             )}

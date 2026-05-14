@@ -1,8 +1,6 @@
 ﻿import { api } from "@/lib/api/client";
 import { offeringsService } from '@/lib/api/services/offerings.service';
 import type { Offering, Rubrique } from '@/lib/interfaces';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import type { GradeConfig } from '@/lib/types/grade-config.types';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

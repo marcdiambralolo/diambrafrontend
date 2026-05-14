@@ -1,18 +1,15 @@
-// PATCH d'un choix de consultation (gradeId, etc)
+import { api } from '@/lib/api/client';
+import { Consultation, ConsultationChoice, ConsultationOffering, Rubrique } from '@/lib/interfaces';
 export async function updateConsultationChoice(rubriqueId: string, choiceId: string, update: Partial<ConsultationChoice>) {
   const res = await api.patch(`/rubriques/${rubriqueId}/consultation-choices/${choiceId}`, update);
   return res.data;
 }
-import { api } from '@/lib/api/client';
-import { Consultation, ConsultationChoice, ConsultationOffering, Rubrique } from '@/lib/interfaces';
 
 // Ajouter un choix de consultation à une rubrique
 export async function addConsultationChoiceToRubrique(rubriqueId: string, data: { label: string; description: string }) {
   const res = await api.post(`/rubriques/${rubriqueId}/consultation-choices`, data);
   return res.data;
 }
-
-// ─── Rubrique CRUD ────────────────────────────────────────────
 
 export async function getRubriques(): Promise<Rubrique[]> {
   const res = await api.get<Rubrique[]>('/rubriques');
@@ -77,8 +74,6 @@ export async function getRubriqueWithConsultationCount(
   return res.data;
 }
 
-// ─── Choices & consultations par rubrique ─────────────────────
-
 export async function getChoicesWithCount(rubriqueId: string): Promise<Rubrique> {
   const response = await api.get<Rubrique>(`/rubriques/${rubriqueId}/choices-with-count`);
   return response.data;
@@ -105,8 +100,6 @@ function hasAnalysisArtifacts(consultation: Consultation) {
     consultation.dateGeneration
     || consultation.completedAt
     || consultation.completedDate
-    || consultation.analysisNotified
-    || consultation.pdfFile
     || consultation.result
   );
 }
@@ -116,12 +109,12 @@ function shouldDisplayRubriqueConsultation(consultation: Consultation) {
     return false;
   }
   const normalizedStatus = String(consultation.status ?? '').toUpperCase();
-   const isPaid =   consultation.isPaid === true || Boolean(consultation.paymentId);
+  const isPaid = consultation.isPaid === true || Boolean(consultation.paymentId);
 
   if (hasAnalysisArtifacts(consultation)) {
     return true;
   }
-  if (  HIDDEN_STATUSES.includes(normalizedStatus as typeof HIDDEN_STATUSES[number])) {
+  if (HIDDEN_STATUSES.includes(normalizedStatus as typeof HIDDEN_STATUSES[number])) {
     return false;
   }
   if (!isPaid) {
@@ -132,7 +125,7 @@ function shouldDisplayRubriqueConsultation(consultation: Consultation) {
 
 export async function getConsultationsByRubrique(rubriqueId: string): Promise<any[]> {
   const response = await api.get<RubriqueConsultationsResponse>(`/rubriques/${rubriqueId}`);
-   const result = response.data?.consultations;
+  const result = response.data?.consultations;
   if (!Array.isArray(result)) {
     return [];
   }
@@ -152,7 +145,7 @@ export async function getDoorsConsultations(): Promise<Consultation[]> {
 
 export async function getRubriqueCinqEtoiles(): Promise<any[]> {
   const response = await api.get<any>('/rubriques/cinqetoiles');
-   const result = response.data?.consultationChoices;
+  const result = response.data?.consultationChoices;
   if (!Array.isArray(result)) {
     return [];
   }

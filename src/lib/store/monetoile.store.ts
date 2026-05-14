@@ -32,7 +32,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
       setChoixConsultationEnCours: (choix) => set({ choixConsultationEnCours: choix }),
     }),
     {
-      name: 'monetoile-store', // nom de la clé de stockage
+      name: 'monetoile-store',
       partialize: (state) => ({
         consultationChoices: state.consultationChoices,
         category: state.category,

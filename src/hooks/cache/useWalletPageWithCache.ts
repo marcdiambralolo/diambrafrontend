@@ -43,13 +43,9 @@ export function useWalletPageWithCache() {
     rawTransactions.map((tx) => {
       if (!Array.isArray(tx.items)) return tx;
       const items = tx.items.map((item) => {
-        let illustrationUrl = undefined;
-        if (typeof item.offeringId === 'object' && item.offeringId !== null && 'illustrationUrl' in item.offeringId) {
-          illustrationUrl = item.offeringId.illustrationUrl;
-        }
+       
         return {
           ...item,
-          illustrationUrl,
         };
       });
       return {

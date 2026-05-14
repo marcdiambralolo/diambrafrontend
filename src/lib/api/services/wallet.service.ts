@@ -1,4 +1,4 @@
-import type { OfferingCategory, OfferingDetails, Transaction, WalletOffering } from '@/lib/interfaces';
+import type { OfferingDetails, Transaction, WalletOffering } from '@/lib/interfaces';
 import { api } from '../client';
 
 export interface UnusedOfferingStock {
@@ -39,9 +39,7 @@ export interface ValidateConsultationOfferingsResult {
   }>;
 }
 
-function isOfferingCategory(value: unknown): value is OfferingCategory {
-  return value === 'animal' || value === 'vegetal' || value === 'beverage';
-}
+
 
 function normalizeOfferingDetails(value: RawUnusedOfferingStock): OfferingDetails | null {
   const offering = value.offering;
@@ -58,11 +56,9 @@ function normalizeOfferingDetails(value: RawUnusedOfferingStock): OfferingDetail
   return {
     _id: offeringId,
     name: offering?.name || value.name || 'Offrande inconnue',
-    category: isOfferingCategory(offering?.category) ? offering.category : isOfferingCategory(value.category) ? value.category : 'animal',
+    category:  'banque',
     price: typeof offering?.price === 'number' ? offering.price : typeof value.price === 'number' ? value.price : 0,
-    description: offering?.description,
-    illustrationUrl: offering?.illustrationUrl || value.illustrationUrl,
-  };
+    description: offering?.description,  };
 }
 
 function normalizeUnusedOffering(value: RawUnusedOfferingStock): UnusedOfferingStock {
@@ -73,9 +69,8 @@ function normalizeUnusedOffering(value: RawUnusedOfferingStock): UnusedOfferingS
     quantity: typeof value.quantity === 'number' ? value.quantity : 0,
     offering,
     name: offering?.name || 'Offrande inconnue',
-    category: offering?.category || 'animal',
+    category: offering?.category || 'banque',
     price: offering?.price || 0,
-    illustrationUrl: offering?.illustrationUrl,
   };
 }
 
@@ -86,7 +81,6 @@ export function toWalletOffering(offering: UnusedOfferingStock): WalletOffering 
     name: offering.name,
     category: offering.category,
     price: offering.price,
-    illustrationUrl: offering.illustrationUrl,
   };
 }
 

@@ -7,7 +7,6 @@ import type { User } from '@/lib/interfaces';
 import type { QueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from './queryClient';
 
-
 const inFlightDataPrefetches = new Map<string, Promise<void>>();
 const inFlightConsultationPrefetches = new Map<string, Promise<void>>();
 const inFlightAdminUserPrefetches = new Map<string, Promise<void>>();

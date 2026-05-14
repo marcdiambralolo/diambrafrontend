@@ -1,6 +1,6 @@
 'use client';
 import type { Rubrique } from "@/lib/interfaces";
-import { ConsultationType, Offering } from "@/lib/interfaces";
+import {  Offering } from "@/lib/interfaces";
 import { motion } from "framer-motion";
 import { Loader2, Save, X } from "lucide-react";
 import { memo } from "react";
@@ -36,16 +36,7 @@ const RubriqueEditor = memo(({
           className="w-full px-4 py-3 text-lg font-black rounded-xl border border-[#2E5AA6]/20 
                    focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
         />
-        {/* Champ type ConsultationType */}
-        <select
-          value={rubrique.typeconsultation || ''}
-          onChange={e => onUpdate({ ...rubrique, typeconsultation: e.target.value as ConsultationType })}
-          className="w-full px-4 py-3 rounded-xl border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] bg-white text-base font-semibold dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-        >
-          <option value="" disabled>Type de consultation</option>
-          <option value="AUTRE">Autre</option>
-        </select>
-        <textarea
+               <textarea
           value={rubrique.description}
           onChange={(e) => onUpdate({ ...rubrique, description: e.target.value })}
           placeholder="Description de la rubrique"

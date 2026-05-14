@@ -20,7 +20,6 @@ import {
   Zap
 } from "lucide-react";
 import { OfferingSelector } from "../OfferingSelector";
-import RubriquePdfUpload from "../RubriquePdfUpload";
 
 interface FormFieldProps {
   label: string;
@@ -270,69 +269,8 @@ export default function RubriquesAdminEditPage() {
                       >
                         <ChevronDown className="w-5 h-5 text-slate-400" />
                       </motion.div>
-                    </button>
-
-                    <AnimatePresence>
-                      {expandedSection === 'ai' && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
-                            <FormField
-                              label="Prompt personnalisé"
-                              description="Guide l'IA pour l'analyse de ce choix spécifique"
-                            >
-                              <textarea
-                                value={choice.prompt || ''}
-                                onChange={(e) => handleUpdateChoice({ ...choice, prompt: e.target.value })}
-                                placeholder="Ex: Analysez en profondeur les énergies subtiles, mettez l'accent sur les aspects spirituels..."
-                                rows={3}
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#2E5AA6]/40 dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100 text-black font-mono"
-                              />
-                            </FormField>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-
-                  {/* Section: PDF Upload */}
-                  <motion.div
-                    layout
-                    className="border-2 border-slate-200 dark:border-slate-700 rounded-xl p-5 bg-white dark:bg-[#0F1C3F] shadow-md"
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <FileText className="w-5 h-5 text-[#4F83D1]" />
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">
-                        Document PDF associé
-                      </span>
-                      <span className="text-xs text-slate-500">(Optionnel - Max 20MB)</span>
-                    </div>
-                    <RubriquePdfUpload
-                      previewName={
-                        choice.pdfFile
-                          ? typeof choice.pdfFile === 'string'
-                            ? 'PDF associé'
-                            : (choice.pdfFile as File).name
-                          : null
-                      }
-                      onFileSelect={file => handleUpdateChoice({ ...choice, pdfFile: file })}
-                      label=""
-                      maxSizeMb={20}
-                      showPreviewLink={!!choice.pdfFile}
-                      fileUrl={
-                        typeof choice.pdfFile === 'string'
-                          ? choice.pdfFile
-                          : (choice.pdfFile ? URL.createObjectURL(choice.pdfFile as File) : null)
-                      }
-                    />
-                  </motion.div>
-
-                  {/* Section: Offerings */}
+                    </button> 
+                  </motion.div> 
                   <motion.div
                     layout
                     className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-[#0F1C3F] shadow-md"
@@ -398,23 +336,7 @@ export default function RubriquesAdminEditPage() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </motion.div>
-
-                  {/* Info summary */}
-                  <div className="flex flex-wrap gap-2">
-                    {choice.frequence && (
-                      <InfoBadge icon={Calendar} label="Fréquence" value={FREQUENCE_LABELS[choice.frequence] || choice.frequence} />
-                    )}
-                    {choice.participants && (
-                      <InfoBadge icon={Users} label="Participants" value={PARTICIPANTS_LABELS[choice.participants] || choice.participants} />
-                    )}
-                    {choice.gradeId && (
-                      <InfoBadge icon={Award} label="Grade" value="Configuré" />
-                    )}
-                    {choice.pdfFile && (
-                      <InfoBadge icon={FileText} label="PDF" value="Téléchargé" color="text-green-500" />
-                    )}
-                  </div>
+                  </motion.div> 
                 </div>
 
                 {/* Action Buttons */}
@@ -469,10 +391,7 @@ export default function RubriquesAdminEditPage() {
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title?.trim() && <li>Un titre est requis</li>}
                           {!choice.description?.trim() && <li>Une description est requise</li>}
-                          {!choice.gradeId && <li>Un grade doit être sélectionné</li>}
-                          {!choice.frequence && <li>Une fréquence doit être sélectionnée</li>}
-                          {!choice.participants && <li>Le type de participants doit être sélectionné</li>}
-                          {choice.offering?.alternatives?.length !== 3 && <li>3 alternatives d'offrandes sont requises</li>}
+                            {choice.offering?.alternatives?.length !== 3 && <li>3 alternatives d'offrandes sont requises</li>}
                           {choice.offering?.alternatives?.some(alt => !alt.offeringId) && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
                           {choice.offering?.alternatives?.some(alt => alt.quantity <= 0) && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>

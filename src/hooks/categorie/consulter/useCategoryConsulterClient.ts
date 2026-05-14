@@ -14,7 +14,7 @@ import { Variants } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export type Category = 'animal' | 'vegetal' | 'beverage';
+export type Category = 'banque';
 
 export const ANIMATION_CONFIG = {
     spring: {
@@ -102,10 +102,7 @@ export function useCategoryConsulterClient() {
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS, exact: true });
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
-            // Redirection conditionnelle selon la présence d'un PDF
-            const hasPdf = choice && typeof choice === 'object' && 'pdfFile' in choice && choice.pdfFile;
-            const segment = hasPdf ? 'documentpdf' : 'genereanalyse';
-            router.push(buildCategoryConsultationPath("695ab7ee53c5ed748115c405", segment, {
+            router.push(buildCategoryConsultationPath("695ab7ee53c5ed748115c405", "consulter", {
                 consultationId: id,
                 rubriqueId: "694cde9bde3392d3751a0fe9",
                 choiceId: choice._id,
@@ -179,8 +176,8 @@ export function useCategoryConsulterClient() {
         fetchAlternatives();
     }, [choixConsultationEnCours, choixConsultationEnCours?._id]);
 
-    type CategoryType = 'animal' | 'vegetal' | 'beverage';
-    const [activeTab, setActiveTab] = useState<CategoryType>('animal');
+    type CategoryType = 'banque';
+    const [activeTab, setActiveTab] = useState<CategoryType>('banque');
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const walletMap = useMemo(() => {
@@ -198,9 +195,7 @@ export function useCategoryConsulterClient() {
 
     const offeringsByCategory = useMemo(() => {
         const grouped: Record<CategoryType, OfferingAlternative[]> = {
-            animal: [],
-            vegetal: [],
-            beverage: []
+            banque: [], 
         };
         alternatives.forEach(off => {
             grouped[off.category].push(off);
@@ -209,9 +204,7 @@ export function useCategoryConsulterClient() {
     }, [alternatives]);
 
     const categoryCounts = useMemo(() => ({
-        animal: offeringsByCategory.animal.length,
-        vegetal: offeringsByCategory.vegetal.length,
-        beverage: offeringsByCategory.beverage.length
+        banque: offeringsByCategory.banque.length, 
     }), [offeringsByCategory]);
 
     const selectedOffering = useMemo(

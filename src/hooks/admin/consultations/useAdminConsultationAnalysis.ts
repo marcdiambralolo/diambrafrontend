@@ -1,10 +1,9 @@
 ﻿"use client";
- import { api } from "@/lib/api/client";
+import { api } from "@/lib/api/client";
 import { safeTrim, wordCount } from "@/lib/functions";
-import type { Analysis } from "@/lib/interfaces";
+import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getErrorMessage } from '@/lib/utils/errorHelpers';
 
 type RouteParams = Record<string, string | string[] | undefined>;
 
@@ -62,7 +61,7 @@ export function useAdminConsultationAnalysis() {
   const toastTimerRef = useRef<number | null>(null);
 
   const [state, setState] = useState<AdminAnalysisState>(initialState);
-  const [analyse, setAnalyse] = useState<Analysis | null>(null);
+  const [analyse, setAnalyse] = useState<any | null>(null);
 
   const consultationId = useMemo(() => getConsultationIdFromParams(params), [params]);
 
@@ -128,17 +127,11 @@ export function useAdminConsultationAnalysis() {
     setState((s) => (s.loading && s.error === null ? s : { ...s, loading: true, error: null }));
 
     try {
-      const res = await api.get<{ analysis?: Analysis | null }>(`/analyses/by-consultation/${consultationId}`, {
+      const res = await api.get<{ analysis?: any | null }>(`/analyses/by-consultation/${consultationId}`, {
         signal: controller.signal,
       });
 
-      const data = res?.data?.analysis ?? null;
-      if (reqSeqRef.current !== mySeq) return;
-      setAnalyse(data);
-      setState((s) => {
-        const next: AdminAnalysisState = { ...s, loading: false, error: null };
-        return shallowEqualState(s, next) ? s : next;
-      });
+
     } catch (err: unknown) {
       if (isAbortError(err)) return;
       if (reqSeqRef.current !== mySeq) return;
@@ -186,7 +179,6 @@ export function useAdminConsultationAnalysis() {
       const res = await api.post(`/consultations/${consultationId}/notify-user`);
       if (res.status === 200 || res.status === 201) {
         showToast("📧 Notification envoyée avec succès !", "success");
-        setAnalyse((prev) => (prev ? { ...prev, analysisNotified: true } : prev));
       } else {
         showToast("❌ Erreur lors de l'envoi", "error");
       }

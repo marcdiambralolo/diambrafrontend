@@ -35,7 +35,7 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
     ? rawCategoryId
     : (typeof categoryRecord?.nom === 'string' ? categoryRecord.nom : 'Non catégorisé');
 
-  const activeChoices = rubrique.consultationChoices?.filter(c => c.hasActiveConsultation).length || 0;
+  const activeChoices = rubrique.consultationChoices.length || 0;
   const totalPrice = rubrique.consultationChoices?.reduce((sum, choice) => {
     const choicePrice = choice.offering?.alternatives?.reduce((s, alt) => s + (alt.price || 0), 0) || 0;
     return sum + choicePrice;
@@ -117,9 +117,6 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
                   {/* Métadonnées */}
                   <div className="flex flex-wrap gap-2 mt-2">
                     <StatBadge icon={Layers} label="Catégorie" value={categoryLabel} />
-                    {rubrique.typeconsultation && (
-                      <StatBadge icon={Calendar} label="Type" value={rubrique.typeconsultation} color="text-orange-500" />
-                    )}
                     <StatBadge icon={FileText} label="Choix" value={rubrique.consultationChoices?.length || 0} />
                     {totalPrice > 0 && (
                       <StatBadge icon={TrendingUp} label="Prix total" value={`${totalPrice.toLocaleString()} FCFA`} color="text-purple-500" />
@@ -170,9 +167,6 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
                               <span className="text-slate-600 dark:text-slate-400">
                                 • {choice.title}
                               </span>
-                              {choice.hasActiveConsultation && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                              )}
                             </div>
                           ))}
                           {rubrique.consultationChoices.length > 3 && (

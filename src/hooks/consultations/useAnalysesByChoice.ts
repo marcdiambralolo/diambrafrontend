@@ -1,11 +1,10 @@
 ﻿"use client";
-import { useQuery } from "@tanstack/react-query";
-import { analysesService, type AnalysisByChoiceResponse } from "@/lib/api/services/analyses.service";
 import { QUERY_KEYS } from "@/lib/cache/queryClient";
-import type { Analysis, Consultation } from "@/lib/interfaces";
+import type { Consultation } from "@/lib/interfaces";
+import { getErrorMessage } from '@/lib/utils/errorHelpers';
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { getErrorMessage } from '@/lib/utils/errorHelpers';
 
 function extractAnalysisText(consultation: Consultation): string {
   if (typeof consultation.result === 'string' && consultation.result.trim()) {
@@ -15,13 +14,20 @@ function extractAnalysisText(consultation: Consultation): string {
   if (typeof consultation.result === 'object' && consultation.result !== null) {
     const resultRecord = consultation.result as Record<string, unknown>;
     const textValue = resultRecord.texte ?? resultRecord.text ?? resultRecord.analysis;
- 
+
     if (typeof textValue === 'string' && textValue.trim()) {
       return textValue.trim();
     }
   }
 
   return consultation.description?.trim() || '';
+}
+
+export interface AnalysisByChoiceResponse {
+  success: boolean;
+  choiceId: string;
+  total: number;
+  consultations: Consultation[];
 }
 
 export function useAnalysesByChoice() {
@@ -34,7 +40,6 @@ export function useAnalysesByChoice() {
   }, [rawId]);
   const query = useQuery<AnalysisByChoiceResponse>({
     queryKey: choiceId ? QUERY_KEYS.ANALYSES_BY_CHOICE(choiceId) : ['analyses', 'by-choice', 'missing'],
-    queryFn: () => analysesService.getByChoice(choiceId as string),
     enabled: Boolean(choiceId),
   });
 
@@ -50,7 +55,7 @@ export function useAnalysesByChoice() {
     return getErrorMessage(query.error, 'Impossible de récupérer les analyses');
   }, [choiceId, query.error]);
 
-  const analyses = useMemo<Analysis[]>(() => {
+  const analyses = useMemo<any[]>(() => {
     return (query.data?.consultations ?? []).map((consultation) => ({
       _id: consultation._id,
       id: typeof consultation.id === 'string' ? consultation.id : undefined,
@@ -61,7 +66,6 @@ export function useAnalysesByChoice() {
       texte: extractAnalysisText(consultation),
       title: consultation.title,
       description: consultation.description,
-      normalizedStatus: consultation.normalizedStatus,
       ui: consultation.ui,
     }));
   }, [query.data?.consultations]);

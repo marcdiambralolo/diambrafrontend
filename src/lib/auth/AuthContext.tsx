@@ -4,7 +4,6 @@ import { clearClientApplicationState } from '@/lib/cache/clientState';
 import { config } from '@/lib/config';
 import { Role } from '@/lib/interfaces';
 import { useAuthStore } from '@/lib/store/auth.store';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import type { LoginDto, Permission, RegisterDto } from '@/lib/types/auth.types';
 import { logger } from '@/lib/utils/logger';
 import { useRouter } from 'next/navigation';
@@ -57,9 +56,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const persistLogin = useAuthStore((s) => s.login);
   const persistUser = useAuthStore((s) => s.updateUser);
   const persistLogout = useAuthStore((s) => s.logout);
-
-
-
 
   /**
    * Initialise l'authentification au montage du composant
@@ -163,9 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Déconnexion utilisateur avec nettoyage complet
-   */
- 
- 
+   */ 
 
   const logout = useCallback(async (): Promise<void> => {
     setIsLoading(true);

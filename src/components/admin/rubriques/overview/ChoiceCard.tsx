@@ -17,9 +17,7 @@ const ChoiceCard = memo(function ChoiceCard({
   choice: ConsultationChoice;
   onOpen: (choiceId: string) => void;
 }) {
-  const cid = getId(choice);
-  const frequence = cleanText(choice?.frequence || "");
-  const participants = cleanText(choice?.participants || "");
+  const cid = getId(choice); 
 
   return (
     <motion.button
@@ -42,21 +40,7 @@ const ChoiceCard = memo(function ChoiceCard({
             {choice?.description ? clamp(choice.description, 180) : "—"}
           </div>
 
-          {(frequence || participants) && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {frequence ? (
-                <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-extrabold text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-                  {frequence}
-                </span>
-              ) : null}
-              
-              {participants ? (
-                <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-extrabold text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-                  {participants}
-                </span>
-              ) : null}
-            </div>
-          )}
+          
         </div>
 
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white">

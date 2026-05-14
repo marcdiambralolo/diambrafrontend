@@ -12,7 +12,6 @@ export function useNotifications(pollingInterval: number = 300000) {
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Pour jouer le son lors d'une nouvelle notification
   const playNotificationSound = () => {
     if (typeof window !== 'undefined') {
       const audio = new Audio('/notification.mp3');

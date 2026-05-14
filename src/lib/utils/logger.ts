@@ -1,11 +1,3 @@
-/**
- * Logger utilitaire — ne log qu'en mode développement.
-  *
- * Usage :
- *   import { logger } from '@/lib/utils/logger';
- *   logger.error('Mon message', err);
- */
-
 const isDev =
   typeof process !== 'undefined'
     ? process.env.NODE_ENV !== 'production'

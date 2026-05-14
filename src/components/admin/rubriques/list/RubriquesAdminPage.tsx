@@ -255,23 +255,7 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
                   label="Participants"
                   value={participantsConfig.label}
                   color={participantsConfig.color}
-                />
-                {choice.gradeId && (
-                  <StatBadge
-                    icon={Award}
-                    label="Grade"
-                    value="Configuré"
-                    color="text-purple-500"
-                  />
-                )}
-                {choice.pdfFile && (
-                  <StatBadge
-                    icon={FileText}
-                    label="PDF"
-                    value="Joint"
-                    color="text-green-500"
-                  />
-                )}
+                /> 
               </div>
 
               {/* Prix total avec animation */}
@@ -499,7 +483,7 @@ export default function RubriquesAdminPage() {
                     <>
                       <div className="w-1 h-1 rounded-full bg-slate-400" />
                       <p className="text-xs text-slate-400">
-                        {choices.filter(c => c.hasActiveConsultation).length} actif(s)
+                        {choices.length} actif(s)
                       </p>
                     </>
                   )}

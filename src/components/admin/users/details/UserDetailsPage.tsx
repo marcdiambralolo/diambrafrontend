@@ -53,10 +53,6 @@ export default function UserDetailsPage() {
                             </CacheLink>
                         </div>
                     </div>
-                    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <StatPill label="Consultations" value={user.consultationsCount ?? user.totalConsultations ?? 0} />
-                        <StatPill label="Terminées" value={user.consultationsCompleted ?? 0} />
-                     </div>
                 </div>
             </div>
 
@@ -109,14 +105,9 @@ export default function UserDetailsPage() {
                     defaultOpen
                 >
                     <div className="grid gap-3 sm:grid-cols-4">
-                        <StatPill label="Total consultations" value={user.totalConsultations ?? user.consultationsCount ?? 0} />
-                        <StatPill label="Consultations complétées" value={user.consultationsCompleted ?? 0} />
-                        <StatPill label="Rituels complétés" value={user.rituelsCompleted ?? 0} />
-                        <StatPill label="Livres lus" value={user.booksRead ?? 0} />
-                    </div>
+                        <StatPill label="Total jeux" value={user.totalConsultations ?? user.consultationsCount ?? 0} />
+                     </div>
                 </Section>
-
-                <UserAspectsTexte aspectsTexte={user.aspectsTexte} />
             </div>
         </div>
     );

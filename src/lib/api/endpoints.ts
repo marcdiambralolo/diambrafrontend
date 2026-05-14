@@ -1,13 +1,4 @@
-export const endpoints = {
-  // Admin Books
-  adminBooks: {
-    list: '/admin/books',
-    byId: (id: string) => `/books/${id}`,
-  },
-  // Books
-  books: {
-    byId: (id: string) => `/books/${id}`,
-  },
+export const endpoints = {  
   // Root
   root: '/',
 
@@ -69,36 +60,14 @@ export const endpoints = {
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/read-all',
     preferences: '/notifications/preferences',
-  },
+  }, 
  
-
-  // Admin Grades
-  adminGrades: {
-    list: '/admin/grades',
-    enriched: '/admin/grades/enriched',
-    byId: (id: string) => `/admin/grades/${id}`,
-    byName: (grade: string) => `/admin/grades/by-name/${grade}`,
-    reorderChoices: (id: string) => `/admin/grades/${id}/reorder-choices`,
-    nextGrade: (id: string) => `/admin/grades/${id}/next-grade`,
-    consultationChoices: '/admin/consultation-choices',
-  },
-
-  // User Access (Profils)
   userAccess: {
     mySubscription: '/user-access/subscription-info',
     checkAccess: (rubriqueId: string) => `/user-access/check-access/${rubriqueId}`,
     activatePremium: '/user-access/activate-premium',
     activateIntegral: '/user-access/activate-integral',
     cancelSubscription: '/user-access/cancel-subscription',
-  },
-
-  // Blog
-  blog: {
-    list: '/blog',
-    byId: (id: string) => `/blog/${id}`,
-    create: '/blog',
-    update: (id: string) => `/blog/${id}`,
-    delete: (id: string) => `/blog/${id}`,
   },
 };
 

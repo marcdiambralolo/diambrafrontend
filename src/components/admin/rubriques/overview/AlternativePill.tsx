@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-type CategoryKey = "animal" | "vegetal" | "beverage";
+type CategoryKey = "banque";
 
 const CATEGORIES: Array<{
   value: CategoryKey;
@@ -8,9 +8,7 @@ const CATEGORIES: Array<{
   emoji: string;
   color: string;
 }> = [
-    { value: "animal", label: "Animaux", emoji: "🐓", color: "from-red-500 to-orange-500" },
-    { value: "vegetal", label: "Végétaux", emoji: "🌾", color: "from-green-500 to-emerald-500" },
-    { value: "beverage", label: "Boissons", emoji: "🥤", color: "from-blue-500 to-indigo-500" },
+    { value: "banque", label: "Banque", emoji: "🏦", color: "from-amber-500 to-yellow-500" },
   ];
 
 const AlternativePill = memo(function AlternativePill({

@@ -2,8 +2,8 @@
 import CacheLink from "@/components/commons/CacheLink";
 import { useWalletPageWithCache } from "@/hooks/cache/useWalletPageWithCache";
 import { cx } from "@/lib/functions";
-import { OfferingCategory, Transaction, TransactionItem } from "@/lib/interfaces";
-import { AnimatePresence, motion,Variants  } from "framer-motion";
+import { Transaction, TransactionItem } from "@/lib/interfaces";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
   ArrowLeftCircle,
   Calendar,
@@ -18,7 +18,6 @@ import {
   TrendingUp,
   Wallet
 } from "lucide-react";
-import Image from 'next/image';
 import { memo, useMemo, useState, type ElementType } from "react";
 
 // ==================== CONSTANTES D'ANIMATION ====================
@@ -35,21 +34,9 @@ const staggerContainer: Variants = {
   }
 };
 
-function isOfferingCategory(value: unknown): value is OfferingCategory {
-  return value === 'animal' || value === 'vegetal' || value === 'beverage';
-}
 
-export function getCategoryConfig(category: OfferingCategory) {
-  switch (category) {
-    case 'animal':
-      return { label: 'Animal', color: 'bg-amber-100 text-amber-700' };
-    case 'vegetal':
-      return { label: 'Végétal', color: 'bg-emerald-100 text-emerald-700' };
-    case 'beverage':
-      return { label: 'Boisson', color: 'bg-blue-100 text-blue-700' };
-    default:
-      return { label: 'Autre', color: 'bg-gray-100 text-gray-600' };
-  }
+export function getCategoryConfig() {
+   return { label: 'Banque', color: 'bg-amber-100 text-amber-700' };
 }
 
 export function normalizeItem(item: TransactionItem) {
@@ -64,7 +51,7 @@ export function normalizeItem(item: TransactionItem) {
 
   return {
     ...item,
-    category: isOfferingCategory(item.category) ? item.category : 'animal',
+    category: 'banque',
     name: item.name ?? 'Offrande',
     price: item.price ?? item.unitPrice ?? 0,
   };
@@ -77,7 +64,7 @@ export function WalletHero() {
       <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 mb-4">
         <Wallet className="h-3.5 w-3.5 text-indigo-600" />
         <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
-          Porte-monnaie 
+          Porte-monnaie
         </span>
       </div>
 
@@ -244,7 +231,7 @@ const OfferingItemCard = memo(function OfferingItemCard({
   item,
   index,
 }: OfferingItemCardProps) {
-  const categoryConfig = getCategoryConfig(item.category);
+  const categoryConfig = getCategoryConfig();
 
   return (
     <motion.div
@@ -254,9 +241,9 @@ const OfferingItemCard = memo(function OfferingItemCard({
       className="flex items-center gap-3 rounded-lg bg-gray-50 p-3"
     >
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
-      <Package className="h-4 w-4 text-indigo-600" />
-     
-        
+        <Package className="h-4 w-4 text-indigo-600" />
+
+
       </div>
 
       <div className="flex-1">
@@ -347,8 +334,8 @@ export const TransactionCard = memo(function TransactionCard({
                 key={idx}
                 className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-indigo-100 to-purple-100"
               >
-                 <Package className="h-3 w-3 text-indigo-600" />
-                 
+                <Package className="h-3 w-3 text-indigo-600" />
+
               </div>
             ))}
             {normalizedItems.length > 3 && (
@@ -441,7 +428,7 @@ export function UnusedOfferingsSection({
         <div className="grid gap-4 sm:grid-cols-2">
           {unusedOfferings.map((item, idx) => {
             const o = item.offering;
-            const category = getCategoryConfig(o?.category || "animal");
+            const category = getCategoryConfig();
 
             return (
               <motion.div
@@ -452,8 +439,8 @@ export function UnusedOfferingsSection({
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
-                   <Gift className="h-28 w-28 text-indigo-500" />
-               
+                    <Gift className="h-28 w-28 text-indigo-500" />
+
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">

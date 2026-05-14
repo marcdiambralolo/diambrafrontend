@@ -34,7 +34,7 @@ interface UseEditOffrandeReturn {
   validationErrors: Record<string, string>;
   imageState: ImageState;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleCategoryChange: (value: 'animal' | 'vegetal' | 'beverage') => void;
+  handleCategoryChange: (value: 'banque') => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleCancel: () => void;
   fetchData: (options?: RefetchOptions) => Promise<QueryObserverResult<Offering, Error>>;
@@ -66,9 +66,7 @@ export function useEditOffrande(): UseEditOffrandeReturn {
   });
 
   // Refs
-  const submitLockRef = useRef(false); 
- 
- 
+  const submitLockRef = useRef(false);  
 
   // ==================== VALIDATION ====================
   const validateField = useCallback((name: string, value: any): string => {
@@ -97,12 +95,10 @@ export function useEditOffrande(): UseEditOffrandeReturn {
 
       case 'category':
         if (!value) return 'La catégorie est requise';
-        if (!['animal', 'vegetal', 'beverage'].includes(value)) {
+        if (!['banque'].includes(value)) {
           return 'Catégorie invalide';
         }
-        return '';
-
-      
+        return '';      
       default:
         return '';
     }
@@ -156,7 +152,7 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     }));
   }, [formData, validateField]);
 
-  const handleCategoryChange = useCallback((value: 'animal' | 'vegetal' | 'beverage') => {
+  const handleCategoryChange = useCallback((value: 'banque') => {
     if (!formData) return;
     const error = validateField('category', value);
     setValidationErrors(prev => ({ ...prev, category: error }));

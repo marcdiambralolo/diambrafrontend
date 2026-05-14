@@ -1,7 +1,6 @@
 ﻿import type { ToastState } from '@/hooks/admin/consultations/useAdminConsultationAnalysis';
 import { api } from '@/lib/api/client';
 import type { Rubrique } from '@/lib/interfaces';
-import { ConsultationType } from '@/lib/interfaces';
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -13,8 +12,6 @@ export function useAdminRubriquesNewPage() {
     description: '',
     categorie: 'GENERAL',
     consultationChoices: [],
-    typeconsultation: ConsultationType.AUTRE,
-    type: ConsultationType.AUTRE,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -32,11 +29,6 @@ export function useAdminRubriquesNewPage() {
       return;
     }
 
-    if (!editingRubrique.typeconsultation) {
-      setToast({ type: 'error', message: 'Le type de consultation est requis' });
-      return;
-    }
-
     setSaving(true);
 
     const newRubrique = {
@@ -44,8 +36,6 @@ export function useAdminRubriquesNewPage() {
       description: editingRubrique.description?.trim() || '',
       categorie: 'GENERAL',
       consultationChoices: [],
-      type: editingRubrique.typeconsultation,
-      typeconsultation: editingRubrique.typeconsultation,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

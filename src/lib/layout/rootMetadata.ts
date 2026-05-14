@@ -1,6 +1,3 @@
-/**
- * Configuration des métadonnées pour le layout root
- */
 const faviconAnySize = `${'an'}y`;
 
 export function getRootMetadata() {
@@ -19,7 +16,7 @@ export function getRootMetadata() {
       siteName: "Diambra",
       title: "Diambra",
       description:
-        "🔮 Jeu.",
+        "🔮 Jeu .",
       images: [
         { url: "/og-image.jpg", width: 1200, height: 630, alt: "Diambra - Plateforme Spirituelle", type: "image/jpeg" },
         { url: "/og-image-square.jpg", width: 800, height: 800, alt: "Diambra Logo", type: "image/jpeg" },

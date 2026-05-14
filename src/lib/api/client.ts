@@ -1,5 +1,16 @@
 import { apiUrl } from "@/lib/api/config";
 import type { ApiHealthResponse, ApiStatusResponse } from "@/lib/api/types";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import config from '../config';
+import { clearClientApplicationState } from '../cache/clientState';
+import { dispatchLoginNavigation } from '../navigation/clientNavigation';
+import { logger } from '../utils/logger';
 
 export class ApiError extends Error {
   constructor(
@@ -61,9 +72,9 @@ export async function apiFetch<T>(
   if (!res.ok) {
     const msg =
       typeof payload === "object" &&
-      payload !== null &&
-      "message" in payload &&
-      typeof (payload as { message: unknown }).message === "string"
+        payload !== null &&
+        "message" in payload &&
+        typeof (payload as { message: unknown }).message === "string"
         ? (payload as { message: string }).message
         : res.statusText || `HTTP ${res.status}`;
     throw new ApiError(res.status, msg, payload);
@@ -83,17 +94,6 @@ export function fetchApiStatus() {
 }
 
 
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
-import config from '../config';
-import { clearClientApplicationState } from '../cache/clientState';
-import { dispatchLoginNavigation } from '../navigation/clientNavigation';
-import { logger } from '../utils/logger';
 
 type DecodedToken = {
   exp?: number;

@@ -23,7 +23,7 @@ export type SimulationStep =
   | "saving"
   | "success";
 
-export type Category = "all" | "animal" | "vegetal" | "beverage";
+export type Category = "all" | "banque";
 
 export interface CategoryInfo {
   id: Category;

@@ -3,13 +3,9 @@ import { api } from "@/lib/api/client";
 import { offeringsService } from '@/lib/api/services/offerings.service';
 import type { Offering, OfferingAlternative, Rubrique } from '@/lib/interfaces';
 import { ConsultationChoice } from "@/lib/interfaces";
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import type { GradeConfig } from '@/lib/types/grade-config.types';
-import { Variants } from "framer-motion";
 import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type UploadPdfResponse = { url: string; fileUrl?: string; path?: string };
 
 export const ANIMATION_VARIANTS = {
   fadeIn: {
@@ -34,12 +30,10 @@ export const ANIMATION_VARIANTS = {
 
 // Constantes
 const DEFAULT_ALTERNATIVES = [
-  { category: "animal" as const, offeringId: "", quantity: 1 },
-  { category: "vegetal" as const, offeringId: "", quantity: 1 },
-  { category: "beverage" as const, offeringId: "", quantity: 1 },
+  { category: "banque" as const, offeringId: "", quantity: 1 },
 ];
 
-const REQUIRED_CATEGORIES = ['animal', 'vegetal', 'beverage'] as const;
+const REQUIRED_CATEGORIES = ['banque'] as const;
 
 // Types
 type SectionType = 'offering' | 'details' | 'ai';
@@ -83,18 +77,10 @@ export function useAdminRubriquesAddPage() {
   const [choice, setChoice] = useState<ConsultationChoice>({
     title: "",
     description: "",
-    frequence: undefined,
-    participants: undefined,
     offering: { alternatives: DEFAULT_ALTERNATIVES },
-    order: 0,
     choiceId: "",
     choiceTitle: "",
-    buttonStatus: 'CONSULTER',
-    consultButtonStatus: 'CONSULTER',
-    hasActiveConsultation: false,
     consultationId: null,
-    consultationCount: 0,
-    gradeId: "",
   });
 
   // Cleanup au démontage
@@ -190,18 +176,7 @@ export function useAdminRubriquesAddPage() {
     });
   }, []);
 
-  // Upload PDF
-  const uploadPdf = useCallback(async (file: File): Promise<string | null> => {
-    try {
-      const fd = new FormData();
-      fd.append('pdfFile', file);
-      const res = await api.post<UploadPdfResponse>('/upload/pdf', fd);
-      return res.data.url || res.data.fileUrl || res.data.path || null;
-    } catch (error) {
-      console.error('Erreur upload PDF:', error);
-      return null;
-    }
-  }, []);
+  
 
   // Validation du formulaire
   const validateChoice = useCallback((choiceToValidate: ConsultationChoice): string | null => {
@@ -211,25 +186,17 @@ export function useAdminRubriquesAddPage() {
     if (!choiceToValidate.description?.trim()) {
       return 'Veuillez saisir une description.';
     }
-    if (!choiceToValidate.gradeId) {
-      return 'Veuillez sélectionner un grade.';
-    }
-    if (!choiceToValidate.frequence) {
-      return 'Veuillez sélectionner une fréquence.';
-    }
-    if (!choiceToValidate.participants) {
-      return 'Veuillez sélectionner le type de participants.';
-    }
+    
 
     const alternatives = choiceToValidate.offering?.alternatives;
-    if (!alternatives || alternatives.length !== 3) {
-      return '3 alternatives (animal, vegetal, beverage) sont requises.';
+    if (!alternatives || alternatives.length !== 1) {
+      return 'Une alternative (banque) est requise.';
     }
 
     const categories = alternatives.map(a => a.category);
     const hasAllCategories = REQUIRED_CATEGORIES.every(cat => categories.includes(cat));
     if (!hasAllCategories) {
-      return 'Chaque catégorie (animal, vegetal, beverage) doit être présente.';
+      return 'Chaque catégorie banque doit être présente.';
     }
 
     const hasEmptyOffering = alternatives.some(alt => !alt.offeringId || alt.quantity <= 0);
@@ -263,38 +230,12 @@ export function useAdminRubriquesAddPage() {
         }))
       };
 
-      // Upload PDF si nécessaire
-      let pdfFileUrl: string | null = null;
-      if (choice.pdfFile) {
-        if (typeof choice.pdfFile !== 'string') {
-          pdfFileUrl = await uploadPdf(choice.pdfFile);
-          if (!pdfFileUrl) {
-            showToast('error', 'Erreur lors de l’upload du PDF.');
-            setSaving(false);
-            return;
-          }
-        } else {
-          pdfFileUrl = choice.pdfFile;
-        }
-      }
 
-      // Préparation du payload
-      const gradeIdValue = typeof choice.gradeId === 'string'
-        ? (choice.gradeId.trim() || undefined)
-        : (choice.gradeId && typeof choice.gradeId === 'object' && 'id' in choice.gradeId
-          ? (choice.gradeId.id as string)
-          : undefined);
-
+      
       const payload = {
         title: choice.title.trim(),
         description: choice.description.trim(),
-        frequence: choice.frequence,
-        participants: choice.participants,
-        order: editingRubrique.consultationChoices?.length || 0,
-        offering,
-        pdfFile: pdfFileUrl,
-        prompt: choice.prompt?.trim() || undefined,
-        gradeId: gradeIdValue,
+        offering, 
       };
 
       await api.post(`/rubriques/${editingRubrique._id}/consultation-choices`, payload);
@@ -309,7 +250,7 @@ export function useAdminRubriquesAddPage() {
     } finally {
       setSaving(false);
     }
-  }, [editingRubrique, choice, validateChoice, showToast, uploadPdf, handleBackToList]);
+  }, [editingRubrique, choice, validateChoice, showToast,  handleBackToList]);
 
   // Calculs mémoisés
   const totalCost = useMemo(() => {
@@ -322,12 +263,9 @@ export function useAdminRubriquesAddPage() {
   const isFormValid = useMemo(() => {
     return choice.title.trim() &&
       choice.description.trim() &&
-      choice.gradeId &&
-      choice.frequence &&
-      choice.participants &&
       choice.offering.alternatives.length === 3 &&
       choice.offering.alternatives.every(alt => alt.offeringId && alt.quantity > 0);
-  }, [choice.title, choice.description, choice.gradeId, choice.frequence, choice.participants, choice.offering.alternatives]);
+  }, [choice.title, choice.description, choice.offering.alternatives]);
 
   // Toggle section
   const toggleSection = useCallback((section: SectionType) => {
@@ -336,7 +274,7 @@ export function useAdminRubriquesAddPage() {
 
   return {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange,   expandedSection, totalCost, isFormValid,
+    handleAlternativeChange, expandedSection, totalCost, isFormValid,
     loading, saving, offerings, offeringsLoading, choice, view, editingRubrique, toast,
   };
 }

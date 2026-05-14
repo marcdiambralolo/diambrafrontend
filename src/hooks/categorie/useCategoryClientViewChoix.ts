@@ -1,10 +1,10 @@
 // hooks/categorie/useCategoryClientViewChoix.ts
-import { buildCategoryChoicePath, getCreatedConsultationDestination } from "@/hooks/categorie/categoryConsultation.shared";
+import { buildCategoryChoicePath } from "@/hooks/categorie/categoryConsultation.shared";
 import { useToast } from "@/hooks/categorie/useToast";
 import { api } from "@/lib/api/client";
 import { getChoicesWithCount } from "@/lib/api/services/rubriques.service";
 import {
-  Consultation, ConsultationStatus, ConsultationType, User,
+    Consultation, User,
   type ConsultationChoice, type Rubrique,
 } from "@/lib/interfaces";
 import { useAuthStore } from "@/lib/store/auth.store";
@@ -234,21 +234,16 @@ export function useCategoryClientViewChoix() {
                 id: consultationId,
                 userId: activeUser._id,
                 rubriqueId,
-                serviceId: process.env.NEXT_PUBLIC_SERVICE_ID ?? "",
-                serviceType: ConsultationType.AUTRE,
-                status: ConsultationStatus.PENDING,
+                serviceId: process.env.NEXT_PUBLIC_SERVICE_ID ?? "",           
                 isPaid: false,
                 alternatives: choice.offering?.alternatives || [],
                 choice,
-                type: ConsultationType.AUTRE,
                 title: choice.title || "Consultation",
                 description: choice.description || "",
                 result: null,
-                price: 0,
-                attachments: [],
-                notes: null,
+                price: 0, 
                 extraPayload: {
-                    pdfFile: choice.pdfFile || "",
+                 
                     choiceId,
                 },
                 createdAt: now,
@@ -257,23 +252,8 @@ export function useCategoryClientViewChoix() {
 
             setChoixConsultationEnCours(consultation);
 
-            const nextPath = (() => {
-                const { participants, frequence } = choice;
-                if (participants === "GROUPE" && frequence === "LIBRE") {
-                    return buildFormPath(category._id, "formgroupe", choiceId);
-                }
-                if (participants === "AVEC_TIERS" || participants === "POUR_TIERS") {
-                    return buildFormPath(category._id, "form", choiceId);
-                }
-                if (participants === "SOLO") {
-                    return getCreatedConsultationDestination({
-                        categoryId: category._id,
-                        consultationId,
-                        rubriqueId,
-                        choiceId,
-                        consultationType: rubriqueCourante.typeconsultation || null,
-                    });
-                }
+            const nextPath = (() => {              
+               
                 return buildFormPath(category._id, "form", choiceId);
             })();
 

@@ -19,12 +19,10 @@ interface EditOffrandeFormProps {
         _id?: string;
         name: string;
         price: number;
-        priceUSD: number;
-        category: 'animal' | 'vegetal' | 'beverage' | '';
+        category: 'banque' | '';
         description: string;
         illustrationUrl?: string;
     };
-    priceUSD: number;
     saving: boolean;
     error: string | null;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -100,7 +98,6 @@ ImagePreview.displayName = 'ImagePreview';
 // ==================== FORMULAIRE PRINCIPAL ====================
 export const EditOffrandeForm = memo(({
     formData,
-    priceUSD,
     saving,
     error,
     onChange,
@@ -249,22 +246,7 @@ export const EditOffrandeForm = memo(({
                             />
                         </FormField>
 
-                        <div>
-                            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                Prix (USD)
-                            </label>
-                            <div className="mt-1 relative">
-                                <input
-                                    type="text"
-                                    value={`$${priceUSD.toLocaleString()}`}
-                                    disabled
-                                    className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#13274C] px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                                />
-                            </div>
-                            <p className="text-[10px] text-slate-500 mt-1">
-                                Taux: 1 USD = {CONSTANTS.EXCHANGE_RATE} F CFA
-                            </p>
-                        </div>
+                         
                     </div>
  
                     <AnimatePresence>
@@ -381,7 +363,6 @@ export default function EditOffrandePageClient() {
     return (
         <EditOffrandeForm
             formData={formData}
-            priceUSD={priceUSD}
             saving={saving}
             error={error}
             onChange={handleChange}

@@ -59,8 +59,6 @@ export function useConsultationCardLogic(
       consultation.dateGeneration
       || consultation.completedAt
       || consultation.completedDate
-      || consultation.analysisNotified
-      || consultation.pdfFile
       || consultation.result
     );
     const normalizedStatusForDisplay =  normalizedStatus === 'AWAITING_PAYMENT'
@@ -110,16 +108,13 @@ export function useConsultationCardLogic(
           : "Afficher",
     };
   }, [
-    consultation.analysisNotified,
     consultation.completedAt,
     consultation.completedDate,
     consultation.dateGeneration,
     consultation.isPaid,
     consultation.paymentId,
-    consultation.pdfFile,
     consultation.result,
     consultation.status,
-    consultation.type,
     consultation.ui,
     formatDate,
     normalizedDateGeneration,
@@ -155,6 +150,5 @@ export function useConsultationCardLogic(
   }, []);
 
   return {
-    cardRef, derived, handleView, handleMouseMove, handleMouseLeave, handleMouseEnter,
-  };
+    cardRef, derived, handleView, handleMouseMove, handleMouseLeave, handleMouseEnter,  };
 }

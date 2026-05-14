@@ -51,7 +51,7 @@ export function useOfferingValidation({
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS, exact: true });
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
-            router.push(buildCategoryConsultationPath(categoryId, 'genereanalyse', {
+            router.push(buildCategoryConsultationPath(categoryId, 'consulter', {
                 consultationId,
                 rubriqueId,
                 choiceId,

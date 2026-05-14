@@ -17,7 +17,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
     const registration = await navigator.serviceWorker.register(SW_PATH, { scope: '/' });
 
     // Vérifier les mises à jour périodiquement
-    setInterval(() => registration.update().catch(() => {}), UPDATE_INTERVAL);
+    setInterval(() => registration.update().catch(() => { }), UPDATE_INTERVAL);
 
     // Gérer les nouvelles versions
     registration.addEventListener('updatefound', () => {
@@ -124,9 +124,7 @@ export function formatBytes(bytes: number, decimals = 2): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
 }
 
-/**
- * Vérifie si le navigateur est en ligne
- */
+
 export function isOnline(): boolean {
   return typeof navigator !== 'undefined' && navigator.onLine;
 }

@@ -16,18 +16,11 @@ export const queryClient = new QueryClient({
 export const QUERY_KEYS = {
   AUTH_ME: ['auth', 'me'],
   ADMIN_USER_DETAIL: (userId: string) => ['admin', 'user', userId],
-  BLOG_POSTS: ['blog-posts'],
-  BLOG_DETAIL: (blogId: string) => ['blog-post', blogId],
-  ADMIN_BLOG_ARTICLES: ['admin-blog-articles'],
-  BOOKS: ['books'],
-  BOOK_DETAIL: (bookId: string) => ['book', bookId],
   CONSULTATION_FRONT_DATA: (consultationId: string) => ['consultation', 'front-data', consultationId],
   CONSULTATIONS_BY_RUBRIQUE: (rubriqueId: string) => ['consultations-by-rubrique', rubriqueId],
-  RUBRIQUE_CINQ_ETOILES: ['rubrique-cinq-etoiles'],
   CONSULTATIONS_MY: ['consultations', 'my'],
   ANALYSES_BY_CHOICE: (choiceId: string) => ['analyses', 'by-choice', choiceId],
   DOMAINES: ['domaines'],
-  GRADES: ['grades'],
   MESSAGING_CLIENT_THREAD: (consultantId: string) => ['messaging', 'client-thread', consultantId],
   MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],
   NOTIFICATIONS: ['notifications'],
@@ -38,7 +31,6 @@ export const QUERY_KEYS = {
   WALLET_TRANSACTIONS: ['wallet', 'transactions'],
   WALLET_UNUSED_OFFERINGS: ['wallet', 'unused-offerings'],
   MY_FEATURE: ['my-feature'],
-  // Ajoutez d'autres clés ici
 };
 
 export function clearPersistedQueryCache() {

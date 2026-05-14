@@ -1,5 +1,5 @@
 
-import type { Analysis, Consultation } from '@/lib/interfaces';
+import type {   Consultation } from '@/lib/interfaces';
 import { api } from '../client';
 import { normalizeThreadResponse, type MessagingThreadResponse } from './messaging.service';
 
@@ -16,7 +16,7 @@ export type AnalysisJobStatus = 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
 export interface ConsultationFrontDataResult {
   success: boolean;
   consultation: Consultation | null;
-  analysis: Analysis | null;
+  analysis: any | null;
   analysisStatus: {
     consultationId: string;
     jobId: string;
@@ -36,7 +36,7 @@ type PaginatedConsultationsPayload = PaginatedConsultationsResult | Consultation
 type ConsultationFrontDataPayload = {
   success?: boolean;
   consultation?: Consultation | null;
-  analysis?: Analysis | null;
+  analysis?: any | null;
   analysisStatus?: unknown;
   messaging?: unknown;
 };

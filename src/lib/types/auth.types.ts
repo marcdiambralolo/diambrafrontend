@@ -17,7 +17,7 @@ export interface AuthResponse {
 }
 
 export interface TokenPayload {
-  sub: string; // userId
+  sub: string;
   email: string;
   role: Role;
   iat: number;

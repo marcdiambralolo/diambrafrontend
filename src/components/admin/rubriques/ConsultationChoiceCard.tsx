@@ -1,13 +1,11 @@
 'use client';
 import type { Offering, OfferingAlternative } from "@/lib/interfaces";
 import { ConsultationChoice } from "@/lib/interfaces";
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { GradeConfig } from '@/lib/types/grade-config.types';
 import { AnimatePresence, motion } from "framer-motion";
 import { DollarSign, Package } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
 import { OfferingSelector } from "./OfferingSelector";
-import RubriquePdfUpload from "./RubriquePdfUpload";
+ 
 
 const ConsultationChoiceCard = memo(({ 
     choice, 
@@ -80,46 +78,8 @@ const ConsultationChoiceCard = memo(({
                         />
                     </div>
 
-                    <div className="space-y-1 mt-2">
-                        <label htmlFor={`choice-prompt-0`} className="text-xs font-semibold text-slate-700">
-                            Prompt pour l'IA (optionnel)
-                        </label>
-                        <p className="text-[10px] text-slate-500">
-                            Saisissez un prompt personnalisé pour guider l'analyse IA de ce choix
-                        </p>
-
-                        <textarea
-                            id={`choice-prompt-0`}
-                            value={choice.prompt || ''}
-                            onChange={(e) => onUpdate({ ...choice, prompt: e.target.value })}
-                            placeholder="Prompt IA pour ce choix..."
-                            aria-label="Prompt IA du choix de consultation"
-                            title="Entrez un prompt IA personnalisé pour ce choix"
-                            rows={2}
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-transparent dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-                        />
-                    </div>
-
-                    <div className="space-y-1 mt-2">
-                        <RubriquePdfUpload
-                            previewName={
-                                choice.pdfFile
-                                    ? typeof choice.pdfFile === 'string'
-                                        ? 'PDF associé'
-                                        : (choice.pdfFile as File).name
-                                    : null
-                            }
-                            onFileSelect={file => onUpdate({ ...choice, pdfFile: file })}
-                            label="PDF associé au choix (optionnel)"
-                            maxSizeMb={20}
-                            showPreviewLink={!!choice.pdfFile}
-                            fileUrl={
-                                typeof choice.pdfFile === 'string'
-                                    ? choice.pdfFile
-                                    : (choice.pdfFile ? URL.createObjectURL(choice.pdfFile as File) : null)
-                            }
-                        />
-                    </div>
+                     
+                   
                 </div>
             </div>
             {/* Actions: Delete, Move Up/Down */}

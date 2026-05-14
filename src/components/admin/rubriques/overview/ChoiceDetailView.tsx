@@ -5,7 +5,7 @@ import AlternativePill from './AlternativePill';
 import { getId, clamp } from '@/lib/functions';
 import type { ConsultationChoice, OfferingAlternative } from '@/lib/interfaces';
 
-type CategoryKey = "animal" | "vegetal" | "beverage";
+type CategoryKey = "banque";
 
 const listVariants = {
   initial: {},

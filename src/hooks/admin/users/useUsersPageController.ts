@@ -11,7 +11,7 @@ export type UserStatus = 'all' | 'active' | 'inactive';
 export type UserRole = 'all' | 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 
 export function useUsersPageController() {
- const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus>('all');
   const [roleFilter, setRoleFilter] = useState<UserRole>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,9 +29,9 @@ export function useUsersPageController() {
   const mapUserToUserData = (user: Partial<User>): User => ({
     _id: user._id,
     username: user.username ?? '',
-      prenoms: user.prenoms ?? '',
-      nom: user.nom ?? '',
-      phone: user.phone ?? '',
+    prenoms: user.prenoms ?? '',
+    nom: user.nom ?? '',
+    phone: user.phone ?? '',
     status: user.status ?? 'active',
     isActive: user.isActive,
     createdAt: user.createdAt ?? new Date().toISOString(),
@@ -48,27 +48,7 @@ export function useUsersPageController() {
     customPermissions: user.customPermissions ?? [],
     dateOfBirth: user.dateOfBirth ?? undefined,
     updatedAt: user.updatedAt ?? new Date(),
-    aspectsTexte: user.aspectsTexte ?? '',
-      bio: user.bio ?? '',
-      specialties: Array.isArray(user.specialties)
-        ? user.specialties
-        : typeof user.specialties === 'string'
-        ? [user.specialties]
-        : [],
-      video: user.video ?? '',
-      presentation: user.presentation ?? '',
-        profilePicture: user.profilePicture ?? '',
-        domains: Array.isArray(user.domains)
-          ? user.domains
-          : typeof user.domains === 'string'
-          ? [user.domains]
-          : [],
-        methods: Array.isArray(user.methods)
-          ? user.methods
-          : typeof user.methods === 'string'
-          ? [user.methods]
-          : [],
-         
+    presentation: user.presentation ?? '',
   });
 
   const users: User[] = useMemo(() => (apiUsers ? apiUsers.map(mapUserToUserData) : []), [apiUsers]);
@@ -197,7 +177,7 @@ export function useUsersPageController() {
     currentPage,
     setCurrentPage,
     showFilters,
-    setShowFilters,  
+    setShowFilters,
     isRefreshing,
     users,
     stats,

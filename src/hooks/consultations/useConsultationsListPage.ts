@@ -32,7 +32,7 @@ export function useConsultationsListPage() {
       return 'Session expirée. Veuillez vous reconnecter.';
     }
 
-    return 'Erreur lors du chargement des consultations';
+    return 'Erreur lors du chargement des Jeux';
   }, [query.error]);
 
   const prefetchConsultation = useCallback((consultation: Consultation) => {

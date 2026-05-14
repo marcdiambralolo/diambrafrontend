@@ -138,7 +138,7 @@ const UserHub = memo(function UserHub() {
               Mon Profil
             </h1>
             <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-              Gérez votre profil, suivez vos consultations et développez votre activité
+              Gérez votre profil, suivez vos Jeux et développez votre activité
             </p>
           </motion.div>
           <IdentityOverview

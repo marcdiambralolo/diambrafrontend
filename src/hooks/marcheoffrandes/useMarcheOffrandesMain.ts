@@ -120,9 +120,8 @@ export function useMarcheOffrandesMain() {
   );
 
   const filteredOfferings = useMemo(() => {
-    if (selectedCategory === "all") return offerings;
-    return offerings.filter((o) => o.category === selectedCategory);
-  }, [selectedCategory, offerings]);
+    return offerings;
+  }, [offerings]);
 
   const addToCart = useCallback((offering: Offering) => {
     setCart((prev) => {
@@ -259,7 +258,6 @@ export function useMarcheOffrandesMain() {
             name: item.name,
             quantity: item.quantity,
             price: item.price,
-            category: item.category,
             unitPrice: item.price,
             totalPrice: item.price * item.quantity,
           };
@@ -295,9 +293,6 @@ export function useMarcheOffrandesMain() {
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
       const redirectUrl = walletUrl.includes('?') ? `${walletUrl}&${transactionIdParam}` : `${walletUrl}?${transactionIdParam}`;
       router.push(redirectUrl);
-
-
-      
     } catch (err: unknown) {
       console.error("❌ [CheckoutModal] Erreur simulation:", err);
       setPaymentError(getSafeErrorMessage(err, "Erreur lors de la validation de l’offrande."));
@@ -311,7 +306,7 @@ export function useMarcheOffrandesMain() {
 
   return {
     offerings, loading, error, selectedCategory, cart, cartTotal, cartCount,
-    filteredOfferings, showCart, showCheckout, simulationStep,paymentError,
+    filteredOfferings, showCart, showCheckout, simulationStep, paymentError,
     handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
     setSelectedCategory, handleProceedToCheckout, handleResetCategory,
     handleSimulatedPayment, handleClose,

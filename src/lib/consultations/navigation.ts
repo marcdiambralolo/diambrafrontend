@@ -25,12 +25,11 @@ export function buildConsultationSearchParams(params: ConsultationNavigationPara
 
 export function buildCategoryConsultationPath(
   categoryId: string,
-  segment: 'consulter',
   params: ConsultationNavigationParams,
 ): string {
   const query = buildConsultationSearchParams(params);
 
   return query
-    ? `/star/category/${categoryId}/${segment}?${query}`
-    : `/star/category/${categoryId}/${segment}`;
+    ? `/star/category/${categoryId}/consulter?${query}`
+    : `/star/category/${categoryId}/consulter`;
 }

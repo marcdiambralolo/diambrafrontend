@@ -20,7 +20,6 @@ export const QUERY_KEYS = {
   CONSULTATIONS_BY_RUBRIQUE: (rubriqueId: string) => ['consultations-by-rubrique', rubriqueId],
   CONSULTATIONS_MY: ['consultations', 'my'],
   ANALYSES_BY_CHOICE: (choiceId: string) => ['analyses', 'by-choice', choiceId],
-  DOMAINES: ['domaines'],
   MESSAGING_CLIENT_THREAD: (consultantId: string) => ['messaging', 'client-thread', consultantId],
   MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],
   NOTIFICATIONS: ['notifications'],
@@ -30,7 +29,6 @@ export const QUERY_KEYS = {
   RUBRIQUES_OVERVIEW: ['rubriques-overview'],
   WALLET_TRANSACTIONS: ['wallet', 'transactions'],
   WALLET_UNUSED_OFFERINGS: ['wallet', 'unused-offerings'],
-  MY_FEATURE: ['my-feature'],
 };
 
 export function clearPersistedQueryCache() {

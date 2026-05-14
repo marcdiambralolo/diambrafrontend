@@ -21,7 +21,6 @@ export function useNotificationSound(url: string) {
 
     const unlock = () => {
       if (!audioRef.current) return;
-      // Un minuscule play/stop pour "débloquer" l'audio
       audioRef.current.muted = true;
       audioRef.current.play().catch(() => {});
       audioRef.current.pause();

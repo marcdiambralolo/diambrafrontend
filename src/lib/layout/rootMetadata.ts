@@ -19,7 +19,7 @@ export function getRootMetadata() {
         "🔮 Jeu .",
       images: [
         { url: "/og-image.jpg", width: 1200, height: 630, alt: "Diambra - Plateforme Spirituelle", type: "image/jpeg" },
-        { url: "/og-image-square.jpg", width: 800, height: 800, alt: "Diambra Logo", type: "image/jpeg" },
+        { url: "/og-image-square.jpg", width: 800, height: 800, alt: "Diambra", type: "image/jpeg" },
       ],
     },
     twitter: {

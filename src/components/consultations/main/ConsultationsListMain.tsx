@@ -162,7 +162,7 @@ const ConsultationsListMain = memo(function ConsultationsListMain() {
                   <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" /><line x1="9" x2="15" y1="9" y2="9" /><line x1="9" x2="15" y1="13" y2="13" /><line x1="9" x2="13" y1="17" y2="17" /></svg>
                 </div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-black text-white mb-1">Mes Consultations</h1>
+                  <h1 className="text-3xl md:text-4xl font-black text-white mb-1">Mes Jeux</h1>
                 </div>
               </div>
             </div>

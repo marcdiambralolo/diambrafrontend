@@ -115,12 +115,10 @@ export function useEditOffrande(): UseEditOffrandeReturn {
       name: formData.name,
       description: formData.description,
       price: formData.price,
-      category: formData.category,
     }) !== JSON.stringify({
       name: originalData.name,
       description: originalData.description,
       price: originalData.price,
-      category: originalData.category,
     });
 
     // Vérifier les changements d'image
@@ -156,7 +154,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     if (!formData) return;
     const error = validateField('category', value);
     setValidationErrors(prev => ({ ...prev, category: error }));
-    setFormData(prev => prev && { ...prev, category: value });
   }, [formData, validateField]);
 
   // ==================== RÉINITIALISATION ====================
@@ -207,7 +204,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     fd.append('name', formData.name.trim());
     fd.append('price', String(formData.price));
     fd.append('priceUSD', String(priceUSD));
-    fd.append('category', formData.category);
     fd.append('description', formData.description.trim());
 
     // Gestion de l'image (priorité au nouveau fichier)

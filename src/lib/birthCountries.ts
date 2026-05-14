@@ -21,8 +21,5 @@ export const birthCountries = [
   'Saint-Kitts-et-Nevis', 'Saint-Marin', 'Saint-Vincent-et-les-Grenadines', 'Sainte-Lucie', 'Salvador', 'Samoa', 'Sao Tomé-et-Principe', 'Sénégal', 'Serbie', 'Seychelles', 'Sierra Leone', 'Singapour', 'Slovaquie', 'Slovénie', 'Somalie', 'Soudan', 'Soudan du Sud', 'Sri Lanka', 'Suède', 'Suisse', 'Suriname', 'Syrie',
   'Tadjikistan', 'Tanzanie', 'Tchad', 'République tchèque', 'Thaïlande', 'Timor oriental', 'Togo', 'Tonga', 'Trinité-et-Trinidade', 'Tunisie', 'Turkménistan', 'Turquie', 'Tuvalu',
   'Ukraine', 'Uruguay', 'Vanuatu', 'Vatican', 'Venezuela', 'Viêt Nam',
-  'Yémen',
-  'Zambie', 'Zimbabwe',
-  'Autre',
+  'Yémen', 'Zambie', 'Zimbabwe', 'Autre',
 ];
-

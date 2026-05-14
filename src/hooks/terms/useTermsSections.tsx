@@ -1,5 +1,5 @@
 import CacheLink from '@/components/commons/CacheLink';
-import { AlertCircle, FileText, Gamepad2, Shield, Target, Trophy, Brain } from 'lucide-react';
+import { AlertCircle, FileText, Gamepad2, Shield } from 'lucide-react';
 import React from 'react';
 
 export interface TermsSection {

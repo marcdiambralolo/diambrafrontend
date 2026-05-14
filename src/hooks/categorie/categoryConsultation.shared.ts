@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { buildCategoryConsultationPath, buildConsultationSearchParams } from "@/lib/consultations/navigation";
 import { mapFormDataToBackend } from "@/lib/functions";
-import type { CategorieAdmin, ConsultationChoice, EnrichedChoice, Rubrique, User } from "@/lib/interfaces";
+import type { ConsultationChoice, Rubrique, User } from "@/lib/interfaces";
 
 export type ConsultationCreateResponse = {
     consultation?: {
@@ -30,10 +30,6 @@ export type CategoryContextInfo = {
     choix?: ConsultationChoice;
 };
 
-export function getCategoryDisplayTitle(category: Pick<CategorieAdmin, "titre" | "nom">): string {
-    return category.titre || category.nom || "Catégorie";
-}
-
 export function getCategoryContextNavigationParams(contextInfo: CategoryContextInfo): {
     rubriqueId: string | null;
     choiceId: string | null;
@@ -55,69 +51,6 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
     }
 
     return fallback;
-}
-
-
-function resolveChoiceFromEntry(entry: unknown): ConsultationChoice | null {
-    if (typeof entry !== "object" || entry === null) {
-        return null;
-    }
-
-    if ("choice" in entry) {
-        const enrichedChoice = entry as EnrichedChoice;
-        return enrichedChoice.choice || null;
-    }
-
-    return entry as ConsultationChoice;
-}
-
-function choiceMatchesId(choice: ConsultationChoice | null, choiceId: string | null | undefined): boolean {
-    if (!choice || !choiceId) {
-        return false;
-    }
-
-    return choice._id === choiceId || choice.choiceId === choiceId;
-}
-
-export function resolveCategoryContext(
-    category: Pick<CategorieAdmin, "rubriques">,
-    params: {
-        rubriqueId?: string | null;
-        choiceId?: string | null;
-    },
-): CategoryContextInfo {
-    const rubriques = category.rubriques || [];
-
-    const rubrique = params.rubriqueId
-        ? rubriques.find((item) => item._id === params.rubriqueId || item.id === params.rubriqueId)
-        : undefined;
-
-    if (rubrique) {
-        const choix = (rubrique.consultationChoices || [])
-            .map(resolveChoiceFromEntry)
-            .find((choice) => choiceMatchesId(choice, params.choiceId));
-
-        return { rubrique, choix: choix || undefined, };
-    }
-
-    if (!params.choiceId) {
-        return {};
-    }
-
-    for (const rubriqueCandidate of rubriques) {
-        const choix = (rubriqueCandidate.consultationChoices || [])
-            .map(resolveChoiceFromEntry)
-            .find((choice) => choiceMatchesId(choice, params.choiceId));
-
-        if (choix) {
-            return {
-                rubrique: rubriqueCandidate,
-                choix,
-            };
-        }
-    }
-
-    return {};
 }
 
 export function buildCategoryChoicePath(
@@ -170,7 +103,7 @@ export function getCreatedConsultationDestination({
     choiceId,
 }: ConsultationDestinationParams): string {  
 
-    return buildCategoryConsultationPath(categoryId, "consulter", {
+    return buildCategoryConsultationPath(categoryId,   {
         consultationId,
         rubriqueId,
         choiceId,

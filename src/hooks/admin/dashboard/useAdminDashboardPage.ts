@@ -15,7 +15,7 @@ export const DATE_RANGES = [
 
 export const REPORT_TABS = [
   { value: 'overview', label: 'Aperçu' },
-  { value: 'consultations', label: 'Consultations' },
+  { value: 'consultations', label: 'Jeux' },
   { value: 'revenue', label: 'Revenus' },
   { value: 'users', label: 'Utilisateurs' }
 ];

@@ -58,18 +58,12 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
   const handleDelete = async (notificationId: string) => {
     await deleteNotificationMutation.mutateAsync(notificationId);
   };
-
-  const notifications = data?.notifications || [];
-  const unreadCount = data?.unreadCount || 0;
-
-  // Ajout de la propriété filteredNotifications pour compatibilité avec l'appelant
-  const filteredNotifications = notifications;
-
+ 
   return {
     filter,
-    notifications,
-    filteredNotifications,
-    unreadCount,
+    notifications: data?.notifications || [],
+    filteredNotifications: data?.notifications || [],
+    unreadCount: data?.unreadCount || 0,
     isLoading,
     isError,
     error,
@@ -80,7 +74,6 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
     handleNotificationClick,
     handleDelete,
     refetch,
-    // Pagination désactivée : NotificationResponse ne fournit pas page ni totalPages
     limit,
   };
 }

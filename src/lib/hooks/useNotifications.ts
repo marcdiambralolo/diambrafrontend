@@ -25,7 +25,6 @@ export function useNotifications(pollingInterval: number = 300000) {
       const data = await notificationsService.getUnreadNotifications();
       // Détecter si une nouvelle notification est arrivée
       setNotifications(prev => {
-        // Si on a déjà des notifications, et qu'il y en a plus qu'avant, jouer le son
         if (prev.length > 0 && data.notifications.length > prev.length) {
           playNotificationSound();
         }

@@ -1,5 +1,4 @@
 'use client';
-
 import { create } from 'zustand';
 import type { User } from '@/lib/interfaces';
 
@@ -15,9 +14,7 @@ export const useAuthStore = create<AuthState>()(
     user: null,
 
     login: (user) => set({ user }),
-
     updateUser: (user) => set((state) => ({ ...state, user })),
-
     logout: () => set({ user: null }),
   })
 );

@@ -90,7 +90,6 @@ export function clampText(s: string, max = 120) {
 export function getStableRubriqueId(r: Rubrique): string {
   const raw = String(r?._id ?? "");
   if (raw) return raw;
-
   const t = String(r?.titre ?? "");
   const d = String(r?.description ?? "");
   const h = hashString(`${t}|${d}`);
@@ -103,7 +102,6 @@ export const formatNumber = (num: number): string => {
   return num.toString();
 };
 
-/** @deprecated Use safeTrim instead */
 export function safeText(v: unknown) {
   return safeTrim(v);
 }

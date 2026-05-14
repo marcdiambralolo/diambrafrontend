@@ -1,7 +1,6 @@
 import { api } from '@/lib/api/client';
 import { consultationsService } from '@/lib/api/services/consultations.service';
 import { notificationsService } from '@/lib/api/services/notifications.service';
-import { getConsultationsByRubrique } from '@/lib/api/services/rubriques.service';
 import { walletService } from '@/lib/api/services/wallet.service';
 import type { User } from '@/lib/interfaces';
 import type { QueryClient } from '@tanstack/react-query';
@@ -44,7 +43,6 @@ const prefetchRegistry: PrefetchEntry[] = [
       ]);
     },
   },
- 
   {
     route: '/star/notifications',
     requiresAuth: true,
@@ -52,16 +50,6 @@ const prefetchRegistry: PrefetchEntry[] = [
       await queryClient.prefetchQuery({
         queryKey: QUERY_KEYS.NOTIFICATIONS,
         queryFn: () => notificationsService.getUnreadNotifications(),
-      });
-    },
-  },
-  {
-    route: '/star/monprofil',
-    requiresAuth: true,
-    prefetch: async (queryClient) => {
-      await queryClient.prefetchQuery({
-        queryKey: QUERY_KEYS.CONSULTATIONS_BY_RUBRIQUE('694acf59bd12675f59e7a7f2'),
-        queryFn: () => getConsultationsByRubrique('694acf59bd12675f59e7a7f2'),
       });
     },
   },

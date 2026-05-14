@@ -1,12 +1,11 @@
 "use client";
 import { cx } from "@/lib/functions";
 import {
-  ArrowLeft, Brain, ChevronRight, Crown, Gamepad2, Info,
-  Lightbulb, Sparkles, Target, Trophy, Users, Zap,
-  Grid, Move, MousePointerClick, Trophy as TrophyIcon,
+  ArrowLeft, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick,
+  Move, Target, Trophy, Trophy as TrophyIcon, Users, Zap
 } from "lucide-react";
-import CacheLink from "../commons/CacheLink";
 import { useEffect, useState } from "react";
+import CacheLink from "../commons/CacheLink";
 
 const useScrollReveal = () => {
   useEffect(() => {

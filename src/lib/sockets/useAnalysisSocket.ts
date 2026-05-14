@@ -37,9 +37,11 @@ export function useAnalysisSocket(
     const handler = (data: AnalysisStatusPayload) => {
       onStatus(data.status, data);
     };
+
     if (socket) {
       socket.on(event, handler);
     }
+    
     return () => {
       if (socket) {
         socket.off(event, handler);

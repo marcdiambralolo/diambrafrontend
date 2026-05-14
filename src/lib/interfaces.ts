@@ -6,7 +6,6 @@ export interface Offering {
   id: string;
   name: string;
   price: number;
-  category: 'banque';
   description: string;
   quantity: number;
 }
@@ -243,8 +242,6 @@ export interface EnrichedChoice {
   consultationCount: undefined;
   choice: ConsultationChoice;
 }
-
-export type TransactionFilter = "all" | "simulation" | "real";
 
 export interface Transaction {
   offeringId: any;

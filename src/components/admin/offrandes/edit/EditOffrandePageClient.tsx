@@ -19,7 +19,6 @@ interface EditOffrandeFormProps {
         _id?: string;
         name: string;
         price: number;
-        category: 'banque' | '';
         description: string;
         illustrationUrl?: string;
     };
@@ -159,13 +158,7 @@ export const EditOffrandeForm = memo(({
             });
             return;
         }
-
-        if (!formData.category) {
-            alert('Veuillez sélectionner une catégorie');
-            return;
-        }
-
-        // Simuler la progression de l'upload
+       
         const interval = setInterval(() => {
             setUploadProgress(prev => Math.min(prev + 10, 90));
         }, 200);
@@ -183,8 +176,7 @@ export const EditOffrandeForm = memo(({
 
     const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH &&
         formData.description.length >= CONSTANTS.MIN_DESCRIPTION_LENGTH &&
-        formData.price > 0 &&
-        formData.category;
+        formData.price > 0;
 
     return (
         <motion.form
@@ -349,7 +341,6 @@ export default function EditOffrandePageClient() {
         loading,
         saving,
         error,
-        priceUSD,
         handleChange,
         handleSubmit,
         handleCancel,

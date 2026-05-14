@@ -14,7 +14,7 @@ export function useGestionPanel(
       let cmp = 0;
       if (sortKey === 'name') cmp = a.name.localeCompare(b.name);
       else if (sortKey === 'price') cmp = a.price - b.price;
-      else if (sortKey === 'category') cmp = a.category.localeCompare(b.category);
+      else if (sortKey === 'category') cmp = 0;
       return sortOrder === 'asc' ? cmp : -cmp;
     });
     return sortedArr;

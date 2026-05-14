@@ -25,8 +25,6 @@ export const config = {
     register: '/auth/register',
     dashboard: '/star/profil',
     adminDashboard: '/admin',
-    consultantDashboard: '/consultant',
-    profile: '/profile',
   },
 
   pagination: {

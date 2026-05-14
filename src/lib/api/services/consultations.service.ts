@@ -1,4 +1,3 @@
-
 import type {   Consultation } from '@/lib/interfaces';
 import { api } from '../client';
 import { normalizeThreadResponse, type MessagingThreadResponse } from './messaging.service';
@@ -10,24 +9,10 @@ export interface PaginatedConsultationsResult {
   limit: number;
   totalPages: number;
 }
-
-export type AnalysisJobStatus = 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | null;
-
+ 
 export interface ConsultationFrontDataResult {
   success: boolean;
   consultation: Consultation | null;
-  analysis: any | null;
-  analysisStatus: {
-    consultationId: string;
-    jobId: string;
-    status: AnalysisJobStatus;
-    attempts: number;
-    errorMessage: string | null;
-    startedAt: string | null;
-    finishedAt: string | null;
-    dateGeneration: string | null;
-    hasResult: boolean;
-  };
   messaging: MessagingThreadResponse | null;
 }
 
@@ -36,8 +21,6 @@ type PaginatedConsultationsPayload = PaginatedConsultationsResult | Consultation
 type ConsultationFrontDataPayload = {
   success?: boolean;
   consultation?: Consultation | null;
-  analysis?: any | null;
-  analysisStatus?: unknown;
   messaging?: unknown;
 };
 
@@ -74,47 +57,12 @@ function normalizeConsultationsPayload(payload: PaginatedConsultationsPayload, d
   };
 }
 
-function normalizeAnalysisStatus(payload: unknown, consultationId: string): ConsultationFrontDataResult['analysisStatus'] {
-  if (!isRecord(payload)) {
-    return {
-      consultationId,
-      jobId: consultationId,
-      status: null,
-      attempts: 0,
-      errorMessage: null,
-      startedAt: null,
-      finishedAt: null,
-      dateGeneration: null,
-      hasResult: false,
-    };
-  }
-
-  const rawStatus = payload.status;
-  const status =
-    rawStatus === 'QUEUED' || rawStatus === 'PROCESSING' || rawStatus === 'COMPLETED' || rawStatus === 'FAILED'
-      ? rawStatus
-      : null;
-
-  return {
-    consultationId: typeof payload.consultationId === 'string' ? payload.consultationId : consultationId,
-    jobId: typeof payload.jobId === 'string' ? payload.jobId : consultationId,
-    status,
-    attempts: toPositiveNumber(payload.attempts, 0),
-    errorMessage: typeof payload.errorMessage === 'string' ? payload.errorMessage : null,
-    startedAt: typeof payload.startedAt === 'string' ? payload.startedAt : null,
-    finishedAt: typeof payload.finishedAt === 'string' ? payload.finishedAt : null,
-    dateGeneration: typeof payload.dateGeneration === 'string' ? payload.dateGeneration : null,
-    hasResult: payload.hasResult === true,
-  };
-}
 
 function normalizeFrontData(payload: ConsultationFrontDataPayload, consultationId: string): ConsultationFrontDataResult {
   return {
     success: payload.success === true,
     consultation: payload.consultation ?? null,
-    analysis: payload.analysis ?? null,
-    analysisStatus: normalizeAnalysisStatus(payload.analysisStatus, consultationId),
-    messaging: payload.messaging ? normalizeThreadResponse(payload.messaging) : null,
+     messaging: payload.messaging ? normalizeThreadResponse(payload.messaging) : null,
   };
 }
 

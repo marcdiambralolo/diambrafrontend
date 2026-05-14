@@ -52,7 +52,7 @@ const StatsGrid = memo<StatsGridProps>(({ stats, derivedStats }) => {
       }
     },
     {
-      title: "Consultations",
+      title: "Jeux",
       value: stats.consultations.total.toLocaleString('fr-FR'),
       icon: FileText,
       color: "green" as const,

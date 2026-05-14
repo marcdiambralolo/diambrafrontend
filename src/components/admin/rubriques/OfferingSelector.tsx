@@ -92,7 +92,6 @@ export const OfferingSelector = memo(({
 
     const filteredOfferings = useMemo(() =>
         offerings
-            .filter(o => o.category === alternative.category)
             .filter(o =>
                 search === "" ||
                 o.name.toLowerCase().includes(search.toLowerCase()) ||

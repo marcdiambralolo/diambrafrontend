@@ -8,7 +8,6 @@ export function useConversations(userId: string) {
   });
 }
 
-
 export function useMessages(conversationId: string, { limit = 30, skip = 0 } = {}) {
   return useQuery({
     queryKey: ['messages', conversationId, limit, skip],

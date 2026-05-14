@@ -1,13 +1,199 @@
 'use client';
- import { ReadCategoryCardPro } from "@/components/admin/categories/ReadCategoryCardPro";
-import { SkeletonList } from "@/components/admin/categories/SkeletonList";
-import { CategorieAdmin, Rubrique } from "@/lib/interfaces";
-import { AnimatePresence, motion } from "framer-motion";
-import { Pencil, Save, X } from "lucide-react";
-import React, { memo, useCallback, useMemo, useState } from "react";
- 
 import { rubriqueLabel } from "@/lib/functions";
-import { Check, Search } from "lucide-react";
+import { CategorieAdmin, Rubrique } from "@/lib/interfaces";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Check, Copy, Pencil, Save, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { memo, useCallback, useMemo, useState } from "react";
+
+export const MiniPill = memo(function MiniPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200"    >
+      {children}
+    </span>
+  );
+});
+
+function getCategoryId(cat: CategorieAdmin): string {
+  return String(cat?._id ?? "");
+}
+
+export const ReadCategoryCardPro = memo(function ReadCategoryCardPro({ cat, }: {
+  cat: CategorieAdmin;
+}) {
+  const router = useRouter();
+  const reducedMotion = useReducedMotion();
+  const [copied, setCopied] = useState(false);
+  const catId = useMemo(() => getCategoryId(cat), [cat]);
+  const rubriquesMeta = useMemo(() => {
+    const list = (cat?.rubriques ?? []).filter(Boolean);
+    const names = list.map(rubriqueLabel).filter(Boolean);
+    const max = 8;
+    const visible = list.slice(0, max);
+    const remaining = Math.max(0, list.length - max);
+    return { list, names, visible, remaining, count: list.length };
+  }, [cat?.rubriques]);
+
+  const handleEdit = useCallback(() => {
+    if (!catId) return;
+    router.push(`/admin/categories/${catId}/edit`);
+  }, [catId, router]);
+
+  const handleCopyId = useCallback(async () => {
+    if (!catId) return;
+    try {
+      await navigator.clipboard.writeText(catId);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // no-op: clipboard permissions
+    }
+  }, [catId]);
+
+  return (
+    <div className="relative"    >
+    
+      <div className="pt-2">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="truncate text-sm font-extrabold text-slate-900 dark:text-white">
+                    {cat.nom || "—"}
+                  </h3>
+
+                  {/* Counter badge */}
+                  <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
+                    {rubriquesMeta.count}
+                  </span>
+                </div>
+
+                {/* ID + Copy */}
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
+                    ID: <span className="ml-1 font-mono text-[10px] opacity-80">{catId || "—"}</span>
+                  </span>
+
+                  {catId && (
+                    <button
+                      type="button"
+                      onClick={handleCopyId}
+                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-800/60"
+                      aria-label="Copier l'identifiant"
+                    >
+                      <AnimatePresence initial={false} mode="wait">
+                        {copied ? (
+                          <motion.span
+                            key="copied"
+                            initial={{ opacity: 0, y: 2 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -2 }}
+                            className="inline-flex items-center gap-1"
+                          >
+                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                            Copié
+                          </motion.span>
+                        ) : (
+                          <motion.span
+                            key="copy"
+                            initial={{ opacity: 0, y: 2 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -2 }}
+                            className="inline-flex items-center gap-1"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            Copier
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </button>
+                  )}
+                </div>
+
+                {/* Description */}
+                <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-slate-600 dark:text-zinc-300">
+                  {cat.description || "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex shrink-0 items-center gap-2">
+            <motion.button
+              type="button"
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              onClick={handleEdit}
+                      className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:border-[color:var(--theme-border)] dark:bg-[#0F1C3F] dark:text-white dark:hover:bg-[#13274C] dark:focus:ring-[#2E5AA6]/40"
+              aria-label={`Modifier la catégorie ${cat.nom}`}
+            >
+              <Pencil className="h-4 w-4" />
+              Modifier
+            </motion.button>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-900 dark:text-white">
+              Rubriques associées
+            </span>
+            <span className="text-[11px] font-semibold text-slate-600 dark:text-zinc-300">
+              {rubriquesMeta.count}
+            </span>
+          </div>
+
+          {rubriquesMeta.count === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+              Aucune rubrique associée.
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {rubriquesMeta.visible.map((r: Rubrique, idx: number) => {
+                const rid = String(r?._id ?? idx);
+                const label = rubriqueLabel(r) || "—";
+                return <MiniPill key={`${rid}-${idx}`}>{label}</MiniPill>;
+              })}
+
+              {rubriquesMeta.remaining > 0 && (
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
+                  +{rubriquesMeta.remaining}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export const SkeletonList = memo(function SkeletonList() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 animate-pulse rounded-2xl bg-slate-200 dark:bg-zinc-800" />
+              <div className="space-y-2">
+                <div className="h-3 w-40 animate-pulse rounded bg-slate-200 dark:bg-zinc-800" />
+                <div className="h-3 w-56 animate-pulse rounded bg-slate-200 dark:bg-zinc-800" />
+              </div>
+            </div>
+
+            <div className="h-8 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-zinc-800" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+});
 
 export const RubriquesPickerPro = memo(function RubriquesPickerPro({
   title,
@@ -34,7 +220,7 @@ export const RubriquesPickerPro = memo(function RubriquesPickerPro({
   const toggleAllFiltered = useCallback(() => {
     const ids = filtered.map((r) => r._id!).filter(Boolean);
     const allSelected = ids.every((id) => selectedSet.has(id));
-    
+
     ids.forEach((id) => {
       const shouldSelect = !allSelected;
       const isSelected = selectedSet.has(id);
@@ -240,108 +426,108 @@ export const EditCategoryCardPro = memo(function EditCategoryCardPro({
 });
 
 interface CategoriesListProps {
-    categories: CategorieAdmin[];
-    rubriques: Rubrique[];
-    categoriesLoading: boolean;
-    rubriquesLoading: boolean;
-    editingId: string | null;
-    stopEdit: () => void;
-    saveEdit: (id: string, patch: Partial<CategorieAdmin>) => void;
+  categories: CategorieAdmin[];
+  rubriques: Rubrique[];
+  categoriesLoading: boolean;
+  rubriquesLoading: boolean;
+  editingId: string | null;
+  stopEdit: () => void;
+  saveEdit: (id: string, patch: Partial<CategorieAdmin>) => void;
 }
 
 const CATEGORY_ICONS = ['📚', '🎯', '⚡', '🌟', '💼', '🎨', '🔮', '🌈', '💎', '🎭', '🏆', '🎪', '🎸', '🎬', '📱', '💡', '🚀', '🌸', '🎁', '⭐'];
 
 const CategoriesList: React.FC<CategoriesListProps> = ({
-    categories,
-    rubriques,
-    categoriesLoading,
-    rubriquesLoading,
-    editingId,
-    stopEdit,
-    saveEdit,
+  categories,
+  rubriques,
+  categoriesLoading,
+  rubriquesLoading,
+  editingId,
+  stopEdit,
+  saveEdit,
 }) => {
-    const [page, setPage] = useState(1);
-    const perPage = 5;
-    const totalPages = Math.ceil(categories.length / perPage);
+  const [page, setPage] = useState(1);
+  const perPage = 5;
+  const totalPages = Math.ceil(categories.length / perPage);
 
-    const paginatedCategories = useMemo(() => {
-        const start = (page - 1) * perPage;
-        return categories.slice(start, start + perPage);
-    }, [categories, page]);
+  const paginatedCategories = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return categories.slice(start, start + perPage);
+  }, [categories, page]);
 
-    const getCategoryIcon = (index: number) => {
-        return CATEGORY_ICONS[index % CATEGORY_ICONS.length];
-    };
+  const getCategoryIcon = (index: number) => {
+    return CATEGORY_ICONS[index % CATEGORY_ICONS.length];
+  };
 
-    if (categoriesLoading) return <SkeletonList />;
-    if (categories.length === 0)
-        return (
-            <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
-                Aucune catégorie pour le moment. Créez-en une au-dessus.
-            </div>
-        );
+  if (categoriesLoading) return <SkeletonList />;
+  if (categories.length === 0)
     return (
-        <div className="space-y-4 sm:space-y-6">
-            <AnimatePresence initial={false}>
-                {paginatedCategories.map((cat, index) => {
-                    const actualIndex = (page - 1) * perPage + index;
-                    return (
-                        <motion.div
-                            key={cat._id}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            layout
-                            className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 relative"
-                        >
-                            <div className="absolute top-3 left-3 text-3xl opacity-80 select-none">
-                                {getCategoryIcon(actualIndex)}
-                            </div>
-                            <div className="pl-12">
-                                {editingId === cat._id ? (
-                                    <EditCategoryCardPro
-                                        cat={cat}
-                                        rubriques={rubriques ?? []}
-                                        loadingRubriques={rubriquesLoading}
-                                        onCancel={stopEdit}
-                                        onSave={saveEdit}
-                                    />
-                                ) : (
-                                    <ReadCategoryCardPro
-                                        cat={cat}
-                                    />
-                                )}
-                            </div>
-                        </motion.div>
-                    );
-                })}
-            </AnimatePresence>
-
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-6">
-                    <button
-                        className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                    >
-                        ← Précédent
-                    </button>
-
-                    <span className="px-3 py-1 text-sm font-medium text-slate-700 dark:text-zinc-200">
-                        {page} / {totalPages}
-                    </span>
-
-                    <button
-                        className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                    >
-                        Suivant →
-                    </button>
-                </div>
-            )}
-        </div>
+      <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+        Aucune catégorie pour le moment. Créez-en une au-dessus.
+      </div>
     );
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <AnimatePresence initial={false}>
+        {paginatedCategories.map((cat, index) => {
+          const actualIndex = (page - 1) * perPage + index;
+          return (
+            <motion.div
+              key={cat._id}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              layout
+              className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 relative"
+            >
+              <div className="absolute top-3 left-3 text-3xl opacity-80 select-none">
+                {getCategoryIcon(actualIndex)}
+              </div>
+              <div className="pl-12">
+                {editingId === cat._id ? (
+                  <EditCategoryCardPro
+                    cat={cat}
+                    rubriques={rubriques ?? []}
+                    loadingRubriques={rubriquesLoading}
+                    onCancel={stopEdit}
+                    onSave={saveEdit}
+                  />
+                ) : (
+                  <ReadCategoryCardPro
+                    cat={cat}
+                  />
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-6">
+          <button
+            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            ← Précédent
+          </button>
+
+          <span className="px-3 py-1 text-sm font-medium text-slate-700 dark:text-zinc-200">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Suivant →
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CategoriesList;

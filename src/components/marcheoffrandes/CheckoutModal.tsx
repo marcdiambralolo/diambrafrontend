@@ -106,7 +106,6 @@ interface CheckoutModalProps {
     name: string;
     price: number;
     quantity: number;
-    category: string;
     description: string;
     illustrationUrl?: string;
   }>;

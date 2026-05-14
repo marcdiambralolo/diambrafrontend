@@ -173,7 +173,7 @@ export default function MarcheOffrandesMain() {
 
   const categories: CategoryInfo[] = [
     { id: 'all', name: 'Tout', icon: Sparkles, count: offerings.length },
-    { id: 'banque', name: 'Banque', icon: Package, count: offerings.filter(o => o.category === 'banque').length },
+    { id: 'banque', name: 'Banque', icon: Package, count: offerings.length },
   ];
 
   if (loading) return <LoadingState />;

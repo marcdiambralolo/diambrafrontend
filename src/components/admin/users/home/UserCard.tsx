@@ -226,7 +226,7 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
       {/* Metrics */}
       <div className="relative mt-3 grid grid-cols-3 gap-2 rounded-xl border border-slate-200/70 bg-slate-50/70 p-2 text-center dark:border-white/10 dark:bg-white/5">
         <div className="col-span-3 sm:col-span-1">
-          <p className="text-[11px] text-slate-500 dark:text-white/50">Consultations</p>
+          <p className="text-[11px] text-slate-500 dark:text-white/50">Jeux</p>
           <p className="text-sm font-extrabold text-slate-900 dark:text-white">
             {vm.totalConsultations}
           </p>

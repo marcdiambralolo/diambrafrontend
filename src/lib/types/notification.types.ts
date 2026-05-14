@@ -3,11 +3,9 @@ export type NotificationType =
   | 'CONSULTATION_ASSIGNED'
   | 'PAYMENT_CONFIRMED'
   | 'SYSTEM_ANNOUNCEMENT'
-  | 'GRADE_CHANGE';
 
 export interface NotificationMetadata {
   consultationId?: string;
-  knowledgeId?: string;
   paymentId?: string;
   url?: string;
   [key: string]: unknown;

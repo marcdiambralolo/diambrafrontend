@@ -1,4 +1,3 @@
-// Utilitaires IndexedDB pour cache long terme
 type CacheEntry = Record<string, unknown> & {
   userId?: IDBValidKey;
   id?: IDBValidKey;

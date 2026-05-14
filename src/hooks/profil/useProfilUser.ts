@@ -4,13 +4,13 @@ import { useAuthStore } from "@/lib/store/auth.store";
 import { useEffect, useState } from "react";
 import { useStatsDataWithCache } from "../cache/useStatsDataWithCache";
 
-export function useProfilUser() {
-  const { stats, isLoading: statsLoading, error: statsError, refetch: fetchStats } = useStatsDataWithCache();
-
+export function useProfilUser() { 
   const user = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
   const isAuthenticated = Boolean(user);
   const [loading, setLoading] = useState(true);
+
+ const { stats, isLoading: statsLoading, error: statsError, refetch: fetchStats } = useStatsDataWithCache();
 
   useEffect(() => {
     let isMounted = true;

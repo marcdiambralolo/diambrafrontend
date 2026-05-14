@@ -1,5 +1,4 @@
 "use client";
-
 import { SimpleMessage } from "@/lib/api/services/simple-message.service";
 import { usersService } from "@/lib/api/services/users.service";
 import { useAuth } from "@/lib/auth/AuthContext";

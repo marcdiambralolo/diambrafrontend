@@ -2,7 +2,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api/client";
 
-// ==================== TYPES AMÉLIORÉS ====================
 export interface TransactionItem {
     offeringId: string;
     quantity: number;
@@ -35,7 +34,6 @@ export interface PaymentInitiationResponse {
     transactionId?: string;
     message?: string;
 }
-
 
 export const PAYMENT_METHODS = [
     { id: "orange-money-ci", name: "Orange Money", icon: "📱", color: "orange" },

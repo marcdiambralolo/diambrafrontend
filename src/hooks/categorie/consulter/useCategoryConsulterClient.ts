@@ -49,12 +49,10 @@ export function useCategoryConsulterClient() {
     const user = useAuthStore((s) => s.user);
 
     const choixConsultationEnCours = useMonEtoileStore((s) => s.choixConsultationEnCours);
-    console.log('🔍 useCategoryConsulterClient - choixConsultationEnCours from store:', choixConsultationEnCours);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [walletOfferings, setWalletOfferings] = useState<WalletOffering[]>([]);
     const [showError, setShowError] = useState(false);
-
 
     const handleGoToMarket = useCallback(() => {
         const params = new URLSearchParams();
@@ -82,8 +80,6 @@ export function useCategoryConsulterClient() {
             }
             const choice = (choixConsultationEnCours as any)?.choice ?? choixConsultationEnCours;
             const id = await createCategoryConsultation({
-
-
                 choice,
                 user: user || null,
                 extraPayload: {
@@ -102,7 +98,7 @@ export function useCategoryConsulterClient() {
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS, exact: true });
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
-            router.push(buildCategoryConsultationPath("695ab7ee53c5ed748115c405", "consulter", {
+            router.push(buildCategoryConsultationPath("695ab7ee53c5ed748115c405",   {
                 consultationId: id,
                 rubriqueId: "694cde9bde3392d3751a0fe9",
                 choiceId: choice._id,
@@ -176,8 +172,6 @@ export function useCategoryConsulterClient() {
         fetchAlternatives();
     }, [choixConsultationEnCours, choixConsultationEnCours?._id]);
 
-    type CategoryType = 'banque';
-    const [activeTab, setActiveTab] = useState<CategoryType>('banque');
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const walletMap = useMemo(() => {
@@ -192,20 +186,6 @@ export function useCategoryConsulterClient() {
         }
         return alt.offeringId;
     }
-
-    const offeringsByCategory = useMemo(() => {
-        const grouped: Record<CategoryType, OfferingAlternative[]> = {
-            banque: [], 
-        };
-        alternatives.forEach(off => {
-            grouped[off.category].push(off);
-        });
-        return grouped;
-    }, [alternatives]);
-
-    const categoryCounts = useMemo(() => ({
-        banque: offeringsByCategory.banque.length, 
-    }), [offeringsByCategory]);
 
     const selectedOffering = useMemo(
         () => alternatives.find(off => getAltOfferingId(off) === selectedId),
@@ -222,10 +202,6 @@ export function useCategoryConsulterClient() {
         [selectedOffering, availableQty]
     );
 
-    const handleTabChange = useCallback((category: CategoryType) => {
-        setActiveTab(category);
-    }, []);
-
     const handleSelect = useCallback((offeringId: string) => {
         setSelectedId(offeringId);
     }, []);
@@ -236,22 +212,22 @@ export function useCategoryConsulterClient() {
         }
     }, [selectedOffering, canProceed, handleValidation]);
 
-    const currentOfferings = useMemo(() => {
-        const arr = offeringsByCategory[activeTab as CategoryType] ?? [];
-        return arr.map(off => ({
-            ...off,
-            offeringId: getAltOfferingId(off)
-        }));
-    }, [offeringsByCategory, activeTab]);
-
-
     const state = {
-        handleTabChange, setSelectedId, handleSelect, setActiveTab, handleNext,
-        selectedId, activeTab, walletMap, offeringsByCategory, categoryCounts,
-        selectedOffering, availableQty, canProceed, currentOfferings
+        setSelectedId, handleSelect, handleNext,
+        selectedId, walletMap, availableQty, canProceed,
     };
 
-    const pot = state.currentOfferings[0];
+    const pot: OfferingAlternative = {
+        category: 'banque',
+        offeringId: '6945ae01b8af14d5f56cec0a',
+        quantity: 1,
+        name: 'pot',
+        price: 200,
+        description: 'pot',
+        createdAt: '',
+        updatedAt: '',
+        _id: '69ada22a910a174365e2a216',
+    };
 
     const handleNextNew = useCallback(() => {
         if (state.canProceed) {
@@ -259,9 +235,27 @@ export function useCategoryConsulterClient() {
         }
     }, [state.canProceed, state.handleNext]);
 
-    return {
+    const availableQuantity = state.walletMap.get(pot.offeringId) || 0;
+    const requiredQuantity = pot.quantity || 1;
+    const isSufficient = availableQuantity >= requiredQuantity;
 
-        handleGoToMarket, handleNextNew, clearError, showError, walletOfferings, dataLoading: loading,
-        dataError: error, state, currentError: showError ? error : null, pot,
+    const cardClasses = useMemo(() => {
+        const baseClasses = "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group";
+
+        if (state.selectedId === pot.offeringId) {
+            return `${baseClasses} border-[#4F83D1] bg-gradient-to-r from-[#EEF4FF] to-[#DDE7FA] dark:from-[#13274C] dark:to-[#162A56] shadow-xl shadow-[#4F83D1]/20`;
+        }
+
+        if (isSufficient) {
+            return `${baseClasses} border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#9BC2FF] hover:shadow-xl hover:shadow-[#4F83D1]/10 active:scale-[0.98] cursor-pointer`;
+        }
+
+        return `${baseClasses} border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed`;
+    }, [state.selectedId, isSufficient, pot.offeringId]);
+
+    return {
+        handleGoToMarket, handleNextNew, clearError,
+        dataLoading: loading, dataError: error, showError, currentError: showError ? error : null, state, availableQuantity,
+        pot, cardClasses, isSufficient, requiredQuantity,
     };
 }

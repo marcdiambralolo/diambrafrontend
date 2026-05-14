@@ -50,7 +50,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-    const logoutStore = useAuthStore((s) => s.logout);
+  const logoutStore = useAuthStore((s) => s.logout);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const persistLogin = useAuthStore((s) => s.login);
@@ -159,8 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Déconnexion utilisateur avec nettoyage complet
-   */ 
-
+   */
   const logout = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     logoutStore(); // Clear client-side auth state immediately
@@ -181,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await clearClientApplicationState();
       setIsLoading(false);
     }
-  }, [ logoutStore, persistLogout]);
+  }, [logoutStore, persistLogout]);
 
   /**
    * Rafraîchit les données utilisateur depuis l'API

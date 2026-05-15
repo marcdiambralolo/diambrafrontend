@@ -7,7 +7,7 @@ export function getRootMetadata() {
       template: "%s | Diambra",
     },
     description:
-      "✨ Jouez dès maintenant",
+      "✨ Jouez dès maintenant.",
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://www.diambra.net"),
     openGraph: {
       type: "website",

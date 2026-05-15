@@ -102,7 +102,6 @@ export function useCategoryConsulterClient() {
                 consultationId: id,
                 rubriqueId: "694cde9bde3392d3751a0fe9",
                 choiceId: choice._id,
-                r: Date.now(),
             }));
         } catch (err: unknown) {
             console.error('❌ Error validating offerings:', err);
@@ -218,7 +217,6 @@ export function useCategoryConsulterClient() {
     };
 
     const pot: OfferingAlternative = {
-        category: 'banque',
         offeringId: '6945ae01b8af14d5f56cec0a',
         quantity: 1,
         name: 'pot',

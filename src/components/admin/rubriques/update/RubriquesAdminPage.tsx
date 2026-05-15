@@ -34,22 +34,9 @@ export default function RubriquesAdminPage() {
         <motion.div
           className="text-center mb-8"
         >
-          <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#2E5AA6]/10 to-[#4F83D1]/10 dark:from-[#2E5AA6]/20 dark:to-[#4F83D1]/20 backdrop-blur-sm mb-4"
-          >
-            <Sparkles className="w-4 h-4 text-[#FFD600] animate-pulse" />
-            <span className="text-sm font-medium text-[#2E5AA6] dark:text-[#9BC2FF]">
-              Administration
-            </span>
-          </motion.div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#2E5AA6] via-[#4F83D1] to-[#FFD600] bg-clip-text text-transparent animate-gradient">
             Gestion des rubriques
           </h1>
-          <p className="mt-3 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Créez et personnalisez les choix de vos rubriques avec une expérience utilisateur optimale
-          </p>
         </motion.div>
 
         <motion.button
@@ -111,22 +98,7 @@ export default function RubriquesAdminPage() {
                 })}
                 required
               />
-            </div>
-            <div>
-              <label htmlFor="rubrique-description" className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Description</label>
-              <textarea
-                id="rubrique-description"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#162A56] text-slate-900 dark:text-white focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6]"
-                value={editingRubrique?.description || ''}
-                onChange={e => setEditingRubrique({
-                  ...editingRubrique,
-                  description: e.target.value,
-                  consultationChoices: editingRubrique?.consultationChoices ?? []
-                })}
-                rows={4}
-                required
-              />
-            </div>
+            </div>           
             <div className="flex justify-end gap-3 mt-4">
               <button
                 type="button"

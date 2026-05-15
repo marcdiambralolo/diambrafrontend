@@ -40,7 +40,8 @@ export function getBackendApiUrl(pathname: string) {
   if (isProduction) {
     rawBaseUrl = '/api/v1';
   } else {
-    rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    rawBaseUrl = 'http://localhost:3001/api/v1' 
+   // rawBaseUrl = 'http://localhost:3001/api/v1' || process.env.NEXT_PUBLIC_API_URL ;
   }
   
   const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);

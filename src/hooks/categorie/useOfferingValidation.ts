@@ -55,7 +55,6 @@ export function useOfferingValidation({
                 consultationId,
                 rubriqueId,
                 choiceId,
-                r: Date.now(),
             }));
         } catch (err: unknown) {
             console.error('❌ Error validating offerings:', err);

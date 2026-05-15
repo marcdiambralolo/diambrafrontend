@@ -88,7 +88,6 @@ export const OfferingSelector = memo(({
     const [search, setSearch] = useState("");
     const [isOpen, setIsOpen] = useState(false);
 
-    const config = CATEGORY_CONFIG[alternative.category as OfferingCategory];
 
     const filteredOfferings = useMemo(() =>
         offerings
@@ -97,7 +96,7 @@ export const OfferingSelector = memo(({
                 o.name.toLowerCase().includes(search.toLowerCase()) ||
                 o.description?.toLowerCase().includes(search.toLowerCase())
             ),
-        [offerings, alternative.category, search]
+        [offerings,  search]
     );
 
     // Offrande sélectionnée
@@ -115,13 +114,12 @@ export const OfferingSelector = memo(({
     return (
         <motion.div
             layout
-            className={`p-3 mb-4 rounded-xl border-2 ${config.color} ${config.bgColor} space-y-3`}
+            className={`p-3 mb-4 rounded-xl border-2 space-y-3`}
         >
             {/* Header avec catégorie */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-xl">{config.icon}</span>
-                    <span className="text-xs font-bold">{config.label}</span>
+                    {/* <span className="text-xs font-bold">{config.label}</span> */}
                 </div>
                 {selectedOffering && (
                     <div className="flex items-center gap-1 text-xs font-semibold">

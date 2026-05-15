@@ -1,6 +1,5 @@
 "use client";
-import { DEFAULT_SPOTLIGHT_STYLE, useConsultationCardLogic } from "@/hooks/consultations/useConsultationCardLogic";
-import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
+ import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { Eye, Loader2, Sparkles } from 'lucide-react';
@@ -8,24 +7,13 @@ import { memo } from "react";
 
 export interface ConsultationCardProps {
   consultation: Consultation;
-  index: number;
-  onPrefetch: (consultation: Consultation) => void;
-  retour?: string;
 }
 
-function ConsultationCard({ consultation, index, onPrefetch, retour }: ConsultationCardProps) {
-  const {
-    cardRef, derived, handleView, handleMouseMove, handleMouseLeave, handleMouseEnter,
-  } = useConsultationCardLogic(consultation, onPrefetch, retour);
-
+function ConsultationCard({ consultation  }: ConsultationCardProps) {
+  
   return (
     <article
-      ref={cardRef}
-      onMouseEnter={handleMouseEnter}
-      onFocus={handleMouseEnter}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={cx(
+        className={cx(
         "group relative isolate overflow-hidden rounded-3xl p-5",
         "border border-white/40 dark:border-[color:var(--theme-border)]",
         "bg-gradient-to-br from-white/95 via-white/90 to-white/95",
@@ -33,8 +21,7 @@ function ConsultationCard({ consultation, index, onPrefetch, retour }: Consultat
         "shadow-2xl shadow-black/5 dark:shadow-[0_18px_48px_-30px_rgba(3,10,25,0.88)]",
         "backdrop-blur-xl",
         "transition-transform duration-300 hover:-translate-y-0.5"
-      )}
-      style={DEFAULT_SPOTLIGHT_STYLE}
+      )} 
       aria-label={`Consultation`}
     >
       <div className="pointer-events-none absolute inset-0">
@@ -64,43 +51,11 @@ function ConsultationCard({ consultation, index, onPrefetch, retour }: Consultat
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-center gap-2 w-full">
               <h3 className="line-clamp-1 text-lg font-black tracking-tight text-slate-900 dark:text-white w-full">
-                {consultation.title}
+                {consultation._id }
               </h3>
             </div>
-            <p className="mt-1 text-sm text-slate-600/90 dark:text-[#D1D5DB] w-full">
-              {consultation.description}
-            </p>
           </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center gap-3 w-full">
-          <button
-            onClick={handleView}
-            type="button"
-            disabled={!derived.canView}
-            className={cx(
-              "group/btn w-full relative flex flex-1 items-center justify-center gap-3 rounded-2xl px-4 py-3",
-              "outline-none focus-visible:ring-2 focus-visible:ring-[#4F83D1]/60",
-              !derived.canView && "cursor-not-allowed opacity-60"
-            )}
-            aria-label={derived.viewLabel}
-          >
-            <div className={cx(
-              "absolute inset-0 rounded-2xl shadow-lg transition-all",
-              derived.canView
-                ? "bg-gradient-to-r from-[#0F1C3F] to-[#162A56] group-hover/btn:from-[#163A74] group-hover/btn:to-[#4F83D1]"
-                : "bg-gradient-to-r from-slate-500 to-slate-400"
-            )} />
-
-            <div className={cx(
-              "absolute inset-0 rounded-2xl bg-gradient-to-r from-white/10 to-transparent transition-opacity",
-              index ? "opacity-0 group-hover/btn:opacity-100" : "opacity-0"
-            )} />
-
-            <Eye className="relative h-4 w-4 text-white" />
-            <span className="relative text-sm font-extrabold text-white">{derived.viewLabel}</span>
-          </button>
-        </div>
+        </div> 
       </div>
     </article>
   );
@@ -117,13 +72,13 @@ export function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyPr
       <Sparkles className="mx-auto mb-4 h-16 w-16 text-[#9BC2FF]" />
       <h3 className="text-2xl font-bold text-white mb-2">
         {consultationsLength === 0
-          ? 'Aucune consultation pour le moment'
+          ? 'Aucun jeu pour le moment'
           : 'Aucun résultat trouvé'}
       </h3>
 
       <p className="mb-6 text-[#D1D5DB]">
         {consultationsLength === 0
-          ? 'Créez votre première consultation pour commencer votre voyage de découverte.'
+          ? 'Créez votre première  jeu'
           : 'Essayez de modifier vos filtres de recherche'}
       </p>
     </div>
@@ -143,7 +98,7 @@ export function ConsultationsListLoading() {
 }
 
 const ConsultationsListMain = memo(function ConsultationsListMain() {
-  const { consultations, loading, count, prefetchConsultation } = useConsultationsListPage();
+  const { consultations, loading, count } = useConsultationsListPage();
 
   if (loading) { return (<ConsultationsListLoading />); }
 
@@ -184,8 +139,6 @@ const ConsultationsListMain = memo(function ConsultationsListMain() {
                   <div className="w-full" key={String(consultation?._id ?? consultation?.id ?? `${index}`)}>
                     <ConsultationCard
                       consultation={consultation}
-                      index={index}
-                      onPrefetch={prefetchConsultation}
                     />
                   </div>
                 );

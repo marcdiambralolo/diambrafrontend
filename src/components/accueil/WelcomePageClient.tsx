@@ -85,7 +85,7 @@ export function WelcomePageClientContent() {
 
             <div className="mt-4 flex justify-center gap-2">
               <h1 className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-6xl font-black tracking-tight text-transparent sm:text-7xl lg:text-8xl">
-                Quatre cases
+                Quatre Cases
               </h1>
               <Trophy className="h-12 w-12 text-yellow-500 animate-bounce-gentle" />
             </div>

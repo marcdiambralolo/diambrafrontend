@@ -37,18 +37,18 @@ export function RubriqueChoiceAddPanel({ editingRubrique, setEditingRubrique, on
   }, [editingRubrique, setEditingRubrique, showList]);
 
 
-   const [choice, setChoice] = useState<ConsultationChoice>({
-      title: "",
-      description: "",
-      offering: {
-        alternatives: [
-          { category: "banque", offeringId: "", quantity: 1 },
-        ],
-      },
-      choiceId: "",
-      choiceTitle: "",
-      consultationId: null,
-    });  
+  const [choice, setChoice] = useState<ConsultationChoice>({
+    title: "",
+    description: "",
+    offering: {
+      alternative:
+        { offeringId: "", quantity: 1 }
+      ,
+    },
+    choiceId: "",
+    choiceTitle: "",
+    consultationId: null,
+  });
 
   return (
     <AnimatePresence mode="wait">

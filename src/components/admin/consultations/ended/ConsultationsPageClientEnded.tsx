@@ -6,6 +6,9 @@ import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { AlertCircle, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock, FileText, Phone, RefreshCw, User, Wifi, Zap } from 'lucide-react';
 import React, { memo, useMemo } from 'react';
 
+const badgeBase =
+  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
   visible: {
@@ -104,9 +107,6 @@ interface ConsultationBadgesProps {
   formattedDate: string;
 }
 
-const badgeBase =
-  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
-
 const ConsultationBadges = memo(
   ({ formattedDate }: ConsultationBadgesProps) => {
     return (
@@ -172,7 +172,6 @@ const ClientInfo = memo(({ clientName, phone }: ClientInfoProps) => {
   return prev.clientName === next.clientName;
 });
 
-
 interface ConsultationCardProps {
   consultation: Consultation;
 }
@@ -227,7 +226,6 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
   const c2 = nextProps.consultation;
   return (c1.id === c2.id);
 });
-
 
 export const CosmicLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#070B1A] via-[#0F1C3F] to-[#162A56] relative overflow-hidden">
@@ -465,7 +463,6 @@ export const ConsultationsHeader: React.FC<ConsultationsHeaderProps> = ({ total,
     </div>
   </div>
 );
-
 
 interface ConsultationsErrorProps {
   error: string;

@@ -1,9 +1,6 @@
-const isDev =
-  typeof process !== 'undefined'
-    ? process.env.NODE_ENV !== 'production'
-    : false;
+const isDev = typeof process !== 'undefined' ? process.env.NODE_ENV !== 'production' : false;
 
-function noop() {}
+function noop() { }
 
 export const logger = {
   log: isDev ? console.log.bind(console) : noop,

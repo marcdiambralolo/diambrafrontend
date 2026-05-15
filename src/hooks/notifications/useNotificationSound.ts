@@ -41,7 +41,6 @@ export function useNotificationSound(url: string) {
     };
   }, []);
 
-  // Joue le son (rewind si déjà en cours)
   const play = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;

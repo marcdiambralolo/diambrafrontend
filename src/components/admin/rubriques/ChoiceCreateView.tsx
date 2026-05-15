@@ -13,11 +13,10 @@ interface ChoiceCreateViewProps {
 const ChoiceCreateView = memo(function ChoiceCreateView({ onSave, onCancel }: ChoiceCreateViewProps) {
   const [newChoice, setNewChoice] = useState<ConsultationChoice>({
     title: "",
-    description: "", 
+    description: "",
     offering: {
-      alternatives: [
-        { category: "banque", offeringId: "", quantity: 1 },
-      ],
+      alternative:
+        { offeringId: "", quantity: 1 },
     },
     choiceId: "",
     choiceTitle: "",
@@ -75,7 +74,7 @@ const ChoiceCreateView = memo(function ChoiceCreateView({ onSave, onCancel }: Ch
           />
         </div>
 
-    
+
       </div>
 
       {/* Actions */}

@@ -45,7 +45,7 @@ const ReportsChart: React.FC<ReportsChartProps> = ({ chartData, chartConfig, sel
           <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
           <Tooltip />
           <Legend wrapperStyle={{ fontSize: '12px' }} iconType="circle" />
-          <Bar dataKey="consultations" name="Jeux" fill={CHART_COLORS.consultations} radius={[8, 8, 0, 0]}>
+          <Bar dataKey="Jeux" name="Jeux" fill={CHART_COLORS.consultations} radius={[8, 8, 0, 0]}>
             {chartData.map((_, index) => (
               <Cell key={`cell-c-${index}`} fill={CHART_COLORS.gradient[index % CHART_COLORS.gradient.length]} />
             ))}

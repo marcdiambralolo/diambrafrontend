@@ -4,41 +4,13 @@ import { RubriquesToast } from '@/components/admin/rubriques/RubriquesToast';
 import { useAdminRubriquesListPage } from '@/hooks/admin/rubriques/useAdminRubriquesListPage';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowLeft, Award, Calendar, ChevronDown, ChevronUp, Clock, Copy, DollarSign, Edit3,
-  Eye, FileText, Gift, MoreVertical, Plus, Shield, Sparkles, Trash2, TrendingUp, Users, Zap,
+  ArrowLeft, ChevronDown, ChevronUp, Copy, DollarSign, Edit3,
+  Eye, Gift, MoreVertical, Plus,
+  Sparkles, Trash2, TrendingUp
 } from "lucide-react";
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
-const FREQUENCE_ICONS: Record<string, any> = {
-  UNE_FOIS_VIE: { icon: Sparkles, label: 'Unique', color: 'text-purple-500', gradient: 'from-purple-500/20 to-pink-500/20' },
-  ANNUELLE: { icon: Calendar, label: 'Annuelle', color: 'text-blue-500', gradient: 'from-blue-500/20 to-cyan-500/20' },
-  MENSUELLE: { icon: Calendar, label: 'Mensuelle', color: 'text-green-500', gradient: 'from-green-500/20 to-emerald-500/20' },
-  QUOTIDIENNE: { icon: Clock, label: 'Quotidienne', color: 'text-orange-500', gradient: 'from-orange-500/20 to-amber-500/20' },
-  LIBRE: { icon: Zap, label: 'Libre', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-orange-500/20' },
-};
-
-const PARTICIPANTS_ICONS: Record<string, any> = {
-  SOLO: { icon: Users, label: 'Solo', color: 'text-indigo-500', iconBg: 'from-indigo-500/20 to-blue-500/20' },
-  AVEC_TIERS: { icon: Users, label: 'Avec tiers', color: 'text-teal-500', iconBg: 'from-teal-500/20 to-cyan-500/20' },
-  POUR_TIERS: { icon: Users, label: 'Pour un tiers', color: 'text-pink-500', iconBg: 'from-pink-500/20 to-rose-500/20' },
-  GROUPE: { icon: Users, label: 'Groupe', color: 'text-orange-500', iconBg: 'from-orange-500/20 to-red-500/20' },
-};
-
-const StatBadge = ({ icon: Icon, label, value, color, onClick }: any) => (
-  <motion.div
-    whileHover={{ scale: 1.05, y: -1 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={onClick}
-    className={`flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-slate-100 to-indigo-50 dark:from-[#162A56] dark:to-[#0F1C3F] border border-slate-200 dark:border-slate-700 cursor-pointer transition-all hover:shadow-md ${onClick ? 'hover:border-[#2E5AA6]' : ''}`}
-  >
-    <Icon className={`w-3 h-3 ${color || 'text-[#2E5AA6]'}`} />
-    <span className="text-xs text-slate-600 dark:text-slate-400">{label}:</span>
-    <span className="text-xs font-semibold text-slate-900 dark:text-white">{value}</span>
-  </motion.div>
-);
-
-// Composant EmptyState amélioré
 const EmptyState = ({ rubriqueId }: { rubriqueId?: string }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95 }}
@@ -54,21 +26,18 @@ const EmptyState = ({ rubriqueId }: { rubriqueId?: string }) => (
       <Sparkles className="w-12 h-12 text-[#2E5AA6] dark:text-[#9BC2FF]" />
     </motion.div>
     <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-3">
-      Aucun choix de consultation
+      Aucun jeu
     </h3>
-    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
-      Commencez par ajouter votre premier choix de consultation pour cette rubrique
-    </p>
     <Link
       href={`/admin/rubriques/${rubriqueId}/add`}
       className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#2E5AA6] to-[#4F83D1] text-white font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
     >
       <Plus className="w-4 h-4" />
-      Ajouter un choix
+      Ajouter un jeu
     </Link>
   </motion.div>
 );
- 
+
 const ContextMenu = ({ onEdit, onDuplicate, onToggleStatus, isActive }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -147,8 +116,6 @@ const ContextMenu = ({ onEdit, onDuplicate, onToggleStatus, isActive }: any) => 
 
 // Composant de carte de choix amélioré
 const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand, onHoverStart, onHoverEnd, onDuplicate, onToggleStatus }: any) => {
-  const frequenceConfig = FREQUENCE_ICONS[choice.frequence || ''] || { icon: Calendar, label: 'Non défini', color: 'text-gray-500', gradient: 'from-gray-500/20 to-gray-500/20' };
-  const participantsConfig = PARTICIPANTS_ICONS[choice.participants || ''] || { icon: Users, label: 'Non défini', color: 'text-gray-500', iconBg: 'from-gray-500/20 to-gray-500/20' };
   const totalPrice = choice.offering?.alternatives?.reduce((sum: number, alt: any) => sum + (alt.price || 0), 0) || 0;
 
   return (
@@ -183,7 +150,7 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className={`absolute top-0 right-0 w-0 h-0 border-l-[80px] border-l-transparent border-t-[80px] ${frequenceConfig.gradient.replace('from-', 'border-t-').replace('/20', '')}`} />
+          <div className={`absolute top-0 right-0 w-0 h-0 border-l-[80px] border-l-transparent border-t-[80px] `} />
         </motion.div>
 
         <div className="p-5">
@@ -203,17 +170,7 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
                   {choice.title}
                 </h3>
 
-                {/* Badge de statut actif */}
-                {choice.hasActiveConsultation && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-400 text-xs border border-green-200 dark:border-green-800"
-                  >
-                    <Shield className="w-3 h-3" />
-                    Actif
-                  </motion.span>
-                )}
+
 
                 {choice.consultationCount > 0 && (
                   <motion.span
@@ -222,43 +179,12 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-400 text-xs border border-amber-200 dark:border-amber-800"
                   >
                     <TrendingUp className="w-3 h-3" />
-                    {choice.consultationCount} consultations
+                    {choice.consultationCount} Jeux
                   </motion.span>
                 )}
               </div>
 
-              {/* Description avec effet de gradient si trop long */}
-              <div className="relative">
-                <p className={`text-sm text-slate-500 dark:text-slate-400  mb-3`}>
-                  {choice.description}
-                </p>
-                {choice.description?.length > 100 && (
-                  <button
-                    onClick={() => onExpand()}
-                    className="text-xs text-[#2E5AA6] dark:text-[#9BC2FF] hover:underline mt-1"
-                  >
-                    Voir plus
-                  </button>
-                )}
-              </div>
 
-              {/* Badges avec animations au survol */}
-              <div className="flex flex-wrap gap-2 mb-3">
-                <StatBadge
-                  icon={frequenceConfig.icon}
-                  label="Fréquence"
-                  value={frequenceConfig.label}
-                  color={frequenceConfig.color}
-                />
-                <StatBadge
-                  icon={participantsConfig.icon}
-                  label="Participants"
-                  value={participantsConfig.label}
-                  color={participantsConfig.color}
-                /> 
-              </div>
-
-              {/* Prix total avec animation */}
               {totalPrice > 0 && (
                 <motion.div
                   whileHover={{ scale: 1.02 }}
@@ -316,67 +242,6 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
             </motion.button>
           </div>
         </div>
-
-        {/* Contenu expansé avec détails de l'offrande */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-              className="overflow-hidden border-t border-slate-100 dark:border-slate-800"
-            >
-              <div className="p-5 bg-gradient-to-br from-slate-50 to-indigo-50/30 dark:from-[#0F1C3F] dark:to-[#162A56]">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1 h-6 bg-gradient-to-b from-[#2E5AA6] to-[#4F83D1] rounded-full" />
-                  <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300">
-                    Détails de l'offrande
-                  </h4>
-                </div>
-
-                <div className="space-y-3">
-                  {choice.offering?.alternatives?.map((alt: any, idx: number) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-center justify-between p-2 rounded-lg bg-white/50 dark:bg-[#0F1C3F]/50"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${idx === 0 ? 'from-amber-500 to-orange-500' : idx === 1 ? 'from-green-500 to-emerald-500' : 'from-blue-500 to-cyan-500'}`} />
-                        <span className="capitalize text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {alt.category}:
-                        </span>
-                      </div>
-                      <span className="text-sm font-semibold text-slate-800 dark:text-white">
-                        {alt.quantity} × {alt.price?.toLocaleString() || 0} FCFA
-                      </span>
-                    </motion.div>
-                  ))}
-
-                  {choice.prompt && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800"
-                    >
-                      <div className="flex items-center gap-2 text-xs text-purple-600 dark:text-purple-400 mb-2">
-                        <Zap className="w-3 h-3" />
-                        <span className="font-semibold">Prompt IA personnalisé</span>
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 italic leading-relaxed">
-                        {choice.prompt}
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
     </motion.div>
   );
@@ -422,7 +287,7 @@ export default function RubriquesAdminPage() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* En-tête avec animation */}
         <motion.div
-    
+
           className="text-center mb-8"
         >
           <motion.div

@@ -12,7 +12,6 @@ export const navItems = [
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, color: 'blue' },
   { href: '/admin/offrandes', label: 'Jetons', icon: Shield, color: 'cyan' },
   { href: '/admin/rubriques', label: 'Rubriques', icon: FileText, color: 'blue' },
-  { href: '/admin/categories', label: 'Catégories', icon: FileText, color: 'teal' },
   { href: '/admin/consultations', label: 'Jeux', icon: FileText, color: 'green' },
   { href: '/admin/payments', label: 'Paiements', icon: CreditCard, color: 'ocean' },
   { href: '/admin/settings', label: 'Paramètres', icon: Settings, color: 'gray' },

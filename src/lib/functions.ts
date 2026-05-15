@@ -1,8 +1,4 @@
-import { Rubrique, User } from "./interfaces";
-
-export function isUrl(s: string) {
-  return s.startsWith('http') || s.startsWith('/');
-}
+import { Rubrique, User } from "./interfaces"; 
 
 export const formatDate = (date: string | Date | undefined | null) => {
   if (!date) return '';
@@ -58,7 +54,6 @@ export function processUserData(userData: User | null): User | null {
       : userData.country || "-",
     heureNaissance: userData.heureNaissance || "-",
     role: userData.role,
-    premium: !!userData.premium,
     credits: userData.credits ?? 0,
     totalConsultations: userData.totalConsultations ?? 0,
     rating: userData.rating ?? 0,

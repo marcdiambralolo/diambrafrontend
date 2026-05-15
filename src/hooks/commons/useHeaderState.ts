@@ -1,7 +1,7 @@
 import { Role } from '@/lib/interfaces';
 import { useAuthStore } from '@/lib/store/auth.store';
 import { useScroll, useTransform } from 'framer-motion';
-import { FileText, LayoutDashboard, MessageCircle, Stars, User, Wallet } from 'lucide-react';
+import { LayoutDashboard, MessageCircle, Stars, User, Wallet } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';

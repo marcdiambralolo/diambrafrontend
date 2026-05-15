@@ -65,8 +65,7 @@ export default function UserDetailsPage() {
                 >
                     <div className="grid gap-3 sm:grid-cols-2">
                         <InfoRow icon={<UserIcon className="h-4 w-4" />} label="ID" value={safeString(user._id)} copyValue={safeString(user._id)} />
-                        <InfoRow icon={<Shield className="h-4 w-4" />} label="Grade" value={safeString(user.grade)} />
-                        <InfoRow icon={<Phone className="h-4 w-4" />} label="Téléphone" value={safeString(user.phone)} copyValue={user.phone ?? null} />
+                         <InfoRow icon={<Phone className="h-4 w-4" />} label="Téléphone" value={safeString(user.phone)} copyValue={user.phone ?? null} />
                         <InfoRow icon={<Globe className="h-4 w-4" />} label="Pays" value={safeString(user.country)} />
                         <InfoRow icon={<Layers className="h-4 w-4" />} label="Type utilisateur" value={safeString(user.userType)} />
                         <InfoRow icon={<Calendar className="h-4 w-4" />} label="Créé le" value={formatDateFR(typeof user.createdAt === 'string' ? user.createdAt : undefined)} />
@@ -93,8 +92,7 @@ export default function UserDetailsPage() {
                         <InfoRow icon={<Settings2 className="h-4 w-4" />} label="Notifications" value={user.preferences?.notifications ? "Oui" : "Non"} />
                         <InfoRow icon={<Settings2 className="h-4 w-4" />} label="Newsletter" value={user.preferences?.newsletter ? "Oui" : "Non"} />
                         <InfoRow icon={<Shield className="h-4 w-4" />} label="Permissions custom" value={joinList(user.customPermissions)} />
-                        <InfoRow icon={<Shield className="h-4 w-4" />} label="Spécialités" value={joinList(user.specialties)} />
-                        <InfoRow icon={<Activity className="h-4 w-4" />} label="Rating" value={safeString(user.rating)} />
+                         <InfoRow icon={<Activity className="h-4 w-4" />} label="Rating" value={safeString(user.rating)} />
                     </div>
                 </Section>
                 

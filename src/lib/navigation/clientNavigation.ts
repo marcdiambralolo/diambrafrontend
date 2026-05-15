@@ -1,5 +1,5 @@
 'use client';
-export const CLIENT_NAVIGATION_EVENT = 'monetoile:navigate';
+export const CLIENT_NAVIGATION_EVENT = 'diambra:navigate';
 
 export type ClientNavigationDetail = {
   href: string;

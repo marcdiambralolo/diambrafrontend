@@ -10,7 +10,6 @@ export function useAdminRubriquesNewPage() {
   const [editingRubrique, setEditingRubrique] = useState<Rubrique>({
     titre: '',
     description: '',
-    categorie: 'GENERAL',
     consultationChoices: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -34,7 +33,6 @@ export function useAdminRubriquesNewPage() {
     const newRubrique = {
       titre: editingRubrique.titre.trim(),
       description: editingRubrique.description?.trim() || '',
-      categorie: 'GENERAL',
       consultationChoices: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

@@ -168,25 +168,6 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
             {vm.username}
           </h3>
         </div>
-
-        {/* Quick status icon */}
-        <div className="shrink-0">
-          {vm.premium ? (
-            <div
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200"
-              title="Compte Premium"
-            >
-              <Star className="h-4 w-4" />
-            </div>
-          ) : (
-            <div
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white/70 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
-              title="Compte standard"
-            >
-              <UserIcon className="h-4 w-4" />
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Details */}
@@ -258,27 +239,6 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
           {vm.isActive ? <CheckCircle className="h-3 w-3" /> : <Ban className="h-3 w-3" />}
           {vm.isActive ? "Actif" : "Inactif"}
         </Pill>
-
-        <Pill
-          className={cx(
-            vm.premium
-              ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200"
-              : "border-slate-200 bg-white/70 text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-white/75",
-          )}
-          title={vm.premium ? "Compte premium" : "Compte débutant"}
-        >
-          <Star className="h-3 w-3" />
-          {vm.premium ? "Premium" : "Débutant"}
-        </Pill>
-
-        {vm.notif ? (
-          <span
-            className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"
-            title="Notifications activées"
-          >
-            🔔
-          </span>
-        ) : null}
       </div>
 
       {/* Actions */}

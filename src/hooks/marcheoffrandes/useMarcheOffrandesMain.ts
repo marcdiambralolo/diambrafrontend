@@ -25,12 +25,7 @@ export type SimulationStep =
 
 export type Category = "all" | "banque";
 
-export interface CategoryInfo {
-  id: Category;
-  name: string;
-  icon: LucideIcon;
-  count: number;
-}
+
 
 interface CartItem extends Offering {
   _id: string;
@@ -305,10 +300,10 @@ export function useMarcheOffrandesMain() {
   }, [bookId, cart, cartTotal, categoryId, clearCart, consultationId, queryClient, router]);
 
   return {
-    offerings, loading, error, selectedCategory, cart, cartTotal, cartCount,
+    loading, error, cart, cartTotal, cartCount,
     filteredOfferings, showCart, showCheckout, simulationStep, paymentError,
     handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
-    setSelectedCategory, handleProceedToCheckout, handleResetCategory,
+    handleProceedToCheckout, handleResetCategory,
     handleSimulatedPayment, handleClose,
   };
 }

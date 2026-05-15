@@ -1,39 +1,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useRef } from "react";
-import { api } from "@/lib/api/client";
-
-export interface TransactionItem {
-    offeringId: string;
-    quantity: number;
-    name: string;
-    category: string;
-    unitPrice: number;
-    totalPrice: number;
-}
-
-export interface Transaction {
-    nom: any;
-    _id: string;
-    transactionId: string;
-    paymentToken?: string;
-    status: "pending" | "completed" | "failed" | "cancelled";
-    totalAmount: number;
-    items: TransactionItem[];
-    paymentMethod?: string;
-    completedAt?: string;
-    createdAt: string;
-    phone?: string;
-    nomclient?: string;
-    numeroSend?: string;
-}
-
-export interface PaymentInitiationResponse {
-    success: boolean;
-    paymentUrl?: string;
-    tokenPay?: string;
-    transactionId?: string;
-    message?: string;
-}
+import { api } from "@/lib/api/client"; 
 
 export const PAYMENT_METHODS = [
     { id: "orange-money-ci", name: "Orange Money", icon: "📱", color: "orange" },

@@ -18,9 +18,7 @@ export async function POST(request: NextRequest) {
 
         const response = await fetch(`${getBackendApiUrl('payments/verify')}?token=${encodeURIComponent(token)}`, {
             method: 'GET',
-            headers: {
-                Accept: 'application/json',
-            },
+            headers: { Accept: 'application/json', },
             cache: 'no-store',
             signal: AbortSignal.timeout(300000),
         });
@@ -40,7 +38,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(data, { status: response.status });
     } catch (error) {
         console.error('[MoneyFusion API] Erreur lors de la vérification:', error);
-     
+
         if (error instanceof Error && error.name === 'TimeoutError') {
             return NextResponse.json(
                 {

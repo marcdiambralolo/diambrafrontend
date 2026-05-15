@@ -43,7 +43,6 @@ const Toast = memo(({ message, type = 'info', onClose }: {
       <div className={`bg-gradient-to-r ${config.gradient} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-white/20 backdrop-blur-sm`}>
         <span className="flex-shrink-0">{config.icon}</span>
         <p className="text-sm font-medium flex-1 leading-tight">{message}</p>
-
         <button
           onClick={onClose}
           className="p-1 hover:bg-white/20 rounded-lg transition-colors"

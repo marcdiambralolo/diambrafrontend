@@ -5,19 +5,8 @@ import { ANIMATION_VARIANTS } from '@/hooks/admin/rubriques/useAdminRubriquesAdd
 import { useAdminRubriquesEditPage } from '@/hooks/admin/rubriques/useAdminRubriquesEditPage';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  ArrowLeft,
-  Award,
-  Calendar,
-  CheckCircle, DollarSign,
-  Edit3,
-  FileText,
-  HelpCircle,
-  Loader2, Package,
-  Save, Sparkles,
-  Users,
-  X,
-  Zap
+  AlertCircle, ArrowLeft, CheckCircle, DollarSign, Edit3, HelpCircle,
+  Loader2, Save, Sparkles, X
 } from "lucide-react";
 import { OfferingSelector } from "../OfferingSelector";
 
@@ -55,18 +44,6 @@ const FormField = ({ label, description, required, error, children }: FormFieldP
   </div>
 );
 
-const InfoBadge = ({ icon: Icon, label, value, color }: {
-  icon: any;
-  label: string;
-  value: string;
-  color?: string;
-}) => (
-  <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gradient-to-r from-slate-50 to-indigo-50 dark:from-[#162A56] dark:to-[#0F1C3F] border border-slate-200 dark:border-slate-700">
-    <Icon className={`w-3.5 h-3.5 ${color || 'text-[#2E5AA6]'}`} />
-    <span className="text-xs text-slate-600 dark:text-slate-400">{label}:</span>
-    <span className="text-xs font-semibold text-slate-900 dark:text-white">{value}</span>
-  </div>
-);
 
 const ChevronDown = ({ className }: { className?: string }) => (
   <svg
@@ -79,26 +56,10 @@ const ChevronDown = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Mapping des valeurs pour l'affichage
-const FREQUENCE_LABELS: Record<string, string> = {
-  UNE_FOIS_VIE: 'Une fois dans la vie',
-  ANNUELLE: 'Chaque année',
-  MENSUELLE: 'Chaque mois',
-  QUOTIDIENNE: 'Chaque jour',
-  LIBRE: 'À tout moment',
-};
-
-const PARTICIPANTS_LABELS: Record<string, string> = {
-  SOLO: 'Solo',
-  AVEC_TIERS: 'Avec tiers',
-  POUR_TIERS: 'Pour un tiers',
-  GROUPE: 'Groupe',
-};
-
 export default function RubriquesAdminEditPage() {
   const {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,  
+    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,
     expandedSection, totalCost, isFormValid, loading, saving, offerings,
     offeringsLoading, choice, view, editingRubrique, toast, originalChoice,
   } = useAdminRubriquesEditPage();
@@ -231,9 +192,7 @@ export default function RubriquesAdminEditPage() {
                             />
                           </div>
                         </FormField>
- 
 
-                        {/* Description */}
                         <FormField label="Description" description="Décrivez ce choix en détail">
                           <textarea
                             value={choice.description || ''}
@@ -247,30 +206,7 @@ export default function RubriquesAdminEditPage() {
                     </div>
                   </motion.div>
 
-                  {/* Section: AI Configuration (Collapsible) */}
-                  <motion.div
-                    layout
-                    className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-[#0F1C3F] shadow-md"
-                  >
-                    <button
-                      onClick={() => toggleSection('ai')}
-                      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#162A56] transition"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-[#FFD600]" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          Configuration IA
-                        </span>
-                        <span className="text-xs text-slate-500">(Optionnel)</span>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: expandedSection === 'ai' ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="w-5 h-5 text-slate-400" />
-                      </motion.div>
-                    </button> 
-                  </motion.div> 
+
                   <motion.div
                     layout
                     className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-[#0F1C3F] shadow-md"
@@ -279,13 +215,7 @@ export default function RubriquesAdminEditPage() {
                       onClick={() => toggleSection('offering')}
                       className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#162A56] transition"
                     >
-                      <div className="flex items-center gap-2">
-                        <Package className="w-5 h-5 text-[#2E5AA6]" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          Alternatives d'offrandes
-                        </span>
-                        <span className="text-xs text-red-500">* 3 requises</span>
-                      </div>
+
                       <motion.div
                         animate={{ rotate: expandedSection === 'offering' ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
@@ -295,51 +225,46 @@ export default function RubriquesAdminEditPage() {
                     </button>
 
                     <AnimatePresence>
-                      {expandedSection === 'offering' && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
-                            <div className="space-y-3">
-                              {choice.offering?.alternatives?.map((alt, idx) => (
-                                <OfferingSelector
-                                  key={alt.category || idx}
-                                  alternative={alt}
-                                  offerings={offerings}
-                                  onChange={(updated) => handleAlternativeChange(idx, updated)}
-                                />
-                              ))}
-                            </div>
-
-                            {totalCost > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#EEF4FF] to-[#DDE7FA] dark:from-[#0F1C3F] dark:to-[#162A56] p-4 border border-[#2E5AA6]/20"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <DollarSign className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
-                                  <span className="text-sm font-semibold text-[#16315F] dark:text-[#DDE7FA]">
-                                    Coût total de la prestation
-                                  </span>
-                                </div>
-                                <div className="text-2xl font-bold text-[#2E5AA6] dark:text-[#FFD600]">
-                                  {totalCost.toLocaleString()} FCFA
-                                </div>
-                              </motion.div>
-                            )}
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
+                          <div className="space-y-3">
+                              <OfferingSelector
+                                key={0 }
+                                alternative={choice.offering?.alternative}
+                                offerings={offerings}
+                                onChange={(updated) => handleAlternativeChange(0, updated)}
+                              /> 
                           </div>
-                        </motion.div>
-                      )}
+
+                          {totalCost > 0 && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#EEF4FF] to-[#DDE7FA] dark:from-[#0F1C3F] dark:to-[#162A56] p-4 border border-[#2E5AA6]/20"
+                            >
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
+                                <span className="text-sm font-semibold text-[#16315F] dark:text-[#DDE7FA]">
+                                  Coût total de la prestation
+                                </span>
+                              </div>
+                              <div className="text-2xl font-bold text-[#2E5AA6] dark:text-[#FFD600]">
+                                {totalCost.toLocaleString()} FCFA
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+                      </motion.div>
                     </AnimatePresence>
-                  </motion.div> 
+                  </motion.div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-6 mt-6 border-t border-slate-200 dark:border-slate-700">
 
                   <motion.button
@@ -390,10 +315,9 @@ export default function RubriquesAdminEditPage() {
                         <p className="font-semibold mb-1">Champs requis manquants :</p>
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title?.trim() && <li>Un titre est requis</li>}
-                          {!choice.description?.trim() && <li>Une description est requise</li>}
-                            {choice.offering?.alternatives?.length !== 3 && <li>3 alternatives d'offrandes sont requises</li>}
-                          {choice.offering?.alternatives?.some(alt => !alt.offeringId) && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
-                          {choice.offering?.alternatives?.some(alt => alt.quantity <= 0) && <li>Toutes les quantités doivent être supérieures à 0</li>}
+                          {choice.offering?.alternative && <li>1 alternative d'offrandes est requise</li>}
+                          {choice.offering?.alternative?.offeringId && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
+                          {choice.offering?.alternative?.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>
                       </div>
                     </div>

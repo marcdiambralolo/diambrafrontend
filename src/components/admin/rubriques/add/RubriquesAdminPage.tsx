@@ -19,7 +19,7 @@ import {
   Zap
 } from "lucide-react";
 import { OfferingSelector } from "../OfferingSelector";
- 
+
 
 interface FormFieldProps {
   label: string;
@@ -82,7 +82,7 @@ const ChevronDown = ({ className }: { className?: string }) => (
 export default function RubriquesAdminPage() {
   const {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange,   expandedSection, totalCost, isFormValid,
+    handleAlternativeChange, expandedSection, totalCost, isFormValid,
     loading, saving, offerings, offeringsLoading, choice, view, editingRubrique, toast,
   } = useAdminRubriquesAddPage();
 
@@ -213,7 +213,7 @@ export default function RubriquesAdminPage() {
                           </div>
                         </FormField>
 
-                        
+
 
                         {/* Description */}
                         <FormField label="Description" description="Décrivez ce choix en détail">
@@ -252,10 +252,10 @@ export default function RubriquesAdminPage() {
                         <ChevronDown className="w-5 h-5 text-slate-400" />
                       </motion.div>
                     </button>
- 
+
                   </motion.div>
 
-              
+
 
                   {/* Section: Offerings */}
                   <motion.div
@@ -292,14 +292,14 @@ export default function RubriquesAdminPage() {
                         >
                           <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
                             <div className="space-y-3">
-                              {choice.offering.alternatives.map((alt, idx) => (
-                                <OfferingSelector
-                                  key={alt.category || idx}
-                                  alternative={alt}
-                                  offerings={offerings}
-                                  onChange={(updated) => handleAlternativeChange(idx, updated)}
-                                />
-                              ))}
+
+                              <OfferingSelector
+                                key={0}
+                                alternative={choice.offering.alternative}
+                                offerings={offerings}
+                                onChange={(updated) => handleAlternativeChange(0, updated)}
+                              />
+
                             </div>
 
                             {totalCost > 0 && (
@@ -324,7 +324,7 @@ export default function RubriquesAdminPage() {
                       )}
                     </AnimatePresence>
                   </motion.div>
- 
+
                 </div>
 
                 {/* Action Buttons */}
@@ -376,9 +376,8 @@ export default function RubriquesAdminPage() {
                         <p className="font-semibold mb-1">Champs requis manquants :</p>
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title.trim() && <li>Un titre est requis</li>}
-                          {choice.offering.alternatives.length !== 3 && <li>3 alternatives d'offrandes sont requises</li>}
-                          {choice.offering.alternatives.some(alt => !alt.offeringId) && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
-                          {choice.offering.alternatives.some(alt => alt.quantity <= 0) && <li>Toutes les quantités doivent être supérieures à 0</li>}
+                          {!choice.offering.alternative.offeringId && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
+                          {choice.offering.alternative.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>
                       </div>
                     </div>

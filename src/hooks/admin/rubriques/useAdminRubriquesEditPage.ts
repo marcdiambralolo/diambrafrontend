@@ -29,9 +29,6 @@ export const ANIMATION_VARIANTS = {
 };
 
 // Constantes
-const DEFAULT_ALTERNATIVES = [
-  { category: "banque" as const, offeringId: "", quantity: 1 },
-];
 
 const REQUIRED_CATEGORIES = ['banque'] as const;
 
@@ -84,7 +81,7 @@ export function useAdminRubriquesEditPage() {
   const [choice, setChoice] = useState<ConsultationChoice>({
     title: "",
     description: "",
-    offering: { alternatives: DEFAULT_ALTERNATIVES },
+    offering: { alternative: {  offeringId: "", quantity: 1 } },
     choiceId: "",
     choiceTitle: "",
     consultationId: null,
@@ -205,7 +202,7 @@ export function useAdminRubriquesEditPage() {
           setOriginalChoice(foundChoice);
           setChoice({
             ...foundChoice,
-            offering: foundChoice.offering || { alternatives: DEFAULT_ALTERNATIVES },
+            offering: foundChoice.offering || { alternative: {  offeringId: "", quantity: 1 } },
           });
         } else {
           showToast('error', 'Choix non trouvé');
@@ -219,11 +216,10 @@ export function useAdminRubriquesEditPage() {
     setChoice(updated);
   }, []);
 
-  const handleAlternativeChange = useCallback((idx: number, updated: OfferingAlternative) => {
+  const handleAlternativeChange = useCallback((_idx: number, updated: OfferingAlternative) => {
     setChoice(prev => {
-      const newAlternatives = [...prev.offering.alternatives];
-      newAlternatives[idx] = updated;
-      return { ...prev, offering: { alternatives: newAlternatives } };
+ 
+      return { ...prev, offering: { alternative: updated } };
     });
   }, []);
 
@@ -232,26 +228,12 @@ export function useAdminRubriquesEditPage() {
     if (!choiceToValidate.title?.trim()) {
       return 'Veuillez saisir un titre.';
     }
-    if (!choiceToValidate.description?.trim()) {
-      return 'Veuillez saisir une description.';
-    }
-   
-
-    const alternatives = choiceToValidate.offering?.alternatives;
-    if (!alternatives || alternatives.length !== 1) {
+  
+    const alternatives = choiceToValidate.offering?.alternative;
+    if (!alternatives ) {
       return '1 alternative  banque est requise.';
     }
-
-    const categories = alternatives.map(a => a.category);
-    const hasAllCategories = REQUIRED_CATEGORIES.every(cat => categories.includes(cat));
-    if (!hasAllCategories) {
-      return 'Chaque catégorie  de la banque doit être présente.';
-    }
-
-    const hasEmptyOffering = alternatives.some(alt => !alt.offeringId || alt.quantity <= 0);
-    if (hasEmptyOffering) {
-      return 'Veuillez sélectionner une offrande valide pour chaque catégorie.';
-    }
+ 
 
     return null;
   }, []);
@@ -272,11 +254,7 @@ export function useAdminRubriquesEditPage() {
     try {
       // Préparation des offrandes
       const offering = {
-        alternatives: choice.offering.alternatives.map((alt) => ({
-          category: alt.category,
-          offeringId: alt.offeringId,
-          quantity: alt.quantity ?? 1,
-        }))
+        alternatives: choice.offering.alternative 
       }; 
       const payload = {
         title: choice.title.trim(),
@@ -299,18 +277,15 @@ export function useAdminRubriquesEditPage() {
 
   // Calculs mémoisés
   const totalCost = useMemo(() => {
-    return choice.offering.alternatives.reduce((sum, alt) => {
-      const offering = offerings.find(o => o._id === alt.offeringId);
-      return sum + (offering ? offering.price * alt.quantity : 0);
-    }, 0);
-  }, [choice.offering.alternatives, offerings]);
+    return choice.offering.alternative.quantity * (offerings.find(o => o._id === choice.offering.alternative.offeringId)?.price || 0) ;
+  }, [choice.offering.alternative, offerings]);
 
   const isFormValid = useMemo(() => {
     return choice.title.trim() &&
       choice.description.trim() &&
-      choice.offering.alternatives.length === 3 &&
-      choice.offering.alternatives.every(alt => alt.offeringId && alt.quantity > 0);
-  }, [choice.title, choice.description, choice.offering.alternatives]);
+      choice.offering.alternative  &&
+      choice.offering.alternative. quantity > 0;
+  }, [choice.title, choice.description, choice.offering.alternative]);
 
   // Toggle section
   const toggleSection = useCallback((section: SectionType) => {

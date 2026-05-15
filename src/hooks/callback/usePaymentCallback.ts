@@ -9,7 +9,7 @@ import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useAnimationVariants } from './useAnimationVariants';
 
 const PAYMENT_CALLBACK_RESULT_TTL_MS = 30 * 60 * 1000;
-const PAYMENT_CALLBACK_STORAGE_PREFIX = 'monetoile_payment_callback:';
+const PAYMENT_CALLBACK_STORAGE_PREFIX = 'diambra_payment_callback:';
 const PAYMENT_CALLBACK_PROCESSING_WINDOW_MS = 2 * 60 * 1000;
 
 function resolvePaymentKind(searchParams: ReturnType<typeof useSearchParams>): PaymentKind {
@@ -211,7 +211,7 @@ export function usePaymentCallback() {
         title: 'Paiement déjà enregistré',
         description: paymentKind === 'book'
           ? 'Cette transaction a déjà été validée. Vous pouvez récupérer votre lien de téléchargement.'
-          : 'Cette transaction a déjà été validée. Retrouvez votre contenu dans vos consultations ou votre bibliothèque.',
+          : 'Cette transaction a déjà été validée. Retrouvez votre contenu dans vos jeux ou votre bibliothèque.',
         color: 'text-emerald-700',
         gradient: 'from-[#2E5AA6]/14 via-[#4F83D1]/18 to-[#9BC2FF]/18',
         iconBg: 'bg-[#EEF5FF] dark:bg-[#1B3568]',

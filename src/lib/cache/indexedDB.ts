@@ -20,12 +20,10 @@ export async function getFromCache(store: string, key: string) {
 async function openDB() {
   // Utilise idb-keyval ou idb (npm install idb)
   const { openDB } = await import('idb');
-  return openDB('monetoile-cache', 1, {
+  return openDB('diambra-cache', 1, {
     upgrade(db) {
-      if (!db.objectStoreNames.contains('cartesDuCiel')) db.createObjectStore('cartesDuCiel');
-      if (!db.objectStoreNames.contains('consultations')) db.createObjectStore('consultations');
-      if (!db.objectStoreNames.contains('analyses')) db.createObjectStore('analyses');
-    },
+       if (!db.objectStoreNames.contains('consultations')) db.createObjectStore('consultations');
+     },
   });
 }
 
@@ -35,7 +33,7 @@ export async function clearIndexedDbCache() {
   }
 
   await new Promise<void>((resolve, reject) => {
-    const request = indexedDB.deleteDatabase('monetoile-cache');
+    const request = indexedDB.deleteDatabase('diambra-cache');
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
     request.onblocked = () => resolve();

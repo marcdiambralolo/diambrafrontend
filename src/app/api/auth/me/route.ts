@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import {
   applySessionCookies, createUnauthorizedResponse,
   fetchBackendWithSession, getRequestSessionTokens, readJsonResponse,
 } from '@/lib/api/server/session';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const { accessToken, refreshToken } = getRequestSessionTokens(request);

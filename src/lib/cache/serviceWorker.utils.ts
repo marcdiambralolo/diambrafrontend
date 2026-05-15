@@ -1,7 +1,3 @@
-/**
- * Utilitaires pour gérer le Service Worker et le cache
- */
-
 const SW_PATH = '/service-worker.js';
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 heure
 

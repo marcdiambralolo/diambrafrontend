@@ -285,7 +285,7 @@ const RegisterForm: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   error={errors.password}
-                  placeholder="••••••••"
+                  placeholder=""
                   icon={<Lock className="w-4 h-4" />}
                   showPassword={showPassword}
                   onTogglePassword={() => setShowPassword(!showPassword)}
@@ -300,7 +300,7 @@ const RegisterForm: React.FC = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 error={errors.confirmPassword}
-                placeholder="••••••••"
+                placeholder=""
                 icon={<Lock className="w-4 h-4" />}
                 showPassword={showConfirmPassword}
                 onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}

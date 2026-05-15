@@ -56,7 +56,7 @@ const Loader = memo(function Loader() {
             transition={{ duration: 0.35, delay: 0.05 }}
             className="text-[14px] sm:text-[15px] font-extrabold tracking-tight text-[#16315F] dark:text-[#DDE7FA]"
           >
-            Chargement cosmique…
+            Chargement…
           </motion.div>
           <motion.div
             initial={reduce ? undefined : { opacity: 0, y: 6 }}

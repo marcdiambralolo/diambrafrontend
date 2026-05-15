@@ -73,7 +73,6 @@ export function useNotifications(pollingInterval: number = 300000) {
     }
   }, [notifications]);
 
-  // Polling pour récupérer les nouvelles notifications
   // ⚠️ Ne fetcher QUE si utilisateur connecté
   useEffect(() => {
     // Attendre que l'auth soit chargé et que l'utilisateur soit connecté

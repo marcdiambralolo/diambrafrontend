@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 export const filterOptions: { value: string; label: string }[] = [
   { value: 'all', label: 'Toutes' },
   { value: 'unread', label: 'Non lues' },
-  { value: 'CONSULTATION_RESULT', label: 'Résultats' },
+  { value: 'CONSULTATION_RESULT', label: 'Jeux' },
   { value: 'PAYMENT_CONFIRMED', label: 'Paiements' },
   { value: 'SYSTEM_ANNOUNCEMENT', label: 'Annonces système' },
 ];
@@ -58,7 +58,7 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
   const handleDelete = async (notificationId: string) => {
     await deleteNotificationMutation.mutateAsync(notificationId);
   };
- 
+
   return {
     filter,
     notifications: data?.notifications || [],

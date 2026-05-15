@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Users, FileText, DollarSign, Activity } from "lucide-react";
-import type { ActivityItem } from "@/components/admin/dashboard/activity/ActivityCardItem";
-
+import { ActivityItem } from "@/components/admin/dashboard/ActivitySection";
+ 
 type ActivityStats = {
   users: { total: number };
   consultations: { total: number };
@@ -31,7 +31,7 @@ export function useActivityItems(stats: ActivityStats, derivedStats: DerivedStat
         },
         {
           icon: FileText,
-          label: "Consultations",
+          label: "Jeux",
           value: activity.todayConsultations,
           percent: consultationPercent,
         },

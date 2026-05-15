@@ -9,6 +9,7 @@ import {
   UserRound
 } from "lucide-react";
 import { memo, type ReactNode } from "react";
+import ConsultationsListMain from "../consultations/main/ConsultationsListMain";
 
 const ErrorState = memo(() => (
   <motion.div
@@ -160,6 +161,7 @@ function MonProfilPageClientImpl() {
     <main className="relative mx-auto w-full max-w-5xl px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <div className="w-full mx-auto flex flex-col items-center justify-center gap-4">
         <UserHub />
+        <ConsultationsListMain />
       </div>
     </main>
   );

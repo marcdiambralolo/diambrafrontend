@@ -20,7 +20,6 @@ const ProtectedLayout = memo(function ProtectedLayout({ children }: ProtectedLay
           <SecuredHeaderSuspense />
         </div>
       </SecuredHeader>
-
       <SecuredMainSuspense>
         <SecuredMain>{children}</SecuredMain>
       </SecuredMainSuspense>

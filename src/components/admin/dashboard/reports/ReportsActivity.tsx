@@ -17,7 +17,7 @@ const ReportsActivity: React.FC<ReportsActivityProps> = ({ stats }) => {
   const activities = [
     {
       type: 'consultation',
-      user: 'Consultations',
+      user: 'Jeux',
       action: `${stats.consultations.completed} complétées`,
       time: 'Actuel'
     },

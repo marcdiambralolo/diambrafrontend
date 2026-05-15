@@ -1,9 +1,8 @@
 'use client';
-import NextImage from '@/components/commons/NextImage';
-import { CategoryInfo, fadeInUp, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
+import { fadeInUp, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
 import { Offering } from '@/lib/interfaces';
-import { motion, Variants } from 'framer-motion';
-import { AlertCircle, Leaf, Package, Plus, ShoppingCart, Sparkles, Wine } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { AlertCircle, Plus, ShoppingCart } from 'lucide-react';
 import React from 'react';
 import { CartModal } from './CartModal';
 import CheckoutModal from './CheckoutModal';
@@ -27,19 +26,11 @@ export const OfferingCard: React.FC<OfferingCardProps> = ({ offering, onAddToCar
                      border-2 border-gray-200 dark:border-gray-700 
                      shadow-md hover:shadow-xl transition-all group cursor-pointer"
     >
-      <div className="mb-3 sm:mb-4 text-center group-hover:scale-110 transition-transform">
-        <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
-
-      </div>
 
       <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white mb-1 text-center 
                          group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
         {offering.name}
       </h3>
-      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center 
-                        mb-3 sm:mb-4 min-h-[32px] sm:min-h-[40px] px-1 line-clamp-2">
-        {offering.description}
-      </p>
 
       <div className="text-center mb-3 sm:mb-4 py-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
         <p className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
@@ -77,11 +68,10 @@ export const LoadingState = () => (
       🌀
     </motion.span>
     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-      Chargement des offrandes...
+      Chargement des jetons...
     </p>
   </motion.div>
 );
-
 
 export const EmptyState = ({ onReset }: { onReset: () => void }) => (
   <motion.div
@@ -94,17 +84,13 @@ export const EmptyState = ({ onReset }: { onReset: () => void }) => (
       <span className="text-4xl">🔍</span>
     </div>
     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-      Aucune offrande trouvée
+      Aucun jeton trouvé
     </h3>
-
-    <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-sm mb-4 px-4">
-      Essayez une autre catégorie ou consultez toutes les offrandes disponibles
-    </p>
     <button
       onClick={onReset}
       className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-bold rounded-xl transition-colors shadow-lg hover:shadow-xl active:scale-95"
     >
-      Voir toutes les offrandes
+      Voir tous les jetons
     </button>
   </motion.div>
 );
@@ -165,16 +151,11 @@ export function ErrorAlert({ message, onRetry }: { message: string; onRetry: () 
 
 export default function MarcheOffrandesMain() {
   const {
-    offerings, loading, error, selectedCategory, cart, cartTotal, cartCount,
+    loading, error, cart, cartTotal, cartCount,
     filteredOfferings, showCart, showCheckout, simulationStep, handleProceedToCheckout,
     handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
-    setSelectedCategory, handleResetCategory, handleSimulatedPayment, handleClose,
+    handleResetCategory, handleSimulatedPayment, handleClose,
   } = useMarcheOffrandesMain();
-
-  const categories: CategoryInfo[] = [
-    { id: 'all', name: 'Tout', icon: Sparkles, count: offerings.length },
-    { id: 'banque', name: 'Banque', icon: Package, count: offerings.length },
-  ];
 
   if (loading) return <LoadingState />;
   if (error) return <div aria-live="polite"><ErrorState error={typeof error === 'string' ? error : (error ? String(error) : '')} onRetry={handleRetry} /></div>;
@@ -184,77 +165,18 @@ export default function MarcheOffrandesMain() {
     <main id="marche-offrandes-main" aria-labelledby="marche-offrandes-title">
       <h1 id="marche-offrandes-title" className="sr-only">Marché des Offrandes</h1>
       <div className="relative white flex flex-col items-center justify-center mt-8">
-        <div className="sticky top-0 z-40 bg-gradient-to-r from-[#0F1C3F]/95 to-[#162A56]/95 backdrop-blur-md border-b border-[#2E5AA6] shadow-sm w-full flex items-center justify-center">
-          <div className="flex items-center justify-between px-4 py-3 w-full max-w-5xl">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg sm:text-xl text-[#4F83D1] drop-shadow">Marché des Offrandes</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-xs sm:text-sm font-semibold text-[#E5E7EB]">
-                {cartCount} article{cartCount !== 1 ? 's' : ''} — <span className="text-[#4F83D1] font-bold">{cartTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 max-w-7xl flex flex-col items-center justify-center">
           <div className="mb-4 sm:mb-6 w-full flex justify-center items-center">
             <div className="text-center mb-6 sm:mb-10 w-full flex flex-col items-center justify-center">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black   mb-3 sm:mb-4   text-center drop-shadow">
-                Bienvenue au marché des offrandes.
+                ACQUERIR DES JETONS
               </h2>
-              <p className="text-sm sm:text-base md:text-lg text-black max-w-2xl mx-auto leading-relaxed px-2 text-center">
-                Ici vous trouverez tout ce dont vous aurez besoin pour votre quête de compréhension des mystères de votre vie.
-                Sachez que ces offrandes sont symboliques et représentent les vibrations énergétiques compensatoires, qui correspondent aux demandes que vous allez faire.
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-4 sm:mb-5 w-full flex justify-center items-center">
-            <div className="relative w-full flex justify-center items-center">
-              <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-[#0F1C3F] to-transparent z-10 pointer-events-none sm:hidden" />
-              <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-[#162A56] to-transparent z-10 pointer-events-none sm:hidden" />
-              <div className="flex overflow-x-auto gap-2 sm:gap-3 mb-6 sm:mb-8 pb-2 px-4 sm:mx-0 sm:px-0 scrollbar-hide items-center justify-center">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`flex-shrink-0 px-2 sm:px-5 py-2.5 sm:py-3 rounded-full sm:rounded-2xl font-bold flex items-center gap-2 transition-all text-sm sm:text-base shadow-sm border-2 ${selectedCategory === cat.id
-                      ? 'bg-[#2E5AA6] text-white border-[#4F83D1] shadow-lg scale-105'
-                      : 'bg-[#0F1C3F] text-[#E5E7EB] border-[#162A56] hover:bg-[#162A56] hover:border-[#2E5AA6] active:scale-95'
-                      }`}
-                  >
-                    <cat.icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>{cat.name}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${selectedCategory === cat.id ? 'bg-white/20' : 'bg-[#2E5AA6] text-white'} transition-colors`}>
-                      {cat.count}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-3 sm:mb-4 w-full flex justify-center items-center">
-            <div className="flex flex-col sm:flex-row items-center justify-center w-full gap-2 px-1">
-              <p className="text-xs sm:text-sm text-[#4F83D1] font-medium text-center">
-                {filteredOfferings.length} offrande{filteredOfferings.length !== 1 ? 's' : ''}
-                {' '}disponible{filteredOfferings.length !== 1 ? 's' : ''}
-              </p>
-              {selectedCategory !== 'all' && (
-                <button
-                  onClick={handleResetCategory}
-                  className="text-xs text-[#FFD600] hover:text-[#FFB300] font-semibold transition-colors hover:underline underline-offset-2 text-center"
-                >
-                  Voir tout
-                </button>
-              )}
             </div>
           </div>
 
           <div className="w-full flex justify-center items-center">
             <div className="w-full flex justify-center items-center">
-              <section key={selectedCategory}
+              <section key="offerings-list"
                 className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-2.5 md:gap-3 lg:gap-4 mb-6 sm:mb-8 items-center justify-center"
                 role="region"
                 aria-label="Liste des offrandes disponibles"

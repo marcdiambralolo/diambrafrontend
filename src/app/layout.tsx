@@ -1,91 +1,21 @@
- 
 import { getRootMetadata } from "@/lib/layout/rootMetadata";
 import { rootViewport } from "@/lib/layout/rootViewport";
-import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { memo } from "react";
 import "./globals.css";
 import { Providers, RootPortals, RootSkipLink } from "./providers";
- 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// export const metadata: Metadata = {
-//   title: "Diambra — Quatre cases",
-//   description:
-//     "Placez des chiffres de 0 à 9 dans quatre cases, sans répéter un chiffre.",
-//   applicationName: "Diambra",
-//   appleWebApp: {
-//     capable: true,
-//     title: "Diambra",
-//     statusBarStyle: "default",
-//   },
-//   formatDetection: {
-//     telephone: false,
-//   },
-//   icons: {
-//     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
-//     apple: [{ url: "/icons/icon.svg" }],
-//   },
-// };
-
-// export const viewport: Viewport = {
-//   themeColor: [
-//     { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-//     { media: "(prefers-color-scheme: dark)", color: "#030712" },
-//   ],
-//   colorScheme: "dark light",
-// };
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   return (
-//     <html
-//       lang="fr"
-//       suppressHydrationWarning
-//       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-//     >
-//       <body className="flex min-h-full flex-col font-sans text-foreground antialiased">
-//         <ServiceWorkerRegister />
-//         <Providers>
-//           <AppShell>{children}</AppShell>
-//         </Providers>
-//       </body>
-//     </html>
-//   );
-// }
-
-
-
-
-// ============================================================================
-// CONSTANTES & CONFIGURATION
-// ============================================================================
 
 const SITE_CONFIG = {
   name: "Diambra",
   url: "https://www.diambra.net",
-  description: "🎯 Diambra - Jeu de logique et de reflexion. Entraînez votre cerveau avec notre jeu de chiffres captivant. Quatre cases, des chiffres de 0 à 9, aucune répétition. Simple, rapide, addictif !",
+  description: "🎯 Diambra ",
   twitterHandle: "@DiambraNet",
   ogImage: "/logo.png",
   ogImageAlt: "Diambra - Jeu de Logique",
   ogImageWidth: 512,
   ogImageHeight: 512,
-} as const;
-
-// ============================================================================
-// FONTS
-// ============================================================================
+} as const; 
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -108,10 +38,6 @@ const inter = Inter({
     "sans-serif",
   ],
 });
-
-// ============================================================================
-// COMPOSANTS MÉMOÏSÉS POUR LES MÉTA-DONNÉES
-// ============================================================================
 
 const RootHeadMeta = memo(function RootHeadMeta() {
   return (
@@ -151,10 +77,6 @@ const RootHeadMeta = memo(function RootHeadMeta() {
 });
 
 RootHeadMeta.displayName = 'RootHeadMeta';
-
-// ============================================================================
-// SCRIPTS OPTIMISÉS
-// ============================================================================
 
 const ThemeScript = memo(function ThemeScript() {
   return (
@@ -264,10 +186,6 @@ const SchemaScript = memo(function SchemaScript() {
 });
 
 SchemaScript.displayName = 'SchemaScript';
-
-// ============================================================================
-// COMPOSANT PRINCIPAL LAYOUT
-// ============================================================================
 
 const RootMain = memo(function RootMain({ children }: { children: React.ReactNode }) {
   return (

@@ -1,13 +1,12 @@
 'use client';
 import { useProfilUser } from "@/hooks/profil/useProfilUser";
-import { cx, formatNumber } from "@/lib/functions";
+import { formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
 import { AlertCircle, Eye, TrendingUp, Users } from "lucide-react";
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { NumberGridGame } from "../commons/NumberGridGame";
- 
 
-export function ProfilPageLoader() {
+function ProfilPageLoader() {
 
   return (
     <section className="mx-auto mt-4 w-full max-w-6xl animate-pulse">
@@ -42,7 +41,7 @@ export function ProfilPageLoader() {
   );
 }
 
-export interface StatCardProps {
+interface StatCardProps {
   value: number | null;
   label: string;
   icon: React.ReactNode;
@@ -55,7 +54,7 @@ const cardVariants = {
   animate: { opacity: 1, y: 0 },
 };
 
-export const STAT_COLORS = {
+const STAT_COLORS = {
   primary: {
     text: 'text-[var(--accent-violet)]',
     border: 'border-[var(--accent-violet)]/30',
@@ -70,7 +69,7 @@ export const STAT_COLORS = {
   },
 } as const;
 
-export const StatCard = React.memo<StatCardProps>(({ value, label, icon, loading, color }) => {
+const StatCard = React.memo<StatCardProps>(({ value, label, icon, loading, color }) => {
   const colors = STAT_COLORS[color];
 
   const displayValue = useMemo(() => {
@@ -129,7 +128,7 @@ interface ErrorMessageProps {
 }
 
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => (
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
@@ -148,7 +147,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) 
   </motion.div>
 );
 
-export const LoadingSkeleton: React.FC = () => (
+const LoadingSkeleton: React.FC = () => (
   <div className="flex flex-col sm:flex-row gap-6 items-center justify-center py-6">
     {[1, 2].map((i) => (
       <div
@@ -205,12 +204,8 @@ export default function ProfilPageClient() {
     <div className="relative mt-8 w-full flex flex-col items-center justify-center px-2 sm:px-0 overflow-x-hidden bg-white dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
       <div className="relative z-10 w-full flex flex-col items-center justify-center">
         <section className="mx-auto w-full   flex flex-col items-center justify-center animate-fade-in-up">
-
           <NumberGridGame />
-
         </section>
-
-
         <div className="mt-10 w-full flex items-center justify-center">
           <StatsCounter loading={loading} stats={stats} error={error} fetchStats={fetchStats} />
         </div>

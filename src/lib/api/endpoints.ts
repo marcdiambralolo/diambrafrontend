@@ -62,7 +62,6 @@ export const endpoints = {
   }, 
  
   userAccess: {
-    mySubscription: '/user-access/subscription-info',
     checkAccess: (rubriqueId: string) => `/user-access/check-access/${rubriqueId}`,
   },
 };

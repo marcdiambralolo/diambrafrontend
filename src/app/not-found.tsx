@@ -146,7 +146,7 @@ export default function NotFoundPage() {
            
             <Star className="w-4 h-4 text-[#FFD600] animate-pulse" />
             <span className="text-xs font-semibold uppercase tracking-[0.35em] text-[#9BC2FF]">
-              Mon Etoile
+              DIAMBRA
             </span>
           
         </motion.div>
@@ -212,14 +212,14 @@ export default function NotFoundPage() {
           variants={itemVariants}
           className="mb-4 text-2xl font-bold text-[#DDE7FA] sm:text-3xl md:text-4xl"
         >
-          Oups, cette page s&apos;est perdue dans la galaxie!
+          Oups, cette page s&apos;est perdue!
         </motion.h2>
 
         <motion.p
           variants={itemVariants}
           className="mb-8 text-sm leading-relaxed text-[#D1D5DB] sm:text-base md:text-lg"
         >
-          Le contenu demandé n&apos;est pas disponible ou a changé d&apos;orbite.
+          Le contenu demandé n&apos;est pas disponible.
           Reviens à l&apos;accueil pour reprendre ta navigation.
         </motion.p>
 

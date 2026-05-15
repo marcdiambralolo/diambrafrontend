@@ -25,7 +25,6 @@ export function useAnalysisSocket(
   useEffect(() => {
     if (!consultationId) return;
 
-    // ✅ CORRECTION : Utiliser le WebSocket via le même domaine en production
     const getWebSocketUrl = (): string => {
       const isProduction = process.env.NODE_ENV === 'production';
       

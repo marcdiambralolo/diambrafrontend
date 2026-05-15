@@ -18,8 +18,9 @@ function coerceIsoDate(v: unknown): string {
 export function useMonProfil() {
   const user = useAuthStore((state) => state.user) as User | null;
   const processedData = useMemo(() => processUserData(user), [user]);
+ 
   const prenoms = safeTrim(user?.prenoms);
-  const nom = safeTrim(user?.nom);
+  const nom = safeTrim(user?.nom); 
   const fullName = prenoms || nom ? `${prenoms}${prenoms && nom ? " " : ""}${nom}` : "Profil";
   const dateNaissanceLabel = user?.dateNaissance ? formatDateFR(coerceIsoDate(user.dateNaissance)) : "—";
   const heureNaissance = safeTrim(user?.heureNaissance) || "—";

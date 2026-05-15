@@ -22,7 +22,7 @@ const List = React.memo(({ items }: { items: string[] }) => (
 ));
 
 export function useTermsSections(): TermsSection[] {
-  
+
   return [
     {
       number: '1',
@@ -31,7 +31,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-purple-100 text-purple-600',
       content: (
         <p>
-          En jouant à <span className="font-bold text-purple-600">Quatre Cases</span>, vous acceptez pleinement ces conditions d'utilisation. 
+          En jouant à <span className="font-bold text-purple-600">Quatre Cases</span>, vous acceptez pleinement ces conditions d'utilisation.
           Nous pouvons les modifier à tout moment pour améliorer votre expérience de jeu.
         </p>
       ),
@@ -43,7 +43,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-indigo-100 text-indigo-600',
       content: (
         <>
-          <p>Quatre Cases est un jeu de logique où vous devez :</p>
+          <p>Quatre Cases est un jeu de logique où vous devez : </p>
           <List items={[
             'Remplir 4 cases avec des chiffres de 0 à 9',
             'Ne jamais répéter le même chiffre',
@@ -94,7 +94,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-indigo-100 text-indigo-600',
       content: (
         <p>
-          Le jeu Quatre Cases, son code, son design et son concept sont la propriété exclusive de Diambra. 
+          Le jeu Quatre Cases, son code, son design et son concept sont la propriété exclusive de Diambra.
           Toute reproduction ou copie sans autorisation est interdite.
         </p>
       ),
@@ -136,7 +136,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-rose-100 text-rose-600',
       content: (
         <p>
-          Nous nous réservons le droit de suspendre ou résilier un compte en cas de violation 
+          Nous nous réservons le droit de suspendre ou résilier un compte en cas de violation
           flagrante de ces conditions.
         </p>
       ),

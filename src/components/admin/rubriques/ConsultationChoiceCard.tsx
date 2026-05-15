@@ -5,37 +5,32 @@ import { AnimatePresence, motion } from "framer-motion";
 import { DollarSign, Package } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
 import { OfferingSelector } from "./OfferingSelector";
- 
 
-const ConsultationChoiceCard = memo(({ 
-    choice, 
-    onUpdate, 
-    offerings, 
-    onDelete, 
-    onMoveUp, 
-    onMoveDown 
+
+const ConsultationChoiceCard = memo(({
+    choice,
+    onUpdate,
+    offerings,
+    onDelete,
+    onMoveUp,
+    onMoveDown
 }: {
     choice: ConsultationChoice;
     onUpdate: (updated: ConsultationChoice) => void;
-    offerings: Offering[];   
+    offerings: Offering[];
     onDelete?: () => void;
     onMoveUp?: () => void;
     onMoveDown?: () => void;
 }) => {
-    
 
-    const handleAlternativeChange = useCallback((idx: number, updated: OfferingAlternative) => {
-        const newAlternatives = [...choice.offering.alternatives];
-        newAlternatives[idx] = updated;
-        onUpdate({ ...choice, offering: { alternatives: newAlternatives } });
+
+    const handleAlternativeChange = useCallback((updated: OfferingAlternative) => {
+        onUpdate({ ...choice, offering: { alternative: updated } });
     }, [choice, onUpdate]);
 
     const totalCost = useMemo(() => {
-        return choice.offering.alternatives.reduce((sum, alt) => {
-            const offering = offerings.find(o => o._id === alt.offeringId);
-            return sum + (offering ? offering.price * alt.quantity : 0);
-        }, 0);
-    }, [choice.offering.alternatives, offerings]);
+        return choice.offering.alternative.quantity * (choice.offering.price || 0);
+    }, [choice.offering,]);
 
     return (
         <motion.div
@@ -54,8 +49,8 @@ const ConsultationChoiceCard = memo(({
                         onChange={(e) => onUpdate({ ...choice, title: e.target.value })}
                         placeholder="Titre du choix"
                         className="w-full px-3 py-2 text-sm font-bold rounded-lg border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-                    />         
-                                   
+                    />
+
 
                     <div className="space-y-1">
                         <label htmlFor={`choice-desc-0`} className="text-xs font-semibold text-slate-700">
@@ -78,8 +73,8 @@ const ConsultationChoiceCard = memo(({
                         />
                     </div>
 
-                     
-                   
+
+
                 </div>
             </div>
             {/* Actions: Delete, Move Up/Down */}
@@ -117,14 +112,12 @@ const ConsultationChoiceCard = memo(({
                     <p className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-2">
                         <Package className="w-4 h-4" />Jetons
                     </p>
-                    {choice.offering.alternatives.map((alt, idx) => (
-                        <OfferingSelector
-                            key={alt.category}
-                            alternative={alt}
+                     <OfferingSelector
+                            key={0}
+                            alternative={choice.offering.alternative}
                             offerings={offerings}
-                            onChange={(updated) => handleAlternativeChange(idx, updated)}
-                        />
-                    ))}
+                            onChange={(updated) => handleAlternativeChange(updated)}
+                        /> 
                 </motion.div>
             </AnimatePresence>
         </motion.div>

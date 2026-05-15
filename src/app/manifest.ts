@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Diambra — Quatre cases",
     short_name: "Diambra",
     description:
-      "Placez des chiffres de 0 à 9 dans quatre cases, sans répéter un chiffre. Jeu Diambra.",
+      "Jeu Diambra.",
     start_url: "/",
     scope: "/",
     display: "standalone",

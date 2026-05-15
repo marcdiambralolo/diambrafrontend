@@ -75,12 +75,11 @@ export async function createCategoryConsultation({
 }: CreateCategoryConsultationParams): Promise<string> {
     const payload: Record<string, unknown> = {
         serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
-        type: "CATÉGORIE",
         title: choice.title || "Consultation",
         formData: mapFormDataToBackend(user),
         description: choice.description || "",
         status: "PENDING",
-        alternatives: choice.offering?.alternatives || [],
+        alternative: choice.offering?.alternative  ,
         choice,
         rubriqueId: "694cde9bde3392d3751a0fe9" ,
         ...extraPayload,

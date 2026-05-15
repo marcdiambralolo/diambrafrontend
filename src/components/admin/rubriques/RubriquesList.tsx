@@ -1,10 +1,7 @@
 'use client';
 import { Rubrique } from "@/lib/interfaces";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Calendar, CheckCircle, ChevronRight, Clock, Eye,
-  FileText, Layers, Sparkles, TrendingUp
-} from "lucide-react";
+import { CheckCircle, Clock, Eye, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -26,20 +23,6 @@ const StatBadge = ({ icon: Icon, label, value, color }: any) => (
 
 const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: number; onList: (rubrique: Rubrique) => void }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const rawCategoryId = rubrique.categorieId as unknown;
-  const categoryRecord = typeof rawCategoryId === 'object' && rawCategoryId !== null
-    ? rawCategoryId as { nom?: unknown; _id?: string }
-    : null;
-  const categoryLabel = typeof rawCategoryId === 'string'
-    ? rawCategoryId
-    : (typeof categoryRecord?.nom === 'string' ? categoryRecord.nom : 'Non catégorisé');
-
-  const activeChoices = rubrique.consultationChoices.length || 0;
-  const totalPrice = rubrique.consultationChoices?.reduce((sum, choice) => {
-    const choicePrice = choice.offering?.alternatives?.reduce((s, alt) => s + (alt.price || 0), 0) || 0;
-    return sum + choicePrice;
-  }, 0) || 0;
 
   return (
     <motion.div
@@ -53,13 +36,11 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
       onHoverEnd={() => setIsHovered(false)}
       className="group relative"
     >
-      {/* Effet de brillance au survol */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-[#2E5AA6] to-[#4F83D1] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
         animate={{ opacity: isHovered ? 0.15 : 0 }}
       />
 
-      {/* Badge décoratif */}
       <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden">
         <motion.div
           className="absolute top-0 right-0 w-0 h-0 border-l-[96px] border-l-transparent border-t-[96px] border-t-[#2E5AA6]/10 dark:border-t-[#4F83D1]/10"
@@ -77,7 +58,6 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
         <div className="p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              {/* En-tête avec numéro et titre */}
               <div className="flex items-center gap-3 mb-3">
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
@@ -102,35 +82,10 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
                     <h3 className="font-bold text-xl text-slate-800 dark:text-white truncate">
                       {rubrique.titre}
                     </h3>
-                    {activeChoices > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-400 text-xs border border-green-200 dark:border-green-800"
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                        {activeChoices} actif(s)
-                      </motion.span>
-                    )}
-                  </div>
-
-                  {/* Métadonnées */}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <StatBadge icon={Layers} label="Catégorie" value={categoryLabel} />
-                    <StatBadge icon={FileText} label="Choix" value={rubrique.consultationChoices?.length || 0} />
-                    {totalPrice > 0 && (
-                      <StatBadge icon={TrendingUp} label="Prix total" value={`${totalPrice.toLocaleString()} FCFA`} color="text-purple-500" />
-                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
-                {rubrique.description || "Aucune description disponible"}
-              </p>
-
-              {/* ID avec effet de glassmorphisme */}
               <div className="flex items-center gap-2 mb-3">
                 {rubrique.createdAt && (
                   <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -139,47 +94,6 @@ const RubriqueCard = ({ rubrique, index, onList }: { rubrique: Rubrique; index: 
                   </div>
                 )}
               </div>
-
-              {/* Aperçu des choix récents */}
-              {rubrique.consultationChoices && rubrique.consultationChoices.length > 0 && (
-                <div className="mt-3">
-                  <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="flex items-center gap-1 text-xs font-medium text-[#2E5AA6] dark:text-[#9BC2FF] hover:underline transition"
-                  >
-                    <Eye className="w-3 h-3" />
-                    {isExpanded ? "Masquer" : "Voir"} les choix récents
-                    <ChevronRight className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                  </button>
-
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden mt-2"
-                      >
-                        <div className="space-y-1.5 pl-2 border-l-2 border-[#2E5AA6]/30">
-                          {rubrique.consultationChoices.slice(0, 3).map((choice, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-xs">
-                              <span className="text-slate-600 dark:text-slate-400">
-                                • {choice.title}
-                              </span>
-                            </div>
-                          ))}
-                          {rubrique.consultationChoices.length > 3 && (
-                            <p className="text-xs text-slate-400 italic">
-                              + {rubrique.consultationChoices.length - 3} autres choix
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
             </div>
 
             {/* Boutons d'action */}

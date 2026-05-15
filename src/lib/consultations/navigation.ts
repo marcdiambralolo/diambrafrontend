@@ -2,7 +2,6 @@ export interface ConsultationNavigationParams {
   consultationId?: string | null;
   rubriqueId?: string | null;
   choiceId?: string | null;
-  r?: string | number | null;
 }
 
 export function buildConsultationSearchParams(params: ConsultationNavigationParams): string {

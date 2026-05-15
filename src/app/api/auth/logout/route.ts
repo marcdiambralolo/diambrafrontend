@@ -5,9 +5,7 @@ export async function POST(request: NextRequest) {
   const { accessToken, refreshToken } = getRequestSessionTokens(request);
 
   let backendResponse: Response | null = null;
-
   let payload: any = { success: true };
-
   let status = 200;
 
   try {

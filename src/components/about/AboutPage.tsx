@@ -84,7 +84,6 @@ export default function AboutPageClient() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 text-purple-900 overflow-x-hidden">
-      {/* Header sticky avec fond blanc */}
       <nav className="sticky top-0 z-30 border-b border-purple-100 bg-white/90 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-3">
           <CacheLink href="/" className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">

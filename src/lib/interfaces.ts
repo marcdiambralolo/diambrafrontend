@@ -11,7 +11,6 @@ export interface Offering {
 }
 
 export interface OfferingAlternative {
-  category: 'banque';
   offeringId: string;
   quantity: number;
   name?: string;
@@ -32,24 +31,7 @@ export interface WalletOffering {
 
 export interface ConsultationOffering {
   price?: number;
-  alternatives: OfferingAlternative[];
-}
-
-export interface OfferingAlternative {
-  category: 'banque';
-  offeringId: string;
-  quantity: number;
-  name?: string;
-  price?: number;
-  description?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  _id?: string;
-}
-
-export interface ConsultationOffering {
-  price?: number;
-  alternatives: OfferingAlternative[];
+  alternative: OfferingAlternative;
 }
 
 export interface ConsultationChoice {
@@ -71,7 +53,6 @@ export interface Rubrique {
   _id?: string;
   titre?: string;
   description?: string;
-  categorie?: string;
   consultationChoices: ConsultationChoice[];
   createdAt?: string;
   updatedAt?: string;
@@ -114,8 +95,6 @@ export interface Payment {
 }
 
 export interface User {
-  photo?: string;
-  presentation?: string;
   _id?: string;
   nom: string;
   prenoms: string;
@@ -144,8 +123,6 @@ export interface User {
     notifications?: boolean;
     newsletter?: boolean;
   };
-  specialties?: string[];
-  bio?: string;
   rating?: number;
   totalConsultations?: number;
   credits?: number;
@@ -153,11 +130,8 @@ export interface User {
   consultationsCount?: number;
   avatar?: string;
   updatedAt?: string | Date;
-  lastGradeUpdate?: Date | string;
   subscriptionStartDate?: Date | string;
   subscriptionEndDate?: Date | string;
-  premiumRubriqueId?: string;
-  nomconsultant?: string;
   [key: string]: unknown;
 }
 
@@ -183,21 +157,6 @@ export interface Consultation {
   ui?: any;
   completedAt?: string;
   [key: string]: unknown;
-}
-
-export interface CategorieAdmin {
-  _id: string;
-  id?: string;
-  nom?: string;
-  titre?: string;
-  description: string;
-  rubriques?: Rubrique[];
-  consultationChoices?: EnrichedChoice[];
-  categorie?: string;
-  categorieId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  __v?: number;
 }
 
 export enum Role {
@@ -237,10 +196,6 @@ export enum Permission {
   MANAGE_ROLES = 'MANAGE_ROLES',
   MANAGE_PERMISSIONS = 'MANAGE_PERMISSIONS',
   SYSTEM_CONFIG = 'SYSTEM_CONFIG'
-}
-export interface EnrichedChoice {
-  consultationCount: undefined;
-  choice: ConsultationChoice;
 }
 
 export interface Transaction {

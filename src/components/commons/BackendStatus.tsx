@@ -27,7 +27,7 @@ export function BackendStatus() {
         setState({
           kind: "error",
           message:
-            "Impossible de joindre l’API. Vérifiez que le backend tourne et NEXT_PUBLIC_API_URL.",
+            "Impossible de joindre l’API. Vérifiez que le backend tourne.",
         });
       });
 

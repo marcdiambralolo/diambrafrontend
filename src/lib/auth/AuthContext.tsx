@@ -72,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const initAuth = async () => {
-      // N'appelle pas /auth/me sur les routes publiques
       if (isPublicRoute()) {
         setIsLoading(false);
         return;

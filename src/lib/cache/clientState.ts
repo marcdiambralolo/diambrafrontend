@@ -4,7 +4,7 @@ import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { clearIndexedDbCache } from './indexedDB';
 import { clearPersistedQueryCache, queryClient } from './queryClient';
 
-const PRESERVED_LOCAL_STORAGE_KEYS = new Set(['monetoile-theme']);
+const PRESERVED_LOCAL_STORAGE_KEYS = new Set(['diambra-theme']);
 
 function clearMonetoileStorage(storage: Storage | undefined) {
   if (!storage) {
@@ -18,7 +18,7 @@ function clearMonetoileStorage(storage: Storage | undefined) {
       continue;
     }
 
-    if (key.startsWith('monetoile') && !PRESERVED_LOCAL_STORAGE_KEYS.has(key)) {
+    if (key.startsWith('diambra') && !PRESERVED_LOCAL_STORAGE_KEYS.has(key)) {
       keysToRemove.push(key);
     }
   }

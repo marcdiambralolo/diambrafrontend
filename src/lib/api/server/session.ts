@@ -10,8 +10,20 @@ function stripTrailingSlashes(value: string) {
   return value.replace(/\/+$/, '');
 }
 
-export function getBackendApiUrl(pathname: string) {
+export function getBackendApiUrl2(pathname: string) {
   const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
+  const hasApiPath = cleanBaseURL.endsWith('/api') || /\/api\//.test(cleanBaseURL);
+  const apiVersion = 'v1';
+  const computedBaseURL = hasApiPath ? `${cleanBaseURL}/${apiVersion}` : `${cleanBaseURL}/api/${apiVersion}`;
+  const normalizedPath = pathname.replace(/^\/+/, '');
+  return `${computedBaseURL}/${normalizedPath}`;
+}
+
+export function getBackendApiUrl(pathname: string) {
+  // ✅ CORRECTION : Utiliser l'URL relative en production
+  const isProduction = process.env.NODE_ENV === 'production';
+  const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || (isProduction ? '/api/v1' : 'http://localhost:3001');
   const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
   const hasApiPath = cleanBaseURL.endsWith('/api') || /\/api\//.test(cleanBaseURL);
   const apiVersion = 'v1';

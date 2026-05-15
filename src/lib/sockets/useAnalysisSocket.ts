@@ -1,5 +1,5 @@
 import config from '@/lib/config';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
@@ -13,29 +13,57 @@ export function useAnalysisSocket(
   consultationId: string,
   onStatus: (status: string, payload: AnalysisStatusPayload) => void
 ) {
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     if (!consultationId) return;
-    if (!socket) {
-      // Toujours utiliser le domaine public en production
+
+    // ✅ CORRECTION : Utiliser le WebSocket via le même domaine en production
+    const getWebSocketUrl = (): string => {
+      const isProduction = process.env.NODE_ENV === 'production';
+      
+      if (isProduction && typeof window !== 'undefined') {
+        // En production, utiliser le même domaine que le frontend
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        return `${protocol}//${window.location.host}`;
+      }
+      
+      // En développement, utiliser localhost:3001
       const baseURL = config.api.baseURL;
       if (typeof window !== 'undefined') {
-        let wsURL = '';
         if (baseURL.includes('localhost')) {
-          // Force le port 3001 pour le backend local
-          wsURL = window.location.protocol === 'https:'
+          return window.location.protocol === 'https:'
             ? 'wss://localhost:3001'
             : 'ws://localhost:3001';
-        } else {
-          wsURL = baseURL.replace(/^http(s?):\/\//, window.location.protocol === 'https:' ? 'wss://' : 'ws://');
         }
-        socket = io(wsURL, {
-          transports: ['websocket'],
-        });
+        return baseURL.replace(/^http(s?):\/\//, window.location.protocol === 'https:' ? 'wss://' : 'ws://');
       }
+      
+      return 'ws://localhost:3001';
+    };
+
+    const wsUrl = getWebSocketUrl();
+    
+    if (!socket) {
+      socket = io(wsUrl, {
+        transports: ['websocket'],
+        path: '/socket.io',
+        withCredentials: true,
+      });
     }
+
     const event = `analysis:status:${consultationId}`;
     const handler = (data: AnalysisStatusPayload) => {
-      onStatus(data.status, data);
+      if (isMounted.current) {
+        onStatus(data.status, data);
+      }
     };
 
     if (socket) {

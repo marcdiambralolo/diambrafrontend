@@ -230,9 +230,6 @@ export function useMarcheOffrandesMain() {
 
       setSimulationStep("saving");
       await sleep(200);
-
-      // ✅ CORRECTION 1: Gestion d'erreur améliorée
-
       const response = await api.post<any>("/wallet/transactions", transactionData, {
         timeout: 30000, // 30 secondes timeout
         headers: {

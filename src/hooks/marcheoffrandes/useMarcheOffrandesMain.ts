@@ -4,7 +4,6 @@ import { QUERY_KEYS } from "@/lib/cache/queryClient";
 import type { Offering } from "@/lib/interfaces";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Variants } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 
@@ -24,8 +23,6 @@ export type SimulationStep =
   | "success";
 
 export type Category = "all" | "banque";
-
-
 
 interface CartItem extends Offering {
   _id: string;
@@ -78,31 +75,10 @@ export function useMarcheOffrandesMain() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCartRaw] = useState(false);
   const [showCheckout, setShowCheckoutRaw] = useState(false);
-  const [selectedCategory, setSelectedCategoryRaw] = useState<Category>("all");
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const isSubmittingRef = useRef(false);
-
-  const { data: offerings = [], isLoading: loading, error, } = useQuery<Offering[]>({
-    queryKey: ['offerings'],
-    queryFn: async () => {
-      const response = await api.get<OfferingsResponse>('/offerings');
-      if (response.status === 200 && response.data?.offerings) {
-        return response.data.offerings.map((offering) => {
-          const normalizedId = offering._id || offering.id;
-          return {
-            ...offering,
-            _id: normalizedId,
-            id: normalizedId,
-          };
-        });
-      }
-      return [];
-    },
-    staleTime: 1000 * 60 * 5, // 5 min
-    gcTime: 1000 * 60 * 30,   // 30 min
-  });
+  const isSubmittingRef = useRef(false); 
 
   const cartTotal = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -114,9 +90,7 @@ export function useMarcheOffrandesMain() {
     [cart]
   );
 
-  const filteredOfferings = useMemo(() => {
-    return offerings;
-  }, [offerings]);
+
 
   const addToCart = useCallback((offering: Offering) => {
     setCart((prev) => {
@@ -146,6 +120,7 @@ export function useMarcheOffrandesMain() {
         },
       ];
     });
+    setShowCart(true);
   }, []);
 
   const removeFromCart = useCallback((id: string) => {
@@ -170,7 +145,6 @@ export function useMarcheOffrandesMain() {
 
   const setShowCart = useCallback((v: boolean) => setShowCartRaw(v), []);
   const setShowCheckout = useCallback((v: boolean) => setShowCheckoutRaw(v), []);
-  const setSelectedCategory = useCallback((cat: Category) => setSelectedCategoryRaw(cat), []);
 
   const openCart = useCallback(() => {
     setPaymentError(null);
@@ -196,9 +170,6 @@ export function useMarcheOffrandesMain() {
     openCheckout();
   }, [cart.length, openCheckout]);
 
-  const handleResetCategory = useCallback(() => {
-    setSelectedCategory("all");
-  }, [setSelectedCategory]);
 
   const handleRetry = useCallback(() => {
     setPaymentError(null);
@@ -299,11 +270,24 @@ export function useMarcheOffrandesMain() {
     isSubmittingRef.current = false;
   }, [bookId, cart, cartTotal, categoryId, clearCart, consultationId, queryClient, router]);
 
+  const monoffre: Offering = {
+    _id: "6945ae01b8af14d5f56cec09",
+    name: "Jeton",
+    price: 200,
+    description: "Symbole de pureté et d'harmonie.",
+    createdAt: "2025-12-19T19:56:49.465Z",
+    updatedAt: "2026-04-25T23:40:33.398Z",
+    id: "6945ae01b8af14d5f56cec09",
+    offeringId: "6945ae01b8af14d5f56cec09",
+    quantity: 1,
+  };
+
+  console.log("Offrande sélectionnée (monoffre) :", monoffre);
+
   return {
-    loading, error, cart, cartTotal, cartCount,
-    filteredOfferings, showCart, showCheckout, simulationStep, paymentError,
+   cart, cartTotal, cartCount, monoffre,
+    showCart, showCheckout, simulationStep, paymentError,
     handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
-    handleProceedToCheckout, handleResetCategory,
-    handleSimulatedPayment, handleClose,
+    handleProceedToCheckout, handleSimulatedPayment, handleClose,
   };
 }

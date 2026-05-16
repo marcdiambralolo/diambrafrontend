@@ -110,7 +110,7 @@ export function WelcomePageClientContent() {
                 className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 px-12 py-5 text-xl font-bold text-white shadow-2xl shadow-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-purple-300 active:scale-95"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  🎮 Commencer 
+                  🎮 Demarrer 
                   <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-2" />
                 </span>
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

@@ -34,11 +34,7 @@ export interface StatsData {
 export interface OfferingFormData {
   id: string;
   name: string;
-  category: string;
   price: number;
-  priceUSD: number;
-  icon: string;
-  description: string;
 }
 
 type OfferingsResponse = {
@@ -63,7 +59,7 @@ export function useAdminOffrandes() {
       const res = await api.get<OfferingsResponse>('/offerings');
       setOfferings(res.data.offerings || []);
     } catch {
-      setErrorMessage('Erreur lors du chargement des offrandes');
+      setErrorMessage('Erreur lors du chargement des jetons');
     } finally {
       setLoading(false);
     }

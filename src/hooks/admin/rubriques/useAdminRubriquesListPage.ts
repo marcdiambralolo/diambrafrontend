@@ -62,7 +62,7 @@ export function useAdminRubriquesListPage() {
         }
       } catch (error) {
         if ((error as Error)?.name !== 'AbortError') {
-          console.error('Erreur chargement offrandes:', error);
+          console.error('Erreur chargement  :', error);
         }
       } finally {
         if (isMountedRef.current) {

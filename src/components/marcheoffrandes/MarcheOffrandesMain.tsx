@@ -527,7 +527,7 @@ export default function MarcheOffrandesMain() {
               <section key="offerings-list"
                 className="grid grid-cols-1 gap-2 sm:gap-2.5 md:gap-3 lg:gap-4 mb-6 sm:mb-8 items-center justify-center"
                 role="region"
-                aria-label="Liste des offrandes disponibles"
+                aria-label="Liste des jetons disponibles"
               >
                 <div key={monoffre._id || monoffre.id} className="h-full flex items-center justify-center">
                   <motion.div

@@ -1,38 +1,24 @@
-﻿import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { useQuery } from '@tanstack/react-query';
-import { api } from "@/lib/api/client";
-import { useParams, useRouter } from "next/navigation";
+﻿import { api } from "@/lib/api/client";
 import { Offering } from "@/lib/interfaces";
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
+import { QueryObserverResult, RefetchOptions, useQuery } from '@tanstack/react-query';
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-// ==================== CONSTANTES ====================
 const CONSTANTS = {
   EXCHANGE_RATE: 563.5,
   DEBOUNCE_DELAY_MS: 500,
   MAX_RETRY_ATTEMPTS: 3,
   CACHE_TIME_MS: 5 * 60 * 1000, // 5 minutes
-  MAX_FILE_SIZE_MB: 5,
-  ACCEPTED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
 } as const;
-
-// ==================== TYPES ====================
-interface ImageState {
-  file: File | null;
-  previewUrl: string | null;
-  shouldRemove: boolean;
-}
-
-import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 interface UseEditOffrandeReturn {
   formData: Offering | null;
   loading: boolean;
   saving: boolean;
   error: string | null;
-  priceUSD: number;
   isDirty: boolean;
   validationErrors: Record<string, string>;
-  imageState: ImageState;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleCategoryChange: (value: 'banque') => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -58,15 +44,9 @@ export function useEditOffrande(): UseEditOffrandeReturn {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  // État de l'image
-  const [imageState, setImageState] = useState<ImageState>({
-    file: null,
-    previewUrl: null,
-    shouldRemove: false,
-  });
 
   // Refs
-  const submitLockRef = useRef(false);  
+  const submitLockRef = useRef(false);
 
   // ==================== VALIDATION ====================
   const validateField = useCallback((name: string, value: any): string => {
@@ -80,37 +60,23 @@ export function useEditOffrande(): UseEditOffrandeReturn {
         }
         return '';
 
-      case 'description':
-        if (!value || typeof value !== 'string') return 'La description est requise';
-        if (value.trim().length < 4) return 'La description doit contenir au moins 4 caractères';
-        if (value.trim().length > 500) return 'La description ne peut pas dépasser 500 caractères';
-        return '';
-
       case 'price':
         const numPrice = Number(value);
         if (isNaN(numPrice)) return 'Le prix doit être un nombre';
         if (numPrice <= 0) return 'Le prix doit être supérieur à 0';
         if (numPrice > 10000000) return 'Le prix ne peut pas dépasser 10 000 000 F';
         return '';
-
-      case 'category':
-        if (!value) return 'La catégorie est requise';
-        if (!['banque'].includes(value)) {
-          return 'Catégorie invalide';
-        }
-        return '';      
       default:
         return '';
     }
   }, []);
 
-  
+
 
   // Vérification si le formulaire a été modifié
   const isDirty = useMemo(() => {
     if (!formData || !originalData) return false;
 
-    // Comparer les données de base
     const basicDataChanged = JSON.stringify({
       name: formData.name,
       price: formData.price,
@@ -119,19 +85,9 @@ export function useEditOffrande(): UseEditOffrandeReturn {
       price: originalData.price,
     });
 
-    // Vérifier les changements d'image
-    const imageChanged = imageState.file !== null || imageState.shouldRemove;
+    return basicDataChanged;
+  }, [formData, originalData,]);
 
-    return basicDataChanged || imageChanged;
-  }, [formData, originalData, imageState.file, imageState.shouldRemove]);
-
-  // ==================== PRIX USD ====================
-  const priceUSD = useMemo(() => {
-    if (!formData?.price || formData.price <= 0) return 0;
-    return Number(((formData.price) / CONSTANTS.EXCHANGE_RATE).toFixed(2));
-  }, [formData?.price]);
-
-  // ==================== GESTION DES CHANGEMENTS ====================
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!formData) return;
 
@@ -141,7 +97,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     // Validation en temps réel
     const error = validateField(name, newValue);
     setValidationErrors(prev => ({ ...prev, [name]: error }));
-
     setFormData(prev => prev && ({
       ...prev,
       [name]: newValue,
@@ -154,17 +109,15 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     setValidationErrors(prev => ({ ...prev, category: error }));
   }, [formData, validateField]);
 
-  // ==================== RÉINITIALISATION ====================
   const resetForm = useCallback(() => {
     if (originalData) {
       setFormData({ ...originalData });
       setValidationErrors({});
       setError(null);
       // Réinitialiser l'état de l'image
-     }
-  }, [originalData,  setFormData, setValidationErrors, setError]);
+    }
+  }, [originalData, setFormData, setValidationErrors, setError]);
 
-  // ==================== CHARGEMENT DES DONNÉES (TanStack Query) ====================
   const {
     data: queryData,
     isLoading,
@@ -190,31 +143,17 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     }
   }, [queryData]);
 
-  // Remplacer fetchData par refetch dans le retour du hook
 
-  // ==================== CONSTRUCTION DU FORM DATA ====================
   const buildSubmitFormData = useCallback((): FormData => {
     if (!formData) throw new Error('Aucune donnée de formulaire');
 
     const fd = new FormData();
 
-    // Ajouter les champs texte
     fd.append('name', formData.name.trim());
     fd.append('price', String(formData.price));
-    fd.append('priceUSD', String(priceUSD));
-
-    // Gestion de l'image (priorité au nouveau fichier)
-    if (imageState.file) {
-      // Nouvelle image sélectionnée - upload
-      fd.append('illustration', imageState.file);
-    } else if (imageState.shouldRemove) {
-      // Suppression de l'image existante
-      fd.append('removeIllustration', 'true');
-    }
-    // Si aucune des deux conditions, on garde l'image existante (rien à envoyer)
 
     return fd;
-  }, [formData, priceUSD, imageState.file, imageState.shouldRemove]);
+  }, [formData]);
 
   // ==================== SOUMISSION ====================
   const handleSubmit = useCallback(async (e: React.FormEvent): Promise<void> => {
@@ -222,12 +161,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
 
     if (!formData || !id) return;
     if (submitLockRef.current || saving) return;
-
-
-   
-
-
-
     submitLockRef.current = true;
     setSaving(true);
     setError(null);
@@ -240,21 +173,12 @@ export function useEditOffrande(): UseEditOffrandeReturn {
         withCredentials: true,
       });
 
-      // Invalider le cache
-
-      // Nettoyer les preview URLs
-      if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageState.previewUrl);
-      }
-
-      // Navigation
       router.replace('/admin/offrandes');
       router.refresh();
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err, "Erreur lors de la sauvegarde");
       setError(errorMessage);
 
-      // Gestion spécifique des erreurs
       if ((err as any)?.response?.status === 409) {
         setError("Un conflit de données est survenu. Veuillez recharger la page.");
       } else if ((err as any)?.response?.status === 413) {
@@ -264,37 +188,21 @@ export function useEditOffrande(): UseEditOffrandeReturn {
       setSaving(false);
       submitLockRef.current = false;
     }
-  }, [formData, id, saving, buildSubmitFormData, imageState.previewUrl, router]);
+  }, [formData, id, saving, buildSubmitFormData, router]);
 
   // ==================== ANNULATION ====================
   const handleCancel = useCallback(() => {
     if (isDirty) {
       const confirmMessage = "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?";
       if (window.confirm(confirmMessage)) {
-        // Nettoyer les preview URLs
-        if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(imageState.previewUrl);
-        }
         router.replace('/admin/offrandes');
       }
     } else {
       router.replace('/admin/offrandes');
     }
-  }, [isDirty, imageState.previewUrl, router]);
+  }, [isDirty, router]);
 
-  // ==================== NETTOYAGE ====================
-  useEffect(() => {
-    return () => {
-      // Nettoyer les preview URLs au démontage
-      if (imageState.previewUrl && imageState.previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageState.previewUrl);
-      }
-    };
-  }, [imageState.previewUrl]);
 
-  // (plus besoin d'effet initial, useQuery gère le chargement)
-
-  // ==================== PROTECTION CONTRE LA FERMETURE ====================
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
@@ -307,17 +215,13 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty]);
 
-  // ==================== RETOUR ====================
   return {
     formData,
     loading: isLoading,
     saving,
     error: error || (isError ? (queryError?.message || 'Erreur de chargement') : null),
-    priceUSD,
     isDirty,
     validationErrors,
-    imageState,
-
     handleChange,
     handleCategoryChange,
     handleSubmit,

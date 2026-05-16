@@ -1,7 +1,7 @@
 'use client';
 import { Rubrique } from "@/lib/interfaces";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle, Clock, Eye, FileText, Sparkles } from "lucide-react";
+import { Clock, Eye, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 

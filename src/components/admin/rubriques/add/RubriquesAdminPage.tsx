@@ -266,13 +266,7 @@ export default function RubriquesAdminPage() {
                       onClick={() => toggleSection('offering')}
                       className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#162A56] transition"
                     >
-                      <div className="flex items-center gap-2">
-                        <Package className="w-5 h-5 text-[#2E5AA6]" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          Alternatives d'offrandes
-                        </span>
-                        <span className="text-xs text-red-500">* 3 requises</span>
-                      </div>
+                       
                       <motion.div
                         animate={{ rotate: expandedSection === 'offering' ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
@@ -376,8 +370,7 @@ export default function RubriquesAdminPage() {
                         <p className="font-semibold mb-1">Champs requis manquants :</p>
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title.trim() && <li>Un titre est requis</li>}
-                          {!choice.offering.alternative.offeringId && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
-                          {choice.offering.alternative.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
+                           {choice.offering.alternative.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>
                       </div>
                     </div>

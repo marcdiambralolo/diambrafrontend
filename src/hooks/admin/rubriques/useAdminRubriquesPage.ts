@@ -1,9 +1,12 @@
-﻿import type { ToastState } from '@/hooks/admin/consultations/useAdminConsultationAnalysis';
-import { api } from "@/lib/api/client";
+﻿import { api } from "@/lib/api/client";
 import type { Offering, Rubrique } from '@/lib/interfaces';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 
+export interface ToastState {
+  message: string;
+  type: "success" | "error" | "info";
+}
 
 export function useAdminRubriquesPage() {
   const router = useRouter();

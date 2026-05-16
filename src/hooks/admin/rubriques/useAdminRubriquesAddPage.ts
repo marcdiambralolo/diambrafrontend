@@ -91,7 +91,7 @@ export function useAdminRubriquesAddPage() {
     router.push("/admin/rubriques");
   }, [router]);
 
-  // Chargement des offrandes
+ 
   useEffect(() => {
     const fetchOfferings = async () => {
       if (abortControllerRef.current) {
@@ -107,7 +107,7 @@ export function useAdminRubriquesAddPage() {
         }
       } catch (error) {
         if ((error as Error)?.name !== 'AbortError') {
-          console.error('Erreur chargement offrandes:', error);
+          console.error('Erreur chargement:', error);
         }
       } finally {
         if (isMountedRef.current) {
@@ -202,7 +202,7 @@ export function useAdminRubriquesAddPage() {
     setSaving(true);
 
     try {
-      // Préparation des offrandes
+  
       const offering = {
         alternatives: choice.offering.alternative
       };

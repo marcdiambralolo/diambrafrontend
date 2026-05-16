@@ -31,7 +31,7 @@ interface CartItem extends Offering {
 
 const SIMULATION_STEPS = {
   processing: { duration: 200, label: "Traitement de la commande..." },
-  validating: { duration: 300, label: "Validation des offrandes..." },
+  validating: { duration: 300, label: "Validation des jetons..." },
   saving: { duration: 300, label: "Enregistrement de la transaction..." },
   success: { duration: 300, label: "Commande acceptée avec succès !" },
 } as const;
@@ -71,7 +71,7 @@ export function useMarcheOffrandesMain() {
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const isSubmittingRef = useRef(false); 
+  const isSubmittingRef = useRef(false);
 
   const cartTotal = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -254,7 +254,7 @@ export function useMarcheOffrandesMain() {
       router.push(redirectUrl);
     } catch (err: unknown) {
       console.error("❌ [CheckoutModal] Erreur simulation:", err);
-      setPaymentError(getSafeErrorMessage(err, "Erreur lors de la validation de l’offrande."));
+      setPaymentError(getSafeErrorMessage(err, "Erreur lors de la validation"));
       setSimulationStep("idle");
       isSubmittingRef.current = false;
       return;
@@ -274,10 +274,10 @@ export function useMarcheOffrandesMain() {
     quantity: 1,
   };
 
-  console.log("Offrande sélectionnée (monoffre) :", monoffre);
+  console.log("jeton sélectionnée (monoffre) :", monoffre);
 
   return {
-   cart, cartTotal, cartCount, monoffre,
+    cart, cartTotal, cartCount, monoffre,
     showCart, showCheckout, simulationStep, paymentError,
     handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
     handleProceedToCheckout, handleSimulatedPayment, handleClose,

@@ -1,9 +1,13 @@
-﻿import type { ToastState } from '@/hooks/admin/consultations/useAdminConsultationAnalysis';
-import { api } from '@/lib/api/client';
+﻿import { api } from '@/lib/api/client';
 import type { Rubrique } from '@/lib/interfaces';
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
+
+export interface ToastState {
+  message: string;
+  type: "success" | "error" | "info";
+}
 
 export function useAdminRubriquesNewPage() {
   const router = useRouter();
@@ -40,7 +44,7 @@ export function useAdminRubriquesNewPage() {
 
     try {
       await api.post('/rubriques', newRubrique);
-      setToast({ type: 'success', message: 'Rubrique créée avec succès' }); 
+      setToast({ type: 'success', message: 'Rubrique créée avec succès' });
       setTimeout(() => router.push('/admin/rubriques'), 1500);
     } catch (error: unknown) {
       setToast({

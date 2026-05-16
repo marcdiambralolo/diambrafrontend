@@ -1,21 +1,34 @@
 "use client"; 
  import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { useAdminShellSidebar } from '@/hooks/admin/commons/useAdminShellSidebar';
+import { useAuth } from '@/lib/hooks';
 import { Role } from '@/lib/interfaces';
-import { AnimatePresence } from 'framer-motion';
-import React from 'react';
+import { dispatchClientNavigation, dispatchLoginNavigation } from '@/lib/navigation/clientNavigation';
+import { useAuthStore } from '@/lib/store/auth.store';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2, ShieldAlert } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 import { AdminShellDesktopSidebar } from './AdminShellDesktopSidebar';
-import { AdminShellMainContent } from './AdminShellMainContent';
-import { AdminShellMobileSidebar } from './AdminShellMobileSidebar';
+ import { AdminShellMobileSidebar } from './AdminShellMobileSidebar';
 import { AdminShellTopBar } from './AdminShellTopBar';
 import { MobileNav } from './MobileNav';
 
-import { useAuth } from '@/lib/hooks';
-import { dispatchClientNavigation, dispatchLoginNavigation } from '@/lib/navigation/clientNavigation';
-import { useAuthStore } from '@/lib/store/auth.store';
-import { Loader2, ShieldAlert } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+interface AdminShellMainContentProps {
+  children: React.ReactNode;
+}
+
+export function AdminShellMainContent({ children }: AdminShellMainContentProps) {
+  return (
+    <main className="flex-1 overflow-y-auto bg-[#0F1C3F] text-[#E5E7EB] border-l border-[#1C3A6B]">
+      <div className="p-2 sm:p-4 lg:p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          {children}
+        </motion.div>
+      </div>
+    </main>
+  );
+} 
 
 interface RoleGuardProps {
   children: React.ReactNode;

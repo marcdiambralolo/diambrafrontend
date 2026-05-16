@@ -57,7 +57,7 @@ const floatVariants: Variants = {
 
 export const RubriquesLoader = memo<RubriquesLoaderProps>(({ loading, offeringsLoading }) => {
   const isOfferingsPhase = !loading && offeringsLoading;
-  const message = isOfferingsPhase ? "Chargement des offrandes..." : "Chargement des rubriques...";
+  const message = isOfferingsPhase ? "Chargement des jetons..." : "Chargement des rubriques...";
   const icon = isOfferingsPhase ? Sparkles : Loader2;
 
   return (

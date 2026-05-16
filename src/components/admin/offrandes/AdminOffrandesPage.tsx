@@ -6,13 +6,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Edit, Plus, RotateCcw, ShoppingBag, TrendingUp } from 'lucide-react';
 import { memo, useCallback } from 'react';
 
-interface Category {
-    value: string;
-    label: string;
-    color: string;
-    emoji: string;
-}
-
 const OffrandesPagination = memo(({
     page,
     totalPages,
@@ -211,17 +204,14 @@ const EmptyState = memo(({ onAdd }: { onAdd: () => void }) => (
             <ShoppingBag className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-            Aucune offrande
+            Aucun jeton
         </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Commencez par ajouter votre première offrande
-        </p>
         <button
             onClick={onAdd}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-5 py-2.5 font-bold text-white shadow-lg hover:from-indigo-700 hover:to-indigo-800 transition"
         >
             <Plus className="w-4 h-4" />
-            Ajouter une offrande
+            Ajouter 
         </button>
     </motion.div>
 ));

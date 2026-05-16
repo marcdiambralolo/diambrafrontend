@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, memo } from "react";
 import { motion } from "framer-motion";
-import { X, CheckCircle, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, X } from "lucide-react";
+import { memo, useEffect } from "react";
 
 const Toast = memo(({
   type,

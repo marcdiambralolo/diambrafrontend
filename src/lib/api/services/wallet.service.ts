@@ -6,9 +6,7 @@ export interface UnusedOfferingStock {
   quantity: number;
   offering: OfferingDetails | null;
   name: string;
-  category: string;
   price: number;
-  illustrationUrl?: string;
 }
 
 type TransactionsResponse = {
@@ -20,8 +18,6 @@ type RawUnusedOfferingStock = {
   quantity?: number;
   offering?: Partial<OfferingDetails> | null;
   name?: string;
-  category?: string;
-  illustrationUrl?: string;
   price?: number;
 };
 
@@ -53,8 +49,7 @@ function normalizeOfferingDetails(value: RawUnusedOfferingStock): OfferingDetail
 
   return {
     _id: offeringId,
-    name: offering?.name || value.name || 'Offrande inconnue',
-    category:  'banque',
+    name: offering?.name || value.name || '  inconnue',
     price: typeof offering?.price === 'number' ? offering.price : typeof value.price === 'number' ? value.price : 0,
     description: offering?.description,  };
 }
@@ -66,8 +61,7 @@ function normalizeUnusedOffering(value: RawUnusedOfferingStock): UnusedOfferingS
     offeringId: offering?._id || '',
     quantity: typeof value.quantity === 'number' ? value.quantity : 0,
     offering,
-    name: offering?.name || 'Offrande inconnue',
-    category: offering?.category || 'banque',
+    name: offering?.name || '  inconnue',
     price: offering?.price || 0,
   };
 }
@@ -77,7 +71,6 @@ export function toWalletOffering(offering: UnusedOfferingStock): WalletOffering 
     offeringId: offering.offeringId,
     quantity: offering.quantity,
     name: offering.name,
-    category: offering.category,
     price: offering.price,
   };
 }

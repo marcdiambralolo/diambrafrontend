@@ -69,7 +69,7 @@ const StatCard = memo(({
       )}
     </div>
   </motion.div>
-)); 
+));
 
 const PeriodCard = memo(({
   period,
@@ -105,9 +105,8 @@ const PeriodCard = memo(({
       </p>
     )}
   </motion.div>
-)); 
+));
 
-// ==================== COMPOSANT PRINCIPAL ====================
 const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
   // Calculs des totaux
   const totalRevenue = statsData.byCategory.reduce((sum, c) => sum + c.revenue, 0);
@@ -168,9 +167,7 @@ const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
           />
         </div>
 
-        <div className="grid grid-cols-1  gap-8 mb-8">    
-
-          {/* Par période */}
+        <div className="grid grid-cols-1  gap-8 mb-8">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -207,7 +204,7 @@ const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
               />
             </div>
           </motion.div>
-        </div> 
+        </div>
       </div>
     </div>
   );

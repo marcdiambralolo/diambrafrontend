@@ -45,14 +45,14 @@ export function normalizeItem(item: TransactionItem) {
       ...item.offeringId,
       quantity: item.quantity,
       price: item.price ?? item.offeringId.price,
-      name: item.offeringId.name ?? 'Offrande',
+      name: item.offeringId.name ?? 'jeton',
     };
   }
 
   return {
     ...item,
     category: 'banque',
-    name: item.name ?? 'Offrande',
+    name: item.name ?? 'jeton',
     price: item.price ?? item.unitPrice ?? 0,
   };
 }
@@ -66,15 +66,10 @@ export function WalletHero() {
         <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
           Porte-monnaie
         </span>
-      </div>
-
-      <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
-        Mon Porte feuille
-      </h1>
-
+      </div> 
       <p className="mx-auto mt-3 max-w-md text-sm text-gray-500">
         Gérez vos jetons disponibles, suivez vos dépenses et retrouvez
-        vos dernières transactions dans une interface claire et premium.
+        vos dernières transactions.
       </p>
     </motion.div>
   );
@@ -325,8 +320,7 @@ export const TransactionCard = memo(function TransactionCard({
             <p className="text-[10px] text-gray-400">FCFA</p>
           </div>
         </div>
-
-        {/* Aperçu des offrandes */}
+ 
         <div className="mb-3 flex items-center gap-2 rounded-lg bg-gray-50 p-2">
           <div className="flex -space-x-1">
             {normalizedItems.slice(0, 3).map((item, idx) => (
@@ -356,7 +350,7 @@ export const TransactionCard = memo(function TransactionCard({
           type="button"
         >
           <Package className="h-3.5 w-3.5" />
-          {normalizedItems.length} offrande(s)
+          {normalizedItems.length} jeton(s)
           <ChevronDown
             className={cx(
               "h-3.5 w-3.5 transition-transform duration-300",

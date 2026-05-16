@@ -147,14 +147,14 @@ export const EditOffrandeForm = memo(({
         const nameError = validateField('name', formData.name);
         const priceError = validateField('price', formData.price);
 
-        if (nameError ||  priceError) {
+        if (nameError || priceError) {
             setFieldErrors({
                 name: nameError,
                 price: priceError,
             });
             return;
         }
-       
+
         const interval = setInterval(() => {
             setUploadProgress(prev => Math.min(prev + 10, 90));
         }, 200);
@@ -170,7 +170,7 @@ export const EditOffrandeForm = memo(({
         }
     }, [formData, validateField, onSubmit]);
 
-    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH && 
+    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH &&
         formData.price > 0;
 
     return (
@@ -216,7 +216,7 @@ export const EditOffrandeForm = memo(({
                         />
                     </FormField>
 
-                   
+
 
                     {/* Prix */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -233,9 +233,9 @@ export const EditOffrandeForm = memo(({
                             />
                         </FormField>
 
-                         
+
                     </div>
- 
+
                     <AnimatePresence>
                         {error && (
                             <motion.div
@@ -298,7 +298,7 @@ export const EditOffrandeLoading = memo(() => (
         </motion.div>
     </div>
 ));
- 
+
 export const EditOffrandeError = memo(({ error, onRetry }: { error: string; onRetry: () => void }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}

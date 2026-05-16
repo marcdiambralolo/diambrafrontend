@@ -24,7 +24,6 @@ export interface WalletOffering {
   offeringId: string;
   quantity: number;
   name: string;
-  category: string;
   price: number;
 }
 
@@ -77,7 +76,6 @@ export interface OfferingDetails {
   _id: string;
   name: string;
   price: number;
-  category: any;
   description?: string;
 }
 

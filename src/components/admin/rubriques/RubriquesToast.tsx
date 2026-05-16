@@ -1,7 +1,6 @@
 'use client';
 import Toast from "@/components/admin/rubriques/Toast";
 import { AnimatePresence } from "framer-motion";
-import React from "react";
 
 interface RubriquesToastProps {
   toast: { type: 'success' | 'error' | 'info' | 'warning'; message: string } | null;

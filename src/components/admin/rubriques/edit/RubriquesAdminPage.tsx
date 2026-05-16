@@ -315,8 +315,6 @@ export default function RubriquesAdminEditPage() {
                         <p className="font-semibold mb-1">Champs requis manquants :</p>
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title?.trim() && <li>Un titre est requis</li>}
-                          {choice.offering?.alternative && <li>1 alternative d'offrandes est requise</li>}
-                          {choice.offering?.alternative?.offeringId && <li>Toutes les alternatives doivent avoir une offrande sélectionnée</li>}
                           {choice.offering?.alternative?.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>
                       </div>

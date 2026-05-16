@@ -64,45 +64,7 @@ const floatingParticle2Variants: Variants = {
     }
   }
 };
-
-function ConsultationCardParticles() {
-  return (
-    <>
-      <motion.div
-        variants={floatingParticle1Variants}
-        animate="animate"
-        className="absolute top-4 right-4 h-2 w-2 rounded-full bg-[#4F83D1]/30 blur-sm"
-      />
-
-      <motion.div
-        variants={floatingParticle2Variants}
-        animate="animate"
-        className="absolute bottom-4 left-4 h-2 w-2 rounded-full bg-[#9BC2FF]/30 blur-sm"
-      />
-    </>
-  );
-}
-
-function ConsultationCardGlowBar() {
-
-  return (
-    <>
-      <motion.div
-        variants={{ animate: { opacity: [0.7, 1, 0.7], transition: { duration: 2, repeat: Infinity } } }}
-        animate="animate"
-        className={`absolute top-0 left-0 right-0 h-1 bg-green`}
-        style={{ backgroundSize: '200% 200%' }}
-      />
-      <motion.div
-        variants={{ animate: { opacity: [0.3, 0.7, 0.3], transition: { duration: 2, repeat: Infinity } } }}
-        animate="animate"
-        className={`absolute top-0 left-0 right-0 h-1 bg-green blur-sm`}
-        style={{ backgroundSize: '200% 200%' }}
-      />
-    </>
-  );
-}
-
+ 
 interface ConsultationBadgesProps {
   formattedDate: string;
 }
@@ -204,9 +166,7 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
           background: `linear-gradient(90deg, transparent,   rgba(46, 90, 166, 0.12), transparent)`,
           backgroundSize: '200% 100%'
         }}
-      />
-
-      <ConsultationCardGlowBar />
+      />  
 
       <div className="flex flex-col items-center w-full gap-2 mt-2">
         <ClientInfo
@@ -216,9 +176,7 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
         <ConsultationBadges
           formattedDate={formattedDate}
         />
-      </div>
-
-      <ConsultationCardParticles />
+      </div> 
     </motion.div>
   );
 }, (prevProps, nextProps) => {

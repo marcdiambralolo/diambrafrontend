@@ -95,7 +95,6 @@ export const OfferingSelector = memo(({
         [offerings,  search]
     );
 
-    // Offrande sélectionnée
     const selectedOffering = useMemo(() =>
         offerings.find(o => o._id === alternative.offeringId),
         [offerings, alternative.offeringId]
@@ -125,7 +124,6 @@ export const OfferingSelector = memo(({
                 )}
             </div>
 
-            {/* Affichage de l'offrande sélectionnée avec image */}
             {selectedOffering ? (
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -151,7 +149,7 @@ export const OfferingSelector = memo(({
                     onClick={() => setIsOpen(!isOpen)}
                     className="w-full py-3 text-center text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-white/50 rounded-lg border-2 border-dashed border-indigo-200 hover:border-indigo-400 transition-all"
                 >
-                    + Sélectionner une offrande
+                    + Sélectionner un jeton
                 </button>
             )}
 
@@ -177,11 +175,11 @@ export const OfferingSelector = memo(({
                         />
                     </div>
 
-                    {/* Liste des offrandes */}
+        
                     <div className="max-h-64 overflow-y-auto space-y-2 rounded-lg bg-white p-2 shadow-lg border border-slate-200">
                         {filteredOfferings.length === 0 ? (
                             <div className="text-center py-8 text-sm text-slate-500">
-                                Aucune offrande trouvée
+                                Aucune jeton trouvé
                             </div>
                         ) : (
                             filteredOfferings.map((offering) => (
@@ -197,7 +195,6 @@ export const OfferingSelector = memo(({
                 </motion.div>
             )}
 
-            {/* Quantité (visible seulement si une offrande est sélectionnée) */}
             {selectedOffering && (
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}

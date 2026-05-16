@@ -1,13 +1,14 @@
-﻿import { OfferingFormData } from "@/components/admin/offrandes/new/OfferingForm";
-import { api } from "@/lib/api/client";
+﻿ import { api } from "@/lib/api/client";
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useMemo } from "react";
+import { OfferingFormData } from "./useAdminOffrandes";
 
 export function useOfferingForm() {
   const router = useRouter();
 
   const [formData, setFormData] = useState<OfferingFormData>({
+    id: '',
     name: '',
     price: 0,
   });

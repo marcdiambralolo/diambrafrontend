@@ -133,7 +133,7 @@ export function useAdminRubriquesEditPage() {
     }
   }, [editingRubrique, choiceId, router, rubriqueId, showToast]);
 
-  // Chargement des offrandes
+  
   useEffect(() => {
     const fetchOfferings = async () => {
       if (abortControllerRef.current) {
@@ -149,7 +149,7 @@ export function useAdminRubriquesEditPage() {
         }
       } catch (error) {
         if ((error as Error)?.name !== 'AbortError') {
-          console.error('Erreur chargement offrandes:', error);
+          console.error('Erreur chargement  :', error);
         }
       } finally {
         if (isMountedRef.current) {
@@ -252,7 +252,7 @@ export function useAdminRubriquesEditPage() {
     setSaving(true);
 
     try {
-      // Préparation des offrandes
+ 
       const offering = {
         alternatives: choice.offering.alternative 
       }; 

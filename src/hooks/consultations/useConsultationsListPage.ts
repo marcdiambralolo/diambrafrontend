@@ -23,6 +23,7 @@ export function useConsultationsListPage() {
     }
 
     const statusCode = getStatusCode(query.error);
+    
     if (statusCode === 401 || statusCode === 403) {
       return 'Session expirée. Veuillez vous reconnecter.';
     }

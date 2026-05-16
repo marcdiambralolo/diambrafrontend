@@ -10,9 +10,6 @@ import { useRouter } from 'next/navigation';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '../interfaces';
 
-/**
- * Interface du contexte d'authentification
- */
 interface AuthContextType {
   user: User | null;
   accessToken: string | null;

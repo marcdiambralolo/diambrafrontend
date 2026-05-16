@@ -83,7 +83,6 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
 
     const role = user.role ?? "USER";
     const isActive = Boolean(user.isActive);
-    const premium = Boolean(user.premium);
     const notif = Boolean(user.preferences?.notifications);
     const totalConsultations = Number(user.totalConsultations ?? 0);
 
@@ -102,7 +101,6 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
       lastLoginLabel,
       role,
       isActive,
-      premium,
       notif,
       totalConsultations,
     };
@@ -127,7 +125,7 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
         <div
           className={cx(
             "absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full blur-3xl opacity-70",
-            vm.premium ? "bg-amber-400/25 dark:bg-amber-400/10" : "bg-indigo-400/20 dark:bg-indigo-400/10",
+           "bg-amber-400/25 dark:bg-amber-400/10",
           )}
         />
         <div className="absolute -bottom-20 right-[-30px] h-48 w-48 rounded-full bg-[#4F83D1]/15 blur-3xl dark:bg-[#2E5AA6]/12" />
@@ -139,9 +137,7 @@ function UserCardBase({ user, cardVariants }: UserCardProps) {
           <div
             className={cx(
               "h-11 w-11 rounded-2xl grid place-items-center text-white font-extrabold text-sm shadow-sm",
-              vm.premium
-                ? "bg-gradient-to-br from-amber-500 to-orange-600"
-                : "bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1]",
+              "bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1]",
             )}
             aria-hidden="true"
           >

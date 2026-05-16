@@ -92,7 +92,6 @@ export function useHeaderState() {
     return { text: 'Premium ⭐', label: 'Membre Premium' };
   }, [user?.grade, hasRole]);
 
-  // Menu items avec mémoïsation
   const navItems = useMemo(() => [
     ...(hasRole(Role.SUPER_ADMIN) || hasRole(Role.ADMIN) ? [
       { href: "/admin", label: "Admin", icon: LayoutDashboard }

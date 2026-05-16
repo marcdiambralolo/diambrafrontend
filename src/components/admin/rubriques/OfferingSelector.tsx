@@ -65,10 +65,7 @@ const OfferingOption = memo(({ offering, isSelected, onClick }: {
                     <span className="text-sm font-bold text-indigo-600">
                         {offering.price} FCFA
                     </span>
-                </div>
-                <p className="text-xs text-slate-500 line-clamp-1">
-                    {offering.description}
-                </p>
+                </div> 
             </div>
         </button>
     );
@@ -93,8 +90,7 @@ export const OfferingSelector = memo(({
         offerings
             .filter(o =>
                 search === "" ||
-                o.name.toLowerCase().includes(search.toLowerCase()) ||
-                o.description?.toLowerCase().includes(search.toLowerCase())
+                o.name.toLowerCase().includes(search.toLowerCase())  
             ),
         [offerings,  search]
     );
@@ -148,9 +144,6 @@ export const OfferingSelector = memo(({
                                 Changer
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500 line-clamp-1">
-                            {selectedOffering.description}
-                        </p>
                     </div>
                 </motion.div>
             ) : (
@@ -251,18 +244,7 @@ export const OfferingSelector = memo(({
                         </div>
                     </div>
                 </motion.div>
-            )}
-
-            {/* Description détaillée */}
-            {selectedOffering && selectedOffering.description && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="pt-2 text-xs text-slate-600 border-t border-slate-200"
-                >
-                    <p className="line-clamp-2">{selectedOffering.description}</p>
-                </motion.div>
-            )}
+            )} 
         </motion.div>
     );
 });

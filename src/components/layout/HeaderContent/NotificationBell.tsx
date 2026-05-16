@@ -1,14 +1,13 @@
 'use client';
 import CacheLink from '@/components/commons/CacheLink';
 import { useNotificationsWithCache } from '@/hooks/cache/useNotificationsWithCache';
-import { prefetchConsultationFrontData, prefetchRouteData } from '@/lib/cache/route-prefetch';
+import { useNotificationSound } from '@/hooks/notifications/useNotificationSound';
 import type { Notification } from '@/lib/types/notification.types';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, CheckCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNotificationSound } from '@/hooks/notifications/useNotificationSound';
+import { useEffect, useRef, useState } from 'react';
 
 const notificationIcons: Record<string, string> = {
   CONSULTATION_RESULT: '✨',
@@ -85,19 +84,7 @@ export default function NotificationBell() {
     }
   }, [isOpen]);
 
-  const prefetchNotificationTarget = useCallback((notification: Notification) => {
-    if (notification.type === 'CONSULTATION_RESULT' && notification.metadata?.consultationId) {
-      const href = `/star/consultations/${notification.metadata.consultationId}`;
-      void router.prefetch(href);
-      void prefetchConsultationFrontData(queryClient, notification.metadata.consultationId);
-      return;
-    }
-
-    if (notification.metadata?.url) {
-      void router.prefetch(notification.metadata.url);
-      void prefetchRouteData(queryClient, notification.metadata.url, true);
-    }
-  }, [queryClient, router]);
+ 
 
   const handleNotificationClick = async (notification: Notification) => {
     setIsOpen(false); // Ferme la popover dès le clic
@@ -106,13 +93,11 @@ export default function NotificationBell() {
     }
 
     if (notification.type === 'CONSULTATION_RESULT' && notification.metadata?.consultationId) {
-      prefetchNotificationTarget(notification);
-      router.push(`/star/consultations/${notification.metadata.consultationId}`);
+       router.push(`/star/consultations/${notification.metadata.consultationId}`);
       return;
     }
     if (notification.metadata?.url) {
-      prefetchNotificationTarget(notification);
-      router.push(notification.metadata.url);
+       router.push(notification.metadata.url);
     }
   };
 
@@ -200,8 +185,6 @@ export default function NotificationBell() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      onMouseEnter={() => prefetchNotificationTarget(notification)}
-                      onFocus={() => prefetchNotificationTarget(notification)}
                       onClick={() => handleNotificationClick(notification)}
                       className={`p-4 cursor-pointer transition-all duration-200 rounded-xl hover:bg-[#162A56]/80 ${!notification.isRead ? 'bg-[#162A56]/60 border border-[#2E5AA6]' : ''}`}
                     >

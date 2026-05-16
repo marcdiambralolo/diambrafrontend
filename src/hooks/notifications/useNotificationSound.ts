@@ -1,5 +1,3 @@
-// Simple React hook to play a sound
-
 import { useRef, useCallback, useEffect } from 'react';
 
 export function useNotificationSound(url: string) {

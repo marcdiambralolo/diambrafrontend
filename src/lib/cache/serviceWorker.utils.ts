@@ -103,7 +103,7 @@ export async function getCacheSize(): Promise<number> {
       const keys = await cache.keys();
       total += keys.length;
     }
-    return total; // Retourne le nombre d'entrées, pas la taille exacte
+    return total; 
   } catch {
     return 0;
   }

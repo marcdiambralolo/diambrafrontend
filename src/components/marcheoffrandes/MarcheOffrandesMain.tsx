@@ -1,10 +1,19 @@
 'use client';
 import { fadeInUp, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
-import { SIMULATION_STEPS, SimulationStep } from "@/hooks/marcheoffrandes/useSimulationProgress";
-import { Offering } from '@/lib/interfaces';
+ import { Offering } from '@/lib/interfaces';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { AlertCircle, CheckCircle2, ChevronRight, CreditCard, Loader2, Plus, ShoppingCart, Sparkles, X } from 'lucide-react';
 import React from 'react';
+
+export type SimulationStep = "idle" | "processing" | "validating" | "saving" | "success";
+
+
+export const SIMULATION_STEPS = {
+    processing: { duration: 20, label: "Traitement de la commande..." },
+    validating: { duration: 20, label: "Validation des jetons..." },
+    saving: { duration: 20, label: "Enregistrement de la transaction..." },
+    success: { duration: 50, label: "Opération réalisée avec succès !" },
+};
 
 function SimulationProgress({ step }: { step: SimulationStep }) {
   const steps: SimulationStep[] = ["processing", "validating", "saving", "success"];
@@ -80,8 +89,7 @@ interface CheckoutModalProps {
     id: string;
     name: string;
     price: number;
-    quantity: number;
-    description: string;
+    quantity: number; 
   }>;
   totalAmount: number;
   simulationStep: SimulationStep;

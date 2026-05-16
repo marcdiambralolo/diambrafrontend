@@ -42,11 +42,9 @@ export function useUsersPageController() {
     credits: user.credits ?? 0,
     country: user.country ?? '',
     gender: user.gender ?? 'male',
-    premium: user.premium || false,
     role: user.role,
     avatar: user.avatar ?? '',
     customPermissions: user.customPermissions ?? [],
-    dateOfBirth: user.dateOfBirth ?? undefined,
     updatedAt: user.updatedAt ?? new Date(),
     presentation: user.presentation ?? '',
   });

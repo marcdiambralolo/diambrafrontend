@@ -16,7 +16,6 @@ export const queryClient = new QueryClient({
 export const QUERY_KEYS = {
   AUTH_ME: ['auth', 'me'],
   ADMIN_USER_DETAIL: (userId: string) => ['admin', 'user', userId],
-  CONSULTATION_FRONT_DATA: (consultationId: string) => ['consultation', 'front-data', consultationId],
   CONSULTATIONS_MY: ['consultations', 'my'],
   MESSAGING_CLIENT_THREAD: (consultantId: string) => ['messaging', 'client-thread', consultantId],
   MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],

@@ -2,8 +2,8 @@ import type { Viewport } from "next";
 
 export const rootViewport: Viewport = {
   width: "device-width",
-  initialScale: 1,
   minimumScale: 1,
+  initialScale: 1,
   maximumScale: 3,
   userScalable: true,
   viewportFit: "cover",

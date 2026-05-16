@@ -1,6 +1,4 @@
-export type NotificationType =
-  | 'CONSULTATION_RESULT' | 'CONSULTATION_ASSIGNED'
-  | 'PAYMENT_CONFIRMED' | 'SYSTEM_ANNOUNCEMENT'
+export type NotificationType = | 'CONSULTATION_RESULT' | 'PAYMENT_CONFIRMED' | 'SYSTEM_ANNOUNCEMENT'
 
 export interface NotificationMetadata {
   consultationId?: string;

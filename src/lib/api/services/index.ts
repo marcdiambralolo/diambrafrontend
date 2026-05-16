@@ -4,7 +4,6 @@ export * from './messaging.service';
 export * from './notifications.service';
 export * from './users.service';
 export * from './wallet.service';
-
 export { default as authService } from './auth.service';
 export { default as consultationsService } from './consultations.service';
 export { default as messagingService } from './messaging.service';

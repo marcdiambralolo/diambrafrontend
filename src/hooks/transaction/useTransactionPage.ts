@@ -1,6 +1,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api/client"; 
+import { useCallback, useEffect, useState, useRef } from "react";
 
 export const PAYMENT_METHODS = [
     { id: "orange-money-ci", name: "Orange Money", icon: "📱", color: "orange" },

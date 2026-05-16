@@ -1,5 +1,4 @@
 import { api } from "@/lib/api/client";
-import { buildCategoryConsultationPath, buildConsultationSearchParams } from "@/lib/consultations/navigation";
 import { mapFormDataToBackend } from "@/lib/functions";
 import type { ConsultationChoice, Rubrique, User } from "@/lib/interfaces";
 
@@ -16,30 +15,11 @@ type CreateCategoryConsultationParams = {
     extraPayload?: Record<string, unknown>;
 };
 
-type ConsultationDestinationParams = {
-    categoryId: string;
-    consultationId: string;
-    rubriqueId?: string | null;
-    choiceId?: string | null;
-    consultationType?: string | null;
-    refreshToken?: string | number | null;
-};
-
 export type CategoryContextInfo = {
     rubrique?: Rubrique;
     choix?: ConsultationChoice;
 };
-
-export function getCategoryContextNavigationParams(contextInfo: CategoryContextInfo): {
-    rubriqueId: string | null;
-    choiceId: string | null;
-} {
-    return {
-        rubriqueId: contextInfo.rubrique?._id || contextInfo.rubrique?.id || null,
-        choiceId: contextInfo.choix?._id || contextInfo.choix?.choiceId || null,
-    };
-}
-
+ 
 export function getCategoryErrorMessage(error: unknown, fallback: string): string {
     if (error instanceof Error) {
         return error.message || fallback;
@@ -51,22 +31,7 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
     }
 
     return fallback;
-}
-
-export function buildCategoryChoicePath(
-    categoryId: string,
-    segment: "form" | "formgroupe",
-    params: {
-        consultationId?: string | null;
-        rubriqueId?: string | null;
-        choiceId?: string | null;
-    },
-): string {
-    const query = buildConsultationSearchParams(params);
-    return query
-        ? `/star/category/${categoryId}/${segment}?${query}`
-        : `/star/category/${categoryId}/${segment}`;
-}
+} 
 
 export async function createCategoryConsultation({
     choice,
@@ -75,7 +40,7 @@ export async function createCategoryConsultation({
 }: CreateCategoryConsultationParams): Promise<string> {
     const payload: Record<string, unknown> = {
         serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
-        title: choice.title || "Consultation",
+        title:  "Consultation",
         formData: mapFormDataToBackend(user),
         description: choice.description || "",
         status: "PENDING",
@@ -94,17 +59,4 @@ export async function createCategoryConsultation({
 
     return consultationId;
 }
-
-export function getCreatedConsultationDestination({
-    categoryId,
-    consultationId,
-    rubriqueId,
-    choiceId,
-}: ConsultationDestinationParams): string {  
-
-    return buildCategoryConsultationPath(categoryId,   {
-        consultationId,
-        rubriqueId,
-        choiceId,
-    });
-}
+ 

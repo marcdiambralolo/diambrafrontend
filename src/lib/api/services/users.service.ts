@@ -123,20 +123,6 @@ function normalizeUserResponse(payload: UserPayload): User {
 }
 
 export const usersService = {
-  async getConsultants(options: GetConsultantsOptions = {}): Promise<PaginatedConsultantsResult> {
-    const page = toPositiveNumber(options.page, 1);
-    const limit = toPositiveNumber(options.limit, DEFAULT_LIMIT);
-    const params = new URLSearchParams({
-      page: String(page),
-      limit: String(limit),
-    });
-
-    const response = await api.get<ConsultantsPayload | User[]>(`${endpoints.users.consultants}?${params.toString()}`, {
-      timeout: 10000,
-    });
-
-    return normalizeConsultantsResponse(response.data, page, limit);
-  },
 
   async getById(id: string): Promise<User> {
     const response = await api.get<UserPayload>(endpoints.users.byId(id), {

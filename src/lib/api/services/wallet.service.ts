@@ -39,8 +39,6 @@ export interface ValidateConsultationOfferingsResult {
   }>;
 }
 
-
-
 function normalizeOfferingDetails(value: RawUnusedOfferingStock): OfferingDetails | null {
   const offering = value.offering;
   const offeringId = typeof value.offeringId === 'string'

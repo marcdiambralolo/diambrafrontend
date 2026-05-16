@@ -1,11 +1,7 @@
 import { apiUrl } from "@/lib/api/config";
 import type { ApiHealthResponse, ApiStatusResponse } from "@/lib/api/types";
 import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
+  AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig,
 } from 'axios';
 import config from '../config';
 import { clearClientApplicationState } from '../cache/clientState';

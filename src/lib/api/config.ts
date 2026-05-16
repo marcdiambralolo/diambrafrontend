@@ -19,11 +19,7 @@ export function getApiOrigin(): string {
   const fallback = "http://localhost:3001";
   return (raw || fallback).replace(/\/$/, "");
 }
-
-/**
- * URL absolue vers un chemin API.
- * ✅ CORRECTION : Ne pas ajouter de / supplémentaire
- */
+ 
 export function apiUrl(path: string): string {
   const origin = getApiOrigin();
   

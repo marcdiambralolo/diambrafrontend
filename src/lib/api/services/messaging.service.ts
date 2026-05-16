@@ -97,9 +97,6 @@ function normalizeMutationResponse(payload: unknown): MessagingMutationResponse 
 }
 
 export const messagingService = {
-    /**
-     * Envoie un message simple à un médium (pas de thread)
-     */
     async sendSimpleMessage({ toConsultantId, text, subject, email, phone, fromUserId }: {
       toConsultantId: string;
       text: string;

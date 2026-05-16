@@ -1,4 +1,4 @@
-import { Rubrique, User } from "./interfaces"; 
+import { Rubrique, User } from "./interfaces";
 
 export const formatDate = (date: string | Date | undefined | null) => {
   if (!date) return '';
@@ -16,16 +16,9 @@ export function mapFormDataToBackend(form: User | null): Record<string, unknown>
     return {};
   }
 
-  const dateOfBirth = form.dateNaissance
-    ? new Date(form.dateNaissance).toISOString()
-    : (form.dateOfBirth ? new Date(form.dateOfBirth).toISOString() : '');
   const result = {
     firstName: form.prenoms || '',
     lastName: form.nom || '',
-    dateOfBirth: typeof dateOfBirth === 'string' ? dateOfBirth : '',
-    timeOfBirth: form.heureNaissance || '',
-    countryOfBirth: form.paysNaissance || '',
-    cityOfBirth: form.villeNaissance || '',
     ...form
   };
   return result;
@@ -50,13 +43,12 @@ export function processUserData(userData: User | null): User | null {
     _id: userData._id,
     dateNaissance: userData.dateNaissance,
     villeNaissance: userData.villeNaissance
-      ? `${userData.villeNaissance}, ${userData.paysNaissance || userData.country}`
+      ? `${userData.villeNaissance}, ${userData.paysNaissance}`
       : userData.country || "-",
     heureNaissance: userData.heureNaissance || "-",
     role: userData.role,
     credits: userData.credits ?? 0,
     totalConsultations: userData.totalConsultations ?? 0,
-    rating: userData.rating ?? 0,
     ...userData
   };
 }

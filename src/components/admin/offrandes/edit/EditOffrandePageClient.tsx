@@ -19,8 +19,6 @@ interface EditOffrandeFormProps {
         _id?: string;
         name: string;
         price: number;
-        description: string;
-        illustrationUrl?: string;
     };
     saving: boolean;
     error: string | null;
@@ -147,13 +145,11 @@ export const EditOffrandeForm = memo(({
 
         // Validation complète
         const nameError = validateField('name', formData.name);
-        const descError = validateField('description', formData.description);
         const priceError = validateField('price', formData.price);
 
-        if (nameError || descError || priceError) {
+        if (nameError ||  priceError) {
             setFieldErrors({
                 name: nameError,
-                description: descError,
                 price: priceError,
             });
             return;
@@ -174,8 +170,7 @@ export const EditOffrandeForm = memo(({
         }
     }, [formData, validateField, onSubmit]);
 
-    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH &&
-        formData.description.length >= CONSTANTS.MIN_DESCRIPTION_LENGTH &&
+    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH && 
         formData.price > 0;
 
     return (

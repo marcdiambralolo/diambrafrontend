@@ -27,13 +27,12 @@ export function useAnalysisSocket(
 
     const getWebSocketUrl = (): string => {
       const isProduction = process.env.NODE_ENV === 'production';
-      
+
       if (isProduction && typeof window !== 'undefined') {
-        // En production, utiliser le même domaine que le frontend
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         return `${protocol}//${window.location.host}`;
       }
-      
+
       // En développement, utiliser localhost:3001
       const baseURL = config.api.baseURL;
       if (typeof window !== 'undefined') {
@@ -44,12 +43,12 @@ export function useAnalysisSocket(
         }
         return baseURL.replace(/^http(s?):\/\//, window.location.protocol === 'https:' ? 'wss://' : 'ws://');
       }
-      
+
       return 'ws://localhost:3001';
     };
 
     const wsUrl = getWebSocketUrl();
-    
+
     if (!socket) {
       socket = io(wsUrl, {
         transports: ['websocket'],
@@ -68,7 +67,7 @@ export function useAnalysisSocket(
     if (socket) {
       socket.on(event, handler);
     }
-    
+
     return () => {
       if (socket) {
         socket.off(event, handler);

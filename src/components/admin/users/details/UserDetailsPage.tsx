@@ -75,7 +75,7 @@ export default function UserDetailsPage() {
                         <InfoRow icon={<UserIcon className="h-4 w-4" />} label="Nom" value={safeString(user.nom)} />
                         <InfoRow icon={<UserIcon className="h-4 w-4" />} label="Prénoms" value={safeString(user.prenoms)} />
                         <InfoRow icon={<UserIcon className="h-4 w-4" />} label="Genre" value={safeString(user.gender)} />
-                        <InfoRow icon={<Calendar className="h-4 w-4" />} label="Date de naissance" value={formatDateFR(typeof user.dateNaissance === 'string' ? user.dateNaissance : typeof user.dateOfBirth === 'string' ? user.dateOfBirth : undefined)} />
+                        <InfoRow icon={<Calendar className="h-4 w-4" />} label="Date de naissance" value={formatDateFR(typeof user.dateNaissance === 'string' ? user.dateNaissance : undefined)} />
                         <InfoRow icon={<Calendar className="h-4 w-4" />} label="Heure de naissance" value={safeString(user.heureNaissance)} />
                         <InfoRow icon={<Globe className="h-4 w-4" />} label="Pays de naissance" value={safeString(user.paysNaissance)} />
                         <InfoRow icon={<Globe className="h-4 w-4" />} label="Ville de naissance" value={safeString(user.villeNaissance)} />

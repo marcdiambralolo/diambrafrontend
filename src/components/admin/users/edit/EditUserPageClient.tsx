@@ -97,20 +97,6 @@ export function EditUserForm({ formData, setFormData, saving, success, onSubmit 
             </select>
           </div>
         </div>
-
-        <div>
-          <label className="inline-flex items-center mt-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={!!formData.premium}
-              onChange={e => setFormData({ ...formData, premium: e.target.checked })}
-              className="form-checkbox h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400"
-            />
-            <span className="ml-2 flex items-center gap-1 text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-              <Star className="w-4 h-4 text-yellow-500" /> Premium
-            </span>
-          </label>
-        </div>
       </div>
 
       <div>

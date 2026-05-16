@@ -242,7 +242,7 @@ export function useMessagerie() {
 
     const handleSelectMessage = useCallback((messageId: string) => {
         setSelectedMessageId(messageId);
-        
+
         // Marquer comme lu
         setMessages((prev) =>
             prev.map((m) =>
@@ -332,7 +332,7 @@ export function useMessagerie() {
         loading,
         sending,
         filteredMessages,
-        
+
         // Actions
         handleSelectMessage,
         handleDeleteMessage,

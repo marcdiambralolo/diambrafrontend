@@ -6,7 +6,6 @@ export interface Offering {
   id: string;
   name: string;
   price: number;
-  description: string;
   quantity: number;
 }
 
@@ -110,11 +109,9 @@ export interface User {
   role?: Role;
   createdAt: string | number | Date;
   customPermissions?: Permission[];
-  dateOfBirth?: Date;
   address?: string;
   city?: string;
   isActive?: boolean;
-  premium?: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   lastLogin?: Date;
@@ -162,7 +159,6 @@ export interface Consultation {
 export enum Role {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
-  CONSULTANT = 'CONSULTANT',
   USER = 'USER',
   GUEST = 'GUEST'
 }

@@ -1,8 +1,8 @@
 'use client';
 import { useAuthStore } from '@/lib/store/auth.store';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { clearIndexedDbCache } from './indexedDB';
 import { clearPersistedQueryCache, queryClient } from './queryClient';
+import { clearIndexedDbCache } from './indexedDB';
 
 const PRESERVED_LOCAL_STORAGE_KEYS = new Set(['diambra-theme']);
 

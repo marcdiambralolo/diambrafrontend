@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useEffect, useRef } from 'react';
 
 export function useMessagingSocket(conversationId: string, onMessage: (msg: any) => void, token?: string) {
   const socketRef = useRef<Socket | null>(null);

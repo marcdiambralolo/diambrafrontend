@@ -1,6 +1,5 @@
 export const config = {
   api: {
-    // ✅ CORRECTION : Ne pas inclure /api/v1 ici (sera ajouté par apiUrl)
     baseURL: process.env.NODE_ENV === 'production'
       ? ''
       : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'),
@@ -8,14 +7,12 @@ export const config = {
     timeout: 300000,
   },
 
-  // Auth Configuration
   auth: {
     tokenKey: 'monetoile_access_token',
     refreshTokenKey: 'monetoile_refresh_token',
     tokenExpirationBuffer: 360,
   },
 
-  // Frontend Configuration
   frontend: {
     baseURL: process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.NODE_ENV === 'production' ? 'https://diambra.net' : 'http://localhost:3000'),

@@ -5,11 +5,11 @@ import { ConsultationChoice } from '../interfaces';
 
 interface MonEtoileStore {
   consultationChoices: ConsultationChoice[];
+  rubriqueEnCours: Rubrique | null;
+  choixConsultationEnCours: Consultation | null;
   setConsultationChoices: (choices: ConsultationChoice[]) => void;
   clearConsultationChoices: () => void;
-  rubriqueEnCours: Rubrique | null;
   setRubriqueEnCours: (rubrique: Rubrique | null) => void;
-  choixConsultationEnCours: Consultation | null;
   setChoixConsultationEnCours: (choix: Consultation | null) => void;
 }
 

@@ -147,7 +147,8 @@ export function useTermsSections(): TermsSection[] {
       icon: Shield,
       iconColor: 'bg-cyan-100 text-cyan-600',
       content: (
-        <p>Ces conditions sont régies par le droit ivoirien. En cas de litige, les tribunaux compétents seront saisis.</p>
+        <p>Ces conditions sont régies par le droit ivoirien.
+          En cas de litige, les tribunaux compétents seront saisis.</p>
       ),
     },
   ];

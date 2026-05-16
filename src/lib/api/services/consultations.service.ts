@@ -1,4 +1,4 @@
-import type {   Consultation } from '@/lib/interfaces';
+import type { Consultation } from '@/lib/interfaces';
 import { api } from '../client';
 import { normalizeThreadResponse, type MessagingThreadResponse } from './messaging.service';
 
@@ -9,7 +9,7 @@ export interface PaginatedConsultationsResult {
   limit: number;
   totalPages: number;
 }
- 
+
 export interface ConsultationFrontDataResult {
   success: boolean;
   consultation: Consultation | null;
@@ -57,12 +57,11 @@ function normalizeConsultationsPayload(payload: PaginatedConsultationsPayload, d
   };
 }
 
-
 function normalizeFrontData(payload: ConsultationFrontDataPayload, consultationId: string): ConsultationFrontDataResult {
   return {
     success: payload.success === true,
     consultation: payload.consultation ?? null,
-     messaging: payload.messaging ? normalizeThreadResponse(payload.messaging) : null,
+    messaging: payload.messaging ? normalizeThreadResponse(payload.messaging) : null,
   };
 }
 
@@ -70,14 +69,6 @@ export const consultationsService = {
   async getMine() {
     const response = await api.get<PaginatedConsultationsPayload>('/consultations/my');
     return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
-  },
-
-  async getAssigned(page = 1, limit = 100) {
-    const response = await api.get<PaginatedConsultationsPayload>('/consultations/assigned', {
-      params: { page, limit },
-    });
-
-    return normalizeConsultationsPayload(response.data, { page, limit });
   },
 
   async getFrontData(consultationId: string): Promise<ConsultationFrontDataResult> {

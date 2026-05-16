@@ -125,9 +125,6 @@ export const authService = {
     return ensureUserPayload(payload);
   },
 
-  /**
-   * Déconnexion utilisateur
-   */
   logout: async (): Promise<void> => {
     await requestAuthRoute<{ success: boolean }>(AUTH_ROUTES.logout, {
       method: 'POST',

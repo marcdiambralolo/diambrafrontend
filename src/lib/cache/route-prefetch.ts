@@ -7,7 +7,6 @@ import type { QueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from './queryClient';
 
 const inFlightDataPrefetches = new Map<string, Promise<void>>();
-const inFlightConsultationPrefetches = new Map<string, Promise<void>>();
 const inFlightAdminUserPrefetches = new Map<string, Promise<void>>();
 
 type PrefetchEntry = {
@@ -53,16 +52,6 @@ const prefetchRegistry: PrefetchEntry[] = [
       });
     },
   },
-  {
-    route: '/admin/consultations',
-    requiresAuth: true,
-    prefetch: async (queryClient) => {
-      await queryClient.prefetchQuery({
-        queryKey: ['consultations', 'assigned', 1, 100],
-        queryFn: () => consultationsService.getAssigned(1, 100),
-      });
-    },
-  },  
 ];
 
 export function normalizePrefetchHref(href: string): string | null {
@@ -117,31 +106,6 @@ export function prefetchRouteData(
   return pending;
 }
 
-export function prefetchConsultationFrontData(queryClient: QueryClient, consultationId: string): Promise<void> {
-  const normalizedId = consultationId.trim();
-  if (!normalizedId) {
-    return Promise.resolve();
-  }
-
-  const existing = inFlightConsultationPrefetches.get(normalizedId);
-  if (existing) {
-    return existing;
-  }
-
-  const pending = queryClient
-    .prefetchQuery({
-      queryKey: QUERY_KEYS.CONSULTATION_FRONT_DATA(normalizedId),
-      queryFn: () => consultationsService.getFrontData(normalizedId),
-      staleTime: 1000 * 60,
-    })
-    .catch(() => undefined)
-    .finally(() => {
-      inFlightConsultationPrefetches.delete(normalizedId);
-    });
-
-  inFlightConsultationPrefetches.set(normalizedId, pending);
-  return pending;
-}
 
 export function prefetchAdminUserDetail(queryClient: QueryClient, userId: string): Promise<void> {
   const normalizedId = userId.trim();

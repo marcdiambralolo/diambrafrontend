@@ -1,4 +1,3 @@
-// ...existing code (une seule déclaration import/type/export) ...
 import { api } from "../client";
 
 export type SimpleMessage = {

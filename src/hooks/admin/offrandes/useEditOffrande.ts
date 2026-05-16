@@ -113,11 +113,9 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     // Comparer les données de base
     const basicDataChanged = JSON.stringify({
       name: formData.name,
-      description: formData.description,
       price: formData.price,
     }) !== JSON.stringify({
       name: originalData.name,
-      description: originalData.description,
       price: originalData.price,
     });
 
@@ -204,7 +202,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     fd.append('name', formData.name.trim());
     fd.append('price', String(formData.price));
     fd.append('priceUSD', String(priceUSD));
-    fd.append('description', formData.description.trim());
 
     // Gestion de l'image (priorité au nouveau fichier)
     if (imageState.file) {

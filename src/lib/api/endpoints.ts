@@ -1,8 +1,6 @@
-export const endpoints = {  
-  // Root
+export const endpoints = {
   root: '/',
 
-  // Authentication
   auth: {
     register: '/api/v1/auth/register',
     login: '/api/v1/auth/login',
@@ -11,10 +9,8 @@ export const endpoints = {
     logout: '/api/v1/auth/logout',
   },
 
-  // Users
   users: {
     list: '/users',
-    consultants: '/users/consultants',
     byId: (id: string) => `/users/${id}`,
     stats: (id: string) => `/users/${id}/stats`,
     role: (id: string) => `/users/${id}/role`,
@@ -22,7 +18,6 @@ export const endpoints = {
     password: (id: string) => `/users/${id}/password`,
   },
 
-  // Consultations
   consultations: {
     list: '/consultations',
     create: '/consultations',
@@ -32,7 +27,6 @@ export const endpoints = {
     stats: '/consultations/stats',
   },
 
-  // Services
   services: {
     list: '/services',
     create: '/services',
@@ -40,7 +34,6 @@ export const endpoints = {
     featured: '/services/featured',
   },
 
-  // Payments
   payments: {
     createIntent: '/payments/create-intent',
     confirm: '/payments/confirm',
@@ -50,7 +43,6 @@ export const endpoints = {
     stats: '/payments/stats',
   },
 
-  // Notifications
   notifications: {
     list: '/notifications',
     unread: '/notifications/unread',
@@ -59,8 +51,8 @@ export const endpoints = {
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/read-all',
     preferences: '/notifications/preferences',
-  }, 
- 
+  },
+
   userAccess: {
     checkAccess: (rubriqueId: string) => `/user-access/check-access/${rubriqueId}`,
   },

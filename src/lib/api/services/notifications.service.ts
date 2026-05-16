@@ -2,9 +2,6 @@ import apiClient from '../client';
 import type { NotificationResponse, NotificationPreferences } from '@/lib/types/notification.types';
 
 export const notificationsService = {
-  /**
-   * Récupère toutes les notifications de l'utilisateur avec pagination
-   */
   async getNotifications(page: number = 1, limit: number = 20, isRead?: boolean): Promise<NotificationResponse> {
     const params: Record<string, unknown> = { page, limit };
     if (typeof isRead === 'boolean') {
@@ -75,9 +72,6 @@ export const notificationsService = {
     };
   },
 
-  /**
-   * Met à jour les préférences de notification (à implémenter côté backend si nécessaire)
-   */
   async updatePreferences(preferences: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
     // À implémenter côté backend
     return { ...await this.getPreferences(), ...preferences };

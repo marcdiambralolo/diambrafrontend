@@ -40,15 +40,8 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function buildWalletUrl(params: {
-  consultationId?: string;
-  categoryId?: string;
-  bookId?: string;
-}) {
+function buildWalletUrl() {
   const qs = new URLSearchParams();
-  if (params.consultationId) qs.set("consultationId", params.consultationId);
-  if (params.categoryId) qs.set("categoryId", params.categoryId);
-  if (params.bookId) qs.set("bookId", params.bookId);
   const query = qs.toString();
   return `/star/transaction${query ? `?${query}` : ""}`;
 }
@@ -255,7 +248,7 @@ export function useMarcheOffrandesMain() {
 
       await sleep(SIMULATION_STEPS.success.duration);
       // Passe l'id de transaction simulée dans la query string
-      const walletUrl = buildWalletUrl({ consultationId, categoryId, bookId });
+      const walletUrl = buildWalletUrl();
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
       const redirectUrl = walletUrl.includes('?') ? `${walletUrl}&${transactionIdParam}` : `${walletUrl}?${transactionIdParam}`;
       router.push(redirectUrl);
@@ -274,7 +267,6 @@ export function useMarcheOffrandesMain() {
     _id: "6945ae01b8af14d5f56cec09",
     name: "Jeton",
     price: 200,
-    description: "Symbole de pureté et d'harmonie.",
     createdAt: "2025-12-19T19:56:49.465Z",
     updatedAt: "2026-04-25T23:40:33.398Z",
     id: "6945ae01b8af14d5f56cec09",

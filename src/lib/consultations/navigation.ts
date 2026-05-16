@@ -10,11 +10,9 @@ export function buildConsultationSearchParams(params: ConsultationNavigationPara
   if (params.consultationId) {
     searchParams.set('consultationId', params.consultationId);
   }
-
   if (params.rubriqueId) {
     searchParams.set('rubriqueId', params.rubriqueId);
   }
-
   if (params.choiceId) {
     searchParams.set('choiceId', params.choiceId);
   }
@@ -24,11 +22,7 @@ export function buildConsultationSearchParams(params: ConsultationNavigationPara
 
 export function buildCategoryConsultationPath(
   categoryId: string,
-  params: ConsultationNavigationParams,
 ): string {
-  const query = buildConsultationSearchParams(params);
 
-  return query
-    ? `/star/category/${categoryId}/consulter?${query}`
-    : `/star/category/${categoryId}/consulter`;
+  return   `/star/game/${categoryId} ` 
 }

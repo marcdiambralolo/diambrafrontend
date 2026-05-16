@@ -15,7 +15,7 @@ export function useNotifications(pollingInterval: number = 300000) {
   const playNotificationSound = () => {
     if (typeof window !== 'undefined') {
       const audio = new Audio('/notification.mp3');
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
     }
   };
 
@@ -23,7 +23,6 @@ export function useNotifications(pollingInterval: number = 300000) {
     try {
       setError(null);
       const data = await notificationsService.getUnreadNotifications();
-      // Détecter si une nouvelle notification est arrivée
       setNotifications(prev => {
         if (prev.length > 0 && data.notifications.length > prev.length) {
           playNotificationSound();
@@ -81,7 +80,6 @@ export function useNotifications(pollingInterval: number = 300000) {
     }
 
     if (!isAuthenticated) {
-      // Pas connecté, ne rien fetcher
       setIsLoading(false);
       return;
     }
@@ -96,13 +94,7 @@ export function useNotifications(pollingInterval: number = 300000) {
   }, [isAuthenticated, authLoading, fetchNotifications, pollingInterval]);
 
   return {
-    notifications,
-    unreadCount,
-    isLoading,
-    error,
-    fetchNotifications,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
+    notifications, unreadCount, isLoading, error,
+    fetchNotifications, markAsRead, markAllAsRead, deleteNotification,
   };
 }

@@ -28,10 +28,12 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
     mutationFn: (notificationId: string) => notificationsService.markAsRead(notificationId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
+
   const markAllAsReadMutation = useMutation({
     mutationFn: () => notificationsService.markAllAsRead(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
+
   const deleteNotificationMutation = useMutation({
     mutationFn: (notificationId: string) => notificationsService.deleteNotification(notificationId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
@@ -45,7 +47,7 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
     if (notification.metadata?.url) {
       url = notification.metadata.url.startsWith('/star') ? notification.metadata.url : `/star${notification.metadata.url.startsWith('/') ? '' : '/'}${notification.metadata.url}`;
     } else if (
-      (notification.type === 'CONSULTATION_RESULT' || notification.type === 'CONSULTATION_ASSIGNED') &&
+      (notification.type === 'CONSULTATION_RESULT') &&
       notification.metadata?.consultationId
     ) {
       url = `/star/consultations/${notification.metadata.consultationId}`;
@@ -60,20 +62,9 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
   };
 
   return {
-    filter,
-    notifications: data?.notifications || [],
-    filteredNotifications: data?.notifications || [],
+    filter, filteredNotifications: data?.notifications || [], showSettings, isLoading,
     unreadCount: data?.unreadCount || 0,
-    isLoading,
-    isError,
-    error,
-    setFilter,
-    markAllAsRead: markAllAsReadMutation.mutateAsync,
-    setShowSettings,
-    showSettings,
-    handleNotificationClick,
-    handleDelete,
-    refetch,
-    limit,
+    setFilter, markAllAsRead: markAllAsReadMutation.mutateAsync, setShowSettings,
+    handleNotificationClick, handleDelete,
   };
 }

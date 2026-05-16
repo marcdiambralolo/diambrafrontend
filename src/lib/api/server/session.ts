@@ -10,43 +10,20 @@ function stripTrailingSlashes(value: string) {
   return value.replace(/\/+$/, '');
 }
 
-export function getBackendApiUrl2(pathname: string) {
-  const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-  const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
-  const hasApiPath = cleanBaseURL.endsWith('/api') || /\/api\//.test(cleanBaseURL);
-  const apiVersion = 'v1';
-  const computedBaseURL = hasApiPath ? `${cleanBaseURL}/${apiVersion}` : `${cleanBaseURL}/api/${apiVersion}`;
-  const normalizedPath = pathname.replace(/^\/+/, '');
-  return `${computedBaseURL}/${normalizedPath}`;
-}
-
-export function getBackendApiUrl3(pathname: string) {
-  // ✅ CORRECTION : Utiliser l'URL relative en production
-  const isProduction = process.env.NODE_ENV === 'production';
-  const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || (isProduction ? '/api/v1' : 'http://localhost:3001');
-  const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
-  const hasApiPath = cleanBaseURL.endsWith('/api') || /\/api\//.test(cleanBaseURL);
-  const apiVersion = 'v1';
-  const computedBaseURL = hasApiPath ? `${cleanBaseURL}/${apiVersion}` : `${cleanBaseURL}/api/${apiVersion}`;
-  const normalizedPath = pathname.replace(/^\/+/, '');
-  return `${computedBaseURL}/${normalizedPath}`;
-}
-
 export function getBackendApiUrl(pathname: string) {
   // ✅ CORRECTION : En production, utiliser /api/v1 sans duplication
   const isProduction = process.env.NODE_ENV === 'production';
   let rawBaseUrl: string;
-  
+
   if (isProduction) {
     rawBaseUrl = '/api/v1';
   } else {
-    rawBaseUrl = 'http://localhost:3001/api/v1' 
-   // rawBaseUrl = 'http://localhost:3001/api/v1' || process.env.NEXT_PUBLIC_API_URL ;
+    rawBaseUrl = 'http://localhost:3001/api/v1'
   }
-  
+
   const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
   const normalizedPath = pathname.replace(/^\/+/, '');
-  
+
   // ✅ Éviter la double route /api/v1/api/v1/...
   return `${cleanBaseURL}/${normalizedPath}`;
 }

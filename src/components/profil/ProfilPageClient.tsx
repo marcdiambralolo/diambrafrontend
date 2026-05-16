@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { AlertCircle, Eye, TrendingUp, Users } from "lucide-react";
 import React, { useMemo } from 'react';
 import { NumberGridGame } from "../commons/NumberGridGame";
+import CategoryConsulterPageWrapper from "../categorie/consulter/CategoryConsulterPageWrapper";
 
 function ProfilPageLoader() {
 
@@ -201,11 +202,10 @@ export default function ProfilPageClient() {
   if (loading) return <ProfilPageLoader />;
 
   return (
-    <div className="relative mt-8 w-full flex flex-col items-center justify-center px-2 sm:px-0 overflow-x-hidden bg-white dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
+    <div className="relative w-full flex flex-col items-center justify-center px-2 sm:px-0 overflow-x-hidden bg-white dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
+      <CategoryConsulterPageWrapper />
+      <NumberGridGame />
       <div className="relative z-10 w-full flex flex-col items-center justify-center">
-        <section className="mx-auto w-full   flex flex-col items-center justify-center animate-fade-in-up">
-          <NumberGridGame />
-        </section>
         <div className="mt-10 w-full flex items-center justify-center">
           <StatsCounter loading={loading} stats={stats} error={error} fetchStats={fetchStats} />
         </div>

@@ -28,7 +28,8 @@ function sleep(ms: number) {
 function buildWalletUrl() {
   const qs = new URLSearchParams();
   const query = qs.toString();
-  return `/star/transaction${query ? `?${query}` : ""}`;
+  //  return `/star/transaction${query ? `?${query}` : ""}`;
+  return `/star/profil${query ? `?${query}` : ""}`;
 }
 
 function getSafeErrorMessage(err: unknown, fallback = "Une erreur est survenue pendant la simulation.") {

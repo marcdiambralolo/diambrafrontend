@@ -1,8 +1,8 @@
-﻿import { useState, useMemo } from "react";
+﻿import { OfferingFormData } from "@/components/admin/offrandes/new/OfferingForm";
 import { api } from "@/lib/api/client";
-import { OfferingFormData } from "@/components/admin/offrandes/new/OfferingForm";
-import { useRouter } from "next/navigation";
 import { getErrorMessage } from '@/lib/utils/errorHelpers';
+import { useRouter } from "next/navigation";
+import { useState, useCallback, useMemo } from "react";
 
 export function useOfferingForm() {
   const router = useRouter();
@@ -10,77 +10,85 @@ export function useOfferingForm() {
   const [formData, setFormData] = useState<OfferingFormData>({
     name: '',
     price: 0,
-    priceUSD: 0,
-    category: '',
-    description: '',
   });
-
-  const [illustrationFile, setIllustrationFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const priceUSD = useMemo(() => {
-    if (!formData?.price) return 0;
-    return Number(((formData.price || 0) / 563.90).toFixed(2));
-  }, [formData?.price]);
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  // ✅ Optimisé avec useCallback
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'number' ? Number(value) : value,
     }));
-  }
+  }, []);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] || null;
-    setIllustrationFile(file);
-    setFormData(prev => ({ ...prev, illustrationUrl: '' }));
-  }
-
-  function handleCategoryChange(value: 'banque') {
+  const handleCategoryChange = useCallback((value: 'banque') => {
     setFormData(prev => ({ ...prev, category: value }));
-  }
+  }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  // ✅ Version corrigée - envoi en JSON au lieu de FormData
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.description.trim() || !formData.price) {
-      setError('Tous les champs sont obligatoires');
+
+    if (!formData.name?.trim()) {
+      setError('Le nom est obligatoire');
       return;
     }
+
+    if (!formData.price || formData.price <= 0) {
+      setError('Le prix doit être supérieur à 0');
+      return;
+    }
+
     setSaving(true);
     setError(null);
-    try {
-      const form = new FormData();
-      form.append('name', formData.name.trim());
-      form.append('price', String(formData.price));
-      form.append('priceUSD', String(priceUSD));
-      form.append('category', formData.category);
-      form.append('description', formData.description.trim());
-       
 
-      const res = await api.post('/offerings', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    try {
+      // ✅ CORRECTION : Envoyer en JSON, pas en FormData
+      const payload = {
+        name: formData.name.trim(),
+        price: Number(formData.price)
+      };
+
+      console.log('📤 Envoi des données:', payload);
+
+      const res = await api.post('/offerings', payload, {
+        headers: {
+          'Content-Type': 'application/json'  // ✅ JSON au lieu de multipart
+        },
         withCredentials: true,
       });
-      if (!res || (res.status && res.status >= 400)) throw new Error('Erreur lors de la sauvegarde');
+
+
 
       router.replace('/admin/offrandes');
       router.refresh();
     } catch (err: unknown) {
+      console.error('❌ Erreur:', err);
       setError(getErrorMessage(err, 'Erreur lors de la sauvegarde'));
     } finally {
       setSaving(false);
     }
-  }
+  }, [formData.name, formData.price, router]);
 
-  function handleCancel() {
+  const handleCancel = useCallback(() => {
     router.replace('/admin/offrandes');
-  }
+  }, [router]);
+
+  // ✅ Validation en temps réel memoized
+  const isFormValid = useMemo(() => {
+    return formData.name?.trim().length > 0 && (formData.price || 0) > 0;
+  }, [formData.name, formData.price]);
 
   return {
-    formData, saving, error, priceUSD, illustrationFile,
-    handleChange, handleCategoryChange, handleSubmit, handleCancel,
-    handleFileChange, setIllustrationFile,
+    formData,
+    saving,
+    error,
+    isFormValid,  // ✅ Ajouté pour désactiver le bouton si invalide
+    handleChange,
+    handleCategoryChange,
+    handleSubmit,
+    handleCancel,
   };
 }

@@ -1,26 +1,16 @@
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
-import React, { useRef } from "react";
+import React from "react";
 import { MobileHint } from './MobileHint';
-
-export const CATEGORIES_OFFRANDES = [
-  { value: 'banque', label: 'Banque', emoji: '🏦', color: 'from-blue-500 to-indigo-500' },
- ]; 
-
-
+ 
 export interface OfferingFormData {
   name: string;
-  price: number;
-  priceUSD: number;
-  category: 'banque' | '';
-  description: string; 
+  price: number; 
 }
 
 interface OfferingFormProps {
   formData: OfferingFormData;
   error: string | null;
   saving: boolean;
-  priceUSD: number;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
@@ -30,7 +20,6 @@ export function OfferingForm({
   formData,
   error,
   saving,
-  priceUSD,
   onChange,
   onSubmit,
   onCancel,
@@ -72,22 +61,8 @@ export function OfferingForm({
               className="theme-dark-input w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 transition-colors focus:border-[#4F83D1] dark:border-[color:var(--theme-border)] dark:bg-[#13274C] dark:text-white"
             />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Prix (USD)</label>
-            <input
-              type="number"
-              name="priceUSD"
-              value={priceUSD}
-              disabled
-              className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-500 dark:border-[color:var(--theme-border)] dark:bg-[#13274C] dark:text-gray-400"
-            />
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Calculé automatiquement (1 USD = 563,90 XOF)</p>
-          </div>
-        </div>      
- 
-
-       
-
+        </div>   
+  
         {error && <div className="text-red-600 text-xs font-bold mt-1 text-center animate-pulse">{error}</div>}
 
         <div className="flex gap-2 pt-2 w-full">

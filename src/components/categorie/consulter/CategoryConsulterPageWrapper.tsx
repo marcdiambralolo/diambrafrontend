@@ -184,7 +184,7 @@ const StatusBanner = memo<StatusBannerProps>(({
             Jetons insuffisants
           </p>
           <p className="text-xs text-red-700 dark:text-red-400/80 mt-0.5">
-            Il vous manque <strong>{requiredQuantity - availableQuantity}</strong> jeton(s). Visitez le marché pour en acquérir.
+            Il vous manque <strong>{requiredQuantity - availableQuantity}</strong> jeton(s).
           </p>
         </div>
       </motion.div>
@@ -320,7 +320,7 @@ export default function CategoryConsulterPageWrapper() {
               animate={{ opacity: 1 }}
               className="text-center text-xs text-red-500 dark:text-red-400 mt-2"
             >
-              Vous ne disposez pas d'assez de jetons. Rendez-vous au marché pour en obtenir.
+              Vous ne disposez pas d'assez de jetons. 
             </motion.p>
           )}
 

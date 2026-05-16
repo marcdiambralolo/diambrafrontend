@@ -216,8 +216,7 @@ export function useMarcheOffrandesMain() {
       await sleep(500);
 
       // ✅ CORRECTION 1: Gestion d'erreur améliorée
-      console.log("📡 Envoi au backend:", `${process.env.NEXT_PUBLIC_API_URL}/wallet/transactions`);
-
+ 
       const response = await api.post<any>("/wallet/transactions", transactionData, {
         timeout: 30000, // 30 secondes timeout
         headers: {

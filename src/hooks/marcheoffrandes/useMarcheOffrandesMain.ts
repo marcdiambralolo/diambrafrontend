@@ -2,39 +2,24 @@
 import { api } from "@/lib/api/client";
 import { QUERY_KEYS } from "@/lib/cache/queryClient";
 import type { Offering } from "@/lib/interfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Variants } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-type OfferingsResponse = {
-  offerings?: Offering[];
+export type SimulationStep = "idle" | "processing" | "validating" | "saving" | "success";
+
+export const SIMULATION_STEPS = {
+  processing: { duration: 2000, label: "Traitement de la commande..." },
+  validating: { duration: 2000, label: "Validation des jetons..." },
+  saving: { duration: 2000, label: "Enregistrement de la transaction..." },
+  success: { duration: 3000, label: "Opération réalisée avec succès !" },
 };
-
-type TransactionResponse = {
-  message?: string;
-};
-
-export type SimulationStep =
-  | "idle"
-  | "processing"
-  | "validating"
-  | "saving"
-  | "success";
-
-export type Category = "all" | "banque";
 
 interface CartItem extends Offering {
   _id: string;
   quantity: number;
 }
-
-const SIMULATION_STEPS = {
-  processing: { duration: 200, label: "Traitement de la commande..." },
-  validating: { duration: 300, label: "Validation des jetons..." },
-  saving: { duration: 300, label: "Enregistrement de la transaction..." },
-  success: { duration: 300, label: "Commande acceptée avec succès !" },
-} as const;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -48,6 +33,7 @@ function buildWalletUrl() {
 
 function getSafeErrorMessage(err: unknown, fallback = "Une erreur est survenue pendant la simulation.") {
   if (err instanceof Error && err.message) return err.message;
+  if (typeof err === 'string') return err;
   return fallback;
 }
 
@@ -58,12 +44,7 @@ export const fadeInUp: Variants = {
 
 export function useMarcheOffrandesMain() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-
-  const consultationId = searchParams?.get("consultationId") || "";
-  const categoryId = searchParams?.get("categoryId") || "";
-  const bookId = searchParams?.get("bookId") || "";
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCartRaw] = useState(false);
@@ -82,8 +63,6 @@ export function useMarcheOffrandesMain() {
     () => cart.reduce((sum, item) => sum + item.quantity, 0),
     [cart]
   );
-
-
 
   const addToCart = useCallback((offering: Offering) => {
     setCart((prev) => {
@@ -163,9 +142,10 @@ export function useMarcheOffrandesMain() {
     openCheckout();
   }, [cart.length, openCheckout]);
 
-
   const handleRetry = useCallback(() => {
     setPaymentError(null);
+    setSimulationStep("idle");
+    isSubmittingRef.current = false;
     router.refresh();
   }, [router]);
 
@@ -179,7 +159,11 @@ export function useMarcheOffrandesMain() {
   }, [simulationStep, closeCheckout]);
 
   const handleSimulatedPayment = useCallback(async () => {
-    if (isSubmittingRef.current) return;
+    // Éviter les doubles soumissions
+    if (isSubmittingRef.current) {
+      console.log("⏳ Paiement déjà en cours, ignore...");
+      return;
+    }
 
     if (cart.length === 0) {
       setPaymentError("Le panier est vide.");
@@ -191,16 +175,17 @@ export function useMarcheOffrandesMain() {
     setSimulationStep("processing");
 
     try {
-      await sleep(SIMULATION_STEPS.processing.duration);
+      console.log("🚀 Début du processus d'achat...");
+      await sleep(500); // Petit délai pour l'UX
 
       setSimulationStep("validating");
-      await sleep(SIMULATION_STEPS.validating.duration);
+      console.log("✅ Validation des jetons...");
+      await sleep(500);
 
       const timestamp = Date.now();
-      const randomSuffix =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID().slice(0, 8).toUpperCase()
-          : Math.random().toString(36).substring(2, 8).toUpperCase();
+      const randomSuffix = typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID().slice(0, 8).toUpperCase()
+        : Math.random().toString(36).substring(2, 8).toUpperCase();
 
       const paymentToken = `SIM-${timestamp}-${randomSuffix}`;
       const transactionId = `TXN-SIM-${timestamp}`;
@@ -225,43 +210,86 @@ export function useMarcheOffrandesMain() {
         completedAt: new Date().toISOString(),
       };
 
+      console.log("📦 Transaction data:", transactionData);
+
       setSimulationStep("saving");
-      await sleep(SIMULATION_STEPS.saving.duration);
+      await sleep(500);
 
-      const response = await api.post<TransactionResponse>("/wallet/transactions", transactionData);
+      // ✅ CORRECTION 1: Gestion d'erreur améliorée
+      console.log("📡 Envoi au backend:", `${process.env.NEXT_PUBLIC_API_URL}/wallet/transactions`);
 
-      if (response.status !== 200 && response.status !== 201) {
-        throw new Error(response.data?.message || "Échec de l'enregistrement");
+      const response = await api.post<any>("/wallet/transactions", transactionData, {
+        timeout: 30000, // 30 secondes timeout
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      console.log("📡 Réponse backend:", response);
+
+      if (!response || (response.status && response.status >= 400)) {
+        throw new Error(response?.data?.message || `Erreur HTTP ${response?.status}`);
       }
 
-      localStorage.setItem("last_simulated_purchase", JSON.stringify(transactionData));
-      localStorage.setItem("payment_token", paymentToken);
-      localStorage.setItem("transaction_id", transactionId);
+      // ✅ CORRECTION 2: Stockage sécurisé
+      try {
+        localStorage.setItem("last_simulated_purchase", JSON.stringify(transactionData));
+        localStorage.setItem("payment_token", paymentToken);
+        localStorage.setItem("transaction_id", transactionId);
+      } catch (storageError) {
+        console.warn("⚠️ LocalStorage non disponible:", storageError);
+      }
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS }),
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS }),
-      ]);
+      // ✅ CORRECTION 3: Invalidation avec gestion d'erreur
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS }),
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS }),
+        ]);
+      } catch (queryError) {
+        console.warn("⚠️ Erreur lors de l'invalidation des queries:", queryError);
+      }
 
       setSimulationStep("success");
       clearCart();
 
-      await sleep(SIMULATION_STEPS.success.duration);
-      // Passe l'id de transaction simulée dans la query string
+      // Attendre un peu pour que l'utilisateur voie le succès
+      await sleep(2000);
+
+      // ✅ CORRECTION 4: Redirection avec paramètre
       const walletUrl = buildWalletUrl();
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
-      const redirectUrl = walletUrl.includes('?') ? `${walletUrl}&${transactionIdParam}` : `${walletUrl}?${transactionIdParam}`;
-      router.push(redirectUrl);
-    } catch (err: unknown) {
-      console.error("❌ [CheckoutModal] Erreur simulation:", err);
-      setPaymentError(getSafeErrorMessage(err, "Erreur lors de la validation"));
-      setSimulationStep("idle");
-      isSubmittingRef.current = false;
-      return;
-    }
+      const redirectUrl = walletUrl.includes('?')
+        ? `${walletUrl}&${transactionIdParam}`
+        : `${walletUrl}?${transactionIdParam}`;
 
-    isSubmittingRef.current = false;
-  }, [bookId, cart, cartTotal, categoryId, clearCart, consultationId, queryClient, router]);
+      console.log("🔀 Redirection vers:", redirectUrl);
+      router.push(redirectUrl);
+
+    } catch (err: unknown) {
+      console.error("❌ [CheckoutModal] Erreur détaillée:", err);
+
+      // ✅ CORRECTION 5: Message d'erreur plus explicite
+      let errorMessage = "Erreur lors de la validation";
+      if (err instanceof Error) {
+        if (err.message.includes("timeout")) {
+          errorMessage = "Le serveur ne répond pas. Veuillez réessayer.";
+        } else if (err.message.includes("Network")) {
+          errorMessage = "Problème de connexion. Vérifiez votre réseau.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setPaymentError(getSafeErrorMessage(err, errorMessage));
+      setSimulationStep("idle");
+    } finally {
+      // Ne pas réinitialiser isSubmittingRef si on a redirigé
+      if (simulationStep !== "success") {
+        isSubmittingRef.current = false;
+      }
+    }
+  }, [cart, cartTotal, clearCart, queryClient, router, simulationStep]);
 
   const monoffre: Offering = {
     _id: "6945ae01b8af14d5f56cec09",
@@ -273,8 +301,6 @@ export function useMarcheOffrandesMain() {
     offeringId: "6945ae01b8af14d5f56cec09",
     quantity: 1,
   };
-
-  console.log("jeton sélectionnée (monoffre) :", monoffre);
 
   return {
     cart, cartTotal, cartCount, monoffre,

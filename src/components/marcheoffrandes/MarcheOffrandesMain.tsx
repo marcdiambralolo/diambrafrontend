@@ -1,27 +1,9 @@
 'use client';
-import { fadeInUp, SIMULATION_STEPS, SimulationStep, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
-import { AnimatePresence, motion, Variants } from 'framer-motion';
+import { fadeInUp, SIMULATION_STEPS, SimulationStep, slideFromBottom, STEP_WIDTHS, STEPS, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, CheckCircle2, ChevronRight, CreditCard, Loader2, Plus, ShoppingCart, Sparkles, X } from 'lucide-react';
 import { memo, useCallback } from 'react';
 
-// Constantes extraites pour éviter les re-créations
-const STEPS: SimulationStep[] = ["processing", "validating", "saving", "success"];
-
-const STEP_WIDTHS = {
-  idle: "0%",
-  processing: "25%",
-  validating: "50%",
-  saving: "75%",
-  success: "100%"
-} as const;
-
-const slideFromBottom: Variants = {
-  hidden: { y: '100%', opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { type: 'spring', damping: 25, stiffness: 300 } },
-  exit: { y: '100%', opacity: 0, transition: { duration: 0.2 } }
-};
-
-// Composants optimisés avec memo
 const SimulationProgress = memo(({ step }: { step: SimulationStep }) => {
   const currentIndex = STEPS.indexOf(step);
   const progressWidth = STEP_WIDTHS[step] || "0%";
@@ -83,9 +65,6 @@ const SimulationProgress = memo(({ step }: { step: SimulationStep }) => {
   );
 });
 
-SimulationProgress.displayName = 'SimulationProgress';
-
-// ErrorAlert optimisé
 const ErrorAlert = memo(({ message, onRetry }: { message: string; onRetry: () => void }) => {
   const handleRetry = useCallback(() => {
     onRetry();
@@ -114,9 +93,6 @@ const ErrorAlert = memo(({ message, onRetry }: { message: string; onRetry: () =>
   );
 });
 
-ErrorAlert.displayName = 'ErrorAlert';
-
-// CheckoutModal optimisé
 const CheckoutModal = memo(({
   isOpen,
   cart,
@@ -231,9 +207,6 @@ const CheckoutModal = memo(({
   );
 });
 
-CheckoutModal.displayName = 'CheckoutModal';
-
-// CartSummary sous-composant
 const CartSummary = memo(({ cart, totalAmount }: { cart: any[]; totalAmount: number }) => (
   <div className="space-y-4">
     <div className="space-y-2">
@@ -279,9 +252,6 @@ const CartSummary = memo(({ cart, totalAmount }: { cart: any[]; totalAmount: num
   </div>
 ));
 
-CartSummary.displayName = 'CartSummary';
-
-// CartModalItem optimisé
 const CartModalItem = memo(({
   item,
   onUpdateQuantity,
@@ -299,8 +269,6 @@ const CartModalItem = memo(({
 
   return (
     <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-      <span className="text-gray-300 dark:text-gray-600 text-5xl sm:text-6xl">🖼️</span>
-
       <div className="flex-grow min-w-0">
         <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">{item.name}</h3>
         <p className="text-xs sm:text-sm text-black dark:text-gray-400">
@@ -334,148 +302,6 @@ const CartModalItem = memo(({
   );
 });
 
-CartModalItem.displayName = 'CartModalItem';
-
-// CartModal optimisé
-const CartModal = memo(({
-  showCart,
-  cart,
-  cartTotal,
-  cartCount,
-  onClose,
-  onProceedToCheckout,
-  onUpdateQuantity,
-  onRemoveFromCart,
-  onClearCart
-}: {
-  showCart: boolean;
-  cart: any[];
-  cartTotal: number;
-  cartCount: number;
-  onClose: () => void;
-  onProceedToCheckout: () => void;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onRemoveFromCart: (id: string) => void;
-  onClearCart: () => void;
-}) => {
-  const handleProceed = useCallback(() => {
-    if (cart.length > 0) {
-      onProceedToCheckout();
-    }
-  }, [cart.length, onProceedToCheckout]);
-
-  const handleClear = useCallback(() => {
-    onClearCart();
-  }, [onClearCart]);
-
-  if (!showCart) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 z-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <motion.div
-        variants={slideFromBottom}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        onClick={(e) => e.stopPropagation()}
-        className="fixed bottom-0 left-0 right-0 bg-gradient-to-b from-gray-900 to-gray-950 rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto shadow-2xl border-t-2 border-amber-500"
-      >
-        <div className="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-600 z-10 p-4 sm:p-6 border-b border-amber-400 rounded-t-3xl shadow-md">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2 drop-shadow">
-              <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7" />
-              Mon Panier
-            </h2>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 flex items-center justify-center transition-all shadow"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
-          </div>
-          {cartCount > 0 && (
-            <p className="text-sm text-white/90">
-              {cartCount} jeton{cartCount > 1 ? 's' : ''} · {cartTotal.toLocaleString()} F
-            </p>
-          )}
-        </div>
-
-        <div className="p-4 sm:p-6">
-          {cart.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                <ShoppingCart className="w-10 h-10 text-white" />
-              </div>
-              <p className="text-gray-400 text-lg font-medium mb-6">Votre panier est vide</p>
-              <button
-                onClick={onClose}
-                className="px-6 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 active:scale-95 transition-all shadow"
-              >
-                Continuer mes achats
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-3 mb-6">
-                {cart.map((item) => (
-                  <CartModalItem
-                    key={item._id || item.id}
-                    item={item}
-                    onUpdateQuantity={onUpdateQuantity}
-                    onRemoveFromCart={onRemoveFromCart}
-                  />
-                ))}
-              </div>
-
-              <div className="border-t-2 border-gray-200 dark:border-gray-700 pt-4 mb-4">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-xl sm:text-2xl font-black text-white dark:text-white">Total</span>
-                  <div className="text-right">
-                    <p className="text-2xl sm:text-3xl font-black text-white dark:text-white">
-                      {cartTotal.toLocaleString()} F
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-300 dark:text-gray-400">
-                      ≈ ${(cartTotal / 563.5).toFixed(2)} USD
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <button
-                    onClick={handleProceed}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 rounded-xl font-black text-base sm:text-lg shadow-xl hover:shadow-2xl active:scale-98 transition-all flex items-center justify-center gap-3"
-                  >
-                    <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
-                    Procéder au paiement
-                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </button>
-
-                  <button
-                    onClick={handleClear}
-                    className="w-full py-3 text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl active:scale-95 transition-all"
-                  >
-                    Vider le panier
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
-});
-
-CartModal.displayName = 'CartModal';
-
-// Composant principal
 export default function MarcheOffrandesMain() {
   const {
     cart, cartTotal, cartCount, monoffre, showCart, showCheckout, simulationStep,
@@ -486,6 +312,16 @@ export default function MarcheOffrandesMain() {
   const handleAddToCart = useCallback(() => {
     addToCart(monoffre);
   }, [addToCart, monoffre]);
+
+  const handleProceed = useCallback(() => {
+    if (cart.length > 0) {
+      handleProceedToCheckout();
+    }
+  }, [cart.length, handleProceedToCheckout]);
+
+  const handleClear = useCallback(() => {
+    clearCart();
+  }, [clearCart]);
 
   return (
     <main id="marche-offrandes-main" aria-labelledby="marche-offrandes-title">
@@ -502,7 +338,7 @@ export default function MarcheOffrandesMain() {
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent mb-3 sm:mb-4 text-center drop-shadow">
-                  ⚡ ACQUERIR DES JETONS ⚡
+                  ⚡ ACHAT DE JETONS ⚡
                 </h2>
               </motion.div>
             </div>
@@ -539,7 +375,6 @@ export default function MarcheOffrandesMain() {
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white py-3 sm:py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
                     Acheter
-                    <Plus className="w-4 h-4" />
                   </motion.button>
                 </motion.div>
               </div>
@@ -547,17 +382,106 @@ export default function MarcheOffrandesMain() {
           </div>
         </div>
 
-        <CartModal
-          showCart={showCart}
-          cart={cart}
-          cartTotal={cartTotal}
-          cartCount={cartCount}
-          onClose={closeCart}
-          onProceedToCheckout={handleProceedToCheckout}
-          onUpdateQuantity={updateQuantity}
-          onRemoveFromCart={removeFromCart}
-          onClearCart={clearCart}
-        />
+
+        {showCart && (
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 z-50 backdrop-blur-sm"
+              onClick={handleClose}
+            />
+            <motion.div
+              variants={slideFromBottom}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+              className="fixed bottom-0 left-0 right-0 bg-gradient-to-b from-gray-900 to-gray-950 rounded-t-3xl z-50 max-h-[90vh] overflow-y-auto shadow-2xl border-t-2 border-amber-500"
+            >
+              <div className="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-600 z-10 p-4 sm:p-6 border-b border-amber-400 rounded-t-3xl shadow-md">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2 drop-shadow">
+                    <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7" />
+                    Mon Panier
+                  </h2>
+                  <button
+                    onClick={closeCart}
+                    className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 active:scale-90 flex items-center justify-center transition-all shadow"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                </div>
+                {cartCount > 0 && (
+                  <p className="text-sm text-white/90">
+                    {cartCount} jeton{cartCount > 1 ? 's' : ''} · {cartTotal.toLocaleString()} F
+                  </p>
+                )}
+              </div>
+
+              <div className="p-4 sm:p-6">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                      <ShoppingCart className="w-10 h-10 text-white" />
+                    </div>
+                    <p className="text-gray-400 text-lg font-medium mb-6">Votre panier est vide</p>
+                    <button
+                      onClick={handleClose}
+                      className="px-6 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 active:scale-95 transition-all shadow"
+                    >
+                      Continuer mes achats
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-3 mb-6">
+                      {cart.map((item) => (
+                        <CartModalItem
+                          key={item._id || item.id}
+                          item={item}
+                          onUpdateQuantity={updateQuantity}
+                          onRemoveFromCart={removeFromCart}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="border-t-2 border-gray-200 dark:border-gray-700 pt-4 mb-4">
+                      <div className="flex items-center justify-between mb-6">
+                        <span className="text-xl sm:text-2xl font-black text-white dark:text-white">Total</span>
+                        <div className="text-right">
+                          <p className="text-2xl sm:text-3xl font-black text-white dark:text-white">
+                            {cartTotal.toLocaleString()} F
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <button
+                          onClick={handleProceed}
+                          className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 rounded-xl font-black text-base sm:text-lg shadow-xl hover:shadow-2xl active:scale-98 transition-all flex items-center justify-center gap-3"
+                        >
+                          <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
+                          Procéder au paiement
+                          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </button>
+
+                        <button
+                          onClick={handleClear}
+                          className="w-full py-3 text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl active:scale-95 transition-all"
+                        >
+                          Vider le panier
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+        )}
 
         <CheckoutModal
           isOpen={showCheckout}
@@ -569,7 +493,6 @@ export default function MarcheOffrandesMain() {
           handleClose={handleClose}
           handleSimulatedPayment={handleSimulatedPayment}
         />
-
         <div className="h-16 sm:h-20 w-full" />
       </div>
     </main>

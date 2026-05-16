@@ -7,6 +7,27 @@ import { Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 
+export const STEPS: SimulationStep[] = ["processing", "validating", "saving", "success"];
+
+export const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
+};
+
+export const STEP_WIDTHS = {
+  idle: "0%",
+  processing: "25%",
+  validating: "50%",
+  saving: "75%",
+  success: "100%"
+} as const;
+
+export const slideFromBottom: Variants = {
+  hidden: { y: '100%', opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: 'spring', damping: 25, stiffness: 300 } },
+  exit: { y: '100%', opacity: 0, transition: { duration: 0.2 } }
+};
+
 export type SimulationStep = "idle" | "processing" | "validating" | "saving" | "success";
 
 export const SIMULATION_STEPS = {
@@ -37,11 +58,6 @@ function getSafeErrorMessage(err: unknown, fallback = "Une erreur est survenue p
   if (typeof err === 'string') return err;
   return fallback;
 }
-
-export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
-};
 
 export function useMarcheOffrandesMain() {
   const router = useRouter();
@@ -160,7 +176,6 @@ export function useMarcheOffrandesMain() {
   }, [simulationStep, closeCheckout]);
 
   const handleSimulatedPayment = useCallback(async () => {
-    // Éviter les doubles soumissions
     if (isSubmittingRef.current) {
       console.log("⏳ Paiement déjà en cours, ignore...");
       return;
@@ -177,11 +192,11 @@ export function useMarcheOffrandesMain() {
 
     try {
       console.log("🚀 Début du processus d'achat...");
-      await sleep(500); // Petit délai pour l'UX
+      await sleep(200); // Petit délai pour l'UX
 
       setSimulationStep("validating");
       console.log("✅ Validation des jetons...");
-      await sleep(500);
+      await sleep(200);
 
       const timestamp = Date.now();
       const randomSuffix = typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -196,6 +211,7 @@ export function useMarcheOffrandesMain() {
         paymentToken,
         status: "completed",
         totalAmount: cartTotal,
+        category: "banque",
         items: cart.map((item) => {
           const offeringId = item._id || item.id;
           return {
@@ -214,10 +230,10 @@ export function useMarcheOffrandesMain() {
       console.log("📦 Transaction data:", transactionData);
 
       setSimulationStep("saving");
-      await sleep(500);
+      await sleep(200);
 
       // ✅ CORRECTION 1: Gestion d'erreur améliorée
- 
+
       const response = await api.post<any>("/wallet/transactions", transactionData, {
         timeout: 30000, // 30 secondes timeout
         headers: {
@@ -284,7 +300,6 @@ export function useMarcheOffrandesMain() {
       setPaymentError(getSafeErrorMessage(err, errorMessage));
       setSimulationStep("idle");
     } finally {
-      // Ne pas réinitialiser isSubmittingRef si on a redirigé
       if (simulationStep !== "success") {
         isSubmittingRef.current = false;
       }

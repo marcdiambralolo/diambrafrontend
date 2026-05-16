@@ -211,7 +211,6 @@ export function useMarcheOffrandesMain() {
         paymentToken,
         status: "completed",
         totalAmount: cartTotal,
-        category: "banque",
         items: cart.map((item) => {
           const offeringId = item._id || item.id;
           return {

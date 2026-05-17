@@ -1,6 +1,6 @@
 import { api } from "@/lib/api/client";
 import { mapFormDataToBackend } from "@/lib/functions";
-import type { ConsultationChoice, Rubrique, User } from "@/lib/interfaces";
+import type { User } from "@/lib/interfaces";
 
 export type ConsultationCreateResponse = {
     consultation?: {
@@ -10,14 +10,7 @@ export type ConsultationCreateResponse = {
 };
 
 type CreateCategoryConsultationParams = {
-    choice: ConsultationChoice;
     user: User | null;
-    extraPayload?: Record<string, unknown>;
-};
-
-export type CategoryContextInfo = {
-    rubrique?: Rubrique;
-    choix?: ConsultationChoice;
 };
  
 export function getCategoryErrorMessage(error: unknown, fallback: string): string {
@@ -34,19 +27,14 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
 } 
 
 export async function createCategoryConsultation({
-    choice,
+  
     user,
-    extraPayload,
+  
 }: CreateCategoryConsultationParams): Promise<string> {
     const payload: Record<string, unknown> = {
         serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
-        title:  "Consultation",
+        title:  "Jeu",
         formData: mapFormDataToBackend(user),
-        status: "PENDING",
-        alternative: choice.offering?.alternative  ,
-        choice,
-        rubriqueId: "694cde9bde3392d3751a0fe9" ,
-        ...extraPayload,
     };
 
     const response = await api.post<ConsultationCreateResponse>("/consultations", payload);

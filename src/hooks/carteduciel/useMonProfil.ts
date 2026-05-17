@@ -1,7 +1,7 @@
-import { useAuth } from '@/lib/auth/AuthContext';
+ 
 import { formatDateFR, processUserData, safeTrim } from '@/lib/functions';
-import { User } from '@/lib/interfaces';
-import { useAuthStore } from '@/lib/store/auth.store';
+import { useAuth } from '@/lib/hooks';
+ 
 import { useMemo } from 'react';
 
 function coerceIsoDate(v: unknown): string {
@@ -17,7 +17,7 @@ function coerceIsoDate(v: unknown): string {
 }
 
 export function useMonProfil() {
-     const {   user } = useAuth();
+     const { user } = useAuth();
   const processedData = useMemo(() => processUserData(user), [user]);
  
   const prenoms = safeTrim(user?.prenoms);

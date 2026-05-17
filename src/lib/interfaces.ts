@@ -31,28 +31,8 @@ export interface ConsultationOffering {
   alternative: OfferingAlternative;
 }
 
-export interface ConsultationChoice {
-  _id?: string;
-  title: string;
-  offering: ConsultationOffering;
-  consultationId: string | null;
-  choiceId: string;
-  choiceTitle: string;
-}
-
 export interface FormErrors {
   [key: string]: string;
-}
-
-export interface Rubrique {
-  id?: string;
-  _id?: string;
-  titre?: string;
-  description?: string;
-  consultationChoices: ConsultationChoice[];
-  createdAt?: string;
-  updatedAt?: string;
-  categorieId?: string;
 }
 
 export interface Stats {
@@ -134,7 +114,6 @@ export interface Consultation {
   rubriqueId: string;
   paymentId?: string;
   metadata?: Record<string, unknown>;
-  title: string;
   price: number;
   createdAt: string;
   updatedAt: string;

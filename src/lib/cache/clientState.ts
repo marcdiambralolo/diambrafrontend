@@ -35,7 +35,6 @@ export async function clearClientApplicationState() {
   clearPersistedQueryCache();
 
   useAuthStore.getState().logout();
-  useMonEtoileStore.getState().clearConsultationChoices();
 
   try {
     useMonEtoileStore.persist.clearStorage();

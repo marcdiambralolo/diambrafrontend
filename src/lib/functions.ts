@@ -1,4 +1,4 @@
-import { Rubrique, User } from "./interfaces";
+import { User } from "./interfaces";
 
 export const formatDate = (date: string | Date | undefined | null) => {
   if (!date) return '';
@@ -27,14 +27,7 @@ export function mapFormDataToBackend(form: User | null): Record<string, unknown>
 export function cx(...v: Array<string | false | null | undefined>) {
   return v.filter(Boolean).join(" ");
 }
-
-export function rubriqueLabel(r: { titre?: unknown; nom?: unknown } | null | undefined): string {
-  return String(r?.titre ?? r?.nom ?? "Rubrique");
-}
-
-export function getRubriqueId(r: Rubrique): string | null {
-  return r?._id || null;
-}
+ 
 
 export function processUserData(userData: User | null): User | null {
   if (!userData) return null;
@@ -73,16 +66,7 @@ export function hashString(input: string): number {
 export function clampText(s: string, max = 120) {
   return clamp(s, max);
 }
-
-export function getStableRubriqueId(r: Rubrique): string {
-  const raw = String(r?._id ?? "");
-  if (raw) return raw;
-  const t = String(r?.titre ?? "");
-  const d = String(r?.description ?? "");
-  const h = hashString(`${t}|${d}`);
-  return `rub_${h.toString(16)}`; // stable
-}
-
+ 
 export const formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;

@@ -175,15 +175,7 @@ const StatsCounter: React.FC<{ loading: boolean; stats: any; error: any; fetchSt
           icon={<Users className="h-6 w-6 text-[#2E5AA6]" />}
           loading={loading}
           color="primary"
-        />
-
-        <StatCard
-          value={stats?.visits ?? null}
-          label="Visites"
-          icon={<Eye className="h-6 w-6 text-[#4F83D1]" />}
-          loading={loading}
-          color="accent"
-        />
+        /> 
       </div>
 
       {error && (

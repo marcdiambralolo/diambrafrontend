@@ -2,7 +2,8 @@ import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/cat
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import { buildCategoryConsultationPath } from '@/lib/consultations/navigation';
-import type { ConsultationChoice, WalletOffering } from '@/lib/interfaces';
+import { useAuth } from '@/lib/hooks';
+import type { WalletOffering } from '@/lib/interfaces';
 import { OfferingAlternative } from '@/lib/interfaces';
 import { useAuthStore } from '@/lib/store/auth.store';
 import { Variants } from 'framer-motion';
@@ -55,21 +56,10 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
     return offeringId as string;
 };
 
-const createBaseChoice = (): ConsultationChoice => ({
-    _id: "69ada22a910a174365e2a216",
-    title: "Choix de consultation",
-    offering: {
-        alternative: POT_CONFIG,
-        price: 200,
-    },
-    consultationId: null,
-    choiceId: "69ada22a910a174365e2a216",
-    choiceTitle: "Choix de consultation",
-});
 
 export function useCategoryConsulterClient() {
     const router = useRouter();
-    const user = useAuthStore((s) => s.user);
+  const { user } = useAuth();
 
     const [state, setState] = useState({
         loading: true,
@@ -86,14 +76,8 @@ export function useCategoryConsulterClient() {
         setState(prev => ({ ...prev, loading: true, error: null, showError: false }));
 
         try {
-            const choice = createBaseChoice();
-            const id = await createCategoryConsultation({
-                choice,
-                user: user || null,
-                extraPayload: {
-                    offeringId: POT_CONFIG.offeringId,
-                    quantity: POT_CONFIG.quantity,
-                },
+            const id = await createCategoryConsultation({           
+                user: user || null,                 
             });
 
             const consumeRes = await walletService.validateConsultationOfferings(id, [{

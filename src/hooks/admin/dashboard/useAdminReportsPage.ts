@@ -60,7 +60,7 @@ export function useAdminReportsPage() {
     if (!stats) return [];
     return [
       {
-        label: 'Consultations',
+        label: 'Jeux',
         value: stats.consultations.total,
         change: stats.activity.growth,
         icon: React.createElement(CalendarCheck, { className: 'w-5 h-5' }),

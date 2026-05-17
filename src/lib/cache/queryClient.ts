@@ -21,8 +21,6 @@ export const QUERY_KEYS = {
   MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],
   NOTIFICATIONS: ['notifications'],
   PLATFORM_STATS: ['platform-stats'],
-  RUBRIQUES: ['rubriques'],
-  RUBRIQUE_DETAIL: (rubriqueId: string) => ['rubrique', rubriqueId],
   WALLET_TRANSACTIONS: ['wallet', 'transactions'],
   WALLET_UNUSED_OFFERINGS: ['wallet', 'unused-offerings'],
 };

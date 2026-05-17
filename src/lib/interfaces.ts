@@ -26,11 +26,6 @@ export interface WalletOffering {
   price: number;
 }
 
-export interface ConsultationOffering {
-  price?: number;
-  alternative: OfferingAlternative;
-}
-
 export interface FormErrors {
   [key: string]: string;
 }
@@ -111,14 +106,10 @@ export interface Consultation {
   clientId?: {
     _id: string;
   };
-  rubriqueId: string;
   paymentId?: string;
-  metadata?: Record<string, unknown>;
   price: number;
   createdAt: string;
   updatedAt: string;
-  ui?: any;
-  completedAt?: string;
   [key: string]: unknown;
 }
 

@@ -92,7 +92,6 @@ export default function UserDetailsPage() {
                         <InfoRow icon={<Settings2 className="h-4 w-4" />} label="Notifications" value={user.preferences?.notifications ? "Oui" : "Non"} />
                         <InfoRow icon={<Settings2 className="h-4 w-4" />} label="Newsletter" value={user.preferences?.newsletter ? "Oui" : "Non"} />
                         <InfoRow icon={<Shield className="h-4 w-4" />} label="Permissions custom" value={joinList(user.customPermissions)} />
-                         <InfoRow icon={<Activity className="h-4 w-4" />} label="Rating" value={safeString(user.rating)} />
                     </div>
                 </Section>
                 

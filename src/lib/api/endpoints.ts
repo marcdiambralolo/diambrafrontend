@@ -24,7 +24,6 @@ export const endpoints = {
     my: '/consultations/me',
     byId: (id: string) => `/consultations/${id}`,
     status: (id: string) => `/consultations/${id}/status`,
-    assign: (id: string) => `/consultations/${id}/assign`,
     stats: '/consultations/stats',
   },
 
@@ -52,10 +51,6 @@ export const endpoints = {
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/read-all',
     preferences: '/notifications/preferences',
-  },
-
-  userAccess: {
-    checkAccess: (rubriqueId: string) => `/user-access/check-access/${rubriqueId}`,
   },
 };
 

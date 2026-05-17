@@ -5,7 +5,7 @@ import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
-  AlertCircle, ArrowRight, CalendarDays,  Clock, Crown,  Gamepad2,
+  AlertCircle, ArrowRight, CalendarDays, Clock, Crown, Gamepad2,
   Loader2, MapPin, Plus, Sparkles, Trophy, UserRound
 } from "lucide-react";
 import Link from "next/link";
@@ -43,7 +43,7 @@ export interface ConsultationCardProps {
 
 function ConsultationCard({ consultation, index }: ConsultationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const createdAt = consultation.createdAt || consultation.dateGeneration;
+  const createdAt = consultation.createdAt;
   const relativeDate = createdAt ? getRelativeTime(createdAt as string) : 'Date inconnue';
   const formattedDate = createdAt ? new Date(createdAt as string).toLocaleDateString('fr-FR', {
     day: 'numeric',
@@ -103,7 +103,7 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
               Jeu
             </h3>
           </div>
-           <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3 h-3" />
               <span>{relativeDate}</span>
@@ -127,7 +127,7 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
     </motion.article>
   );
 }
- 
+
 
 interface ConsultationsEmptyProps {
   consultationsLength: number;
@@ -175,7 +175,7 @@ function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
       </Link>
     </motion.div>
   );
-} 
+}
 
 function ConsultationsListLoading() {
   return (
@@ -220,7 +220,7 @@ const NewGameButton = memo(() => (
     </Link>
   </motion.div>
 ));
- 
+
 const ErrorState = memo(() => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
@@ -238,7 +238,7 @@ const ErrorState = memo(() => (
       <p className="text-gray-300">Aucun utilisateur connecté. Veuillez vous connecter.</p>
     </div>
   </motion.div>
-)); 
+));
 
 const IdentityOverview = memo(function IdentityOverview({
   fullName,

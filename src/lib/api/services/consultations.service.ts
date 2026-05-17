@@ -1,6 +1,5 @@
 import type { Consultation } from '@/lib/interfaces';
 import { api } from '../client';
-import { normalizeThreadResponse, type MessagingThreadResponse } from './messaging.service';
 
 export interface PaginatedConsultationsResult {
   consultations: Consultation[];
@@ -13,7 +12,6 @@ export interface PaginatedConsultationsResult {
 export interface ConsultationFrontDataResult {
   success: boolean;
   consultation: Consultation | null;
-  messaging: MessagingThreadResponse | null;
 }
 
 type PaginatedConsultationsPayload = PaginatedConsultationsResult | Consultation[];
@@ -61,7 +59,6 @@ function normalizeFrontData(payload: ConsultationFrontDataPayload, consultationI
   return {
     success: payload.success === true,
     consultation: payload.consultation ?? null,
-    messaging: payload.messaging ? normalizeThreadResponse(payload.messaging) : null,
   };
 }
 

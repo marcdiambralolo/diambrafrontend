@@ -1,8 +1,8 @@
 "use client";
-
-import { useCallback, useMemo, useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, RefreshCw, Zap, Target, Trophy, Sparkles, MousePointerClick, Move, Volume2, VolumeX } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { MousePointerClick, Move, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const SLOT_COUNT = 4;
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -15,13 +15,13 @@ interface GameStats {
 }
 
 export function NumberGridGame() {
+  const router = useRouter();
   const [slots, setSlots] = useState<(number | null)[]>(
     () => Array.from({ length: SLOT_COUNT }, () => null)
   );
   const [selected, setSelected] = useState<number | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [completionCount, setCompletionCount] = useState(0);
   const [mode, setMode] = useState<'drag' | 'click'>('click');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -32,7 +32,6 @@ export function NumberGridGame() {
   const dragStartRef = useRef<{ value: number; index?: number } | null>(null);
   const timerRef = useRef<NodeJS.Timeout>();
 
-  // Charger les stats
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -41,7 +40,6 @@ export function NumberGridGame() {
     }
   }, []);
 
-  // Sauvegarder les stats
   const saveStats = useCallback((completions: number) => {
     const stats: GameStats = {
       completions,
@@ -61,12 +59,11 @@ export function NumberGridGame() {
     [slots]
   );
 
-  // Timer
   useEffect(() => {
     if (!isComplete && slots.some(s => s !== null) && !startTime) {
       setStartTime(Date.now());
     }
-    
+
     if (isComplete && startTime) {
       const elapsed = (Date.now() - startTime) / 1000;
       setElapsedTime(elapsed);
@@ -82,29 +79,20 @@ export function NumberGridGame() {
     };
   }, [isComplete, startTime, slots]);
 
-  // Succès
   useEffect(() => {
     if (isComplete) {
       playSound('success');
-      setShowSuccess(true);
       setCompletionCount(prev => {
         const newCount = prev + 1;
         saveStats(newCount);
         return newCount;
       });
-      
-      setTimeout(() => {
-        setShowSuccess(false);
-        // Auto-reset après succès
-        setTimeout(() => reset(), 500);
-      }, 2000);
     }
   }, [isComplete, saveStats]);
 
-  // Jouer un son
   const playSound = (type: 'place' | 'remove' | 'success') => {
     if (!soundEnabled) return;
-    
+
     const audio = new Audio();
     switch (type) {
       case 'place':
@@ -118,7 +106,7 @@ export function NumberGridGame() {
         break;
     }
     audio.volume = 0.3;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   };
 
   const placeSelectedDigitInSlot = useCallback((slotIndex: number) => {
@@ -128,7 +116,7 @@ export function NumberGridGame() {
     setSlots(prev => {
       const next = [...prev];
       if (next[slotIndex] !== null) return prev;
-      
+
       next[slotIndex] = selected;
       return next;
     });
@@ -166,16 +154,16 @@ export function NumberGridGame() {
     try {
       const rawData = e.dataTransfer.getData("text/plain");
       if (!rawData) return;
-      
+
       const { value, fromSlot } = JSON.parse(rawData);
 
       setSlots(prev => {
         const next = [...prev];
-        
+
         if (fromSlot !== undefined) {
           const movingValue = next[fromSlot];
           const targetValue = next[index];
-          
+
           if (movingValue !== null && targetValue !== null) {
             next[fromSlot] = targetValue;
             next[index] = movingValue;
@@ -188,17 +176,17 @@ export function NumberGridGame() {
           setMoveCount(prev => prev + 1);
           return next;
         }
-        
+
         if (value !== undefined && !used.has(value) && next[index] === null) {
           next[index] = value;
           setSelected(null);
           setMoveCount(prev => prev + 1);
           playSound('place');
         }
-        
+
         return next;
       });
-    } catch(err) {
+    } catch (err) {
       console.error("Drop error:", err);
     }
 
@@ -222,119 +210,25 @@ export function NumberGridGame() {
     playSound('remove');
   }, []);
 
-  const reset = useCallback(() => {
-    setSlots(Array.from({ length: SLOT_COUNT }, () => null));
-    setSelected(null);
-    setMoveCount(0);
-    setStartTime(null);
-    setElapsedTime(0);
-    setShowSuccess(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-  }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const tenths = Math.floor((seconds % 1) * 10);
-    return mins > 0 
+    return mins > 0
       ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
       : `${secs}.${tenths}s`;
   };
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 mx-auto max-w-4xl p-4 sm:p-8 space-y-6 sm:space-y-8"
+      className="mx-auto max-w-6xl space-y-6 sm:space-y-6"
       onDragOver={(e) => e.preventDefault()}
     >
-      <AnimatePresence>
-        {showSuccess && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: -50 }}
-            className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
-          >
-            <motion.div
-              initial={{ rotate: 0 }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-6 rounded-2xl shadow-2xl text-center"
-            >
-              <Trophy className="w-16 h-16 mx-auto mb-2 text-yellow-300" />
-              <p className="text-3xl font-bold">🎉 Victoire ! 🎉</p>
-              <p className="text-sm mt-2">Complété en {formatTime(elapsedTime)}</p>
-              <p className="text-xs opacity-90">{moveCount} mouvements</p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <h1 className="text-2xl sm:text-3xl text-center font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
+        Diambra Win
+      </h1>
 
-      {/* Header avec stats */}
-      <div className="text-center space-y-3">
-        <div className="flex justify-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 rounded-full shadow-sm">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            <span className="text-sm font-bold text-purple-700">{completionCount} victoires</span>
-          </div>
-          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-4 py-2 rounded-full shadow-sm">
-            <Sparkles className="w-5 h-5 text-emerald-500" />
-            <span className="text-sm font-bold text-emerald-700">{used.size}/{SLOT_COUNT} placés</span>
-          </div>
-          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full shadow-sm">
-            <Zap className="w-5 h-5 text-blue-500" />
-            <span className="text-sm font-bold text-blue-700">{moveCount} mouvements</span>
-          </div>
-          {startTime && !isComplete && (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-orange-100 to-amber-100 px-4 py-2 rounded-full shadow-sm">
-              <span className="text-sm font-bold text-orange-700">⏱️ {formatTime(elapsedTime)}</span>
-            </div>
-          )}
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent">
-          Diambra Win
-        </h1>
-        <p className="text-gray-600 text-sm max-w-md mx-auto">
-          Placez les chiffres de 0 à 9 dans les 4 cases
-        </p>
-      </div>
-
-      {/* Contrôles */}
-      <div className="flex justify-center gap-3 flex-wrap">
-        <div className="flex gap-2 bg-white/50 backdrop-blur-sm rounded-full p-1 shadow-md">
-          <button
-            onClick={() => setMode('click')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${
-              mode === 'click'
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <MousePointerClick className="w-4 h-4" />
-            <span className="font-semibold">Clic</span>
-          </button>
-          <button
-            onClick={() => setMode('drag')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${
-              mode === 'drag'
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <Move className="w-4 h-4" />
-            <span className="font-semibold">Glisser</span>
-          </button>
-        </div>
-        
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="bg-white/50 backdrop-blur-sm p-2 rounded-full shadow-md hover:scale-105 transition-transform"
-        >
-          {soundEnabled ? <Volume2 className="w-5 h-5 text-purple-600" /> : <VolumeX className="w-5 h-5 text-gray-600" />}
-        </button>
-      </div>
-
-      {/* Grille des slots */}
       <div className="flex justify-center gap-3 sm:gap-6 flex-wrap">
         {slots.map((value, i) => (
           <motion.div
@@ -360,10 +254,10 @@ export function NumberGridGame() {
                 ${value !== null
                   ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xl"
                   : dragOverSlot === i && mode === 'drag'
-                  ? "border-purple-500 bg-purple-100 shadow-lg ring-4 ring-purple-300 scale-105"
-                  : selected !== null && mode === 'click' && value === null
-                  ? "border-purple-400 bg-purple-100 shadow-lg ring-2 ring-purple-300"
-                  : "border-2 border-dashed border-purple-300 bg-white/50 hover:bg-purple-50 hover:border-purple-400"
+                    ? "border-purple-500 bg-purple-100 shadow-lg ring-4 ring-purple-300 scale-105"
+                    : selected !== null && mode === 'click' && value === null
+                      ? "border-purple-400 bg-purple-100 shadow-lg ring-2 ring-purple-300"
+                      : "border-2 border-dashed border-purple-300 bg-white/50 hover:bg-purple-50 hover:border-purple-400"
                 }
               `}
             >
@@ -403,8 +297,17 @@ export function NumberGridGame() {
           </motion.div>
         ))}
       </div>
-
-      {/* Sélecteur de chiffres */}
+ 
+      <div className="flex justify-center mb-4">
+        <button
+          className={`px-8 py-3 rounded-full font-bold text-white shadow-lg transition-all duration-300 bg-gradient-to-r from-purple-600 to-indigo-600 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+          disabled={!isComplete}
+          onClick={() => router.push('/star/monprofil')}
+        >
+          Valider
+        </button>
+      </div>
+ 
       <div className="space-y-3">
         <p className="text-center text-xs font-bold uppercase tracking-wider text-purple-600">
           {mode === 'click' ? "🖱️ Choisissez un chiffre à placer" : "🎯 Glissez un chiffre vers une case vide"}
@@ -433,8 +336,8 @@ export function NumberGridGame() {
                   ${isUsed
                     ? "bg-gray-100 text-gray-400 line-through cursor-not-allowed opacity-50"
                     : isSelected && mode === 'click'
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl ring-4 ring-purple-300 scale-110"
-                    : "border-2 border-purple-200 bg-white text-purple-700 hover:border-purple-400 hover:shadow-lg"
+                      ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl ring-4 ring-purple-300 scale-110"
+                      : "border-2 border-purple-200 bg-white text-purple-700 hover:border-purple-400 hover:shadow-lg"
                   }
                 `}
               >
@@ -451,7 +354,6 @@ export function NumberGridGame() {
         </div>
       </div>
 
-      {/* Message de sélection */}
       <AnimatePresence>
         {mode === 'click' && selected !== null && (
           <motion.div
@@ -465,26 +367,68 @@ export function NumberGridGame() {
         )}
       </AnimatePresence>
 
-      {/* Bouton reset et astuce */}
-      <div className="flex flex-col items-center gap-4">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-3 rounded-full flex items-center gap-2 font-bold text-gray-700 shadow-md transition-all hover:shadow-lg"
-        >
-          <RefreshCw size={18} />
-          Nouvelle partie
-        </motion.button>
+      <p className="text-gray-600 text-sm  mx-auto text-center">
+        Placez les chiffres de 0 à 9 dans les 4 cases
+      </p>
 
+      <div className="flex justify-center gap-3 flex-wrap">
+        <div className="flex gap-2 bg-white/50 backdrop-blur-sm rounded-full p-1 shadow-md">
+          <button
+            onClick={() => setMode('click')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${mode === 'click'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
+          >
+            <MousePointerClick className="w-4 h-4" />
+            <span className="font-semibold">Clic</span>
+          </button>
+          <button
+            onClick={() => setMode('drag')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${mode === 'drag'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
+          >
+            <Move className="w-4 h-4" />
+            <span className="font-semibold">Glisser</span>
+          </button>
+        </div>
+
+        <button
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          className="bg-white/50 backdrop-blur-sm p-2 rounded-full shadow-md hover:scale-105 transition-transform"
+        >
+          {soundEnabled ? <Volume2 className="w-5 h-5 text-purple-600" /> : <VolumeX className="w-5 h-5 text-gray-600" />}
+        </button>
+      </div>
+
+      <div className="flex flex-col items-center gap-4">
         <div className="text-center text-xs text-purple-600 bg-white/50 backdrop-blur-sm p-3 rounded-xl max-w-md">
-          💡 Astuce : {mode === 'click' 
-            ? "Cliquez sur un chiffre pour le sélectionner, puis sur une case vide pour le placer. Cliquez sur une case remplie pour la vider." 
+          💡 Astuce : {mode === 'click'
+            ? "Cliquez sur un chiffre pour le sélectionner, puis sur une case vide pour le placer. Cliquez sur une case remplie pour la vider."
             : "Glissez les chiffres vers les cases vides. Vous pouvez aussi échanger deux cases en glissant l'une sur l'autre."}
         </div>
       </div>
 
-      {/* Indicateur de drag */}
+      <div className="text-center space-y-3">
+        <div className="flex justify-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-4 py-2 rounded-full shadow-sm">
+            <Sparkles className="w-5 h-5 text-emerald-500" />
+            <span className="text-sm font-bold text-emerald-700">{used.size}/{SLOT_COUNT} placés</span>
+          </div>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full shadow-sm">
+            <Zap className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-bold text-blue-700">{moveCount} mouvements</span>
+          </div>
+          {startTime && !isComplete && (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-orange-100 to-amber-100 px-4 py-2 rounded-full shadow-sm">
+              <span className="text-sm font-bold text-orange-700">⏱️ {formatTime(elapsedTime)}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       <AnimatePresence>
         {isDragging && (
           <motion.div

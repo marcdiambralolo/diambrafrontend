@@ -1,6 +1,5 @@
 "use client";
 import { Menu } from "lucide-react";
-import React from "react";
 
 interface AdminShellTopBarProps {
   setShowMobileSidebar: (show: boolean) => void;

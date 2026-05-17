@@ -40,30 +40,6 @@ const shimmerVariants: Variants = {
     }
   }
 };
-
-const floatingParticle1Variants: Variants = {
-  animate: {
-    y: [-10, 10, -10],
-    x: [-5, 5, -5],
-    transition: {
-      duration: 5,
-      repeat: Infinity,
-      ease: 'easeInOut'
-    }
-  }
-};
-
-const floatingParticle2Variants: Variants = {
-  animate: {
-    y: [10, -10, 10],
-    x: [5, -5, 5],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      ease: 'easeInOut'
-    }
-  }
-};
  
 interface ConsultationBadgesProps {
   formattedDate: string;
@@ -457,17 +433,14 @@ export function ConsultationsError({ error, onRetry }: ConsultationsErrorProps) 
           )}
         </motion.div>
 
-        {/* Titre */}
         <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           {isTimeoutError ? 'Requête trop longue' : isNetworkError ? 'Erreur réseau' : 'Erreur'}
         </h3>
 
-        {/* Message d'erreur */}
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           {error}
         </p>
 
-        {/* Conseils */}
         {isTimeoutError && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -504,7 +477,6 @@ export function ConsultationsError({ error, onRetry }: ConsultationsErrorProps) 
           </motion.div>
         )}
 
-        {/* Boutons */}
         <div className="flex gap-3">
           <button
             onClick={onRetry}

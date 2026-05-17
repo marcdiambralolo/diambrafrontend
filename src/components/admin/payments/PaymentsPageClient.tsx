@@ -1,12 +1,121 @@
 "use client";
-import { AdminPaymentsErrorAlert } from '@/components/admin/payments/AdminPaymentsErrorAlert';
-import PaymentsFilters from '@/components/admin/payments/PaymentsFilters';
+ import PaymentsFilters from '@/components/admin/payments/PaymentsFilters';
 import PaymentsList from '@/components/admin/payments/PaymentsList';
-import PaymentsStats from '@/components/admin/payments/PaymentsStats';
 import { useAdminPaymentsPage } from '@/hooks/admin/payments/useAdminPaymentsPage';
 import { motion, Variants } from 'framer-motion';
-import { CreditCard, RefreshCw } from 'lucide-react';
-import React, { memo } from 'react';
+import { AlertCircle, CreditCard, RefreshCw } from 'lucide-react';
+import React, { memo } from 'react'; 
+import { CheckCircle, Clock, XCircle } from 'lucide-react';
+
+interface StatsProps {
+  stats: {
+    total: number;
+    pending: number;
+    completed: number;
+    failed: number;
+    cancelled: number;
+    totalAmount: number;
+    completedAmount: number;
+  } | null;
+}
+
+const PaymentsStats: React.FC<StatsProps> = ({ stats }) => {
+  if (!stats) return null;
+  return (
+    <div className="space-y-3 mb-4">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-3 text-white">
+          <p className="text-xs opacity-90 mb-1">Montant total</p>
+          <p className="text-xl font-bold">{stats.totalAmount.toLocaleString()} F</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-3 text-white">
+          <p className="text-xs opacity-90 mb-1">Montant encaissé</p>
+          <p className="text-xl font-bold">{stats.completedAmount.toLocaleString()} F</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="bg-white rounded-lg p-2.5 border border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-green-50 rounded">
+              <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500">Réussis</p>
+              <p className="text-lg font-bold text-gray-900">{stats.completed}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg p-2.5 border border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-orange-50 rounded">
+              <Clock className="w-3.5 h-3.5 text-orange-600" />
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500">En attente</p>
+              <p className="text-lg font-bold text-gray-900">{stats.pending}</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-2.5 border border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-red-50 rounded">
+              <XCircle className="w-3.5 h-3.5 text-red-600" />
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500">Échoués</p>
+              <p className="text-lg font-bold text-gray-900">{stats.failed}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg p-2.5 border border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-gray-50 rounded">
+              <AlertCircle className="w-3.5 h-3.5 text-gray-600" />
+            </div>
+            
+            <div>
+              <p className="text-xs text-gray-500">Annulés</p>
+              <p className="text-lg font-bold text-gray-900">{stats.cancelled}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}; 
+
+interface AdminPaymentsErrorAlertProps {
+  error: string;
+  onRetry: () => void;
+}
+
+export const AdminPaymentsErrorAlert: React.FC<AdminPaymentsErrorAlertProps> = ({ error, onRetry }) => (
+  <div className="flex items-center justify-center  bg-gray-50 px-4">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="text-center max-w-sm w-full bg-white rounded-xl shadow-lg p-6"
+    >
+      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+      <h3 className="text-lg font-bold text-gray-900 mb-2">Erreur</h3>
+      <p className="text-sm text-gray-600 mb-4">{error}</p>
+      
+      <button
+        onClick={onRetry}
+        className="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm rounded-lg font-semibold hover:shadow-lg transition-all"
+      >
+        Réessayer
+      </button>
+    </motion.div>
+  </div>
+);
 
 interface AdminPaymentsPaginationProps {
   currentPage: number;

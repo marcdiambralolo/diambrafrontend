@@ -6,20 +6,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
-  Award,
-  Calendar,
   CheckCircle, DollarSign,
   Edit3,
-  FileText,
   HelpCircle,
-  Loader2, Package,
+  Loader2,
   Save, Sparkles,
-  Users,
   X,
   Zap
 } from "lucide-react";
 import { OfferingSelector } from "../OfferingSelector";
-
 
 interface FormFieldProps {
   label: string;
@@ -55,19 +50,6 @@ const FormField = ({ label, description, required, error, children }: FormFieldP
   </div>
 );
 
-const InfoBadge = ({ icon: Icon, label, value, color }: {
-  icon: any;
-  label: string;
-  value: string;
-  color?: string;
-}) => (
-  <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gradient-to-r from-slate-50 to-indigo-50 dark:from-[#162A56] dark:to-[#0F1C3F] border border-slate-200 dark:border-slate-700">
-    <Icon className={`w-3.5 h-3.5 ${color || 'text-[#2E5AA6]'}`} />
-    <span className="text-xs text-slate-600 dark:text-slate-400">{label}:</span>
-    <span className="text-xs font-semibold text-slate-900 dark:text-white">{value}</span>
-  </div>
-);
-
 const ChevronDown = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -98,7 +80,6 @@ export default function RubriquesAdminPage() {
       transition={{ duration: 0.5 }}
       aria-label="Gestion des rubriques"
     >
-      {/* Decorative elements */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2E5AA6] via-[#4F83D1] to-[#FFD600] z-50" />
       <div className="absolute top-20 right-10 w-72 h-72 bg-[#2E5AA6]/5 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-[#4F83D1]/5 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -118,11 +99,10 @@ export default function RubriquesAdminPage() {
             Gestion des rubriques
           </h1>
           <p className="mt-3 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Créez et personnalisez les choix de vos rubriques avec une expérience utilisateur optimale
+            Créez et personnalisez les choix de vos rubriques
           </p>
         </motion.div>
 
-        {/* Main Content */}
         <motion.section
           aria-labelledby="rubrique-edition-title"
           className="mt-8"
@@ -196,7 +176,7 @@ export default function RubriquesAdminPage() {
                     <div className="flex items-start gap-4">
                       <div className="flex-1 space-y-4">
                         <FormField
-                          label="Titre du choix"
+                          label="Titre"
                           description="Le nom qui apparaîtra pour les utilisateurs"
                           required
                           error={!choice.title.trim() && choice.title !== '' ? 'Le titre est requis' : undefined}
@@ -207,121 +187,61 @@ export default function RubriquesAdminPage() {
                               type="text"
                               value={choice.title}
                               onChange={(e) => handleUpdateChoice({ ...choice, title: e.target.value })}
-                              placeholder="Ex: Consultation personnalisée, Analyse approfondie..."
+                              placeholder=""
                               className="w-full pl-10 pr-3 py-2.5 text-sm font-medium rounded-lg border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100 text-black transition"
                             />
                           </div>
-                        </FormField>
-
-
-
-                        {/* Description */}
-                        <FormField label="Description" description="Décrivez ce choix en détail">
-                          <textarea
-                            value={choice.description}
-                            onChange={(e) => handleUpdateChoice({ ...choice, description: e.target.value })}
-                            placeholder="Décrivez les bénéfices, le déroulement et ce que l'utilisateur peut attendre..."
-                            rows={3}
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#2E5AA6]/40 dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100 text-black resize-none"
-                          />
                         </FormField>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Section: AI Configuration (Collapsible) */}
                   <motion.div
                     layout
                     className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-[#0F1C3F] shadow-md"
                   >
-                    <button
-                      onClick={() => toggleSection('ai')}
-                      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#162A56] transition"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-[#FFD600]" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          Configuration IA
-                        </span>
-                        <span className="text-xs text-slate-500">(Optionnel)</span>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: expandedSection === 'ai' ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="w-5 h-5 text-slate-400" />
-                      </motion.div>
-                    </button>
-
-                  </motion.div>
-
-
-
-                  {/* Section: Offerings */}
-                  <motion.div
-                    layout
-                    className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-[#0F1C3F] shadow-md"
-                  >
-                    <button
-                      onClick={() => toggleSection('offering')}
-                      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#162A56] transition"
-                    >
-                       
-                      <motion.div
-                        animate={{ rotate: expandedSection === 'offering' ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ChevronDown className="w-5 h-5 text-slate-400" />
-                      </motion.div>
-                    </button>
-
                     <AnimatePresence>
-                      {expandedSection === 'offering' && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
-                            <div className="space-y-3">
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 pt-0 border-t border-slate-100 dark:border-slate-700">
+                          <div className="space-y-3">
 
-                              <OfferingSelector
-                                key={0}
-                                alternative={choice.offering.alternative}
-                                offerings={offerings}
-                                onChange={(updated) => handleAlternativeChange(0, updated)}
-                              />
-
-                            </div>
-
-                            {totalCost > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#EEF4FF] to-[#DDE7FA] dark:from-[#0F1C3F] dark:to-[#162A56] p-4 border border-[#2E5AA6]/20"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <DollarSign className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
-                                  <span className="text-sm font-semibold text-[#16315F] dark:text-[#DDE7FA]">
-                                    Coût total de la prestation
-                                  </span>
-                                </div>
-                                <div className="text-2xl font-bold text-[#2E5AA6] dark:text-[#FFD600]">
-                                  {totalCost.toLocaleString()} FCFA
-                                </div>
-                              </motion.div>
-                            )}
+                            <OfferingSelector
+                              key={0}
+                              alternative={choice.offering.alternative}
+                              offerings={offerings}
+                              onChange={(updated) => handleAlternativeChange(0, updated)}
+                            />
                           </div>
-                        </motion.div>
-                      )}
+
+                          {totalCost > 0 && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#EEF4FF] to-[#DDE7FA] dark:from-[#0F1C3F] dark:to-[#162A56] p-4 border border-[#2E5AA6]/20"
+                            >
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
+                                <span className="text-sm font-semibold text-[#16315F] dark:text-[#DDE7FA]">
+                                  Coût total
+                                </span>
+                              </div>
+                              <div className="text-2xl font-bold text-[#2E5AA6] dark:text-[#FFD600]">
+                                {totalCost.toLocaleString()} FCFA
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+                      </motion.div>
                     </AnimatePresence>
                   </motion.div>
-
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-6 mt-6 border-t border-slate-200 dark:border-slate-700">
                   <motion.button
                     onClick={handleBackToList}
@@ -357,7 +277,6 @@ export default function RubriquesAdminPage() {
                   </motion.button>
                 </div>
 
-                {/* Validation messages */}
                 {!isFormValid && !saving && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -370,7 +289,7 @@ export default function RubriquesAdminPage() {
                         <p className="font-semibold mb-1">Champs requis manquants :</p>
                         <ul className="list-disc list-inside space-y-0.5">
                           {!choice.title.trim() && <li>Un titre est requis</li>}
-                           {choice.offering.alternative.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
+                          {choice.offering.alternative.quantity <= 0 && <li>Toutes les quantités doivent être supérieures à 0</li>}
                         </ul>
                       </div>
                     </div>

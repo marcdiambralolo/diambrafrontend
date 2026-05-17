@@ -168,10 +168,14 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     try {
       const submitFormData = buildSubmitFormData();
 
-      await api.put(`/offerings/${id}`, submitFormData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    await api.put(`/offerings/${id}`, submitFormData, {
+        headers: {
+          'Content-Type': 'application/json'  // ✅ JSON au lieu de multipart
+        },
         withCredentials: true,
       });
+
+       
 
       router.replace('/admin/offrandes');
       router.refresh();

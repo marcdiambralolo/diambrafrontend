@@ -1,7 +1,7 @@
 'use client';
-import { memo, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, AlertCircle, Bell, X } from 'lucide-react';
+import { AlertCircle, Bell, Sparkles, X } from 'lucide-react';
+import { memo, useEffect, useMemo } from 'react';
 
 const Toast = memo(({ message, type = 'info', onClose }: {
   message: string;

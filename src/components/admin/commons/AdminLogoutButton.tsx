@@ -18,7 +18,6 @@ export const AdminLogoutButton = React.memo(function AdminLogoutButton({ onLogou
       ) : (
         <LogOut className="w-5 h-5" />
       )}
-
       {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
     </motion.button>
   );

@@ -30,7 +30,6 @@ interface OffrandesStatsProps {
   statsData: StatsData;
 }
 
-
 const StatCard = memo(({
   title,
   value,
@@ -108,7 +107,6 @@ const PeriodCard = memo(({
 ));
 
 const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
-  // Calculs des totaux
   const totalRevenue = statsData.byCategory.reduce((sum, c) => sum + c.revenue, 0);
   const totalQuantity = statsData.byCategory.reduce((sum, c) => sum + c.quantitySold, 0);
 
@@ -122,7 +120,6 @@ const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
   return (
     <div className="w-full py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header avec animation */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,7 +137,6 @@ const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
           </p>
         </motion.div>
 
-        {/* Cartes KPI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
             title="Chiffre d'affaires total"

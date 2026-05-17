@@ -1,5 +1,5 @@
 "use client";
- import { useOfferingForm } from "@/hooks/admin/offrandes/useOfferingForm";
+import { useOfferingForm } from "@/hooks/admin/offrandes/useOfferingForm";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
@@ -97,7 +97,7 @@ export function OfferingForm({
 
 export default function OffrandeCreatePageClient() {
   const {
-   formData, saving, error,   handleChange, handleSubmit, handleCancel  } = useOfferingForm();
+    formData, saving, error, handleChange, handleSubmit, handleCancel } = useOfferingForm();
 
   return (
     <div className="w-full flex items-center justify-center relative z-10 animate-fade-in">

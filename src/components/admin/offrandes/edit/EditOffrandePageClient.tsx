@@ -7,13 +7,9 @@ import React, { memo, useCallback, useState } from "react";
 const CONSTANTS = {
     MAX_NAME_LENGTH: 64,
     MIN_NAME_LENGTH: 2,
-    MAX_DESCRIPTION_LENGTH: 256,
-    MIN_DESCRIPTION_LENGTH: 4,
-    EXCHANGE_RATE: 563.5,
     ANIMATION_DURATION: 0.3,
 } as const;
 
-// ==================== TYPES ====================
 interface EditOffrandeFormProps {
     formData: {
         _id?: string;
@@ -27,7 +23,6 @@ interface EditOffrandeFormProps {
     onSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
-// ==================== COMPOSANTS ====================
 const FormField = memo(({
     label,
     required,
@@ -59,40 +54,6 @@ const FormField = memo(({
     </div>
 ));
 
-const ImagePreview = memo(({
-    onRemove,
-    isNew = false
-}: {
-    src: string;
-    alt: string;
-    onRemove: () => void;
-    isNew?: boolean;
-}) => (
-    <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="relative group"
-    >
-
-        {isNew && (
-            <div className="absolute top-0 left-0 bg-green-500 text-white text-[8px] font-bold px-1 rounded-br-lg rounded-tl-lg">
-                NOUVEAU
-            </div>
-        )}
-        <button
-            type="button"
-            onClick={onRemove}
-            className="absolute -top-2 -right-2 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition shadow-md"
-        >
-            <X className="w-3 h-3" />
-        </button>
-    </motion.div>
-));
-
-ImagePreview.displayName = 'ImagePreview';
-
-// ==================== FORMULAIRE PRINCIPAL ====================
 export const EditOffrandeForm = memo(({
     formData,
     saving,
@@ -102,8 +63,6 @@ export const EditOffrandeForm = memo(({
     onSubmit,
 }: EditOffrandeFormProps) => {
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-    const [uploadProgress, setUploadProgress] = useState(0);
-
 
     const validateField = useCallback((name: string, value: string | number) => {
         switch (name) {
@@ -113,14 +72,6 @@ export const EditOffrandeForm = memo(({
                 }
                 if (String(value).length > CONSTANTS.MAX_NAME_LENGTH) {
                     return `Maximum ${CONSTANTS.MAX_NAME_LENGTH} caractères`;
-                }
-                return '';
-            case 'description':
-                if (!value || String(value).length < CONSTANTS.MIN_DESCRIPTION_LENGTH) {
-                    return `Minimum ${CONSTANTS.MIN_DESCRIPTION_LENGTH} caractères`;
-                }
-                if (String(value).length > CONSTANTS.MAX_DESCRIPTION_LENGTH) {
-                    return `Maximum ${CONSTANTS.MAX_DESCRIPTION_LENGTH} caractères`;
                 }
                 return '';
             case 'price':
@@ -142,8 +93,6 @@ export const EditOffrandeForm = memo(({
 
     const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Validation complète
         const nameError = validateField('name', formData.name);
         const priceError = validateField('price', formData.price);
 
@@ -155,23 +104,14 @@ export const EditOffrandeForm = memo(({
             return;
         }
 
-        const interval = setInterval(() => {
-            setUploadProgress(prev => Math.min(prev + 10, 90));
-        }, 200);
-
         try {
             await onSubmit(e);
-            clearInterval(interval);
-            setUploadProgress(100);
         } catch (err) {
             console.error('Erreur lors de la sauvegarde :', err);
-            clearInterval(interval);
-            setUploadProgress(0);
         }
     }, [formData, validateField, onSubmit]);
 
-    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH &&
-        formData.price > 0;
+    const isValid = formData.name.length >= CONSTANTS.MIN_NAME_LENGTH && formData.price > 0;
 
     return (
         <motion.form
@@ -182,7 +122,6 @@ export const EditOffrandeForm = memo(({
             className="w-full max-w-2xl mx-auto my-8"
         >
             <div className="bg-white dark:bg-[#0F1C3F] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
-                {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
                     <div className="flex items-center gap-3">
                         <button
@@ -199,9 +138,7 @@ export const EditOffrandeForm = memo(({
                     </div>
                 </div>
 
-                {/* Formulaire */}
                 <div className="p-6 space-y-5">
-                    {/* Nom */}
                     <FormField label="Nom" required htmlFor="offrande-name" error={fieldErrors.name}>
                         <input
                             id="offrande-name"
@@ -216,9 +153,6 @@ export const EditOffrandeForm = memo(({
                         />
                     </FormField>
 
-
-
-                    {/* Prix */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField label="Prix (XOF)" required htmlFor="offrande-price" error={fieldErrors.price}>
                             <input
@@ -232,8 +166,6 @@ export const EditOffrandeForm = memo(({
                                 className="w-full rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-[#13274C] px-4 py-2.5 text-sm font-medium text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
                             />
                         </FormField>
-
-
                     </div>
 
                     <AnimatePresence>
@@ -252,7 +184,6 @@ export const EditOffrandeForm = memo(({
                         )}
                     </AnimatePresence>
 
-                    {/* Actions */}
                     <div className="flex gap-3 pt-4">
                         <button
                             type="button"
@@ -285,7 +216,6 @@ export const EditOffrandeForm = memo(({
     );
 });
 
-// ==================== COMPOSANTS DE CHARGEMENT ET ERREUR ====================
 export const EditOffrandeLoading = memo(() => (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <motion.div
@@ -327,19 +257,10 @@ export const EditOffrandeError = memo(({ error, onRetry }: { error: string; onRe
     </motion.div>
 ));
 
-EditOffrandeError.displayName = 'EditOffrandeError';
-
-// ==================== COMPOSANT PRINCIPAL ====================
 export default function EditOffrandePageClient() {
     const {
-        formData,
-        loading,
-        saving,
-        error,
-        handleChange,
-        handleSubmit,
-        handleCancel,
-        fetchData,
+        formData, loading, saving, error,
+        handleChange, handleSubmit, handleCancel, fetchData,
     } = useEditOffrande();
 
     if (loading) return <EditOffrandeLoading />;

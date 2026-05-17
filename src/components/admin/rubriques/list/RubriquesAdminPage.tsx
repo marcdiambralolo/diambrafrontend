@@ -169,9 +169,6 @@ const ChoiceCard = ({ choice, index, rubriqueId, isExpanded, isHovered, onExpand
                 <h3 className="font-bold text-lg text-slate-800 dark:text-white">
                   {choice.title}
                 </h3>
-
-
-
                 {choice.consultationCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}

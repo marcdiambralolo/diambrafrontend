@@ -58,7 +58,7 @@ export function useAdminRubriquesEditPage() {
   const rubriqueId = params?.id as string;
   const choiceId = searchParams?.get('idchoice') || searchParams?.get('id') || '';
 
- 
+
 
   // États
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
@@ -81,7 +81,7 @@ export function useAdminRubriquesEditPage() {
   const [choice, setChoice] = useState<ConsultationChoice>({
     title: "",
     description: "",
-    offering: { alternative: {  offeringId: "", quantity: 1 } },
+    offering: { alternative: { offeringId: "", quantity: 1 } },
     choiceId: "",
     choiceTitle: "",
     consultationId: null,
@@ -97,7 +97,7 @@ export function useAdminRubriquesEditPage() {
       }
     };
   }, []);
- 
+
 
   // Navigation retour
   const handleBackToList = useCallback(() => {
@@ -133,7 +133,7 @@ export function useAdminRubriquesEditPage() {
     }
   }, [editingRubrique, choiceId, router, rubriqueId, showToast]);
 
-  
+
   useEffect(() => {
     const fetchOfferings = async () => {
       if (abortControllerRef.current) {
@@ -202,7 +202,7 @@ export function useAdminRubriquesEditPage() {
           setOriginalChoice(foundChoice);
           setChoice({
             ...foundChoice,
-            offering: foundChoice.offering || { alternative: {  offeringId: "", quantity: 1 } },
+            offering: foundChoice.offering || { alternative: { offeringId: "", quantity: 1 } },
           });
         } else {
           showToast('error', 'Choix non trouvé');
@@ -218,22 +218,22 @@ export function useAdminRubriquesEditPage() {
 
   const handleAlternativeChange = useCallback((_idx: number, updated: OfferingAlternative) => {
     setChoice(prev => {
- 
+
       return { ...prev, offering: { alternative: updated } };
     });
   }, []);
 
-  
+
   const validateChoice = useCallback((choiceToValidate: ConsultationChoice): string | null => {
     if (!choiceToValidate.title?.trim()) {
       return 'Veuillez saisir un titre.';
     }
-  
+
     const alternatives = choiceToValidate.offering?.alternative;
-    if (!alternatives ) {
+    if (!alternatives) {
       return '1 alternative  banque est requise.';
     }
- 
+
 
     return null;
   }, []);
@@ -252,10 +252,10 @@ export function useAdminRubriquesEditPage() {
     setSaving(true);
 
     try {
- 
+
       const offering = {
-        alternatives: choice.offering.alternative 
-      }; 
+        alternatives: choice.offering.alternative
+      };
       const payload = {
         title: choice.title.trim(),
         description: choice.description.trim(),
@@ -273,18 +273,19 @@ export function useAdminRubriquesEditPage() {
     } finally {
       setSaving(false);
     }
-  }, [editingRubrique, choice, validateChoice, showToast,   choiceId, originalChoice, router, rubriqueId]);
+  }, [editingRubrique, choice, validateChoice, showToast, choiceId, originalChoice, router, rubriqueId]);
 
-  // Calculs mémoisés
+
+
   const totalCost = useMemo(() => {
-    return choice.offering.alternative.quantity * (offerings.find(o => o._id === choice.offering.alternative.offeringId)?.price || 0) ;
-  }, [choice.offering.alternative, offerings]);
+    return 100;
+  }, []);
 
   const isFormValid = useMemo(() => {
     return choice.title.trim() &&
       choice.description.trim() &&
-      choice.offering.alternative  &&
-      choice.offering.alternative. quantity > 0;
+      choice.offering.alternative &&
+      choice.offering.alternative.quantity > 0;
   }, [choice.title, choice.description, choice.offering.alternative]);
 
   // Toggle section
@@ -294,7 +295,7 @@ export function useAdminRubriquesEditPage() {
 
   return {
     handleSave, handleBackToList, handleUpdateChoice, setToast, toggleSection,
-    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,  
+    handleAlternativeChange, handleCancelEdit, handleDeleteChoice,
     expandedSection, totalCost, isFormValid, loading, saving, offerings,
     offeringsLoading, choice, view, editingRubrique, toast, originalChoice,
   };

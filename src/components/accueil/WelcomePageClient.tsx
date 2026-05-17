@@ -1,6 +1,6 @@
 "use client";
 import Loader from '@/app/loading';
-import { ArrowRight, Brain, Target, Trophy } from 'lucide-react';
+import { ArrowRight, Brain, Target } from 'lucide-react';
 import Link from "next/link";
 import { memo, Suspense } from 'react';
 
@@ -86,8 +86,7 @@ export function WelcomePageClientContent() {
             <div className="mt-4 flex justify-center gap-2">
               <h1 className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-6xl font-black tracking-tight text-transparent sm:text-7xl lg:text-8xl">
                 Quatre Cases
-              </h1>
-              <Trophy className="h-12 w-12 text-yellow-500 animate-bounce-gentle" />
+              </h1> 
             </div>
 
             <div className="mt-6 mx-auto h-1 w-24 rounded-full bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400" />
@@ -110,7 +109,7 @@ export function WelcomePageClientContent() {
                 className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 px-12 py-5 text-xl font-bold text-white shadow-2xl shadow-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-purple-300 active:scale-95"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  🎮 Demarrer 
+                  🎮 Commencer 
                   <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-2" />
                 </span>
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

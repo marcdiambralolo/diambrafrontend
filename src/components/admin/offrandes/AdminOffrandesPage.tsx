@@ -153,8 +153,7 @@ const OffrandesCard = memo(({
                         </p>
                     </div>
                 </div>
-
-                {/* Actions */}
+    
                 <div className="mt-3 flex gap-2">
                     <button
                         onClick={() => onEdit(offering)}

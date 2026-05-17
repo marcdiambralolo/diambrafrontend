@@ -1,11 +1,4 @@
-import {
-  CreditCard,
-  FileText,
-  LayoutDashboard,
-  Settings,
-  Shield,
-  Users
-} from 'lucide-react';
+import { CreditCard, FileText, LayoutDashboard, Settings, Shield, Users } from 'lucide-react';
 
 export const navItems = [
   { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard, color: 'amber' },

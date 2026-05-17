@@ -44,7 +44,6 @@ const FormField = ({ label, description, required, error, children }: FormFieldP
   </div>
 );
 
-
 const ChevronDown = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -94,11 +93,7 @@ export default function RubriquesAdminEditPage() {
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#2E5AA6] via-[#4F83D1] to-[#FFD600] bg-clip-text text-transparent animate-gradient">
             Modifier le choix
-          </h1>
-          <p className="mt-3 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-
-            Modifiez les détails de ce choix de consultation
-          </p>
+          </h1> 
         </motion.div>
 
         {/* Main Content */}
@@ -191,17 +186,7 @@ export default function RubriquesAdminEditPage() {
                               className="w-full pl-10 pr-3 py-2.5 text-sm font-medium rounded-lg border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100 text-black transition"
                             />
                           </div>
-                        </FormField>
-
-                        <FormField label="Description" description="Décrivez ce choix en détail">
-                          <textarea
-                            value={choice.description || ''}
-                            onChange={(e) => handleUpdateChoice({ ...choice, description: e.target.value })}
-                            placeholder="Décrivez les bénéfices, le déroulement et ce que l'utilisateur peut attendre..."
-                            rows={3}
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#2E5AA6]/40 dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100 text-black resize-none"
-                          />
-                        </FormField>
+                        </FormField> 
                       </div>
                     </div>
                   </motion.div>

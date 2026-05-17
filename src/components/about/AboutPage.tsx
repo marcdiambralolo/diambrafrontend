@@ -86,7 +86,7 @@ export default function AboutPageClient() {
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 text-purple-900 overflow-x-hidden">
       <nav className="sticky top-0 z-30 border-b border-purple-100 bg-white/90 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-3">
-          <CacheLink href="/" className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">
+          <CacheLink href="/star/profil" className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">
             <ArrowLeft className="h-4 w-4" />Retour au jeu
           </CacheLink>
           <div className="hidden sm:flex items-center gap-2 text-[13px] font-bold">
@@ -100,7 +100,6 @@ export default function AboutPageClient() {
       </nav>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
-        {/* Hero Section */}
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
           <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 mb-6">
             <Gamepad2 className="h-4 w-4 text-purple-600" />
@@ -113,16 +112,15 @@ export default function AboutPageClient() {
             Entraînez votre cerveau avec ce puzzle de chiffres simple mais addictif.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <CacheLink href="/star/game" className={btnPrimary}>
+            <CacheLink href="/star/profil" className={btnPrimary}>
               Jouer maintenant <ChevronRight className="h-4 w-4" />
             </CacheLink>
-            <CacheLink href="/star/game?mode=tuto" className={btnSecondary}>
+            <CacheLink href="/star/profil?mode=tuto" className={btnSecondary}>
               Mode démo <Zap className="h-4 w-4" />
             </CacheLink>
           </div>
         </section>
 
-        {/* Section Règles du jeu */}
         <section id="jeu" className="mt-12 sm:mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
@@ -148,7 +146,6 @@ export default function AboutPageClient() {
           </ConicPanel>
         </section>
 
-        {/* Section Règles détaillées */}
         <section id="regles" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-black text-purple-900">📜 Règles du jeu</h2>
@@ -184,7 +181,6 @@ export default function AboutPageClient() {
           </div>
         </section>
 
-        {/* Section Statistiques */}
         <section id="stats" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">📊 Le jeu en chiffres</h2>
@@ -205,7 +201,6 @@ export default function AboutPageClient() {
           </ConicPanel>
         </section>
 
-        {/* Section Pourquoi jouer */}
         <section id="pourquoi" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">✨ Pourquoi jouer à Quatre Cases ?</h2>
@@ -234,12 +229,11 @@ export default function AboutPageClient() {
           </ConicPanel>
         </section>
 
-        {/* Section CTA Final */}
         <section className="mt-12 text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-400">
           <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
             <h2 className="text-2xl font-black">Prêt à relever le défi ?</h2>
             <p className="mt-2 text-purple-100">Testez votre logique dès maintenant !</p>
-            <CacheLink href="/star/game" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
+            <CacheLink href="/star/profil" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
               Commencer la partie <ChevronRight className="h-4 w-4" />
             </CacheLink>
           </div>

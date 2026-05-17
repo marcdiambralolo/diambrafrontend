@@ -16,7 +16,7 @@ export function useConsultationsListPage() {
   });
 
   const consultations = useMemo<Consultation[]>(() => query.data?.consultations ?? [], [query.data]);
-
+console.log(consultations);
   const error = useMemo(() => {
     if (!query.error) {
       return null;

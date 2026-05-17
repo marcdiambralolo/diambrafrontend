@@ -21,6 +21,7 @@ export const endpoints = {
   consultations: {
     list: '/consultations',
     create: '/consultations',
+    my: '/consultations/me',
     byId: (id: string) => `/consultations/${id}`,
     status: (id: string) => `/consultations/${id}/status`,
     assign: (id: string) => `/consultations/${id}/assign`,

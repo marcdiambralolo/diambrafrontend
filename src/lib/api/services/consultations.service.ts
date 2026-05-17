@@ -67,7 +67,7 @@ function normalizeFrontData(payload: ConsultationFrontDataPayload, consultationI
 
 export const consultationsService = {
   async getMine() {
-    const response = await api.get<PaginatedConsultationsPayload>('/consultations/my');
+    const response = await api.get<PaginatedConsultationsPayload>('/consultations/me');
     return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
   },
 

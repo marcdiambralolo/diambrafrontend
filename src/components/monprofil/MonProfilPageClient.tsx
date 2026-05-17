@@ -3,15 +3,38 @@ import { useMonProfil } from "@/hooks/carteduciel/useMonProfil";
 import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
-import { motion, Variants } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
-  AlertCircle, ArrowRight, CalendarDays, Clock, Crown,
-  Gamepad2, Loader2, MapPin,
-  Plus, Sparkles,
-  TrendingUp, Trophy, UserRound
+  AlertCircle, ArrowRight, CalendarDays,  Clock, Crown,  Gamepad2,
+  Loader2, MapPin, Plus, Sparkles, Trophy, UserRound
 } from "lucide-react";
 import Link from "next/link";
 import { memo, type ReactNode, useState } from "react";
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+};
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+  }
+};
+
+
+const getRelativeTime = (date: string) => {
+  const now = new Date();
+  const past = new Date(date);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? 's' : ''}`;
+  if (diffInSeconds < 3600) return `il y a ${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
+  if (diffInSeconds < 86400) return `il y a ${Math.floor(diffInSeconds / 3600)} heure${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
+  return `le ${past.toLocaleDateString('fr-FR')}`;
+};
 
 export interface ConsultationCardProps {
   consultation: Consultation;
@@ -20,6 +43,13 @@ export interface ConsultationCardProps {
 
 function ConsultationCard({ consultation, index }: ConsultationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const createdAt = consultation.createdAt || consultation.dateGeneration;
+  const relativeDate = createdAt ? getRelativeTime(createdAt as string) : 'Date inconnue';
+  const formattedDate = createdAt ? new Date(createdAt as string).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }) : 'Date inconnue';
 
   return (
     <motion.article
@@ -39,16 +69,10 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
         "transition-all duration-300"
       )}
     >
+      {/* Effets décoratifs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-[#4F83D1]/14 to-[#9BC2FF]/6 blur-3xl" />
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gradient-to-tr from-[#2E5AA6]/14 to-[#7BA9F1]/7 blur-3xl" />
-        <div
-          className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background:
-              "radial-gradient(420px 280px at var(--sx) var(--sy), rgba(79,131,209,0.22), transparent 60%)",
-          }}
-        />
         <div className="absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-130%] transition-transform duration-700 group-hover:translate-x-[320%] dark:via-white/5" />
       </div>
 
@@ -59,9 +83,9 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
             "linear-gradient(90deg, rgba(46,90,166,0.85), rgba(79,131,209,0.88), rgba(155,194,255,0.7))",
         }}
       />
-      <div className="pointer-events-none absolute -inset-px rounded-3xl bg-gradient-to-br from-white/20 to-transparent" />
 
-      <div className="relative z-10 flex items-center gap-4 w-full">
+      <div className="relative z-10 flex items-start gap-4 w-full">
+        {/* Icône de jeu */}
         <div className="flex-shrink-0">
           <div className={cx(
             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
@@ -73,42 +97,43 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white truncate">
-              Partie du {new Date(consultation.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+          {/* En-tête avec titre et statut */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
+              Jeu
             </h3>
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30">
-              <Trophy className="w-3 h-3 text-green-600 dark:text-green-400" />
-              <span className="text-[10px] font-bold text-green-700 dark:text-green-400">Terminée</span>
-            </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
+           <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1.5">
               <Clock className="w-3 h-3" />
-              <span>Il y a 3 jours</span>
+              <span>{relativeDate}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
-              <span>Score: 4/4</span>
+            <div className="flex items-center gap-1.5">
+              <CalendarDays className="w-3 h-3" />
+              <span>{formattedDate}</span>
             </div>
           </div>
         </div>
 
-        <ArrowRight className={cx(
-          "w-5 h-5 text-gray-400 transition-all duration-300",
-          isHovered ? "translate-x-1 text-purple-500" : ""
-        )} />
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+
+          <ArrowRight className={cx(
+            "w-5 h-5 text-gray-400 transition-all duration-300",
+            isHovered ? "translate-x-1 text-purple-500" : ""
+          )} />
+        </div>
       </div>
     </motion.article>
   );
 }
+ 
 
 interface ConsultationsEmptyProps {
   consultationsLength: number;
 }
 
-export function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
+function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -150,9 +175,9 @@ export function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyPr
       </Link>
     </motion.div>
   );
-}
+} 
 
-export function ConsultationsListLoading() {
+function ConsultationsListLoading() {
   return (
     <div className="flex min-h-[400px] items-center justify-center">
       <div className="text-center">
@@ -187,7 +212,6 @@ const NewGameButton = memo(() => (
       className="group relative flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 text-white font-bold rounded-2xl shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 overflow-hidden"
     >
       <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-
       <div className="relative z-10 flex items-center gap-2">
         <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
         <span className="font-bold">Nouveau jeu</span>
@@ -196,56 +220,7 @@ const NewGameButton = memo(() => (
     </Link>
   </motion.div>
 ));
-
-NewGameButton.displayName = 'NewGameButton';
-
-const ConsultationsListMain = memo(function ConsultationsListMain() {
-  const { consultations, loading, count } = useConsultationsListPage();
-
-  if (loading) return <ConsultationsListLoading />;
-
-  return (
-    <div className="w-full space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            Mes jeux
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            {count} jeu{count > 1 ? 'x' : ''}
-          </p>
-        </div>
-
-        <Link
-          href="/star/profil"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
-        >
-          <Plus className="w-4 h-4" />
-          Nouvau jeu
-        </Link>
-      </div>
-
-      {/* Liste des consultations */}
-      {count === 0 ? (
-        <ConsultationsEmpty consultationsLength={count} />
-      ) : (
-        <div className="space-y-3">
-          {consultations.map((consultation, index) => (
-            <ConsultationCard
-              key={consultation?._id ?? consultation?.id ?? index}
-              consultation={consultation}
-              index={index}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
-
-ConsultationsListMain.displayName = 'ConsultationsListMain';
-
+ 
 const ErrorState = memo(() => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
@@ -263,24 +238,9 @@ const ErrorState = memo(() => (
       <p className="text-gray-300">Aucun utilisateur connecté. Veuillez vous connecter.</p>
     </div>
   </motion.div>
-));
+)); 
 
-ErrorState.displayName = 'ErrorState';
-
-const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-  }
-};
-
-export const IdentityOverview = memo(function IdentityOverview({
+const IdentityOverview = memo(function IdentityOverview({
   fullName,
   dateNaissanceLabel,
   heureNaissance,
@@ -324,7 +284,7 @@ export const IdentityOverview = memo(function IdentityOverview({
   );
 });
 
-export const IdentityPill = memo(function IdentityPill({
+const IdentityPill = memo(function IdentityPill({
   icon,
   label,
   value,
@@ -349,46 +309,70 @@ export const IdentityPill = memo(function IdentityPill({
   );
 });
 
-const UserHub = memo(function UserHub() {
-  const { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance, } = useMonProfil();
+function MonProfilPageClientImpl() {
+  const { consultations, loading, count } = useConsultationsListPage();
+  const { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance } = useMonProfil();
 
+  if (loading) return <ConsultationsListLoading />;
   if (!processedData) return <ErrorState />;
 
   return (
-    <div className="relative mt-8">
-      <div className="relative z-10 w-full">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="space-y-6"
-        >
-          <IdentityOverview
-            fullName={fullName}
-            dateNaissanceLabel={dateNaissanceLabel}
-            heureNaissance={heureNaissance}
-            lieuNaissance={lieuNaissance}
-          />
-        </motion.div>
-      </div>
-    </div>
-  );
-});
-
-function MonProfilPageClientImpl() {
-  return (
-    <main className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl" />
-      </div>
-
+    <main className="relative bg-gradient-to-br from-gray-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
       <div className="relative max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12">
         <div className="space-y-8">
-          <ConsultationsListMain />
-          <UserHub />
+          <div className="w-full space-y-5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-yellow-500" />
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Historique</h2>
+              </div>
+
+              <Link
+                href="/star/profil"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
+              >
+                <Plus className="w-4 h-4" />
+                Nouvelle partie
+              </Link>
+            </div>
+
+            {count === 0 ? (
+              <ConsultationsEmpty consultationsLength={count} />
+            ) : (
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {consultations.map((consultation, index) => (
+                    <ConsultationCard
+                      key={consultation?._id ?? consultation?.id ?? index}
+                      consultation={consultation}
+                      index={index}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+
+          <div className="relative mt-8">
+            <div className="relative z-10 w-full">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+                className="space-y-6"
+              >
+                <IdentityOverview
+                  fullName={fullName}
+                  dateNaissanceLabel={dateNaissanceLabel}
+                  heureNaissance={heureNaissance}
+                  lieuNaissance={lieuNaissance}
+                />
+              </motion.div>
+            </div>
+          </div>
         </div>
       </div>
+
       <NewGameButton />
     </main>
   );

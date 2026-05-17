@@ -14,7 +14,6 @@ export interface OfferingAlternative {
   quantity: number;
   name?: string;
   price?: number;
-  description?: string;
   createdAt?: string;
   updatedAt?: string;
   _id?: string;
@@ -35,7 +34,6 @@ export interface ConsultationOffering {
 export interface ConsultationChoice {
   _id?: string;
   title: string;
-  description: string;
   offering: ConsultationOffering;
   consultationId: string | null;
   choiceId: string;
@@ -76,7 +74,6 @@ export interface OfferingDetails {
   _id: string;
   name: string;
   price: number;
-  description?: string;
 }
 
 export interface Payment {
@@ -125,8 +122,6 @@ export interface User {
   consultationsCount?: number;
   avatar?: string;
   updatedAt?: string | Date;
-  subscriptionStartDate?: Date | string;
-  subscriptionEndDate?: Date | string;
   [key: string]: unknown;
 }
 
@@ -136,19 +131,13 @@ export interface Consultation {
   clientId?: {
     _id: string;
   };
-  consultantId?: string;
   rubriqueId: string;
   paymentId?: string;
-  isPaid: boolean;
   metadata?: Record<string, unknown>;
   title: string;
-  description: string;
-  formData?: any;
-  result: unknown;
   price: number;
   createdAt: string;
   updatedAt: string;
-  clientName?: string;
   ui?: any;
   completedAt?: string;
   [key: string]: unknown;

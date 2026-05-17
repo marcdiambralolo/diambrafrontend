@@ -13,7 +13,7 @@ export function getRootMetadata() {
       type: "website",
       locale: "fr_FR",
       url: "/",
-      siteName: "Diambra",
+      siteName: "Diambra win",
       title: "Diambra",
       description:
         "🔮 Jeu .",

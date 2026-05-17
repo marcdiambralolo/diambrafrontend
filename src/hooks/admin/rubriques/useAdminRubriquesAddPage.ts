@@ -68,7 +68,6 @@ export function useAdminRubriquesAddPage() {
   // État du choix
   const [choice, setChoice] = useState<ConsultationChoice>({
     title: "",
-    description: "",
     offering: { alternative: {  offeringId: "", quantity: 1 } },
     choiceId: "",
     choiceTitle: "",
@@ -167,23 +166,11 @@ export function useAdminRubriquesAddPage() {
     });
   }, []);
 
-
-
-  // Validation du formulaire
+ 
   const validateChoice = useCallback((choiceToValidate: ConsultationChoice): string | null => {
     if (!choiceToValidate.title?.trim()) {
       return 'Veuillez saisir un titre.';
-    }
-    if (!choiceToValidate.description?.trim()) {
-      return 'Veuillez saisir une description.';
-    }
-
-
-    const alternatives = choiceToValidate.offering?.alternative;
-    if (!alternatives) {
-      return 'Une alternative (banque) est requise.';
-    }
-
+    }  
 
     return null;
   }, []);
@@ -211,7 +198,6 @@ export function useAdminRubriquesAddPage() {
 
       const payload = {
         title: choice.title.trim(),
-        description: choice.description.trim(),
         offering,
       };
 
@@ -236,10 +222,9 @@ export function useAdminRubriquesAddPage() {
 
   const isFormValid = useMemo(() => {
     return choice.title.trim() &&
-      choice.description.trim() &&
       choice.offering.alternative  &&
       choice.offering.alternative.   quantity > 0;
-  }, [choice.title, choice.description, choice.offering.alternative]);
+  }, [choice.title,  choice.offering.alternative]);
 
   // Toggle section
   const toggleSection = useCallback((section: SectionType) => {

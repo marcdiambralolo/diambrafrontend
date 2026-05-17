@@ -84,7 +84,6 @@ export function useNotifications(pollingInterval: number = 300000) {
       return;
     }
 
-    // Utilisateur connecté, lancer le polling
     fetchNotifications();
 
     if (pollingInterval > 0) {

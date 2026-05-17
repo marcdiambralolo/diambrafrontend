@@ -22,12 +22,8 @@ export function useConsultationCardDisplay(consultation: Consultation) {
     if (typeof consultation.clientDisplayName === 'string' && consultation.clientDisplayName.trim()) {
       return consultation.clientDisplayName.trim();
     }
-
-    const formDataRecord = consultation.formData as Record<string, unknown> | undefined;
-    const firstName = (typeof formDataRecord?.firstName === 'string' ? formDataRecord.firstName : consultation.formData?.prenoms) || '';
-    const lastName = (typeof formDataRecord?.lastName === 'string' ? formDataRecord.lastName : consultation.formData?.nom) || '';
-    return `${firstName} ${lastName}`.trim();
-  }, [consultation.clientDisplayName, consultation.formData]);
+    return ''; 
+  }, [consultation.clientDisplayName ]);
 
 
   return { formattedDate, clientName };

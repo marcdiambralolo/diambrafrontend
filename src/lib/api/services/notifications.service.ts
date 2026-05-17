@@ -66,7 +66,6 @@ export const notificationsService = {
       consultationReady: true,
       newKnowledge: true,
       systemUpdates: true,
-      promotions: false,
       emailNotifications: true,
       pushNotifications: false,
     };

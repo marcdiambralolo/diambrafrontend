@@ -42,7 +42,6 @@ export async function createCategoryConsultation({
         serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
         title:  "Consultation",
         formData: mapFormDataToBackend(user),
-        description: choice.description || "",
         status: "PENDING",
         alternative: choice.offering?.alternative  ,
         choice,

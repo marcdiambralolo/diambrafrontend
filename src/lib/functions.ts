@@ -131,7 +131,6 @@ export function buildUrl(pathname: string, params: Record<string, string | undef
   });
 
   sp.set('r', String(Date.now()));
-
   const qs = sp.toString();
   return qs ? `${pathname}?${qs}` : pathname;
 }

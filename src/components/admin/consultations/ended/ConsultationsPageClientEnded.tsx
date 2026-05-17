@@ -122,7 +122,7 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
     : undefined;
   const phone = typeof clientPhone === 'string'
     ? clientPhone
-    : (typeof consultation.formData?.numeroSend === 'string' ? consultation.formData.numeroSend : null);
+    : null;
 
   return (
     <motion.div

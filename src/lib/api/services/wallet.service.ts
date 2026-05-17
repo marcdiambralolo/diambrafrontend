@@ -51,7 +51,7 @@ function normalizeOfferingDetails(value: RawUnusedOfferingStock): OfferingDetail
     _id: offeringId,
     name: offering?.name || value.name || '  inconnue',
     price: typeof offering?.price === 'number' ? offering.price : typeof value.price === 'number' ? value.price : 0,
-    description: offering?.description,  };
+  };
 }
 
 function normalizeUnusedOffering(value: RawUnusedOfferingStock): UnusedOfferingStock {
@@ -100,7 +100,7 @@ export const walletService = {
 
   async getUnusedOfferings(): Promise<UnusedOfferingStock[]> {
     const response = await api.get<UnusedOfferingsResponse>('/offering-stock/available');
-     const data = response.data;
+    const data = response.data;
 
     if (response.status === 200 && Array.isArray(data)) {
       return data.map(normalizeUnusedOffering);

@@ -98,7 +98,6 @@ export function useHeaderState() {
     ] : []),
     { href: "/about", label: "A propos", icon: Stars },
     { href: "/star/monprofil", label: "Mon Profil", icon: User },
-    { href: "/star/messagerie", label: "Messagerie", icon: MessageCircle },
     { href: "/star/wallet", label: "Mon Portefeuille", icon: Wallet },
   ], [hasRole]);
 

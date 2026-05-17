@@ -20,9 +20,6 @@ export function buildConsultationSearchParams(params: ConsultationNavigationPara
   return searchParams.toString();
 }
 
-export function buildCategoryConsultationPath(
-  categoryId: string,
-): string {
-
-  return   `/star/game/${categoryId} ` 
+export function buildCategoryConsultationPath(categoryId: string,): string {
+  return `/star/game/${categoryId} `
 }

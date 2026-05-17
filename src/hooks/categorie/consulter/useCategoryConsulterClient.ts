@@ -42,7 +42,6 @@ const POT_CONFIG: OfferingAlternative = {
     quantity: 1,
     name: 'pot',
     price: 200,
-    description: 'pot',
     createdAt: '',
     updatedAt: '',
     _id: '69ada22a910a174365e2a216',
@@ -59,7 +58,6 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
 const createBaseChoice = (): ConsultationChoice => ({
     _id: "69ada22a910a174365e2a216",
     title: "Choix de consultation",
-    description: "Description du choix de consultation",
     offering: {
         alternative: POT_CONFIG,
         price: 200,

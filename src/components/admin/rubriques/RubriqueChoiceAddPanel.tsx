@@ -54,31 +54,7 @@ const ConsultationChoiceCard = memo(({
                         onChange={(e) => onUpdate({ ...choice, title: e.target.value })}
                         placeholder="Titre du choix"
                         className="w-full px-3 py-2 text-sm font-bold rounded-lg border border-[#2E5AA6]/20 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-[#2E5AA6] dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-                    />
-
-
-                    <div className="space-y-1">
-                        <label htmlFor={`choice-desc-0`} className="text-xs font-semibold text-slate-700">
-                            Description du choix
-                        </label>
-                        <p className="text-[10px] text-slate-500">
-                            Décrivez ce choix de consultation en détail pour guider l'utilisateur
-                        </p>
-
-                        <textarea
-                            id={`choice-desc-0`}
-                            value={choice.description}
-                            disabled={false}
-                            onChange={(e) => onUpdate({ ...choice, description: e.target.value })}
-                            placeholder="Décrivez les détails et bénéfices de ce choix..."
-                            aria-label="Description du choix de consultation"
-                            title="Entrez une description détaillée du choix de consultation"
-                            rows={2}
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#2E5AA6]/40 focus:border-transparent dark:border-white/10 dark:bg-[#0F1C3F] dark:text-slate-100"
-                        />
-                    </div>
-
-
+                    /> 
 
                 </div>
             </div>
@@ -138,7 +114,6 @@ interface ChoiceCreateViewProps {
 const ChoiceCreateView = memo(function ChoiceCreateView({ onSave, onCancel }: ChoiceCreateViewProps) {
   const [newChoice, setNewChoice] = useState<ConsultationChoice>({
     title: "",
-    description: "",
     offering: {
       alternative:
         { offeringId: "", quantity: 1 },
@@ -186,20 +161,7 @@ const ChoiceCreateView = memo(function ChoiceCreateView({ onSave, onCancel }: Ch
             placeholder="Ex: Consultation simple"
             className="theme-dark-input w-full rounded-lg border px-3 py-2 text-sm font-semibold text-black"
           />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-xs font-bold text-slate-700 dark:text-slate-300">Description</label>
-          <textarea
-            value={newChoice.description}
-            onChange={(e) => setNewChoice({ ...newChoice, description: e.target.value })}
-            placeholder="Description du choix..."
-            rows={3}
-            className="theme-dark-input w-full rounded-lg px-3 py-2 text-sm text-black"
-          />
-        </div>
-
-
+        </div> 
       </div>
 
       {/* Actions */}
@@ -259,7 +221,6 @@ export function RubriqueChoiceAddPanel({ editingRubrique, setEditingRubrique, on
 
   const [choice, setChoice] = useState<ConsultationChoice>({
     title: "",
-    description: "",
     offering: {
       alternative:
         { offeringId: "", quantity: 1 }

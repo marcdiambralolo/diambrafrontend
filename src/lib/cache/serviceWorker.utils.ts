@@ -12,7 +12,6 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   try {
     const registration = await navigator.serviceWorker.register(SW_PATH, { scope: '/' });
 
-    // Vérifier les mises à jour périodiquement
     setInterval(() => registration.update().catch(() => { }), UPDATE_INTERVAL);
 
     // Gérer les nouvelles versions
@@ -103,7 +102,7 @@ export async function getCacheSize(): Promise<number> {
       const keys = await cache.keys();
       total += keys.length;
     }
-    return total; 
+    return total;
   } catch {
     return 0;
   }

@@ -31,7 +31,6 @@ export interface NotificationPreferences {
   consultationReady: boolean;
   newKnowledge: boolean;
   systemUpdates: boolean;
-  promotions: boolean;
   emailNotifications: boolean;
   pushNotifications: boolean;
 }

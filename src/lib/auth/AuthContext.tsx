@@ -168,9 +168,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       logger.error('Logout error:', error);
     } finally {
-      // Suppression explicite des cookies d'authentification côté client
-      try {
-      } catch { }
       setAccessToken(null);
       persistLogout();
       await clearClientApplicationState();

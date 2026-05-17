@@ -33,7 +33,6 @@ export function useAnalysisSocket(
         return `${protocol}//${window.location.host}`;
       }
 
-      // En développement, utiliser localhost:3001
       const baseURL = config.api.baseURL;
       if (typeof window !== 'undefined') {
         if (baseURL.includes('localhost')) {

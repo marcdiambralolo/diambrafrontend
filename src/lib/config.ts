@@ -18,7 +18,6 @@ export const config = {
       (process.env.NODE_ENV === 'production' ? 'https://diambra.net' : 'http://localhost:3000'),
   },
 
-  // Routes
   routes: {
     home: '/',
     login: '/auth/login',

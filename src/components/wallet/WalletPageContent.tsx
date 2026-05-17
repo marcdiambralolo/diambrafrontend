@@ -235,18 +235,9 @@ const OfferingItemCard = memo(function OfferingItemCard({
       transition={{ delay: index * 0.03 }}
       className="flex items-center gap-3 rounded-lg bg-gray-50 p-3"
     >
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
-        <Package className="h-4 w-4 text-indigo-600" />
-
-
-      </div>
-
-      <div className="flex-1">
+           <div className="flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-gray-800">{item.name}</p>
-          <span className={cx("rounded-full px-2 py-0.5 text-[10px] font-bold", categoryConfig.color)}>
-            {categoryConfig.label}
-          </span>
         </div>
         <p className="text-xs text-gray-500">
           {item.quantity} × {item.price?.toLocaleString()} FCFA
@@ -298,11 +289,7 @@ export const TransactionCard = memo(function TransactionCard({
               <CreditCard className="h-4 w-4 text-indigo-500" />
               <p className="text-xs font-mono font-semibold text-gray-500">
                 {transaction.transactionId?.slice(-8)}
-              </p>
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                <CheckCircle2 className="h-3 w-3 inline mr-1" />
-                Validée
-              </span>
+              </p> 
             </div>
             <p className="flex items-center gap-1 text-xs text-gray-400">
               <Calendar className="h-3 w-3" />

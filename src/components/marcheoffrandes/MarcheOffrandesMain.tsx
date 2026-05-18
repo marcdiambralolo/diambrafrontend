@@ -1,8 +1,8 @@
 'use client';
 import { fadeInUp, SIMULATION_STEPS, SimulationStep, slideFromBottom, STEP_WIDTHS, STEPS, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, CheckCircle2, ChevronRight, CreditCard, Loader2, Plus, ShoppingCart, Sparkles, X } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { AlertCircle, CheckCircle2, ChevronRight, CreditCard, Loader2, Plus, ShoppingCart, Sparkles, X } from 'lucide-react';
 
 const SimulationProgress = memo(({ step }: { step: SimulationStep }) => {
   const currentIndex = STEPS.indexOf(step);

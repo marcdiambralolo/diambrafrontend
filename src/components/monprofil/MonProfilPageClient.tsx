@@ -5,8 +5,8 @@ import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
-  AlertCircle, ArrowRight, CalendarDays, Clock, Crown, Gamepad2,
-  Loader2, MapPin, Plus, Sparkles, Trophy, UserRound
+  AlertCircle, CalendarDays, Clock, Crown, Gamepad2, History,
+  Loader2, MapPin, Plus, Sparkles, UserRound
 } from "lucide-react";
 import Link from "next/link";
 import { memo, type ReactNode, useState } from "react";
@@ -24,7 +24,6 @@ const staggerContainer: Variants = {
   }
 };
 
-
 const getRelativeTime = (date: string) => {
   const now = new Date();
   const past = new Date(date);
@@ -36,14 +35,16 @@ const getRelativeTime = (date: string) => {
   return `le ${past.toLocaleDateString('fr-FR')}`;
 };
 
-export interface ConsultationCardProps {
+interface ConsultationCardProps {
   consultation: Consultation;
   index: number;
+  type?: 'history' | 'games';
 }
 
-function ConsultationCard({ consultation, index }: ConsultationCardProps) {
+function ConsultationCard({ consultation, index, type = 'history' }: ConsultationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const createdAt = consultation.createdAt;
+
   const relativeDate = createdAt ? getRelativeTime(createdAt as string) : 'Date inconnue';
   const formattedDate = createdAt ? new Date(createdAt as string).toLocaleDateString('fr-FR', {
     day: 'numeric',
@@ -51,6 +52,8 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
     year: 'numeric'
   }) : 'Date inconnue';
 
+  const nomdujoueur = consultation.clientId?.username;
+  const combinaison = consultation.combinaison || "0000";
   return (
     <motion.article
       initial={{ opacity: 0, y: 30 }}
@@ -85,24 +88,34 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
       />
 
       <div className="relative z-10 flex items-start gap-4 w-full">
-        {/* Icône de jeu */}
         <div className="flex-shrink-0">
           <div className={cx(
             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
-            "bg-gradient-to-br from-purple-500 to-indigo-600",
+            type === 'history'
+              ? "bg-gradient-to-br from-purple-500 to-indigo-600"
+              : "bg-gradient-to-br from-emerald-500 to-teal-600",
             isHovered ? "scale-110 shadow-lg shadow-purple-500/30" : ""
           )}>
-            <Gamepad2 className="w-7 h-7 text-white" />
+            {type === 'history' ? (
+              <History className="w-7 h-7 text-white" />
+            ) : (
+              <Gamepad2 className="w-7 h-7 text-white" />
+            )}
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* En-tête avec titre et statut */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
-              Jeu
-            </h3>
+          <div className="flex flex-col items-center justify-between gap-2 mb-2">
+            {nomdujoueur && (
+              <><h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
+                Joueur:  {nomdujoueur}
+              </h3>
+                <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
+                  Combinaison:  {combinaison}
+                </h3></>
+            )}
           </div>
+
           <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3 h-3" />
@@ -114,26 +127,63 @@ function ConsultationCard({ consultation, index }: ConsultationCardProps) {
             </div>
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-
-          <ArrowRight className={cx(
-            "w-5 h-5 text-gray-400 transition-all duration-300",
-            isHovered ? "translate-x-1 text-purple-500" : ""
-          )} />
-        </div>
       </div>
     </motion.article>
   );
 }
 
+interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: ReactNode;
+  label: string;
+  count: number;
+}
+
+const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps) => (
+  <motion.button
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className={cx(
+      "relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300",
+      active
+        ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25"
+        : "bg-white/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
+    )}
+  >
+    {icon}
+    <span>{label}</span>
+    <motion.span
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      className={cx(
+        "px-2 py-0.5 rounded-full text-xs font-bold",
+        active
+          ? "bg-white/20 text-white"
+          : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+      )}
+    >
+      {count}
+    </motion.span>
+    {active && (
+      <motion.div
+        layoutId="activeTab"
+        className="absolute -bottom-4 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full"
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      />
+    )}
+  </motion.button>
+));
+
+TabButton.displayName = 'TabButton';
 
 interface ConsultationsEmptyProps {
   consultationsLength: number;
+  type?: 'history' | 'games';
 }
 
-function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
+function ConsultationsEmpty({ consultationsLength, type = 'history' }: ConsultationsEmptyProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -150,29 +200,39 @@ function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         className="mx-auto mb-6"
       >
-        <Gamepad2 className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
+        {type === 'history' ? (
+          <History className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
+        ) : (
+          <Gamepad2 className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
+        )}
       </motion.div>
 
       <h3 className="text-2xl font-bold text-white mb-3">
         {consultationsLength === 0
-          ? '🎮 Commencez votre aventure'
+          ? type === 'history'
+            ? '📜 Aucune partie en historique'
+            : '🎮 Commencez votre aventure'
           : '🔍 Aucun résultat trouvé'}
       </h3>
 
       <p className="mb-8 text-purple-200 max-w-md mx-auto">
         {consultationsLength === 0
-          ? 'Créez votre première partie de Quatre Cases et défiez votre logique !'
+          ? type === 'history'
+            ? 'Les parties que vous jouerez apparaîtront ici'
+            : 'Créez votre première partie de Quatre Cases et défiez votre logique !'
           : 'Essayez de modifier vos filtres pour trouver ce que vous cherchez'}
       </p>
 
-      <Link
-        href="/star/profil"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all hover:scale-105"
-      >
-        <Plus className="w-4 h-4" />
-        Commencer une partie
-        <Sparkles className="w-4 h-4" />
-      </Link>
+      {type === 'games' && (
+        <Link
+          href="/star/profil"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all hover:scale-105"
+        >
+          <Plus className="w-4 h-4" />
+          Commencer une partie
+          <Sparkles className="w-4 h-4" />
+        </Link>
+      )}
     </motion.div>
   );
 }
@@ -193,7 +253,7 @@ function ConsultationsListLoading() {
           transition={{ duration: 1.5, repeat: Infinity }}
           className="text-lg font-semibold text-gray-600 dark:text-gray-400"
         >
-          Chargement de vos jeux...
+          Chargement de vos données...
         </motion.p>
       </div>
     </div>
@@ -310,69 +370,118 @@ const IdentityPill = memo(function IdentityPill({
 });
 
 function MonProfilPageClientImpl() {
-  const { consultations, loading, count } = useConsultationsListPage();
+  const { consultations, loading, count, consultationsglobaux } = useConsultationsListPage();
   const { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance } = useMonProfil();
+  const [activeTab, setActiveTab] = useState<'history' | 'games'>('history');
 
   if (loading) return <ConsultationsListLoading />;
   if (!processedData) return <ErrorState />;
 
+  const historyCount = consultationsglobaux?.length || 0;
+  const gamesCount = count || 0;
+
   return (
-    <main className="relative bg-gradient-to-br from-gray-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
-      <div className="relative max-w-4xl mx-auto px-4 py-8 sm:px-6 sm:py-12">
-        <div className="space-y-8">
-          <div className="w-full space-y-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-500" />
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Historique</h2>
-              </div>
-
-              <Link
-                href="/star/profil"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
-              >
-                <Plus className="w-4 h-4" />
-                Nouvelle partie
-              </Link>
-            </div>
-
-            {count === 0 ? (
-              <ConsultationsEmpty consultationsLength={count} />
-            ) : (
-              <div className="space-y-3">
-                <AnimatePresence>
-                  {consultations.map((consultation, index) => (
-                    <ConsultationCard
-                      key={consultation?._id ?? consultation?.id ?? index}
-                      consultation={consultation}
-                      index={index}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
-
-          <div className="relative mt-8">
-            <div className="relative z-10 w-full">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={staggerContainer}
-                className="space-y-6"
-              >
-                <IdentityOverview
-                  fullName={fullName}
-                  dateNaissanceLabel={dateNaissanceLabel}
-                  heureNaissance={heureNaissance}
-                  lieuNaissance={lieuNaissance}
-                />
-              </motion.div>
-            </div>
-          </div>
+    <main className="relative max-w-2xl mx-auto px-4 py-8 sm:px-6 sm:py-12 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
+      <div className="mb-8">
+        <div className="flex gap-3 p-1.5 bg-gray-100/50 dark:bg-gray-800/30 rounded-2xl">
+          <TabButton
+            active={activeTab === 'history'}
+            onClick={() => setActiveTab('history')}
+            icon={<History className="w-4 h-4" />}
+            label="Historique"
+            count={historyCount}
+          />
+          <TabButton
+            active={activeTab === 'games'}
+            onClick={() => setActiveTab('games')}
+            icon={<Gamepad2 className="w-4 h-4" />}
+            label="Mes Jeux"
+            count={gamesCount}
+          />
         </div>
       </div>
 
+      <AnimatePresence mode="wait">
+        {activeTab === 'history' && (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-5"
+          >
+            {historyCount === 0 ? (
+              <ConsultationsEmpty consultationsLength={historyCount} type="history" />
+            ) : (
+              <div className="space-y-3">
+                {consultationsglobaux.map((consultation, index) => (
+                  <ConsultationCard
+                    key={consultation?._id ?? consultation?.id ?? index}
+                    consultation={consultation}
+                    index={index}
+                    type="history"
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'games' && (
+          <motion.div
+            key="games"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-5"
+          >
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <Link
+                href="/star/profil"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all hover:scale-105"
+              >
+                <Plus className="w-4 h-4" />
+                Nouveau jeu
+              </Link>
+            </div>
+
+            {gamesCount === 0 ? (
+              <ConsultationsEmpty consultationsLength={gamesCount} type="games" />
+            ) : (
+              <div className="space-y-3">
+                {consultations.map((consultation, index) => (
+                  <ConsultationCard
+                    key={consultation?._id ?? consultation?.id ?? index}
+                    consultation={consultation}
+                    index={index}
+                    type="games"
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative mt-8">
+        <div className="relative z-10 w-full">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="space-y-6"
+          >
+            <IdentityOverview
+              fullName={fullName}
+              dateNaissanceLabel={dateNaissanceLabel}
+              heureNaissance={heureNaissance}
+              lieuNaissance={lieuNaissance}
+            />
+          </motion.div>
+        </div>
+      </div>
       <NewGameButton />
     </main>
   );

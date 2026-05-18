@@ -155,7 +155,6 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     return fd;
   }, [formData]);
 
-  // ==================== SOUMISSION ====================
   const handleSubmit = useCallback(async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
@@ -168,14 +167,12 @@ export function useEditOffrande(): UseEditOffrandeReturn {
     try {
       const submitFormData = buildSubmitFormData();
 
-    await api.put(`/offerings/${id}`, submitFormData, {
+      await api.put(`/offerings/${id}`, submitFormData, {
         headers: {
           'Content-Type': 'application/json'  // ✅ JSON au lieu de multipart
         },
         withCredentials: true,
       });
-
-       
 
       router.replace('/admin/offrandes');
       router.refresh();

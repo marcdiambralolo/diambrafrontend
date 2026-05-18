@@ -1,4 +1,4 @@
-import { NumberGridGame } from "@/components/commons/NumberGridGame";
+import { NumberGridGame } from "@/components/game/NumberGridGame";
 
 export default function GamePage() {
   return (

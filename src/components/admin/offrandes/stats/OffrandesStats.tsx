@@ -18,8 +18,6 @@ interface StatsData {
   byOffering: Array<{
     offeringId: string;
     name: string;
-    icon: string;
-    category: string;
     revenue: number;
     quantitySold: number;
     avgUnitPrice: number;

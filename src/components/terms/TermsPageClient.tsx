@@ -2,21 +2,10 @@
 import { useTermsSections } from '@/hooks/terms/useTermsSections';
 import { motion, useReducedMotion, Variants } from 'framer-motion';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Gamepad2,
-    MapPin,
-    Phone,
-    Shield,
-    Sparkles,
-    CheckCircle,
-    ExternalLink,
-    Brain,
-    Trophy,
-    Target
+    AlertCircle, ArrowLeft, Brain, ExternalLink, Gamepad2, MapPin, Phone, Shield
 } from 'lucide-react';
-import CacheLink from '../commons/CacheLink';
 import React, { memo } from 'react';
+import CacheLink from '../commons/CacheLink';
 
 const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -36,7 +25,6 @@ const scaleOnHover: Variants = {
     whileTap: { scale: 0.98 }
 };
 
-// ==================== SECTION PREMIUM ====================
 interface SectionProps {
     number: string;
     title: string;
@@ -78,7 +66,6 @@ const Section = memo<SectionProps>(({ number, title, icon: Icon, iconColor, chil
     );
 });
 
-// ==================== CONTACT CARD ====================
 const ContactCard = memo(() => (
     <motion.div
         variants={fadeInUp}
@@ -134,13 +121,11 @@ const ContactCard = memo(() => (
     </motion.div>
 ));
 
-// ==================== COMPOSANT PRINCIPAL ====================
 export default function TermsPageClient() {
     const sections = useTermsSections();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50">
-            {/* Header Sticky Premium */}
             <motion.div
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -153,48 +138,19 @@ export default function TermsPageClient() {
                             className="flex items-center gap-2"
                         >
                             <CacheLink
-                                href="/"
+                                href="/star/profil"
                                 className="inline-flex items-center gap-1.5 text-sm font-medium text-purple-500 transition-colors hover:text-purple-700"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 Retour au jeu
                             </CacheLink>
                         </motion.div>
-
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 px-3 py-1.5"
-                        >
-                            <Gamepad2 className="h-3 w-3 text-purple-600" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">
-                                Version 1.0
-                            </span>
-                        </motion.div>
                     </div>
                 </div>
             </motion.div>
 
-            {/* Hero Section */}
             <div className="relative overflow-hidden">
-                {/* Effet de fond décoratif */}
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-purple-100/30 blur-3xl" />
-                    <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-indigo-100/20 blur-3xl" />
-                </div>
-
                 <div className="relative max-w-4xl mx-auto px-4 pt-12 pb-8 text-center">
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.1 }}
-                        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 mb-6 shadow-sm"
-                    >
-                        <Gamepad2 className="h-4 w-4 text-purple-600" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-purple-700">
-                            Règles du jeu
-                        </span>
-                    </motion.div>
-
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -209,12 +165,11 @@ export default function TermsPageClient() {
                         transition={{ delay: 0.2 }}
                         className="text-purple-500 text-sm"
                     >
-                        Jeu Quatre Cases · Dernière mise à jour : <span className="font-semibold text-purple-700">21 avril 2026</span>
+                        Dernière mise à jour : <span className="font-semibold text-purple-700">21 avril 2026</span>
                     </motion.p>
                 </div>
             </div>
 
-            {/* Contenu principal */}
             <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
                 <motion.div
                     variants={staggerContainer}
@@ -222,7 +177,6 @@ export default function TermsPageClient() {
                     animate="visible"
                     className="rounded-2xl bg-white border border-purple-100 shadow-sm overflow-hidden"
                 >
-                    {/* Alerte d'acceptation */}
                     <motion.div
                         variants={fadeInUp}
                         className="m-6 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 p-4"
@@ -242,7 +196,6 @@ export default function TermsPageClient() {
                         </div>
                     </motion.div>
 
-                    {/* Sections */}
                     <div className="px-6">
                         {sections.map((section, idx) => (
                             <Section
@@ -257,24 +210,21 @@ export default function TermsPageClient() {
                         ))}
                     </div>
 
-                    {/* Séparateur */}
                     <div className="mx-6 my-6">
                         <div className="h-px bg-gradient-to-r from-transparent via-purple-200 to-transparent" />
                     </div>
 
-                    {/* Section Contact */}
                     <div className="px-6 pb-6">
                         <ContactCard />
                     </div>
 
-                    {/* Boutons CTA */}
                     <motion.div
                         variants={fadeInUp}
                         className="border-t border-purple-100 bg-purple-50/30 p-6 flex flex-col sm:flex-row gap-3"
                     >
                         <motion.div {...scaleOnHover} className="flex-1">
                             <CacheLink
-                                href="/star/game"
+                                href="/star/profil"
                                 className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg"
                             >
                                 <Gamepad2 className="h-4 w-4" />
@@ -294,14 +244,13 @@ export default function TermsPageClient() {
                     </motion.div>
                 </motion.div>
 
-                {/* Footer note */}
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
                     className="text-center text-[10px] text-purple-400 mt-8"
                 >
-                    © 2026 Diambra - Quatre Cases · Tous droits réservés
+                    © 2026 Diambra · Tous droits réservés
                 </motion.p>
             </div>
         </div>

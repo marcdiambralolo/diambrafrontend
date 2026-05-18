@@ -53,16 +53,12 @@ export function useOfferingForm() {
       };
 
       console.log('📤 Envoi des données:', payload);
-
       const res = await api.post('/offerings', payload, {
         headers: {
           'Content-Type': 'application/json'  // ✅ JSON au lieu de multipart
         },
         withCredentials: true,
       });
-
-
-
       router.replace('/admin/offrandes');
       router.refresh();
     } catch (err: unknown) {

@@ -70,7 +70,6 @@ export default function TransactionPage() {
                         </motion.div>
                     )}
 
-                    {/* États de paiement en cours */}
                     {(paymentStatus === "initiating" || paymentStatus === "pending_user_action" || paymentStatus === "verifying") && (
                         <motion.div
                             key="processing"
@@ -99,7 +98,6 @@ export default function TransactionPage() {
                     )}
                 </AnimatePresence>
 
-                {/* Détails de la transaction */}
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -175,7 +173,6 @@ export default function TransactionPage() {
                     </div>
                 </motion.div>
 
-                {/* Sélection du moyen de paiement */}
                 {paymentStatus === "idle" && (
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
@@ -225,7 +222,6 @@ export default function TransactionPage() {
                     </motion.div>
                 )}
 
-                {/* Bouton d'action ou message d'erreur */}
                 {paymentStatus === "idle" && (
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
@@ -246,7 +242,6 @@ export default function TransactionPage() {
                     </motion.div>
                 )}
 
-                {/* Message d'erreur avec action de réessai */}
                 {paymentStatus === "error" && (
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
@@ -266,7 +261,6 @@ export default function TransactionPage() {
                     </motion.div>
                 )}
 
-                {/* Lien vers la consultation (succès) */}
                 {paymentStatus === "success" && consultationId && (
                     <div className="mt-6 text-center">
                         <button
@@ -279,7 +273,6 @@ export default function TransactionPage() {
                     </div>
                 )}
 
-                {/* Footer help */}
                 <div className="mt-12 text-center text-sm text-gray-400 border-t border-gray-100 pt-6">
                     <p>
                         Une confirmation vous sera envoyée par email.<br />

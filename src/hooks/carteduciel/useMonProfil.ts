@@ -1,7 +1,6 @@
  
 import { formatDateFR, processUserData, safeTrim } from '@/lib/functions';
-import { useAuth } from '@/lib/hooks';
- 
+import { useAuth } from '@/lib/hooks'; 
 import { useMemo } from 'react';
 
 function coerceIsoDate(v: unknown): string {

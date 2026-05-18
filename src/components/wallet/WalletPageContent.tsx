@@ -3,24 +3,13 @@ import CacheLink from "@/components/commons/CacheLink";
 import { useWalletPageWithCache } from "@/hooks/cache/useWalletPageWithCache";
 import { cx } from "@/lib/functions";
 import { Transaction, TransactionItem } from "@/lib/interfaces";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import {
-  ArrowLeftCircle,
-  Calendar,
-  CheckCircle2,
-  ChevronDown,
-  Clock,
-  CreditCard,
-  Gift,
-  Package,
-  RefreshCw,
-  ShoppingBag,
-  TrendingUp,
-  Wallet
+  ArrowLeftCircle, Calendar, CheckCircle2, Clock, CreditCard,
+  Gift, RefreshCw, ShoppingBag, TrendingUp
 } from "lucide-react";
-import { memo, useMemo, useState, type ElementType } from "react";
+import { memo, useMemo, type ElementType } from "react";
 
-// ==================== CONSTANTES D'ANIMATION ====================
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
@@ -34,49 +23,24 @@ const staggerContainer: Variants = {
   }
 };
 
-
-export function getCategoryConfig() {
-   return { label: 'Banque', color: 'bg-amber-100 text-amber-700' };
-}
-
-export function normalizeItem(item: TransactionItem) {
+function normalizeItem(item: TransactionItem) {
   if (typeof item.offeringId === 'object' && item.offeringId !== null) {
     return {
       ...item.offeringId,
       quantity: item.quantity,
       price: item.price ?? item.offeringId.price,
-      name: item.offeringId.name ?? 'jeton',
+      name: item.offeringId.name ?? 'Jeton',
     };
   }
 
   return {
     ...item,
-    category: 'banque',
-    name: item.name ?? 'jeton',
+    name: item.name ?? 'Jeton',
     price: item.price ?? item.unitPrice ?? 0,
   };
 }
 
-// ==================== HERO SECTION ====================
-export function WalletHero() {
-  return (
-    <motion.div variants={fadeInUp} className="text-center mb-8">
-      <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1.5 mb-4">
-        <Wallet className="h-3.5 w-3.5 text-indigo-600" />
-        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
-          Porte-monnaie
-        </span>
-      </div> 
-      <p className="mx-auto mt-3 max-w-md text-sm text-gray-500">
-        Gérez vos jetons disponibles, suivez vos dépenses et retrouvez
-        vos dernières transactions.
-      </p>
-    </motion.div>
-  );
-}
-
-// ==================== SUCCESS BANNER ====================
-export function SuccessBanner({ onClose }: { onClose: () => void }) {
+function SuccessBanner({ onClose }: { onClose: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20, scale: 0.95 }}
@@ -108,8 +72,7 @@ export function SuccessBanner({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ==================== TABS ====================
-export function WalletTabs({
+function WalletTabs({
   activeTab,
   setActiveTab,
 }: {
@@ -142,14 +105,13 @@ export function WalletTabs({
         type="button"
       >
         <Clock className="h-4 w-4 inline mr-2" />
-        Dernières transactions
+        Transactions
       </button>
     </div>
   );
 }
 
-// ==================== STATS CARDS ====================
-export const StatsCard = memo(function StatsCard({
+const StatsCard = memo(function StatsCard({
   label,
   value,
   icon: Icon,
@@ -175,8 +137,7 @@ export const StatsCard = memo(function StatsCard({
   );
 });
 
-// ==================== TRANSACTIONS TOOLBAR ====================
-export function TransactionsToolbar({
+function TransactionsToolbar({
   onRefresh,
   isRefreshing,
   sortOrder,
@@ -216,7 +177,6 @@ export function TransactionsToolbar({
   );
 }
 
-// ==================== OFFERING ITEM CARD ====================
 interface OfferingItemCardProps {
   item: any;
   index: number;
@@ -226,7 +186,6 @@ const OfferingItemCard = memo(function OfferingItemCard({
   item,
   index,
 }: OfferingItemCardProps) {
-  const categoryConfig = getCategoryConfig();
 
   return (
     <motion.div
@@ -235,7 +194,7 @@ const OfferingItemCard = memo(function OfferingItemCard({
       transition={{ delay: index * 0.03 }}
       className="flex items-center gap-3 rounded-lg bg-gray-50 p-3"
     >
-           <div className="flex-1">
+      <div className="flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-gray-800">{item.name}</p>
         </div>
@@ -254,28 +213,17 @@ const OfferingItemCard = memo(function OfferingItemCard({
   );
 });
 
-// ==================== TRANSACTION CARD ====================
-export const TransactionCard = memo(function TransactionCard({
+const TransactionCard = memo(function TransactionCard({
   transaction,
 }: {
   transaction: Transaction;
   index: number;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const normalizedItems = useMemo(
     () => transaction.items.map((item) => normalizeItem(item)),
     [transaction.items]
   );
-
-  const previewText = useMemo(() => {
-    const names = normalizedItems
-      .map((i) => i.name)
-      .filter(Boolean)
-      .slice(0, 2)
-      .join(", ");
-    return normalizedItems.length > 2 ? `${names}...` : names;
-  }, [normalizedItems]);
 
   return (
     <motion.div
@@ -288,8 +236,8 @@ export const TransactionCard = memo(function TransactionCard({
             <div className="flex items-center gap-2 mb-1">
               <CreditCard className="h-4 w-4 text-indigo-500" />
               <p className="text-xs font-mono font-semibold text-gray-500">
-                {transaction.transactionId?.slice(-8)}
-              </p> 
+                ID :   {transaction.transactionId?.slice(-12)}
+              </p>
             </div>
             <p className="flex items-center gap-1 text-xs text-gray-400">
               <Calendar className="h-3 w-3" />
@@ -300,75 +248,25 @@ export const TransactionCard = memo(function TransactionCard({
               })}
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-lg font-bold text-indigo-600">
-              {transaction.totalAmount.toLocaleString()}
-            </p>
-            <p className="text-[10px] text-gray-400">FCFA</p>
-          </div>
-        </div>
- 
-        <div className="mb-3 flex items-center gap-2 rounded-lg bg-gray-50 p-2">
-          <div className="flex -space-x-1">
-            {normalizedItems.slice(0, 3).map((item, idx) => (
-              <div
-                key={idx}
-                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-indigo-100 to-purple-100"
-              >
-                <Package className="h-3 w-3 text-indigo-600" />
-
-              </div>
-            ))}
-            {normalizedItems.length > 3 && (
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-200 text-xs font-bold text-gray-600">
-                +{normalizedItems.length - 3}
-              </div>
-            )}
-          </div>
-          <span className="flex-1 text-xs text-gray-500 truncate">
-            {previewText || "Détails de la transaction"}
-          </span>
         </div>
 
-        {/* Bouton d'expansion */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-2 text-xs font-semibold text-gray-600 transition-all hover:border-indigo-200 hover:text-indigo-600"
-          type="button"
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mt-3 space-y-2 overflow-hidden"
         >
-          <Package className="h-3.5 w-3.5" />
-          {normalizedItems.length} jeton(s)
-          <ChevronDown
-            className={cx(
-              "h-3.5 w-3.5 transition-transform duration-300",
-              isExpanded && "rotate-180"
-            )}
-          />
-        </button>
-
-        {/* Liste détaillée */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="mt-3 space-y-2 overflow-hidden"
-            >
-              {normalizedItems.map((item, idx) => (
-                <OfferingItemCard key={idx} item={item} index={idx} />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {normalizedItems.map((item, idx) => (
+            <OfferingItemCard key={idx} item={item} index={idx} />
+          ))}
+        </motion.div>
       </div>
     </motion.div>
   );
 });
 
-// ==================== EMPTY STATE ====================
-export function TransactionEmptyState() {
+function TransactionEmptyState() {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -380,14 +278,13 @@ export function TransactionEmptyState() {
       </div>
       <h3 className="mb-1 text-lg font-bold text-gray-800">Aucune transaction</h3>
       <p className="text-sm text-gray-500">
-        Vos prochains achats apparaîtront ici.
+        Vos prochains achats de jetons apparaîtront ici.
       </p>
     </motion.div>
   );
 }
 
-// ==================== UNUSED OFFERINGS SECTION ====================
-export function UnusedOfferingsSection({
+function UnusedOfferingsSection({
   unusedError,
   unusedOfferings,
 }: {
@@ -409,8 +306,6 @@ export function UnusedOfferingsSection({
         <div className="grid gap-4 sm:grid-cols-2">
           {unusedOfferings.map((item, idx) => {
             const o = item.offering;
-            const category = getCategoryConfig();
-
             return (
               <motion.div
                 key={o?._id || idx}
@@ -421,14 +316,10 @@ export function UnusedOfferingsSection({
                 <div className="flex items-start gap-3">
                   <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100">
                     <Gift className="h-28 w-28 text-indigo-500" />
-
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-gray-800">{o?.name}</h3>
-                      <span className={cx("rounded-full px-2 py-0.5 text-[10px] font-bold", category.color)}>
-                        {category.label}
-                      </span>
                       <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
                         x{item.quantity}
                       </span>
@@ -448,8 +339,7 @@ export function UnusedOfferingsSection({
   );
 }
 
-// ==================== BOTTOM CTAS ====================
-export function BottomCtas({ href, label }: { href: string; label: string }) {
+function BottomCtas({ href, label }: { href: string; label: string }) {
   return (
     <motion.div variants={fadeInUp} className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
       <CacheLink
@@ -465,19 +355,18 @@ export function BottomCtas({ href, label }: { href: string; label: string }) {
         className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
       >
         <ShoppingBag className="h-4 w-4" />
-        Marché des Jetons
+        Acquerir des Jetons
       </CacheLink>
     </motion.div>
   );
 }
 
-// ==================== LOADING SCREEN ====================
-export const LoadingScreen = () => (
+const LoadingScreen = () => (
   <div className="flex min-h-[60vh] flex-col items-center justify-center">
     <div className="relative">
       <div className="h-12 w-12 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
     </div>
-    <p className="mt-4 text-sm text-gray-500">Chargement de votre espace...</p>
+    <p className="mt-4 text-sm text-gray-500">Chargement de vos transactions</p>
   </div>
 );
 
@@ -493,12 +382,7 @@ export default function WalletPageContent() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50/50">
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        <AnimatePresence>
-          {showSuccessBanner && <SuccessBanner onClose={dismissBanner} />}
-        </AnimatePresence>
-
-        <WalletHero />
-
+        {showSuccessBanner && <SuccessBanner onClose={dismissBanner} />}
         <WalletTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {activeTab === "transactions" ? (
@@ -508,7 +392,6 @@ export default function WalletPageContent() {
             animate="visible"
             className="space-y-5"
           >
-            {/* Stats */}
             <div className="flex gap-4">
               <StatsCard
                 label="Total transactions"
@@ -522,7 +405,6 @@ export default function WalletPageContent() {
               />
             </div>
 
-            {/* Toolbar */}
             <TransactionsToolbar
               onRefresh={onRefresh}
               isRefreshing={isRefreshing}
@@ -530,7 +412,6 @@ export default function WalletPageContent() {
               setSortOrder={setSortOrder}
             />
 
-            {/* Liste des transactions */}
             {filteredTransactions.length === 0 ? (
               <TransactionEmptyState />
             ) : (

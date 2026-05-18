@@ -3,7 +3,7 @@ import CacheLink from "@/components/commons/CacheLink";
 import { filterOptions, useNotificationsPage } from "@/hooks/notifications/useNotificationsPage";
 import { cx, formatDateFRNew } from "@/lib/functions";
 import type { Notification } from "@/lib/types/notification.types";
-import { AnimatePresence, motion,Variants  } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { ArrowLeft, Bell, CheckCheck, Clock, Settings, Trash2 } from "lucide-react";
 import { memo, useMemo } from "react";
 
@@ -357,7 +357,6 @@ const FilterBar = memo(function FilterBar({
   );
 });
 
-// ==================== COMPOSANT PRINCIPAL ====================
 export default function NotificationsPageClient() {
   const {
     filter, filteredNotifications, showSettings, isLoading, unreadCount,

@@ -105,11 +105,15 @@ export interface Consultation {
   userId: string;
   clientId?: {
     _id: string;
+    username: string;
   };
   paymentId?: string;
   price: number;
   createdAt: string;
   updatedAt: string;
+  combinaison:string;
+ 
+
   [key: string]: unknown;
 }
 

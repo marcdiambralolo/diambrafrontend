@@ -1,201 +1,287 @@
 'use client';
+import Loader from "@/app/loading";
 import { useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
-import { AlertCircle, Eye, TrendingUp, Users } from "lucide-react";
-import React, { useMemo } from 'react';
-import CategoryConsulterPageWrapper from "../categorie/consulter/CategoryConsulterPageWrapper";
+import { AlertCircle, Calendar, Clock, Gamepad2, Shield, Sparkles, Timer, Users } from "lucide-react";
+import Link from 'next/link';
+import React, { memo } from 'react';
 
-function ProfilPageLoader() {
+const GAME_START_DATE = new Date('2026-05-18T00:00:00');
+const GAME_END_DATE = new Date('2026-05-18T23:59:59');
+const IS_GAME_ACTIVE = new Date() >= GAME_START_DATE && new Date() <= GAME_END_DATE;
+const GAME_IS_ENDED = new Date() > GAME_END_DATE;
+const GAME_NOT_STARTED = new Date() < GAME_START_DATE;
 
-  return (
-    <section className="mx-auto mt-4 w-full max-w-6xl animate-pulse">
-      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-        <div className="w-full rounded-3xl border border-[#1C3A6B] bg-[#0F1C3F] p-6 shadow-md md:w-1/2">
-          <div className="mx-auto h-24 w-24 rounded-full bg-[#162A56]" />
-          <div className="mx-auto mt-4 h-6 w-40 rounded-full bg-[#2E5AA6]" />
-          <div className="mx-auto mt-3 h-4 w-56 rounded-full bg-[#4F83D1]" />
-          <div className="mx-auto mt-6 h-10 w-36 rounded-2xl bg-[#162A56]" />
-        </div>
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
 
-        <div className="w-full rounded-3xl border border-[#1C3A6B] bg-[#0F1C3F] p-6 shadow-md md:w-1/2">
-          <div className="h-6 w-36 rounded-full bg-[#2E5AA6]" />
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="h-24 rounded-2xl bg-[#162A56]" />
-            <div className="h-24 rounded-2xl bg-[#162A56]" />
-            <div className="h-24 rounded-2xl bg-[#162A56]" />
-            <div className="h-24 rounded-2xl bg-[#162A56]" />
-          </div>
-        </div>
-      </div>
+const formatDateTime = (date: Date) => {
+  return date.toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
-      <div className="mt-6 rounded-3xl border border-[#1C3A6B] bg-[#0F1C3F] p-6 shadow-md">
-        <div className="h-6 w-40 rounded-full bg-[#2E5AA6]" />
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <div className="h-28 rounded-2xl bg-[#162A56]" />
-          <div className="h-28 rounded-2xl bg-[#162A56]" />
-          <div className="h-28 rounded-2xl bg-[#162A56]" />
-        </div>
-      </div>
-    </section>
-  );
-}
+const getTimeRemaining = () => {
+  const now = new Date();
+  const diff = GAME_END_DATE.getTime() - now.getTime();
 
+  if (diff <= 0) return null;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
+
+  return { days, hours, minutes };
+};
 interface StatCardProps {
   value: number | null;
   label: string;
   icon: React.ReactNode;
   loading: boolean;
-  color: 'primary' | 'accent';
+  color: string;
 }
 
-const cardVariants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0 },
-};
+const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    whileHover={{ scale: 1.05 }}
+    className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-6 text-white shadow-xl`}
+  >
+    <div className="absolute top-0 right-0 opacity-20">
+      {icon}
+    </div>
+    <div className="relative z-10">
+      <p className="text-sm font-medium opacity-90 mb-1">{label}</p>
+      {loading ? (
+        <div className="h-10 w-20 bg-white/20 rounded animate-pulse" />
+      ) : (
+        <p className="text-3xl font-bold">{value !== null ? formatNumber(value) : '--'}</p>
+      )}
+    </div>
+  </motion.div>
+));
 
-const STAT_COLORS = {
-  primary: {
-    text: 'text-[var(--accent-violet)]',
-    border: 'border-[var(--accent-violet)]/30',
-    bg: 'bg-[var(--bg-light)]',
-    iconBg: 'bg-[var(--accent-gold)]/10',
-  },
-  accent: {
-    text: 'text-[var(--accent-gold)]',
-    border: 'border-[var(--accent-gold)]/30',
-    bg: 'bg-[var(--bg-light)]',
-    iconBg: 'bg-[var(--accent-violet)]/10',
-  },
-} as const;
+const GameStatusBanner = memo(() => {
+  const timeRemaining = getTimeRemaining();
 
-const StatCard = React.memo<StatCardProps>(({ value, label, icon, loading, color }) => {
-  const colors = STAT_COLORS[color];
+  if (GAME_NOT_STARTED) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 mb-6"
+      >
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...%3E')] opacity-10" />
+        <div className="relative flex items-center gap-3">
+          <Clock className="w-6 h-6 text-white animate-pulse" />
+          <div>
+            <p className="text-white font-bold">Le jeu commence bientôt !</p>
+            <p className="text-white/80 text-sm">Ouverture le {formatDateTime(GAME_START_DATE)}</p>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
-  const displayValue = useMemo(() => {
-    if (loading) return <span className="animate-pulse">...</span>;
-    if (value !== null) return formatNumber(value);
-    return '--';
-  }, [loading, value]);
-
-  const showTrend = useMemo(() => !loading && value !== null && value > 0, [loading, value]);
+  if (GAME_IS_ENDED) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-600 to-gray-700 p-4 mb-6"
+      >
+        <div className="relative flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-white" />
+          <div>
+            <p className="text-white font-bold">Le jeu est terminé</p>
+            <p className="text-white/80 text-sm">Merci d'avoir participé ! Rendez-vous pour la prochaine édition.</p>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
-      variants={cardVariants}
-      initial="initial"
-      animate="animate"
-      whileHover={{ scale: 1.03 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className={`
-        flex flex-col items-center justify-center
-        bg-[var(--bg-light)] dark:bg-[var(--bg-dark)]/80
-        rounded-xl shadow-sm hover:shadow-md
-        px-4 py-3 sm:px-6 sm:py-4
-        border ${colors.border} dark:border-[var(--accent-violet)]/30
-        transition-all duration-300
-        relative overflow-hidden
-        min-w-[140px] sm:min-w-[160px] backdrop-blur-sm
-      `}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 p-4 mb-6"
     >
-      <div className={`absolute inset-0 ${colors.bg} opacity-5 dark:opacity-10 -z-10`} />
-
-      <div className={`${colors.iconBg} dark:bg-opacity-20 p-2 sm:p-2.5 rounded-lg mb-2`}>
-        {icon}
-      </div>
-
-      <div className={`text-3xl sm:text-4xl font-bold ${colors.text} dark:text-[var(--accent-gold)] dark:opacity-90 tracking-tight text-center leading-none`}>
-        {displayValue}
-      </div>
-
-      <div className="text-xs sm:text-sm font-medium text-[var(--accent-violet)] dark:text-[var(--accent-gold)] mt-1.5 uppercase tracking-wide text-center">
-        {label}
-      </div>
-
-      {showTrend && (
-        <div className="flex items-center gap-0.5 mt-1.5 text-green-600 dark:text-green-400 text-[10px] sm:text-xs font-medium">
-          <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-          <span>+{Math.floor(Math.random() * 15)}%</span>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...%3E')] opacity-10" />
+      <div className="relative flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-white/20 p-2">
+            <Timer className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-bold">Jeu actif !</p>
+            <p className="text-white/80 text-sm">Participez avant la fin</p>
+          </div>
         </div>
-      )}
+        {timeRemaining && (
+          <div className="flex gap-2 bg-black/20 rounded-xl px-4 py-2">
+            <div className="text-center">
+              <p className="text-white font-bold text-xl">{timeRemaining.days}</p>
+              <p className="text-white/70 text-[10px]">jours</p>
+            </div>
+            <div className="text-center">
+              <p className="text-white font-bold text-xl">{timeRemaining.hours}</p>
+              <p className="text-white/70 text-[10px]">heures</p>
+            </div>
+            <div className="text-center">
+              <p className="text-white font-bold text-xl">{timeRemaining.minutes}</p>
+              <p className="text-white/70 text-[10px]">mins</p>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 });
 
-interface ErrorMessageProps {
-  message: string;
-  onRetry: () => void;
-}
-
-
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="w-full max-w-md bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3"
-  >
-    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-    <div className="flex-1">
-      <p className="text-red-700 text-sm font-medium">{message}</p>
-      <button
-        onClick={onRetry}
-        className="text-red-600 hover:text-red-800 text-xs font-semibold mt-2 underline"
-      >
-        Réessayer
-      </button>
-    </div>
-  </motion.div>
-);
-
-const LoadingSkeleton: React.FC = () => (
-  <div className="flex flex-col sm:flex-row gap-6 items-center justify-center py-6">
-    {[1, 2].map((i) => (
-      <div
-        key={i}
-        className="flex flex-col items-center bg-white rounded-2xl shadow-lg px-8 py-6 border-2 border-gray-100 animate-pulse min-w-[160px]"
-      >
-        <div className="w-12 h-12 bg-gray-200 rounded-xl mb-3" />
-        <div className="w-20 h-10 bg-gray-200 rounded mb-2" />
-        <div className="w-16 h-4 bg-gray-200 rounded" />
-      </div>
-    ))}
-  </div>
-);
-
-const StatsCounter: React.FC<{ loading: boolean; stats: any; error: any; fetchStats: () => void }> = ({ loading, stats, error, fetchStats }) => {
-
-  if (loading && !stats) { return <LoadingSkeleton />; }
+const DatesSection = memo(() => {
+  const timeRemaining = getTimeRemaining();
 
   return (
-    <div className="w-full">
-      <div className="flex flex-row gap-3 items-center justify-center py-4">
-        <StatCard
-          value={stats?.subscribers ?? null}
-          label="Joueurs"
-          icon={<Users className="h-6 w-6 text-[#2E5AA6]" />}
-          loading={loading}
-          color="primary"
-        /> 
-      </div>
-
-      {error && (
-        <div className="flex justify-center mt-4">
-          <ErrorMessage message={typeof error === 'string' ? error : (error ? String(error) : '')} onRetry={fetchStats} />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.4 }}
+      className="bg-white dark:bg-gray-800/50 rounded-2xl p-6 mb-8 border border-gray-100 dark:border-gray-700 shadow-sm"
+    >
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-3">
+            <Calendar className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Période du jeu</p>
+            <p className="font-bold text-gray-800 dark:text-white">
+              Du {formatDate(GAME_START_DATE)} au {formatDate(GAME_END_DATE)}
+            </p>
+          </div>
         </div>
-      )}
-    </div>
+
+        {IS_GAME_ACTIVE && timeRemaining && (
+          <div className="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl px-5 py-3">
+            <Timer className="w-5 h-5 text-purple-600 animate-pulse" />
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Temps restant</p>
+              <p className="font-bold text-purple-600">
+                {timeRemaining.days}j {timeRemaining.hours}h {timeRemaining.minutes}m
+              </p>
+            </div>
+          </div>
+        )}
+
+        {GAME_IS_ENDED && (
+          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-700 rounded-xl px-5 py-3">
+            <Shield className="w-5 h-5 text-gray-500" />
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Édition terminée</p>
+              <p className="font-medium text-gray-600">Prochaine édition bientôt</p>
+            </div>
+          </div>
+        )}
+
+        {GAME_NOT_STARTED && (
+          <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl px-5 py-3">
+            <Clock className="w-5 h-5 text-amber-600" />
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Début dans</p>
+              <p className="font-bold text-amber-600">
+                {Math.ceil((GAME_START_DATE.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} jours
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
-};
+});
 
 export default function ProfilPageClient() {
-  const { fetchStats, loading, stats, error, } = useProfilUser();
+  const { loading, stats } = useProfilUser();
+  const canPlay = IS_GAME_ACTIVE;
 
-  if (loading) return <ProfilPageLoader />;
+  if (loading) return (<Loader />);
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center px-2 sm:px-0 overflow-x-hidden bg-white dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
-      <CategoryConsulterPageWrapper />
-      <StatsCounter loading={loading} stats={stats} error={error} fetchStats={fetchStats} />
+    <div className="w-full  dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20  max-w-3xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mt-8"
+      >
+        <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 dark:bg-purple-900/30">
+          <Gamepad2 className="w-4 h-4 text-purple-600" />
+          <span className="text-xs font-bold uppercase tracking-wider text-purple-700">DIAMBRA WIN</span>
+        </div>
+      </motion.div>
+      <GameStatusBanner />
+
+      <DatesSection />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="flex justify-center"
+      >
+        {canPlay ? (
+          <Link
+            href="/star/choix"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 via-orange-600 to-purple-600 text-white font-bold rounded-2xl shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 overflow-hidden text-lg"
+          >
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            <Gamepad2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span>Jouer Maintenant</span>
+            <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+          </Link>
+        ) : GAME_IS_ENDED ? (
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-6 py-4 bg-gray-200 dark:bg-gray-700 rounded-2xl text-gray-500 dark:text-gray-400">
+              <AlertCircle className="w-5 h-5" />
+              <span>Le jeu est terminé</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-3">Rendez-vous pour la prochaine édition !</p>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-6 py-4 bg-amber-100 dark:bg-amber-900/30 rounded-2xl text-amber-600 dark:text-amber-400">
+              <Clock className="w-5 h-5 animate-pulse" />
+              <span>Le jeu commence bientôt</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-3">Ouverture le {formatDateTime(GAME_START_DATE)}</p>
+          </div>
+        )}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+        className="grid grid-cols-1 gap-4 mb-2 mt-4"
+      >
+        <StatCard
+          value={stats?.subscribers ?? null}
+          label="Joueurs inscrits"
+          icon={<Users className="w-8 h-8" />}
+          loading={loading}
+          color="from-purple-600 to-indigo-600"
+        />
+      </motion.div>
     </div>
   );
 }

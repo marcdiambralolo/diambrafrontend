@@ -1,8 +1,8 @@
 'use client';
-import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/categorie/consulter/useCategoryConsulterClient';
-import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gem, Gift, ShoppingBag, Sparkles, Zap } from 'lucide-react';
-import { memo } from "react";
+import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterClient';
+import { motion } from 'framer-motion';
+import { AlertCircle, AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gem, Gift, ShoppingBag, Zap } from "lucide-react";
+import { memo } from 'react';
 
 const CategoryLoadingSpinner = memo(() => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#EEF4FF] via-white to-slate-100 dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-[#070B1A]">
@@ -213,7 +213,7 @@ const StatusBanner = memo<StatusBannerProps>(({
   );
 });
 
-export default function CategoryConsulterPageWrapper() {
+export default function ProfilPageClient() {
   const {
     handleGoToMarket, handleNext, clearError,
     dataLoading, dataError, showError, currentError, availableQuantity,
@@ -225,123 +225,120 @@ export default function CategoryConsulterPageWrapper() {
   }
 
   return (
-    <div className="relative max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-8 md:py-12">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <StatusBanner
-            isSufficient={isSufficient}
-            requiredQuantity={requiredQuantity}
-            availableQuantity={availableQuantity}
-          />
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+    <div className="relative w-full mt-16 flex flex-col items-center justify-center sm:px-0 overflow-x-hidden  dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
+      <div className="mb-2 mt-6">
+        <StatusBanner
+          isSufficient={isSufficient}
+          requiredQuantity={requiredQuantity}
+          availableQuantity={availableQuantity}
+        />
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: ANIMATION_CONFIG.duration.normal }}
+          disabled={!isSufficient}
+          className={cardClasses}
         >
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: ANIMATION_CONFIG.duration.normal }}
-            disabled={!isSufficient}
-            className={cardClasses}
-          >
-            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-            <div className="flex-shrink-0">
-              {isSufficient ? (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="rounded-full bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1] p-1.5"
-                >
-                  <CheckCircle2 className="h-5 w-5 text-white" />
-                </motion.div>
-              ) : (
-                <div className="rounded-full border-2 border-gray-300 dark:border-gray-600 p-1.5">
-                  <Circle className="w-5 h-5 text-gray-300 dark:text-gray-600" />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <Coins className="w-3.5 h-3.5" />
-                  <span>Jetons requis : <strong className="text-gray-800 dark:text-gray-200">{requiredQuantity}</strong></span>
-                </div>
-                <div className={`flex items-center gap-2 text-xs ${isSufficient ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                  <Gift className="w-3.5 h-3.5" />
-                  <span><strong>{availableQuantity}</strong> disponible(s) dans votre wallet</span>
-                </div>
-              </div>
-            </div>
-
-            {isSufficient && (
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+          <div className="flex-shrink-0">
+            {isSufficient ? (
               <motion.div
-                animate={{ x: [0, -5, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="flex-shrink-0"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="rounded-full bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1] p-1.5"
               >
-                <Zap className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
+                <CheckCircle2 className="h-5 w-5 text-white" />
               </motion.div>
-            )}
-
-            {!isSufficient && (
-              <div className="flex-shrink-0">
-                <div className="px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-xs font-semibold">
-                  {availableQuantity}/{requiredQuantity}
-                </div>
+            ) : (
+              <div className="rounded-full border-2 border-gray-300 dark:border-gray-600 p-1.5">
+                <Circle className="w-5 h-5 text-gray-300 dark:text-gray-600" />
               </div>
             )}
-          </motion.button>
-        </motion.div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <Coins className="w-3.5 h-3.5" />
+                <span>Jetons requis : <strong className="text-gray-800 dark:text-gray-200">{requiredQuantity}</strong></span>
+              </div>
+              <div className={`flex items-center gap-2 text-xs ${isSufficient ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                <Gift className="w-3.5 h-3.5" />
+                <span><strong>{availableQuantity}</strong> disponible(s) dans votre wallet</span>
+              </div>
+            </div>
+          </div>
 
-        <div className="mt-8 space-y-3">
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            onClick={handleNext}
-            disabled={!isSufficient}
-            className={`
-                w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98]
-                ${isSufficient
-                ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-lg shadow-[#2E5AA6]/30 hover:shadow-xl hover:scale-[1.02] group cursor-pointer"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
-              }
-              `}
-          >
-            <span>Jouer Maintenant</span>
-            <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isSufficient ? "group-hover:translate-x-1" : ""}`} />
-          </motion.button>
-
-          {!isSufficient && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-xs text-red-500 dark:text-red-400 mt-2"
+          {isSufficient && (
+            <motion.div
+              animate={{ x: [0, -5, 0] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="flex-shrink-0"
             >
-              Vous ne disposez pas d'assez de jetons. 
-            </motion.p>
+              <Zap className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF]" />
+            </motion.div>
           )}
 
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            onClick={handleGoToMarket}
-            className="group w-full h-10 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] transition-all duration-300 active:scale-[0.98] hover:bg-[#DDE7FA] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] dark:hover:bg-[#162A56]/45"
+          {!isSufficient && (
+            <div className="flex-shrink-0">
+              <div className="px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-xs font-semibold">
+                {availableQuantity}/{requiredQuantity}
+              </div>
+            </div>
+          )}
+        </motion.button>
+      </motion.div>
+
+      <div className="mt-8 space-y-3">
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          onClick={handleNext}
+          disabled={!isSufficient}
+          className={`
+                w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98]
+                ${isSufficient
+              ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-lg shadow-[#2E5AA6]/30 hover:shadow-xl hover:scale-[1.02] group cursor-pointer"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
+            }
+              `}
+        >
+          <span>Jouer Maintenant</span>
+          <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isSufficient ? "group-hover:translate-x-1" : ""}`} />
+        </motion.button>
+
+        {!isSufficient && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-xs text-red-500 dark:text-red-400 mt-2"
           >
-            <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
-            <span>Acquerir des jetons</span>
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </motion.button>
-        </div>
-      </div>
-      <AnimatePresence>
-        {(showError || !!dataError) && (
-          <ErrorToast message={currentError!} onClose={clearError} />
+            Vous ne disposez pas d'assez de jetons.
+          </motion.p>
         )}
-      </AnimatePresence>
+
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          onClick={handleGoToMarket}
+          className="group w-full h-10 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] transition-all duration-300 active:scale-[0.98] hover:bg-[#DDE7FA] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] dark:hover:bg-[#162A56]/45"
+        >
+          <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+          <span>Acquerir des jetons</span>
+          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </motion.button>
+      </div>
+      
+      {(showError || !!dataError) && (
+        <ErrorToast message={currentError!} onClose={clearError} />
+      )}
     </div>
   );
 }

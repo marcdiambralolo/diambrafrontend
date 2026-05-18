@@ -9,7 +9,9 @@ export function useAdminShell() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const handleLogout = useCallback(async () => {
+    
     if (isLoggingOut) return;
+
     setIsLoggingOut(true);
     
     try {

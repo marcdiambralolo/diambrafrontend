@@ -144,7 +144,7 @@ export function useAdminDashboardPage() {
     if (!stats) return [];
 
     const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-  
+
     return months.map((month) => ({
       name: month,
       consultations: Math.floor(stats.consultations.total * (0.7 + Math.random() * 0.6)),
@@ -176,6 +176,6 @@ export function useAdminDashboardPage() {
   return {
     handleRefresh, setDateRange, setSelectedReport, stats, loading, error,
     lastUpdated, dateRange, selectedReport, metrics, safeDerivedStats,
-    showRefreshBanner, isRefreshing, chartData, chartConfig,
+    showRefreshBanner, chartData, isRefreshing, chartConfig,
   };
 }

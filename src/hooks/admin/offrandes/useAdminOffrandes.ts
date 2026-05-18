@@ -2,10 +2,40 @@ import { api } from '@/lib/api/client';
 import { Offering } from '@/lib/interfaces';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { useGestionPanel } from './useGestionPanel';
+ import { useMemo } from 'react';
 
-export type SortKey = 'name' | 'price' | 'category';
-export type ViewMode = 'gestion' | 'stats';
+export type SortKey = 'name' | 'price';
+export type ViewMode = 'gestion' | 'stats'; 
+
+export function useOffrandesGestionPagination<T>(items: T[], perPage: number = 6) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(items.length / perPage);
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return items.slice(start, start + perPage);
+  }, [items, page, perPage]);
+  return { page, setPage, totalPages, paginatedItems };
+}
+
+export function useGestionPanel(
+  offerings: Offering[],
+  perPage = 6,
+  sortKey: 'name' | 'price',
+  sortOrder: 'asc' | 'desc' = 'asc'
+) {
+  // Tri dynamique selon la clé et l'ordre
+  const sorted = useMemo(() => {
+    const sortedArr = [...offerings].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === 'name') cmp = a.name.localeCompare(b.name);
+      else if (sortKey === 'price') cmp = a.price - b.price;
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+    return sortedArr;
+  }, [offerings, sortKey, sortOrder]);
+  const { page, setPage, totalPages, paginatedItems } = useOffrandesGestionPagination(sorted, perPage);
+  return { page, setPage, totalPages, offerings: paginatedItems };
+}
 
 export const CONSTANTS = {
   ITEMS_PER_PAGE: 9,
@@ -23,8 +53,6 @@ export interface StatsData {
   byOffering: Array<{
     offeringId: string;
     name: string;
-    icon: string;
-    category: string;
     revenue: number;
     quantitySold: number;
     avgUnitPrice: number;
@@ -52,7 +80,6 @@ export function useAdminOffrandes() {
   const [successMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Chargement différé des stats
   const fetchOfferings = useCallback(async () => {
     setLoading(true);
     try {

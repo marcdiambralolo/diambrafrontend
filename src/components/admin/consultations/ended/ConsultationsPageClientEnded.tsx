@@ -40,7 +40,7 @@ const shimmerVariants: Variants = {
     }
   }
 };
- 
+
 interface ConsultationBadgesProps {
   formattedDate: string;
 }
@@ -142,7 +142,7 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
           background: `linear-gradient(90deg, transparent,   rgba(46, 90, 166, 0.12), transparent)`,
           backgroundSize: '200% 100%'
         }}
-      />  
+      />
 
       <div className="flex flex-col items-center w-full gap-2 mt-2">
         <ClientInfo
@@ -152,7 +152,7 @@ const ConsultationCard = memo(({ consultation }: ConsultationCardProps) => {
         <ConsultationBadges
           formattedDate={formattedDate}
         />
-      </div> 
+      </div>
     </motion.div>
   );
 }, (prevProps, nextProps) => {

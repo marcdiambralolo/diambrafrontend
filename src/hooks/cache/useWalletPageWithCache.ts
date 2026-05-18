@@ -7,7 +7,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type SortOrder = 'newest' | 'oldest' | 'amount_high' | 'amount_low';
 export type WalletTab = 'transactions' | 'unused-offerings';
-type WalletContext = 'book' | 'consultation' | 'category' | 'home';
+
+const SORT_FUNCTIONS: Record<SortOrder, (a: any, b: any) => number> = {
+  newest: (a, b) => getSafeTime(b.completedAt) - getSafeTime(a.completedAt),
+  oldest: (a, b) => getSafeTime(a.completedAt) - getSafeTime(b.completedAt),
+  amount_high: (a, b) => Number(b.totalAmount || 0) - Number(a.totalAmount || 0),
+  amount_low: (a, b) => Number(a.totalAmount || 0) - Number(b.totalAmount || 0),
+};
+
+const WALLET_TABS: WalletTab[] = ['transactions', 'unused-offerings'];
 
 function getSafeTime(value?: string | null): number {
   if (!value) return 0;
@@ -16,15 +24,53 @@ function getSafeTime(value?: string | null): number {
 }
 
 function isWalletTab(value: string | null): value is WalletTab {
-  return value === 'transactions' || value === 'unused-offerings';
+  return WALLET_TABS.includes(value as WalletTab);
+}
+
+function computeStats(transactions: any[]): Stats {
+  const totalTransactions = transactions.length;
+  const totalSpent = transactions.reduce((sum, transaction) => {
+    const amount = Number(transaction.totalAmount || 0);
+    return sum + (Number.isFinite(amount) ? amount : 0);
+  }, 0);
+
+  return { totalTransactions, totalSpent };
+}
+
+function checkSimulatedPurchase(transactions: any[]): boolean {
+  if (typeof window === 'undefined' || !transactions.length) return false;
+
+  try {
+    const raw = window.localStorage.getItem('last_simulated_purchase');
+    if (!raw) return false;
+
+    const purchaseData = JSON.parse(raw) as { transactionId?: string } | null;
+    const targetId = purchaseData?.transactionId;
+
+    if (!targetId) {
+      window.localStorage.removeItem('last_simulated_purchase');
+      return false;
+    }
+
+    const exists = transactions.some(
+      (transaction) => transaction.transactionId === targetId
+    );
+
+    if (exists) {
+      window.localStorage.removeItem('last_simulated_purchase');
+      return true;
+    }
+
+    window.localStorage.removeItem('last_simulated_purchase');
+    return false;
+  } catch {
+    window.localStorage.removeItem('last_simulated_purchase');
+    return false;
+  }
 }
 
 export function useWalletPageWithCache() {
   const searchParams = useSearchParams();
-
-  const consultationId = searchParams?.get('consultationId') || undefined;
-  const categoryId = searchParams?.get('categoryId') || undefined;
-  const bookId = searchParams?.get('bookId') || undefined;
   const tabFromUrl = searchParams?.get('tab');
 
   const [activeTab, setActiveTab] = useState<WalletTab>('unused-offerings');
@@ -38,23 +84,6 @@ export function useWalletPageWithCache() {
     refetch: refetchTransactions,
   } = useWalletTransactionsWithCache();
 
-  // Ajoute illustrationUrl à chaque item de chaque transaction si disponible dans item.offeringId
-  const transactions = useMemo(() =>
-    rawTransactions.map((tx) => {
-      if (!Array.isArray(tx.items)) return tx;
-      const items = tx.items.map((item) => {
-       
-        return {
-          ...item,
-        };
-      });
-      return {
-        ...tx,
-        items,
-      };
-    })
-  , [rawTransactions]);
-
   const {
     unusedOfferings,
     isLoading: isLoadingUnused,
@@ -62,125 +91,28 @@ export function useWalletPageWithCache() {
     refetch: refetchUnused,
   } = useUnusedOfferingsWithCache();
 
+  // Synchronisation de l'onglet avec l'URL
   useEffect(() => {
-    if (isWalletTab(tabFromUrl!)) {
-      setActiveTab(tabFromUrl!);
+    if (isWalletTab(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
 
-  const stats = useMemo<Stats>(() => {
-    const totalTransactions = transactions.length;
-    const totalSpent = transactions.reduce((sum, transaction) => {
-      const amount = Number(transaction.totalAmount || 0);
-      return sum + (Number.isFinite(amount) ? amount : 0);
-    }, 0);
+  // Vérification de l'achat simulé
+  useEffect(() => {
+    const hasPurchase = checkSimulatedPurchase(rawTransactions);
+    if (hasPurchase) {
+      setShowSuccessBanner(true);
+    }
+  }, [rawTransactions]);
 
-    return {
-      totalTransactions,
-      totalSpent,
-    };
-  }, [transactions]);
+  // Mémorisation des données dérivées
+  const stats = useMemo(() => computeStats(rawTransactions), [rawTransactions]);
 
   const filteredTransactions = useMemo(() => {
-    const list = [...transactions];
-
-    list.sort((a, b) => {
-      switch (sortOrder) {
-        case 'newest':
-          return getSafeTime(b.completedAt) - getSafeTime(a.completedAt);
-        case 'oldest':
-          return getSafeTime(a.completedAt) - getSafeTime(b.completedAt);
-        case 'amount_high':
-          return Number(b.totalAmount || 0) - Number(a.totalAmount || 0);
-        case 'amount_low':
-          return Number(a.totalAmount || 0) - Number(b.totalAmount || 0);
-        default:
-          return 0;
-      }
-    });
-
-    return list;
-  }, [transactions, sortOrder]);
-
-  const dismissBanner = useCallback(() => {
-    setShowSuccessBanner(false);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!transactions.length) return;
-
-    try {
-      const raw = window.localStorage.getItem('last_simulated_purchase');
-      if (!raw) return;
-
-      const purchaseData = JSON.parse(raw) as { transactionId?: string } | null;
-      const targetId = purchaseData?.transactionId;
-
-      if (!targetId) {
-        window.localStorage.removeItem('last_simulated_purchase');
-        return;
-      }
-
-      const exists = transactions.some(
-        (transaction) => transaction.transactionId === targetId,
-      );
-
-      if (exists) {
-        setShowSuccessBanner(true);
-        window.localStorage.removeItem('last_simulated_purchase');
-      }
-    } catch {
-      window.localStorage.removeItem('last_simulated_purchase');
-    }
-  }, [transactions]);
-
-  const onRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-
-    try {
-      await Promise.allSettled([refetchTransactions(), refetchUnused()]);
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refetchTransactions, refetchUnused]);
-
-  const context = useMemo<WalletContext>(() => {
-    if (bookId) return 'book';
-    if (consultationId) return 'consultation';
-    if (categoryId) return 'category';
-    return 'home';
-  }, [bookId, consultationId, categoryId]);
-
-  const backLink = useMemo(() => {    
-
-    if (context === 'consultation' && consultationId && categoryId) {
-      return {
-        href: buildUrl(`/star/category/${categoryId}/consulter`, { consultationId }),
-        label: 'Retour à la consultation',
-      };
-    }
-
-    if (context === 'consultation' && consultationId) {
-      return {
-        href: buildUrl(`/star/consultations/${consultationId}`, {}),
-        label: 'Retour à la consultation',
-      };
-    }
-
-    if (context === 'category' && categoryId) {
-      return {
-        href: buildUrl(`/star/category/${categoryId}`, {}),
-        label: 'Retour à la catégorie',
-      };
-    }
-
-    return {
-      href: buildUrl(`/`, {}),
-      label: "Retour à l'accueil",
-      helper: "Retournez à l'accueil pour explorer d'autres services.",
-    };
-  }, [context, bookId, consultationId, categoryId]);
+    const sortFn = SORT_FUNCTIONS[sortOrder];
+    return [...rawTransactions].sort(sortFn);
+  }, [rawTransactions, sortOrder]);
 
   const isLoadingCurrentTab = activeTab === 'transactions'
     ? isLoadingTransactions
@@ -188,10 +120,26 @@ export function useWalletPageWithCache() {
 
   const isPageLoading = isLoadingTransactions || isLoadingUnused;
 
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.allSettled([refetchTransactions(), refetchUnused()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchTransactions, refetchUnused]);
+
+  const backLink = useMemo(() => ({
+    href: buildUrl('/star/profil', {}),
+    label: "Retour à l'accueil",
+    helper: "Retournez à l'accueil.",
+  }), []);
+
   return {
-    setSortOrder, dismissBanner, onRefresh, setActiveTab,
-    isLoading: isLoadingCurrentTab || isPageLoading || isLoadingUnused, backLink,
-    sortOrder, activeTab, isRefreshing, showSuccessBanner,
-    unusedError, unusedOfferings, stats, filteredTransactions,
+    dismissBanner: useCallback(() => setShowSuccessBanner(false), []),
+    onRefresh, setSortOrder, setActiveTab,
+    isLoading: isLoadingCurrentTab || isPageLoading, backLink,
+    unusedError, unusedOfferings, stats, sortOrder, filteredTransactions,
+    activeTab, isRefreshing, showSuccessBanner,
   };
 }

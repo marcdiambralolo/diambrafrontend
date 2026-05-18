@@ -85,7 +85,7 @@ export function WelcomePageClientContent() {
 
             <div className="mt-4 flex justify-center gap-2">
               <h1 className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-6xl font-black tracking-tight text-transparent sm:text-7xl lg:text-8xl">
-                Quatre Cases
+               DIAMBRA WIN
               </h1> 
             </div>
 

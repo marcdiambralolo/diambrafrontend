@@ -5,8 +5,15 @@ import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
-  AlertCircle, CalendarDays, Clock, Crown, Gamepad2, History,
-  Loader2, MapPin, Plus, Sparkles, UserRound
+  AlertCircle, ArrowRight, CalendarDays, Clock, Crown, Gamepad2, History,
+  Loader2, MapPin, Plus,
+  Star,
+  Target,
+  Timer,
+  TrendingUp,
+  Trophy,
+  UserRound,
+  Zap
 } from "lucide-react";
 import Link from "next/link";
 import { memo, type ReactNode, useState } from "react";
@@ -53,7 +60,16 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
   }) : 'Date inconnue';
 
   const nomdujoueur = consultation.clientId?.username;
-  const combinaison = consultation.combinaison || "0000";
+  const combinaison = consultation.combinaison || 'xxxx';
+  const timeSpent = consultation.timeSpent;
+
+  const getScoreColor = () => {
+    return 'text-red-500 dark:text-red-400';
+  };
+
+
+
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 30 }}
@@ -69,7 +85,8 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
         "dark:from-[#162A56] dark:via-[#13274C] dark:to-[#162A56]",
         "shadow-2xl shadow-black/5 dark:shadow-[0_18px_48px_-30px_rgba(3,10,25,0.88)]",
         "backdrop-blur-xl",
-        "transition-all duration-300"
+        "transition-all duration-300",
+        "ring-2 ring-emerald-500/30 dark:ring-emerald-400/30"
       )}
     >
       {/* Effets décoratifs */}
@@ -78,6 +95,8 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gradient-to-tr from-[#2E5AA6]/14 to-[#7BA9F1]/7 blur-3xl" />
         <div className="absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-130%] transition-transform duration-700 group-hover:translate-x-[320%] dark:via-white/5" />
       </div>
+
+
 
       <div
         className="pointer-events-none absolute -inset-px rounded-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-35"
@@ -88,13 +107,15 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
       />
 
       <div className="relative z-10 flex items-start gap-4 w-full">
+        {/* Icône de jeu avec animation */}
         <div className="flex-shrink-0">
           <div className={cx(
             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
             type === 'history'
               ? "bg-gradient-to-br from-purple-500 to-indigo-600"
               : "bg-gradient-to-br from-emerald-500 to-teal-600",
-            isHovered ? "scale-110 shadow-lg shadow-purple-500/30" : ""
+            isHovered ? "scale-110 shadow-lg shadow-purple-500/30" : "",
+            "ring-2 ring-emerald-400/50 ring-offset-2"
           )}>
             {type === 'history' ? (
               <History className="w-7 h-7 text-white" />
@@ -105,29 +126,71 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col items-center justify-between gap-2 mb-2">
-            {nomdujoueur && (
-              <><h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
-                Joueur:  {nomdujoueur}
-              </h3>
-                <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
-                  Combinaison:  {combinaison}
-                </h3></>
-            )}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                {nomdujoueur && (
+                  <><div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-1">
+                    <UserRound className="w-3 h-3 text-purple-600" />
+                  </div><h3 className="text-sm font-semibold tracking-tight text-slate-700 dark:text-slate-300">
+                      {nomdujoueur}
+                    </h3></>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/30 p-1">
+                  <Target className="w-3 h-3 text-indigo-600" />
+                </div>
+                <p className="text-lg font-black tracking-wider text-slate-800 dark:text-white font-mono">
+                  {combinaison.split('').map((digit, i) => (
+                    <span
+                      key={i}
+                      className={cx(
+                        "inline-block w-7 text-center",
+                        i > 0 && "ml-1"
+                      )}
+                    >
+                      {digit}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap items-center gap-4 mt-3">
+            {timeSpent && (
+              <div className="flex items-center gap-1.5">
+                <div className="rounded-full bg-gray-100 dark:bg-gray-700 p-1">
+                  <Timer className="w-3 h-3 text-gray-500" />
+                </div>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {timeSpent}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700/50">
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3 h-3" />
-              <span>{relativeDate}</span>
+              <Clock className="w-3 h-3 text-gray-400" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{relativeDate}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <CalendarDays className="w-3 h-3" />
-              <span>{formattedDate}</span>
+              <CalendarDays className="w-3 h-3 text-gray-400" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
             </div>
           </div>
         </div>
       </div>
+      {isHovered && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 pointer-events-none"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        </motion.div>
+      )}
     </motion.article>
   );
 }
@@ -176,8 +239,6 @@ const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps)
   </motion.button>
 ));
 
-TabButton.displayName = 'TabButton';
-
 interface ConsultationsEmptyProps {
   consultationsLength: number;
   type?: 'history' | 'games';
@@ -210,29 +271,10 @@ function ConsultationsEmpty({ consultationsLength, type = 'history' }: Consultat
       <h3 className="text-2xl font-bold text-white mb-3">
         {consultationsLength === 0
           ? type === 'history'
-            ? '📜 Aucune partie en historique'
-            : '🎮 Commencez votre aventure'
+            ? '📜 Aucun jeu en historique'
+            : '🎮 Commencez à jouer'
           : '🔍 Aucun résultat trouvé'}
       </h3>
-
-      <p className="mb-8 text-purple-200 max-w-md mx-auto">
-        {consultationsLength === 0
-          ? type === 'history'
-            ? 'Les parties que vous jouerez apparaîtront ici'
-            : 'Créez votre première partie de Quatre Cases et défiez votre logique !'
-          : 'Essayez de modifier vos filtres pour trouver ce que vous cherchez'}
-      </p>
-
-      {type === 'games' && (
-        <Link
-          href="/star/profil"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all hover:scale-105"
-        >
-          <Plus className="w-4 h-4" />
-          Commencer une partie
-          <Sparkles className="w-4 h-4" />
-        </Link>
-      )}
     </motion.div>
   );
 }

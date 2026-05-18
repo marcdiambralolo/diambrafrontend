@@ -112,6 +112,7 @@ export interface Consultation {
   createdAt: string;
   updatedAt: string;
   combinaison:string;
+  timeSpent: string;
  
 
   [key: string]: unknown;

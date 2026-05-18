@@ -89,7 +89,7 @@ function buildParams(opts: {
 
   return params.toString();
 }
- 
+
 
 export function useConsultationsListPage() {
   const [searchQuery] = useState('');
@@ -116,7 +116,7 @@ export function useConsultationsListPage() {
         timeout: 30000,
         signal,
       });
-console.log(res.data)
+      console.log(res.data)
       return {
         consultations: res.data?.consultations || [],
         total: Number(res.data?.total || 0),

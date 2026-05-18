@@ -1,224 +1,18 @@
 "use client";
+import { formatTime, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
 import { AnimatePresence, motion } from "framer-motion";
-import { MousePointerClick, Move, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Zap } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MousePointerClick, Move, Sparkles, Target, Trash2, Volume2, VolumeX, Zap } from "lucide-react";
 
 const SLOT_COUNT = 4;
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
-const STORAGE_KEY = "number-grid-stats";
-
-interface GameStats {
-  completions: number;
-  bestTime: number | null;
-  totalMoves: number;
-}
 
 export function NumberGridGame() {
-  const router = useRouter();
-  const [slots, setSlots] = useState<(number | null)[]>(
-    () => Array.from({ length: SLOT_COUNT }, () => null)
-  );
-  const [selected, setSelected] = useState<number | null>(null);
-  const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [completionCount, setCompletionCount] = useState(0);
-  const [mode, setMode] = useState<'drag' | 'click'>('click');
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [moveCount, setMoveCount] = useState(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
-
-  const dragStartRef = useRef<{ value: number; index?: number } | null>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const stats = JSON.parse(saved) as GameStats;
-      setCompletionCount(stats.completions);
-    }
-  }, []);
-
-  const saveStats = useCallback((completions: number) => {
-    const stats: GameStats = {
-      completions,
-      bestTime: null,
-      totalMoves: 0,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-  }, []);
-
-  const used = useMemo(
-    () => new Set(slots.filter((v): v is number => v !== null)),
-    [slots]
-  );
-
-  const isComplete = useMemo(
-    () => slots.every(s => s !== null) && new Set(slots).size === SLOT_COUNT,
-    [slots]
-  );
-
-  useEffect(() => {
-    if (!isComplete && slots.some(s => s !== null) && !startTime) {
-      setStartTime(Date.now());
-    }
-
-    if (isComplete && startTime) {
-      const elapsed = (Date.now() - startTime) / 1000;
-      setElapsedTime(elapsed);
-      if (timerRef.current) clearInterval(timerRef.current);
-    } else if (!isComplete && startTime) {
-      timerRef.current = setInterval(() => {
-        setElapsedTime((Date.now() - startTime!) / 1000);
-      }, 100);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isComplete, startTime, slots]);
-
-  useEffect(() => {
-    if (isComplete) {
-      playSound('success');
-      setCompletionCount(prev => {
-        const newCount = prev + 1;
-        saveStats(newCount);
-        return newCount;
-      });
-    }
-  }, [isComplete, saveStats]);
-
-  const playSound = (type: 'place' | 'remove' | 'success') => {
-    if (!soundEnabled) return;
-
-    const audio = new Audio();
-    switch (type) {
-      case 'place':
-        audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-        break;
-      case 'remove':
-        audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-        break;
-      case 'success':
-        audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-        break;
-    }
-    audio.volume = 0.3;
-    audio.play().catch(() => { });
-  };
-
-  const placeSelectedDigitInSlot = useCallback((slotIndex: number) => {
-    if (selected === null) return;
-    if (used.has(selected)) return;
-
-    setSlots(prev => {
-      const next = [...prev];
-      if (next[slotIndex] !== null) return prev;
-
-      next[slotIndex] = selected;
-      return next;
-    });
-
-    setMoveCount(prev => prev + 1);
-    setSelected(null);
-    playSound('place');
-  }, [selected, used]);
-
-  const handleDragStart = useCallback((
-    e: React.DragEvent<HTMLElement>,
-    value: number,
-    fromSlot?: number
-  ) => {
-    e.dataTransfer.setData("text/plain", JSON.stringify({ value, fromSlot }));
-    e.dataTransfer.effectAllowed = "move";
-
-    dragStartRef.current = { value, index: fromSlot };
-    setIsDragging(true);
-
-    const dragIcon = document.createElement("div");
-    dragIcon.textContent = value.toString();
-    dragIcon.className = "fixed top-0 left-0 bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg";
-    document.body.appendChild(dragIcon);
-    e.dataTransfer.setDragImage(dragIcon, 20, 20);
-    setTimeout(() => document.body.removeChild(dragIcon), 0);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverSlot(null);
-    setIsDragging(false);
-
-    try {
-      const rawData = e.dataTransfer.getData("text/plain");
-      if (!rawData) return;
-
-      const { value, fromSlot } = JSON.parse(rawData);
-
-      setSlots(prev => {
-        const next = [...prev];
-
-        if (fromSlot !== undefined) {
-          const movingValue = next[fromSlot];
-          const targetValue = next[index];
-
-          if (movingValue !== null && targetValue !== null) {
-            next[fromSlot] = targetValue;
-            next[index] = movingValue;
-            playSound('place');
-          } else if (movingValue !== null && targetValue === null) {
-            next[fromSlot] = null;
-            next[index] = movingValue;
-            playSound('place');
-          }
-          setMoveCount(prev => prev + 1);
-          return next;
-        }
-
-        if (value !== undefined && !used.has(value) && next[index] === null) {
-          next[index] = value;
-          setSelected(null);
-          setMoveCount(prev => prev + 1);
-          playSound('place');
-        }
-
-        return next;
-      });
-    } catch (err) {
-      console.error("Drop error:", err);
-    }
-
-    dragStartRef.current = null;
-  }, [used]);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOverSlot(index);
-  }, []);
-
-  const removeFromSlot = useCallback((index: number) => {
-    setSlots(prev => {
-      const next = [...prev];
-      next[index] = null;
-      return next;
-    });
-    setSelected(null);
-    setMoveCount(prev => prev + 1);
-    playSound('remove');
-  }, []);
-
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const tenths = Math.floor((seconds % 1) * 10);
-    return mins > 0
-      ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
-      : `${secs}.${tenths}s`;
-  };
+  const {
+    slots, selected, dragOverSlot, isDragging, mode, soundEnabled, moveCount,
+    startTime, elapsedTime, used, isComplete,
+    handleDragOver, handleDrop, removeFromSlot, setDragOverSlot, setIsDragging,
+    setSelected, setMode, setSoundEnabled, placeSelectedDigitInSlot, handleSubmitAndNavigate
+  } = useNumberGridGame();
 
   return (
     <div
@@ -297,21 +91,20 @@ export function NumberGridGame() {
           </motion.div>
         ))}
       </div>
- 
+
       <div className="flex justify-center mb-4">
         <button
           className={`px-8 py-3 rounded-full font-bold text-white shadow-lg transition-all duration-300 bg-gradient-to-r from-purple-600 to-indigo-600 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-50 disabled:cursor-not-allowed`}
           disabled={!isComplete}
-          onClick={() => router.push('/star/monprofil')}
+          onClick={() => {
+            handleSubmitAndNavigate();
+          }}
         >
           Valider
         </button>
       </div>
- 
+
       <div className="space-y-3">
-        <p className="text-center text-xs font-bold uppercase tracking-wider text-purple-600">
-          {mode === 'click' ? "🖱️ Choisissez un chiffre à placer" : "🎯 Glissez un chiffre vers une case vide"}
-        </p>
         <div className="flex gap-2 sm:gap-3 justify-center flex-wrap">
           {DIGITS.map(d => {
             const isUsed = used.has(d);
@@ -367,6 +160,30 @@ export function NumberGridGame() {
         )}
       </AnimatePresence>
 
+      {selected === null && (
+        <p className="text-center text-xs font-bold uppercase tracking-wider text-purple-600">
+          {mode === 'click' ? "🖱️ Choisissez un chiffre à placer" : "🎯 Glissez un chiffre vers une case vide"}
+        </p>
+      )}
+
+      <div className="text-center space-y-3">
+        <div className="flex justify-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-4 py-2 rounded-full shadow-sm">
+            <Sparkles className="w-5 h-5 text-emerald-500" />
+            <span className="text-sm font-bold text-emerald-700">{used.size}/{SLOT_COUNT} placés</span>
+          </div>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full shadow-sm">
+            <Zap className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-bold text-blue-700">{moveCount} mouvements</span>
+          </div>
+          {startTime && !isComplete && (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-orange-100 to-amber-100 px-4 py-2 rounded-full shadow-sm">
+              <span className="text-sm font-bold text-orange-700">⏱️ {formatTime(elapsedTime)}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       <p className="text-gray-600 text-sm  mx-auto text-center">
         Placez les chiffres de 0 à 9 dans les 4 cases
       </p>
@@ -408,24 +225,6 @@ export function NumberGridGame() {
           💡 Astuce : {mode === 'click'
             ? "Cliquez sur un chiffre pour le sélectionner, puis sur une case vide pour le placer. Cliquez sur une case remplie pour la vider."
             : "Glissez les chiffres vers les cases vides. Vous pouvez aussi échanger deux cases en glissant l'une sur l'autre."}
-        </div>
-      </div>
-
-      <div className="text-center space-y-3">
-        <div className="flex justify-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 px-4 py-2 rounded-full shadow-sm">
-            <Sparkles className="w-5 h-5 text-emerald-500" />
-            <span className="text-sm font-bold text-emerald-700">{used.size}/{SLOT_COUNT} placés</span>
-          </div>
-          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-4 py-2 rounded-full shadow-sm">
-            <Zap className="w-5 h-5 text-blue-500" />
-            <span className="text-sm font-bold text-blue-700">{moveCount} mouvements</span>
-          </div>
-          {startTime && !isComplete && (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-orange-100 to-amber-100 px-4 py-2 rounded-full shadow-sm">
-              <span className="text-sm font-bold text-orange-700">⏱️ {formatTime(elapsedTime)}</span>
-            </div>
-          )}
         </div>
       </div>
 

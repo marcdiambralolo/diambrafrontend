@@ -48,7 +48,7 @@ interface ConsultationCardProps {
   type?: 'history' | 'games';
 }
 
-function ConsultationCard({ consultation, index, type = 'history' }: ConsultationCardProps) {
+export function ConsultationCard({ consultation, index, type = 'history' }: ConsultationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const createdAt = consultation.createdAt;
 
@@ -62,13 +62,6 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
   const nomdujoueur = consultation.clientId?.username;
   const combinaison = consultation.combinaison || 'xxxx';
   const timeSpent = consultation.timeSpent;
-
-  const getScoreColor = () => {
-    return 'text-red-500 dark:text-red-400';
-  };
-
-
-
 
   return (
     <motion.article
@@ -95,10 +88,7 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gradient-to-tr from-[#2E5AA6]/14 to-[#7BA9F1]/7 blur-3xl" />
         <div className="absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-130%] transition-transform duration-700 group-hover:translate-x-[320%] dark:via-white/5" />
       </div>
-
-
-
-      <div
+            <div
         className="pointer-events-none absolute -inset-px rounded-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-35"
         style={{
           background:

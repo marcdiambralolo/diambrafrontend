@@ -12,7 +12,7 @@ export type ConsultationCreateResponse = {
 type CreateCategoryConsultationParams = {
     user: User | null;
 };
- 
+
 export function getCategoryErrorMessage(error: unknown, fallback: string): string {
     if (error instanceof Error) {
         return error.message || fallback;
@@ -24,17 +24,11 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
     }
 
     return fallback;
-} 
+}
 
-export async function createCategoryConsultation({
-  
-    user,
-  
-}: CreateCategoryConsultationParams): Promise<string> {
+export async function createCategoryConsultation(): Promise<string> {
     const payload: Record<string, unknown> = {
-        serviceId: process.env.NEXT_PUBLIC_SERVICE_ID,
-        title:  "Jeu",
-        formData: mapFormDataToBackend(user),
+        title: "Jeu",
     };
 
     const response = await api.post<ConsultationCreateResponse>("/consultations", payload);
@@ -46,4 +40,3 @@ export async function createCategoryConsultation({
 
     return consultationId;
 }
- 

@@ -2,7 +2,6 @@ import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/cat
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import { buildCategoryConsultationPath } from '@/lib/consultations/navigation';
-import { useAuth } from '@/lib/hooks';
 import type { WalletOffering } from '@/lib/interfaces';
 import { OfferingAlternative } from '@/lib/interfaces';
 import { Variants } from 'framer-motion';
@@ -58,7 +57,6 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
 
 export function useCategoryConsulterClient() {
     const router = useRouter();
-  const { user } = useAuth();
 
     const [state, setState] = useState({
         loading: true,
@@ -75,9 +73,7 @@ export function useCategoryConsulterClient() {
         setState(prev => ({ ...prev, loading: true, error: null, showError: false }));
 
         try {
-            const id = await createCategoryConsultation({           
-                user: user || null,                 
-            });
+            const id = await createCategoryConsultation();
 
             const consumeRes = await walletService.validateConsultationOfferings(id, [{
                 offeringId: POT_CONFIG.offeringId,
@@ -102,7 +98,7 @@ export function useCategoryConsulterClient() {
         } finally {
             setState(prev => ({ ...prev, loading: false }));
         }
-    }, [user, router]);
+    }, [router]);
 
     useEffect(() => {
         let isActive = true;
@@ -170,14 +166,10 @@ export function useCategoryConsulterClient() {
     return {
         // Actions
         handleGoToMarket, handleNext, clearError,
-
-        // États
         dataLoading: state.loading,
         dataError: state.error,
         showError: state.showError,
         currentError: state.showError ? state.error : null,
-
-        // Données
         pot: POT_CONFIG, availableQuantity, requiredQuantity, isSufficient, cardClasses, walletMap,
     };
 }

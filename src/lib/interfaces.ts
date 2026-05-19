@@ -111,10 +111,8 @@ export interface Consultation {
   price: number;
   createdAt: string;
   updatedAt: string;
-  combinaison:string;
+  combinaison: string;
   timeSpent: string;
- 
-
   [key: string]: unknown;
 }
 
@@ -170,4 +168,13 @@ export interface Transaction {
   updatedAt: string;
   type?: 'purchase' | 'consumption' | 'refund';
   metadata?: Record<string, unknown>;
+}
+
+export interface GameConfiguration {
+  _id?: string;
+  startgameDate: Date;
+  endgameDate: Date;
+  isActive: boolean;
+  prizePool: number;
+  status: 'pending' | 'active' | 'ended' | 'cancelled';
 }

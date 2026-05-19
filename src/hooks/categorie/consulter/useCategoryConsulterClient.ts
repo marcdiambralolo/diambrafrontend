@@ -2,10 +2,8 @@ import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/cat
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import { buildCategoryConsultationPath } from '@/lib/consultations/navigation';
-import { useAuth } from '@/lib/hooks';
 import type { WalletOffering } from '@/lib/interfaces';
 import { OfferingAlternative } from '@/lib/interfaces';
-import { useAuthStore } from '@/lib/store/auth.store';
 import { Variants } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -59,8 +57,7 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
 
 export function useCategoryConsulterClient() {
     const router = useRouter();
-  const { user } = useAuth();
-
+ 
     const [state, setState] = useState({
         loading: true,
         error: null as string | null,
@@ -76,9 +73,7 @@ export function useCategoryConsulterClient() {
         setState(prev => ({ ...prev, loading: true, error: null, showError: false }));
 
         try {
-            const id = await createCategoryConsultation({           
-                user: user || null,                 
-            });
+            const id = await createCategoryConsultation( );
 
             const consumeRes = await walletService.validateConsultationOfferings(id, [{
                 offeringId: POT_CONFIG.offeringId,
@@ -103,7 +98,7 @@ export function useCategoryConsulterClient() {
         } finally {
             setState(prev => ({ ...prev, loading: false }));
         }
-    }, [user, router]);
+    }, [  router]);
 
     useEffect(() => {
         let isActive = true;

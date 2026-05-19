@@ -2,6 +2,8 @@ import { CreditCard, FileText, LayoutDashboard, Settings, Shield, Users } from '
 
 export const navItems = [
   { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard, color: 'amber' },
+    { href: '/admin/game', label: 'Editions', icon: Settings, color: 'gray' },
+
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, color: 'blue' },
   { href: '/admin/offrandes', label: 'Jetons', icon: Shield, color: 'cyan' },
   { href: '/admin/consultations', label: 'Jeux', icon: FileText, color: 'green' },

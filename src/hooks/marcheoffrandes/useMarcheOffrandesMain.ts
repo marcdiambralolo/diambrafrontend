@@ -5,7 +5,7 @@ import type { Offering } from "@/lib/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export const STEPS: SimulationStep[] = ["processing", "validating", "saving", "success"];
 
@@ -65,7 +65,6 @@ export function useMarcheOffrandesMain() {
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCartRaw] = useState(false);
-  const [showCheckout, setShowCheckoutRaw] = useState(false);
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
@@ -76,10 +75,6 @@ export function useMarcheOffrandesMain() {
     [cart]
   );
 
-  const cartCount = useMemo(
-    () => cart.reduce((sum, item) => sum + item.quantity, 0),
-    [cart]
-  );
 
   const addToCart = useCallback((offering: Offering) => {
     setCart((prev) => {
@@ -109,12 +104,8 @@ export function useMarcheOffrandesMain() {
         },
       ];
     });
-    setShowCart(true);
   }, []);
 
-  const removeFromCart = useCallback((id: string) => {
-    setCart((prev) => prev.filter((item) => item._id !== id && item.id !== id));
-  }, []);
 
   const updateQuantity = useCallback((id: string, delta: number) => {
     setCart((prev) =>
@@ -127,53 +118,6 @@ export function useMarcheOffrandesMain() {
         .filter(Boolean) as CartItem[]
     );
   }, []);
-
-  const clearCart = useCallback(() => {
-    setCart([]);
-  }, []);
-
-  const setShowCart = useCallback((v: boolean) => setShowCartRaw(v), []);
-  const setShowCheckout = useCallback((v: boolean) => setShowCheckoutRaw(v), []);
-
-  const openCart = useCallback(() => {
-    setPaymentError(null);
-    setShowCheckout(false);
-    setShowCart(true);
-  }, [setShowCart, setShowCheckout]);
-
-  const closeCart = useCallback(() => setShowCart(false), [setShowCart]);
-
-  const openCheckout = useCallback(() => {
-    if (cart.length === 0) return;
-    setPaymentError(null);
-    setShowCart(false);
-    setShowCheckout(true);
-  }, [cart.length, setShowCart, setShowCheckout]);
-
-  const closeCheckout = useCallback(() => {
-    setShowCheckout(false);
-  }, [setShowCheckout]);
-
-  const handleProceedToCheckout = useCallback(() => {
-    if (cart.length === 0) return;
-    openCheckout();
-  }, [cart.length, openCheckout]);
-
-  const handleRetry = useCallback(() => {
-    setPaymentError(null);
-    setSimulationStep("idle");
-    isSubmittingRef.current = false;
-    router.refresh();
-  }, [router]);
-
-  const handleClose = useCallback(() => {
-    if (simulationStep !== "idle" && simulationStep !== "success") return;
-
-    closeCheckout();
-    isSubmittingRef.current = false;
-    setSimulationStep("idle");
-    setPaymentError(null);
-  }, [simulationStep, closeCheckout]);
 
   const handleSimulatedPayment = useCallback(async () => {
     if (isSubmittingRef.current) {
@@ -189,10 +133,11 @@ export function useMarcheOffrandesMain() {
     isSubmittingRef.current = true;
     setPaymentError(null);
     setSimulationStep("processing");
+    await sleep(400);
 
     try {
       console.log("🚀 Début du processus d'achat...");
-      await sleep(200); // Petit délai pour l'UX
+      await sleep(400); // Petit délai pour l'UX
 
       setSimulationStep("validating");
       console.log("✅ Validation des jetons...");
@@ -263,12 +208,7 @@ export function useMarcheOffrandesMain() {
       }
 
       setSimulationStep("success");
-      clearCart();
-
-      // Attendre un peu pour que l'utilisateur voie le succès
-      await sleep(2000);
-
-      // ✅ CORRECTION 4: Redirection avec paramètre
+ 
       const walletUrl = buildWalletUrl();
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
       const redirectUrl = walletUrl.includes('?')
@@ -300,7 +240,7 @@ export function useMarcheOffrandesMain() {
         isSubmittingRef.current = false;
       }
     }
-  }, [cart, cartTotal, clearCart, queryClient, router, simulationStep]);
+  }, [cart, cartTotal,  queryClient, router, simulationStep]);
 
   const monoffre: Offering = {
     _id: "6945ae01b8af14d5f56cec09",
@@ -313,10 +253,18 @@ export function useMarcheOffrandesMain() {
     quantity: 1,
   };
 
+  useEffect(() => {
+    addToCart(monoffre);
+  }, []);
+
+  const handleAddToCart = useCallback(() => {
+    addToCart(monoffre);
+  }, [addToCart, monoffre]);
+
+  const isProcessing = simulationStep !== "idle";
+
   return {
-    cart, cartTotal, cartCount, monoffre,
-    showCart, showCheckout, simulationStep, paymentError,
-    handleRetry, addToCart, removeFromCart, updateQuantity, clearCart, openCart, closeCart,
-    handleProceedToCheckout, handleSimulatedPayment, handleClose,
+    cart, cartTotal, monoffre, simulationStep, showPaymentProgress: isProcessing,
+    updateQuantity, handleAddToCart, handleSimulatedPayment,
   };
 }

@@ -68,7 +68,6 @@ function normalizeConfigDates(
             config?.endgameDate,
             new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         ),
-        prizePool: Number(config?.prizePool ?? 0),
         isActive: Boolean(config?.isActive),
         status: normalizeStatus(config?.status),
     };
@@ -79,7 +78,6 @@ function buildDefaultForm(): Partial<GameConfiguration> {
         startgameDate: new Date(),
         endgameDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         isActive: false,
-        prizePool: 0,
         status: DEFAULT_FORM_STATUS,
     };
 }
@@ -124,7 +122,6 @@ export default function ConfigForm({
             ...formData,
             startgameDate: startDate,
             endgameDate: endDate,
-            prizePool: Number(formData.prizePool ?? 0),
             status: normalizeStatus(formData.status),
             isActive: Boolean(formData.isActive),
         });
@@ -177,25 +174,7 @@ export default function ConfigForm({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <div>
-                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                            💰 Cagnotte
-                        </label>
-                        <input
-                            type="number"
-                            min={0}
-                            value={Number(formData.prizePool ?? 0)}
-                            onChange={(e) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    prizePool:
-                                        e.target.value === '' ? 0 : Number(e.target.value),
-                                }))
-                            }
-                            className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
-                        />
-                    </div>
+                <div className="grid grid-cols-1 gap-5">
 
                     <div>
                         <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -263,6 +242,10 @@ export default function ConfigForm({
                         Annuler
                     </motion.button>
                 </div>
+                <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
+                <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
+                <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
+                <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
             </form>
         </motion.div>
     );

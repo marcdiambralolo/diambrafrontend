@@ -171,10 +171,10 @@ export interface Transaction {
 }
 
 export interface GameConfiguration {
-  _id?: string;
+  id?: string;
+    _id?: string;
   startgameDate: Date;
   endgameDate: Date;
   isActive: boolean;
-  prizePool: number;
   status: 'pending' | 'active' | 'ended' | 'cancelled';
 }

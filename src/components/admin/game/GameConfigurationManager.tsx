@@ -139,7 +139,6 @@ function normalizeConfigDates(
       config?.endgameDate,
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     ),
-    prizePool: Number(config?.prizePool ?? 0),
     isActive: Boolean(config?.isActive),
     status: normalizeStatus(config?.status),
   };
@@ -281,15 +280,6 @@ export default function GameConfigurationManager() {
       icon: <SparklesIcon className="h-6 w-6" />,
       color: 'from-emerald-400 via-green-500 to-teal-500',
       delay: 0.1,
-    },
-    {
-      label: 'Cagnotte totale',
-      value: `${configs
-        .reduce((sum, c) => sum + Number(c.prizePool || 0), 0)
-        .toLocaleString()}`,
-      icon: <UsersIcon className="h-6 w-6" />,
-      color: 'from-amber-400 via-yellow-500 to-orange-500',
-      delay: 0.2,
     },
   ];
 
@@ -536,16 +526,6 @@ function ConfigCard({
                     <div className="text-xs text-gray-400">Fin</div>
                     <div className="text-sm font-semibold">
                       {formatDateFR(config.endgameDate)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-3 text-gray-600">
-                  <TrophyIcon className="h-5 w-5 text-emerald-600" />
-                  <div>
-                    <div className="text-xs text-emerald-500">Cagnotte</div>
-                    <div className="text-lg font-bold text-emerald-600">
-                      {Number(config.prizePool || 0).toLocaleString()}
                     </div>
                   </div>
                 </div>

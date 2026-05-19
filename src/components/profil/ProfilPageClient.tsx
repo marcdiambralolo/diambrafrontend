@@ -3,7 +3,7 @@ import Loader from "@/app/loading";
 import { useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
-import { AlertCircle, Calendar, Clock, Gamepad2, Shield, Sparkles, Timer, Users } from "lucide-react";
+import { AlertCircle, Calendar, Clock, Gamepad2, History, Shield, Sparkles, Timer, Users } from "lucide-react";
 import Link from 'next/link';
 import React, { memo } from 'react';
 
@@ -43,6 +43,7 @@ const getTimeRemaining = () => {
 
   return { days, hours, minutes };
 };
+
 interface StatCardProps {
   value: number | null;
   label: string;
@@ -211,6 +212,25 @@ const DatesSection = memo(() => {
   );
 });
 
+// Nouveau composant pour le bouton historique
+const HistoryButton = memo(() => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.6 }}
+    className="flex justify-center"
+  >
+    <Link
+      href="/star/historique"
+      className="group relative inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+    >
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+      <History className="w-5 h-5 group-hover:scale-110 transition-transform" />
+      <span>Historique des jeux</span>
+    </Link>
+  </motion.div>
+));
+
 export default function ProfilPageClient() {
   const { loading, stats } = useProfilUser();
   const canPlay = IS_GAME_ACTIVE;
@@ -218,7 +238,7 @@ export default function ProfilPageClient() {
   if (loading) return (<Loader />);
 
   return (
-    <div className="w-full  dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20  max-w-3xl mx-auto">
+    <div className="w-full dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -229,8 +249,8 @@ export default function ProfilPageClient() {
           <span className="text-xs font-bold uppercase tracking-wider text-purple-700">DIAMBRA WIN</span>
         </div>
       </motion.div>
-      <GameStatusBanner />
 
+      <GameStatusBanner />
       <DatesSection />
 
       <motion.div
@@ -251,10 +271,7 @@ export default function ProfilPageClient() {
           </Link>
         ) : GAME_IS_ENDED ? (
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-6 py-4 bg-gray-200 dark:bg-gray-700 rounded-2xl text-gray-500 dark:text-gray-400">
-              <AlertCircle className="w-5 h-5" />
-              <span>Le jeu est terminé</span>
-            </div>
+            <HistoryButton />
             <p className="text-sm text-gray-500 mt-3">Rendez-vous pour la prochaine édition !</p>
           </div>
         ) : (

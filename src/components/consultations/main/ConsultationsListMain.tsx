@@ -98,7 +98,7 @@ export function ConsultationsListLoading() {
 }
 
 const ConsultationsListMain = memo(function ConsultationsListMain() {
-  const { consultations, loading, count } = useConsultationsListPage();
+  const { consultations, loading} = useConsultationsListPage();
 
   if (loading) { return (<ConsultationsListLoading />); }
 
@@ -127,9 +127,9 @@ const ConsultationsListMain = memo(function ConsultationsListMain() {
       </section>
 
       <section className="w-full max-w-md sm:max-w-2xl mx-auto mt-2 flex flex-col items-center justify-center">
-        {count === 0 ? (
+        {consultations.length === 0 ? (
           <div key="empty" className="w-full">
-            <ConsultationsEmpty consultationsLength={count} />
+            <ConsultationsEmpty consultationsLength={consultations.length} />
           </div>
         ) : (
           <div key="list" className="w-full">

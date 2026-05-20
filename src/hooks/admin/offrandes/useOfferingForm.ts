@@ -51,14 +51,13 @@ export function useOfferingForm() {
         name: formData.name.trim(),
         price: Number(formData.price)
       };
-
-      console.log('📤 Envoi des données:', payload);
       const res = await api.post('/offerings', payload, {
         headers: {
           'Content-Type': 'application/json'  // ✅ JSON au lieu de multipart
         },
         withCredentials: true,
       });
+      console.log('✅ Offrande ajoutée:', res.data);
       router.replace('/admin/offrandes');
       router.refresh();
     } catch (err: unknown) {

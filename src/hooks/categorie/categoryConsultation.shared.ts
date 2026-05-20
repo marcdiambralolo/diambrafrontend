@@ -1,18 +1,10 @@
 import { api } from "@/lib/api/client";
-import { mapFormDataToBackend } from "@/lib/functions";
-import type { User } from "@/lib/interfaces";
-import { useParams } from "next/navigation";
-import { useMemo } from "react";
 
 export type ConsultationCreateResponse = {
     consultation?: {
         consultationId?: string;
         id?: string;
     };
-};
-
-type CreateCategoryConsultationParams = {
-    user: User | null;
 };
 
 export function getCategoryErrorMessage(error: unknown, fallback: string): string {
@@ -28,16 +20,9 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
     return fallback;
 }
 
-export async function createCategoryConsultation(): Promise<string> {
-      const params = useParams();
-
-      const id = useMemo(() => {
-        if (!params?.id) return null;
-        return Array.isArray(params.id) ? params.id[0] : params.id;
-      }, [params?.id]);
-      
+export async function createCategoryConsultation(monidjeu: string): Promise<string> {
     const payload: Record<string, unknown> = {
-        idjeu: id,
+        idjeu: monidjeu,
     };
 
     const response = await api.post<ConsultationCreateResponse>("/consultations", payload);

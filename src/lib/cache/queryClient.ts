@@ -17,6 +17,7 @@ export const QUERY_KEYS = {
   AUTH_ME: ['auth', 'me'],
   ADMIN_USER_DETAIL: (userId: string) => ['admin', 'user', userId],
   CONSULTATIONS_MY: ['consultations', 'me'],
+  CONSULTATIONS_GAME: (gameId?: string) => ['consultations', 'pergame', gameId] as const,
   MESSAGING_CLIENT_THREAD: (consultantId: string) => ['messaging', 'client-thread', consultantId],
   MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],
   NOTIFICATIONS: ['notifications'],

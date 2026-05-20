@@ -121,7 +121,6 @@ export function useMarcheOffrandesMain() {
 
   const handleSimulatedPayment = useCallback(async () => {
     if (isSubmittingRef.current) {
-      console.log("⏳ Paiement déjà en cours, ignore...");
       return;
     }
 
@@ -136,11 +135,9 @@ export function useMarcheOffrandesMain() {
     await sleep(400);
 
     try {
-      console.log("🚀 Début du processus d'achat...");
       await sleep(400); // Petit délai pour l'UX
 
       setSimulationStep("validating");
-      console.log("✅ Validation des jetons...");
       await sleep(200);
 
       const timestamp = Date.now();
@@ -171,8 +168,6 @@ export function useMarcheOffrandesMain() {
         completedAt: new Date().toISOString(),
       };
 
-      console.log("📦 Transaction data:", transactionData);
-
       setSimulationStep("saving");
       await sleep(200);
       const response = await api.post<any>("/wallet/transactions", transactionData, {
@@ -182,7 +177,6 @@ export function useMarcheOffrandesMain() {
         }
       });
 
-      console.log("📡 Réponse backend:", response);
 
       if (!response || (response.status && response.status >= 400)) {
         throw new Error(response?.data?.message || `Erreur HTTP ${response?.status}`);
@@ -215,7 +209,6 @@ export function useMarcheOffrandesMain() {
         ? `${walletUrl}&${transactionIdParam}`
         : `${walletUrl}?${transactionIdParam}`;
 
-      console.log("🔀 Redirection vers:", redirectUrl);
       router.push(redirectUrl);
 
     } catch (err: unknown) {

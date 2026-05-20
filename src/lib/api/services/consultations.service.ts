@@ -68,6 +68,11 @@ export const consultationsService = {
     return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
   },
 
+  async getMineGame(gameId: string) {
+    const response = await api.get<PaginatedConsultationsPayload>(`/consultations/by-idjeu/${gameId}`);
+    return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
+  },
+
   async getFrontData(consultationId: string): Promise<ConsultationFrontDataResult> {
     const response = await api.get<ConsultationFrontDataPayload>(`/consultations/${consultationId}/front-data`);
     return normalizeFrontData(response.data, consultationId);

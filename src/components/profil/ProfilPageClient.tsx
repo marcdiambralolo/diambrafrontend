@@ -4,17 +4,11 @@ import { formatDateFR, useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
 import {
-  Award, Calendar, CheckCircle2, Clock, Crown,
-  Diamond,
-  Flame,
-  History,
-  Hourglass,
-  Sparkles,
-  Star,
-  Trophy, Users, Zap
+  Award, Calendar, CheckCircle2, Clock, Crown, Diamond, Flame, History, Hourglass,
+  Sparkles, Star, Trophy, Users, Zap
 } from "lucide-react";
 import Link from 'next/link';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 
 interface StatCardProps {
   value: number | null;
@@ -60,7 +54,6 @@ const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, dela
       </motion.div>
     </div>
 
-    {/* Floating glow ball */}
     <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-white/15 rounded-full blur-xl group-hover:scale-150 transition-transform duration-1000" />
 
     <div className="relative z-10">
@@ -94,7 +87,6 @@ const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, dela
             {value !== null ? formatNumber(value) : '--'}
           </motion.p>
 
-          {/* Floating + symbol */}
           <motion.div
             animate={{
               y: [-5, 0, -5],
@@ -114,7 +106,6 @@ const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, dela
   </motion.div>
 ));
 
-
 const GlowButton = ({ href, children, variant = 'primary' }: { href: string; children: React.ReactNode; variant?: 'primary' | 'secondary' }) => {
   const gradient = variant === 'primary'
     ? 'from-purple-600 via-pink-600 to-orange-500'
@@ -131,10 +122,8 @@ const GlowButton = ({ href, children, variant = 'primary' }: { href: string; chi
         href={href}
         className={`relative inline-flex items-center gap-4 px-12 py-6 bg-gradient-to-r ${gradient} text-white font-bold rounded-3xl shadow-3xl transition-all duration-300 overflow-hidden text-xl hover:shadow-2xl hover:shadow-purple-500/50`}
       >
-        {/* Animated shine effect */}
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-        {/* Floating sparkle */}
         <motion.div
           animate={{
             rotate: [0, 10, -10, 0],
@@ -170,12 +159,10 @@ const GlowButton = ({ href, children, variant = 'primary' }: { href: string; chi
   );
 };
 
-
-// 🔥 CountdownTimer with onFinish callback
 const CountdownTimer = ({
   targetDate,
   variant = 'light',
-  onFinish, // callback appelé quand le chrono finit
+  onFinish,
 }: {
   targetDate: Date;
   variant?: 'light' | 'dark';
@@ -193,7 +180,7 @@ const CountdownTimer = ({
         clearInterval(timer);
         if (!hasFinished) {
           setHasFinished(true);
-          onFinish?.(); // ⚡ FEU : le jeu peut démarrer ici
+          onFinish?.();
         }
         return;
       }
@@ -223,7 +210,6 @@ const CountdownTimer = ({
           transition={{ type: "spring", stiffness: 300, damping: 15 }}
           className={`relative text-center ${bgColor} backdrop-blur-xl rounded-2xl px-4 py-3 sm:px-5 sm:py-4 border border-white/20 shadow-2xl`}
         >
-          {/* Animated glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
           <p className={`${textColor} font-black text-3xl sm:text-4xl leading-none`}>
@@ -234,7 +220,6 @@ const CountdownTimer = ({
             {unit}
           </p>
 
-          {/* Little indicator */}
           <motion.div
             animate={{
               opacity: [0.5, 1, 0.5],
@@ -254,7 +239,6 @@ const CountdownTimer = ({
   );
 };
 
-
 const HistoryButton = memo(() => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -266,10 +250,8 @@ const HistoryButton = memo(() => (
       href="/star/historique"
       className="group relative inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-600 text-white font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden"
     >
-      {/* Animated shine effect */}
       <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-      {/* Floating icon */}
       <motion.div
         animate={{
           y: [-3, 3, -3],
@@ -286,7 +268,6 @@ const HistoryButton = memo(() => (
 
       <span className="relative z-10">Historique des participations</span>
 
-      {/* Floating star */}
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
@@ -303,7 +284,6 @@ const HistoryButton = memo(() => (
     </Link>
   </motion.div>
 ));
-
 
 const GameStatusBadge = ({ children, variant = 'primary' }: { children: React.ReactNode; variant?: 'primary' | 'success' | 'error' }) => {
   const colors = {
@@ -325,7 +305,6 @@ const GameStatusBadge = ({ children, variant = 'primary' }: { children: React.Re
 };
 
 export default function ProfilPageClient() {
-
   const {
     handleOpenGame, handleEndMatch, formatDateTime, loading, stats,
     isGameNotStarted, startDate, endDate, gameConfig, shouldShowEnded,
@@ -334,14 +313,7 @@ export default function ProfilPageClient() {
   if (loading) return <Loader />;
 
   return (
-    <div className="w-full max-w-6xl mx-auto relative overflow-hidden px-4 py-10">
-      {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 w-2 h-2 bg-purple-400 rounded-full opacity-20 animate-ping" />
-        <div className="absolute top-20 right-20 w-3 h-3 bg-pink-400 rounded-full opacity-20 animate-ping delay-75" />
-        <div className="absolute bottom-20 left-32 w-4 h-4 bg-orange-400 rounded-full opacity-20 animate-ping delay-150" />
-      </div>
-
+    <div className="w-full max-w-4xl mx-auto relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -384,7 +356,6 @@ export default function ProfilPageClient() {
         </GameStatusBadge>
       </motion.div>
 
-      {/* Game Status Cards */}
       {isGameNotStarted ? (
         <motion.div
           key="not-started"
@@ -577,16 +548,7 @@ export default function ProfilPageClient() {
                 </div>
 
                 <div className="text-left">
-                  <p className="text-white font-bold text-3xl flex items-center gap-3">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-orange-200 to-red-200">
-                      🚀
-                    </span>
-                    <span>Championnat en cours !</span>
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-orange-200 to-red-200">
-                      🚀
-                    </span>
-                  </p>
-                  <p className="text-white/90 text-lg mt-1">Temps restants pour jouer</p>
+                  <p className="text-white/90 text-lg mt-1">Temps restants</p>
                 </div>
               </motion.div>
 
@@ -599,14 +561,20 @@ export default function ProfilPageClient() {
 
             </div>
 
+            {/* CTA Button */}
+            <div className="flex justify-center mb-4">
+              <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
+                ⭐ Jouer Maintenant
+              </GlowButton>
+            </div>
             {/* Center - Game Period */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
-              className="bg-white/90 dark:bg-gray-800/70 backdrop-blur-2xl rounded-3xl p-8 mb-8 border border-purple-200 dark:border-purple-500/40 shadow-2xl"
+              className="bg-white/90 dark:bg-gray-800/70 backdrop-blur-2xl rounded-3xl p-4 mb-8 border border-purple-200 dark:border-purple-500/40 shadow-2xl"
             >
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-5">
                   <motion.div
                     animate={{
@@ -623,8 +591,7 @@ export default function ProfilPageClient() {
                   </motion.div>
 
                   <div className="text-left">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Période du championnat</p>
-                    <p className="font-extrabold text-gray-800 dark:text-white text-xl">
+                    <p className="font-extrabold text-gray-800 dark:text-white text-xxs">
                       {startDate && endDate ? (
                         <>Du {formatDateFR(startDate)} au {formatDateFR(endDate)}</>
                       ) : (
@@ -636,12 +603,7 @@ export default function ProfilPageClient() {
               </div>
             </motion.div>
 
-            {/* CTA Button */}
-            <div className="flex justify-center">
-              <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
-                ⭐ Jouer Maintenant
-              </GlowButton>
-            </div>
+
           </div>
         </motion.div>
       )}

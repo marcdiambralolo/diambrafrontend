@@ -1,9 +1,8 @@
 import { api } from "@/lib/api/client";
 import { Consultation } from "@/lib/interfaces";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
- 
 export const SLOT_COUNT = 4;
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 const STORAGE_KEY = "number-grid-stats";
@@ -26,9 +25,13 @@ export const formatTime = (seconds: number) => {
 export function useNumberGridGame() {
     const router = useRouter();
     const params = useParams();
-    const gameId = params?.id as string;
+        const searchParams = useSearchParams(); // 👈 Pour les query strings
+    
+    // Mémoïsation des IDs pour éviter les recalculs
+    const gameId = useMemo(() => params?.id as string, [params?.id]);
+      const monjeuId = useMemo(() => searchParams?.get('monjeu') as string, [searchParams]);
 
-    // Récupération de l'ID depuis l'URL
+    // État du jeu
     const [slots, setSlots] = useState<(number | null)[]>(
         () => Array.from({ length: SLOT_COUNT }, () => null)
     );
@@ -41,15 +44,31 @@ export function useNumberGridGame() {
     const [moveCount, setMoveCount] = useState(0);
     const [startTime, setStartTime] = useState<number | null>(null);
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const dragStartRef = useRef<{ value: number; index?: number } | null>(null);
     const timerRef = useRef<NodeJS.Timeout>();
+    const isMountedRef = useRef(true);
 
+    // Nettoyage au démontage
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, []);
+
+    // Chargement des statistiques sauvegardées
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            const stats = JSON.parse(saved) as GameStats;
-            setCompletionCount(stats.completions);
+            try {
+                const stats = JSON.parse(saved) as GameStats;
+                setCompletionCount(stats.completions);
+            } catch (e) {
+                console.error("Erreur lors du chargement des stats:", e);
+            }
         }
     }, []);
 
@@ -62,6 +81,7 @@ export function useNumberGridGame() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
     }, []);
 
+    // Valeurs dérivées mémoïsées
     const used = useMemo(
         () => new Set(slots.filter((v): v is number => v !== null)),
         [slots]
@@ -72,6 +92,17 @@ export function useNumberGridGame() {
         [slots]
     );
 
+    const combinaison = useMemo(
+        () => slots.map(slot => slot !== null ? slot.toString() : '0').join(''),
+        [slots]
+    );
+
+    const formattedTime = useMemo(
+        () => formatTime(elapsedTime),
+        [elapsedTime]
+    );
+
+    // Gestion du timer
     useEffect(() => {
         if (!isComplete && slots.some(s => s !== null) && !startTime) {
             setStartTime(Date.now());
@@ -92,6 +123,7 @@ export function useNumberGridGame() {
         };
     }, [isComplete, startTime, slots]);
 
+    // Gestion de la complétion
     useEffect(() => {
         if (isComplete) {
             playSound('success');
@@ -103,24 +135,19 @@ export function useNumberGridGame() {
         }
     }, [isComplete, saveStats]);
 
-    const playSound = (type: 'place' | 'remove' | 'success') => {
+    const playSound = useCallback((type: 'place' | 'remove' | 'success') => {
         if (!soundEnabled) return;
 
         const audio = new Audio();
-        switch (type) {
-            case 'place':
-                audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-                break;
-            case 'remove':
-                audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-                break;
-            case 'success':
-                audio.src = 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==';
-                break;
-        }
+        const soundMap = {
+            place: 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==',
+            remove: 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==',
+            success: 'data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==',
+        };
+        audio.src = soundMap[type];
         audio.volume = 0.3;
         audio.play().catch(() => { });
-    };
+    }, [soundEnabled]);
 
     const placeSelectedDigitInSlot = useCallback((slotIndex: number) => {
         if (selected === null) return;
@@ -129,7 +156,6 @@ export function useNumberGridGame() {
         setSlots(prev => {
             const next = [...prev];
             if (next[slotIndex] !== null) return prev;
-
             next[slotIndex] = selected;
             return next;
         });
@@ -137,7 +163,7 @@ export function useNumberGridGame() {
         setMoveCount(prev => prev + 1);
         setSelected(null);
         playSound('place');
-    }, [selected, used]);
+    }, [selected, used, playSound]);
 
     const handleDragStart = useCallback((
         e: React.DragEvent<HTMLElement>,
@@ -204,7 +230,7 @@ export function useNumberGridGame() {
         }
 
         dragStartRef.current = null;
-    }, [used]);
+    }, [used, playSound]);
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
         e.preventDefault();
@@ -221,57 +247,69 @@ export function useNumberGridGame() {
         setSelected(null);
         setMoveCount(prev => prev + 1);
         playSound('remove');
+    }, [playSound]);
+
+    const resetGame = useCallback(() => {
+        setSlots(Array.from({ length: SLOT_COUNT }, () => null));
+        setSelected(null);
+        setMoveCount(0);
+        setStartTime(null);
+        setElapsedTime(0);
+        setIsDragging(false);
+        setDragOverSlot(null);
+        if (timerRef.current) clearInterval(timerRef.current);
     }, []);
 
- const handleSubmitAndNavigate = useCallback(async () => {
-    if (!gameId) {
-        console.error("No game ID found");
-        return;
-    }
-
-    try {
-        // Récupérer d'abord la consultation existante
-        const { data  } = await api.get(`/consultations/${gameId}`);
-        const existingConsultation: Consultation = data  as Consultation ;
-         const combinaisonWithZeros = slots
-            .map(slot => slot !== null ? slot.toString() : '0')
-            .join('');
-        // Formater le temps
-        const formattedTimeSpent = formatTime(elapsedTime);
+    const handleSubmitAndNavigate = useCallback(async () => {
+        // Déterminer l'ID à utiliser
         
-        // Pour PUT, envoyer TOUS les champs
-        const payload = {
-            ...existingConsultation, // Garder tous les champs existants
-            combinaison: combinaisonWithZeros,
-            timeSpent: formattedTimeSpent,
-        };
-        
-        
-        
-        console.log('Sending full payload for PUT:', payload);
-        
-        await api.put(`/consultations/${gameId}`, payload);
-        
-        router.push('/star/monprofil');
-    } catch (error: any) {
-        console.error('Error saving consultation:', error);
-        if (error.response?.data) {
-            console.error('API Error details:', error.response.data);
+        if (!gameId) {
+            console.error("No ID found");
+            return;
         }
-    }
-}, [gameId, elapsedTime, router]);
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        const tenths = Math.floor((seconds % 1) * 10);
-        return mins > 0
-            ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
-            : `${secs}.${tenths}s`;
-    };
+        try {
+            // Récupérer la consultation existante
+            const { data } = await api.get(`/consultations/${gameId}`);
+            const existingConsultation: Consultation = data as Consultation;
+
+            const payload = {
+                ...existingConsultation,
+                combinaison,
+                timeSpent: formattedTime,
+            };
+
+            await api.put(`/consultations/${gameId}`, payload);
+ 
+            // Navigation selon le contexte
+            if (monjeuId) {
+                router.push(`/star/monprofil/${monjeuId}`);
+            } else if (gameId) {
+                router.push(`/star/monprofil?gameId=${gameId}`);
+            } else {
+                router.push('/star/monprofil');
+            }
+        } catch (error: any) {
+            console.error('Error saving consultation:', error);
+            if (error.response?.data) {
+                console.error('API Error details:', error.response.data);
+            }
+        } finally {
+            if (isMountedRef.current) {
+                setIsSubmitting(false);
+            }
+        }
+    }, [gameId, monjeuId, combinaison, formattedTime, router, isSubmitting]);
 
     return {
+        // IDs mémoïsés
+        gameId,
+        monjeuId,
+        
+        // État du jeu
         slots,
         setSlots,
         selected,
@@ -292,18 +330,32 @@ export function useNumberGridGame() {
         setStartTime,
         elapsedTime,
         setElapsedTime,
+        
+        // Références
         dragStartRef,
         timerRef,
+        
+        // Valeurs dérivées
         used,
         isComplete,
+        combinaison,
+        formattedTime,
+        
+        // Handlers optimisés
         placeSelectedDigitInSlot,
         handleDragStart,
         handleDrop,
         handleDragOver,
         removeFromSlot,
+        resetGame,
+        handleSubmitAndNavigate,
+        
+        // Utilitaires
         formatTime,
         DIGITS,
         SLOT_COUNT,
-        handleSubmitAndNavigate
+        
+        // État de soumission
+        isSubmitting,
     };
 }

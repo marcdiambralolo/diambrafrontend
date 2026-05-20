@@ -2,7 +2,7 @@
 import Loader from '@/app/loading';
 import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterClient';
 import { motion } from 'framer-motion';
-import { AlertCircle, AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gem, Gift, ShoppingBag, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag, Zap } from "lucide-react";
 import { memo } from 'react';
 
 interface ErrorToastProps {
@@ -125,7 +125,7 @@ export default function ProfilPageClient() {
           disabled={!isSufficient}
           className={cardClasses}
         >
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           <div className="flex-shrink-0">
             {isSufficient ? (
               <motion.div

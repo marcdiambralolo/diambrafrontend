@@ -31,7 +31,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-purple-100 text-purple-600',
       content: (
         <p>
-          En jouant à <span className="font-bold text-purple-600">Quatre Cases</span>, vous acceptez pleinement ces conditions d'utilisation.
+          En jouant à <span className="font-bold text-purple-600">Diambra</span>, vous acceptez pleinement ces conditions d'utilisation.
           Nous pouvons les modifier à tout moment pour améliorer votre expérience de jeu.
         </p>
       ),
@@ -43,7 +43,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-indigo-100 text-indigo-600',
       content: (
         <>
-          <p>Quatre Cases est un jeu de logique où vous devez : </p>
+          <p>Diambra est un jeu de logique où vous devez : </p>
           <List items={[
             'Remplir 4 cases avec des chiffres de 0 à 9',
             'Ne jamais répéter le même chiffre',
@@ -77,7 +77,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-emerald-100 text-emerald-600',
       content: (
         <>
-          <p>En jouant à Quatre Cases, vous acceptez de ne pas :</p>
+          <p>En jouant à Diambra, vous acceptez de ne pas :</p>
           <List items={[
             'Tricher ou utiliser des programmes automatisés',
             'Tenter de pirater ou modifier le jeu',
@@ -94,7 +94,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-indigo-100 text-indigo-600',
       content: (
         <p>
-          Le jeu Quatre Cases, son code, son design et son concept sont la propriété exclusive de Diambra.
+          Le jeu Diambra, son code, son design et son concept sont la propriété exclusive de Diambra.
           Toute reproduction ou copie sans autorisation est interdite.
         </p>
       ),
@@ -106,7 +106,7 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-rose-100 text-rose-600',
       content: (
         <>
-          <p>Quatre Cases est un jeu de divertissement. Nous ne garantissons pas :</p>
+          <p>Diambra est un jeu de divertissement. Nous ne garantissons pas :</p>
           <List items={[
             'La disponibilité permanente du jeu',
             "L'absence totale de bugs ou d'erreurs",

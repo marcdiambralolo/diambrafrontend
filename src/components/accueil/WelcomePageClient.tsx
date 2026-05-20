@@ -1,11 +1,65 @@
 "use client";
 import Loader from '@/app/loading';
-import { ArrowRight, Brain, Target } from 'lucide-react';
-import { memo, Suspense } from 'react';
+import {
+  ArrowRight, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick, Move,
+  Rocket, Target, TrophyIcon, Zap
+} from 'lucide-react';
+import { Suspense, useEffect, useState } from 'react';
 import CacheLink from '../commons/CacheLink';
 
-export default function WelcomePageClient() {
+const useScrollReveal = () => {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("opacity-100", "translate-y-0");
+            entry.target.classList.remove("opacity-0", "translate-y-8");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+};
 
+function Pill({ icon, title, desc, tooltip, delay = 0 }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string; delay?: number }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  return (
+    <div
+      className="group relative flex items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <div className="mt-0.5 grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-700 group-hover:scale-110 transition-transform">
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <div className="text-[12px] font-bold text-purple-900">{title}</div>
+          {tooltip && (
+            <button
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              className="text-purple-400 hover:text-purple-600 transition"
+            >
+              <Info className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="mt-1 text-[13px] leading-relaxed text-purple-700">{desc}</div>
+      </div>
+      {tooltip && showTooltip && (
+        <div className="absolute left-0 top-full mt-2 z-10 w-48 rounded-lg bg-purple-900 px-3 py-2 text-xs text-white shadow-lg">
+          {tooltip}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function WelcomePageClient() {
   return (
     <Suspense fallback={<Loader />}>
       <WelcomePageClientContent />
@@ -14,115 +68,119 @@ export default function WelcomePageClient() {
 }
 
 export function WelcomePageClientContent() {
+  useScrollReveal();
 
   return (
-    <main className="relative flex min-h-screen flex-1 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 px-4 py-12 sm:py-16">
+    <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 overflow-x-hidden">
 
-      <div className="relative mx-auto w-full max-w-3xl animate-fade-in-up">
-        <article className="group relative rounded-[2rem] border border-purple-100 bg-white/95 p-8 shadow-[0_20px_60px_-15px_rgba(139,92,246,0.15),0_4px_20px_-5px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-[0_30px_80px_-15px_rgba(139,92,246,0.25)] sm:p-12">
-          <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-r from-transparent via-purple-50/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100 pointer-events-none" />
-          <div className="absolute -top-3 -right-3 h-16 w-16 overflow-hidden">
-            <div className="absolute -right-8 -top-8 h-16 w-24 rotate-45 bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg" />
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+        <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
+            DIAMBRA WIN
+          </h1>
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <CacheLink href="/star/profil" className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-bold shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all">
+              <span className="relative z-10 flex items-center gap-2">
+                🎮 Jouer maintenant
+                <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            </CacheLink>
           </div>
+        </section>
 
-          <div className="relative text-center">
-            <p className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.25em] text-transparent bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text">
-              <Target className="h-4 w-4 text-purple-500" />
-              NOUVEAU
-              <Brain className="h-4 w-4 text-indigo-500" />
-            </p>
+        <section id="regles" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-gray-800">📜 Règles du jeu</h2>
+            <p className="text-gray-500 mt-2">4 cases, 10 chiffres, 1 combinaison gagnante</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Pill icon={<Grid className="h-5 w-5" />} title="4 cases à remplir" desc="Chaque partie comporte 4 cases vides." tooltip="Les cases sont numérotées de 1 à 4" delay={0} />
+            <Pill icon={<Brain className="h-5 w-5" />} title="Chiffres 0 à 9" desc="10 chiffres disponibles, 4 utilisés." tooltip="Utilisez votre logique" delay={50} />
+            <Pill icon={<TrophyIcon className="h-5 w-5" />} title="Pas de répétition" desc="Un chiffre = une seule utilisation." tooltip="Chaque chiffre est unique" delay={100} />
+            <Pill icon={<Target className="h-5 w-5" />} title="Objectif" desc="Trouvez la bonne combinaison !" tooltip="Solution unique par partie" delay={150} />
+          </div>
+        </section>
 
-            <div className="mt-4 flex justify-center gap-2">
-              <h1 className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-6xl font-black tracking-tight text-transparent sm:text-7xl lg:text-8xl">
-                DIAMBRA WIN
-              </h1>
+        <section id="stats" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-gray-800">📊 Le jeu en chiffres</h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-purple-600">10</div>
+              <div className="font-semibold text-purple-700 mt-2">chiffres disponibles</div>
             </div>
-
-            <div className="mt-6 mx-auto h-1 w-24 rounded-full bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400" />
-            <div className="mt-10 flex justify-center gap-8 text-sm">
-              <div className="text-center">
-                <div className="font-black text-2xl text-purple-600">10</div>
-                <div className="text-gray-500 text-xs">combinaisons</div>
-              </div>
-              <div className="w-px h-10 bg-gray-200" />
-              <div className="text-center">
-                <div className="font-black text-2xl text-indigo-600">5040</div>
-                <div className="text-gray-500 text-xs">possibilités</div>
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-indigo-600">4</div>
+              <div className="font-semibold text-indigo-700 mt-2">cases à remplir</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-purple-600">5 040</div>
+              <div className="font-semibold text-purple-700 mt-2">combinaisons possibles</div>
+            </div>
+          </div>
+        </section>
+        <section id="jeu" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-gray-800">🎯 Comment jouer ?</h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-6 hover:shadow-xl transition-all">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center mb-4 shadow-lg">
+                  <MousePointerClick className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-purple-800 mb-2">Mode Clic</h3>
+                <p className="text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
+                <div className="mt-4 flex items-center gap-1 text-sm text-purple-500">
+                  <Zap className="w-4 h-4" />
+                  <span>Simple et intuitif</span>
+                </div>
               </div>
             </div>
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-6 hover:shadow-xl transition-all">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+                  <Move className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-indigo-800 mb-2">Mode Glisser-Déposer</h3>
+                <p className="text-indigo-600">Glissez un chiffre directement dans la case de votre choix.</p>
+                <div className="mt-4 flex items-center gap-1 text-sm text-indigo-500">
+                  <Zap className="w-4 h-4" />
+                  <span>Rapide et fluide</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <div className="mt-12 flex flex-col items-center gap-4">
-              <CacheLink
-                href="/star/profil"
-                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 px-12 py-5 text-xl font-bold text-white shadow-2xl shadow-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-purple-300 active:scale-95"
-              >
-                <span className="relative z-10 flex items-center gap-3">
-                  🎮 Demarrer
-                  <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-2" />
-                </span>
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+        <section className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-500">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-10 text-center shadow-2xl">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...%3E')] opacity-10" />
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 mb-4">
+                <Rocket className="w-4 h-4 text-white" />
+                <span className="text-xs font-bold text-white uppercase">Prêt à jouer ?</span>
+              </div>
+              <h2 className="text-3xl font-black text-white mb-6">Commencez maintenant !</h2>
+              <CacheLink href="/star/profil" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-purple-700 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 group">
+                <Gamepad2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                Jouer
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </CacheLink>
             </div>
           </div>
-        </article>
-      </div>
+        </section>
 
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) translateX(0px) rotate(0deg);
-            opacity: 0;
-          }
-          50% {
-            transform: translateY(-30px) translateX(15px) rotate(180deg);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes bounce-gentle {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-5px);
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-        
-        .animate-bounce-gentle {
-          animation: bounce-gentle 2s ease-in-out infinite;
-        }
-        
-        .delay-1000 {
-          animation-delay: 1s;
-        }
-        
-        .delay-700 {
-          animation-delay: 0.7s;
-        }
-        
-        .delay-500 {
-          animation-delay: 0.5s;
-        }
-      `}</style>
+        <div className="mt-12 text-center">
+          <p className="text-xs text-gray-400">© 2026 Diambra - Tous droits réservés</p>
+        </div>
+      </div>
     </main>
   );
 }

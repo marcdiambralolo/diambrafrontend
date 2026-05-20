@@ -14,7 +14,7 @@ export const DATE_RANGES: { value: DateRangeType; label: string }[] = [
 
 export const REPORT_TABS: { value: ReportType; label: string }[] = [
   { value: 'overview', label: 'Aperçu' },
-  { value: 'consultations', label: 'Consultations' },
+  { value: 'consultations', label: 'Jeux' },
   { value: 'revenue', label: 'Revenus' },
   { value: 'users', label: 'Utilisateurs' }
 ];

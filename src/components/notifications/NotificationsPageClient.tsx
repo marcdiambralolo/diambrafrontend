@@ -113,7 +113,6 @@ export const NotificationCard = memo(function NotificationCard({
               </p>
             </div>
 
-            {/* Bouton supprimer */}
             <button
               type="button"
               onClick={(e) => {
@@ -127,13 +126,11 @@ export const NotificationCard = memo(function NotificationCard({
             </button>
           </div>
 
-          {/* Date */}
           <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
             <Clock className="h-3 w-3" />
             {formatDateFRNew(notification.createdAt)}
           </div>
 
-          {/* Badge non lu */}
           {!notification.isRead && (
             <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-700">
               <span className="relative flex h-1.5 w-1.5">
@@ -149,7 +146,6 @@ export const NotificationCard = memo(function NotificationCard({
   );
 });
 
-// ==================== NOTIFICATION LIST ====================
 interface NotificationListProps {
   notifications: Notification[];
   isLoading: boolean;
@@ -191,7 +187,7 @@ const NotificationList = memo(function NotificationList({
   );
 });
 
-// ==================== NOTIFICATION HEADER ====================
+
 interface NotificationHeaderProps {
   unreadCount: number;
   markAllAsRead: () => void;
@@ -270,7 +266,6 @@ const NotificationHeader = memo(function NotificationHeader({
   );
 });
 
-// ==================== NOTIFICATION SETTINGS MODAL ====================
 interface NotificationSettingsModalProps {
   show: boolean;
   onClose: () => void;
@@ -328,7 +323,6 @@ const NotificationSettingsModal = memo(function NotificationSettingsModal({
   );
 });
 
-// ==================== FILTER BAR ====================
 const FilterBar = memo(function FilterBar({
   filter,
   setFilter,
@@ -366,6 +360,7 @@ export default function NotificationsPageClient() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50/50">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+        
         <NotificationHeader
           unreadCount={unreadCount}
           markAllAsRead={markAllAsRead}

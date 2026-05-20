@@ -33,7 +33,7 @@ export function useConsultationsListPageWithId() {
       const response = await api.get<{
         success: boolean;
         consultations: Consultation[];
-      }>(`/consultations/by-idjeu/${gameId}`);
+      }>(`/consultations/me/by-idjeu/${gameId}`);
       
       setState({
         data: response.data?.consultations ?? [],

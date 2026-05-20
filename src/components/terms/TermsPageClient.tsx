@@ -187,7 +187,7 @@ export default function TermsPageClient() {
                             </div>
                             <div>
                                 <p className="text-sm font-semibold text-purple-800 mb-1">
-                                    En jouant à <span className="text-purple-600">Quatre Cases</span>, vous acceptez ces conditions.
+                                    En jouant à <span className="text-purple-600">Diambra</span>, vous acceptez ces conditions.
                                 </p>
                                 <p className="text-xs text-purple-600">
                                     Ce jeu est un divertissement purement ludique et logique.
@@ -250,7 +250,7 @@ export default function TermsPageClient() {
                     transition={{ delay: 0.5 }}
                     className="text-center text-[10px] text-purple-400 mt-8"
                 >
-                    © 2026 Diambra · Tous droits réservés
+                    © 2026 Diambra · Tous droits réservés.
                 </motion.p>
             </div>
         </div>

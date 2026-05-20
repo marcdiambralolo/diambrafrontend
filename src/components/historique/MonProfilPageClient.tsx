@@ -225,7 +225,7 @@ function ConsultationsEmpty() {
       </motion.div>
 
       <h3 className="text-2xl font-bold text-white mb-3">
-        📜 Aucun jeu en historique
+        📜 Aucun jeu
       </h3>
     </motion.div>
   );

@@ -87,12 +87,11 @@ function buildParams(opts: {
 }
 
 export function useAdminConsultationsPageFinished() {
-  const [searchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [state, setState] = useState<SliceState>(() => makeSliceState());
-  const [allConsultations, setAllConsultations] = useState<Consultation[]>([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
   const listAbortRef = useRef<AbortController | null>(null);
 
@@ -107,11 +106,14 @@ export function useAdminConsultationsPageFinished() {
         limit: ITEMS_PER_PAGE,
       });
 
-      const res = await api.get<ConsultationListResponse>(`/admin/consultations?${query}`, {
-        headers: { 'Cache-Control': 'no-cache' },
-        timeout: 30000,
-        signal,
-      });
+      const res = await api.get<ConsultationListResponse>(
+        `/admin/consultations?${query}`,
+        {
+          headers: { 'Cache-Control': 'no-cache' },
+          timeout: 30000,
+          signal,
+        },
+      );
 
       return {
         consultations: res.data?.consultations || [],
@@ -121,57 +123,39 @@ export function useAdminConsultationsPageFinished() {
     [searchQuery],
   );
 
-  const fetchAllConsultations = useCallback(async (total: number, signal?: AbortSignal) => {
-    const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+  const fetchData = useCallback(
+    async (page: number = currentPage) => {
+      listAbortRef.current?.abort();
+      const controller = new AbortController();
+      listAbortRef.current = controller;
 
-    if (totalPages === 1) {
-      return;
-    }
+      setState(prev => ({ ...prev, loading: true, error: null }));
 
-    const promises = [];
-    for (let page = 2; page <= totalPages; page++) {
-      promises.push(fetchSlice(page, signal));
-    }
+      try {
+        const { consultations, total } = await fetchSlice(page, controller.signal);
+        const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
-    const results = await Promise.all(promises);
-    const all = results.map(r => r.consultations).flat();
-    setAllConsultations(prev => [...prev, ...all]);
-  }, [fetchSlice]);
-
-  const fetchData = useCallback(async (page: number = currentPage) => {
-    listAbortRef.current?.abort();
-    const controller = new AbortController();
-    listAbortRef.current = controller;
-
-    setState(prev => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const { consultations, total } = await fetchSlice(page, controller.signal);
-
-      const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-
-      setState({
-        consultations,
-        total,
-        loading: false,
-        error: null,
-        totalPages,
-      });
-
-      await fetchAllConsultations(total, controller.signal);
-
-    } catch (err) {
-      if (!isAbortError(err)) {
-        setState(prev => ({
-          ...prev,
+        setState({
+          consultations,
+          total,
           loading: false,
-          error: getNiceError(err)
-        }));
+          error: null,
+          totalPages,
+        });
+      } catch (err) {
+        if (!isAbortError(err)) {
+          setState(prev => ({
+            ...prev,
+            loading: false,
+            error: getNiceError(err),
+          }));
+        }
+      } finally {
+        setIsInitialLoad(false);
       }
-    } finally {
-      setIsInitialLoad(false);
-    }
-  }, [currentPage, fetchSlice, fetchAllConsultations]);
+    },
+    [currentPage, fetchSlice],
+  );
 
   useEffect(() => {
     fetchData(currentPage);
@@ -193,24 +177,26 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [fetchData, currentPage, isRefreshing]);
 
-  const handlePageChange = useCallback((page: number) => {
-    const nextPage = Math.max(1, Math.min(page, state.totalPages));
-    if (nextPage === currentPage) return;
+  const handlePageChange = useCallback(
+    (page: number) => {
+      const nextPage = Math.max(1, Math.min(page, state.totalPages));
+      if (nextPage === currentPage) return;
 
-    setCurrentPage(nextPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage, state.totalPages]);
-
-  const displayedConsultations = useCallback(() => {
-    if (state.total <= ITEMS_PER_PAGE) {
-      return state.consultations;
-    }
-    return allConsultations.length > 0 ? allConsultations : state.consultations;
-  }, [state.consultations, state.total, allConsultations]);
+      setCurrentPage(nextPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [currentPage, state.totalPages],
+  );
 
   return {
-    consultations: displayedConsultations(), total: state.total, totalPages: state.totalPages,
-    error: state.error, currentPage, loading: state.loading && isInitialLoad, isRefreshing,
-    handleRefresh, handlePageChange,
+    consultations: state.consultations,
+    total: state.total,
+    totalPages: state.totalPages,
+    error: state.error,
+    currentPage,
+    loading: state.loading && isInitialLoad,
+    isRefreshing,
+    handleRefresh,
+    handlePageChange,
   };
 }

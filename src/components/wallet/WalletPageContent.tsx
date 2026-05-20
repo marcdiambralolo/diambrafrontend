@@ -4,10 +4,7 @@ import { useWalletPageWithCache } from "@/hooks/cache/useWalletPageWithCache";
 import { cx } from "@/lib/functions";
 import { Transaction, TransactionItem } from "@/lib/interfaces";
 import { motion, Variants } from "framer-motion";
-import {
-  ArrowLeftCircle, Calendar, CheckCircle2, Clock, CreditCard,
-  Gift, RefreshCw, ShoppingBag, TrendingUp
-} from "lucide-react";
+import { ArrowLeftCircle, Calendar, Clock, CreditCard, Gift, RefreshCw, ShoppingBag, TrendingUp } from "lucide-react";
 import { memo, useMemo, type ElementType } from "react";
 
 const fadeInUp: Variants = {
@@ -38,38 +35,6 @@ function normalizeItem(item: TransactionItem) {
     name: item.name ?? 'Jeton',
     price: item.price ?? item.unitPrice ?? 0,
   };
-}
-
-function SuccessBanner({ onClose }: { onClose: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="mb-6"
-    >
-      <div className="rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 p-4 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-500">
-            <CheckCircle2 className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-bold text-emerald-800">Transaction réussie !</h3>
-            <p className="text-sm text-emerald-700">
-              Votre commande a bien été enregistrée dans votre wallet.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-emerald-500 hover:text-emerald-700 transition-colors"
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
 }
 
 function WalletTabs({
@@ -372,69 +337,66 @@ const LoadingScreen = () => (
 
 export default function WalletPageContent() {
   const {
-    setSortOrder, dismissBanner, onRefresh, setActiveTab,
+    setSortOrder, onRefresh, setActiveTab,
     unusedError, isLoading, unusedOfferings, stats, sortOrder, filteredTransactions,
-    backLink: { href, label }, activeTab, isRefreshing, showSuccessBanner,
+    backLink: { href, label }, activeTab, isRefreshing,
   } = useWalletPageWithCache();
 
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50/50">
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        {showSuccessBanner && <SuccessBanner onClose={dismissBanner} />}
-        <WalletTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+      <WalletTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {activeTab === "transactions" ? (
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="space-y-5"
-          >
-            <div className="flex gap-4">
-              <StatsCard
-                label="Total transactions"
-                value={stats.totalTransactions}
-                icon={ShoppingBag}
-              />
-              <StatsCard
-                label="Total dépensé"
-                value={`${stats.totalSpent.toLocaleString()} F`}
-                icon={TrendingUp}
-              />
-            </div>
-
-            <TransactionsToolbar
-              onRefresh={onRefresh}
-              isRefreshing={isRefreshing}
-              sortOrder={sortOrder}
-              setSortOrder={setSortOrder}
+      {activeTab === "transactions" ? (
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="space-y-5"
+        >
+          <div className="flex gap-4">
+            <StatsCard
+              label="Total transactions"
+              value={stats.totalTransactions}
+              icon={ShoppingBag}
             />
+            <StatsCard
+              label="Total dépensé"
+              value={`${stats.totalSpent.toLocaleString()} F`}
+              icon={TrendingUp}
+            />
+          </div>
 
-            {filteredTransactions.length === 0 ? (
-              <TransactionEmptyState />
-            ) : (
-              <div className="space-y-3">
-                {filteredTransactions.map((transaction, index) => (
-                  <TransactionCard
-                    key={transaction._id}
-                    transaction={transaction}
-                    index={index}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
-        ) : (
-          <UnusedOfferingsSection
-            unusedError={unusedError}
-            unusedOfferings={unusedOfferings}
+          <TransactionsToolbar
+            onRefresh={onRefresh}
+            isRefreshing={isRefreshing}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
           />
-        )}
 
-        <BottomCtas href={href} label={label} />
-      </div>
-    </main>
+          {filteredTransactions.length === 0 ? (
+            <TransactionEmptyState />
+          ) : (
+            <div className="space-y-3">
+              {filteredTransactions.map((transaction, index) => (
+                <TransactionCard
+                  key={transaction._id}
+                  transaction={transaction}
+                  index={index}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
+      ) : (
+        <UnusedOfferingsSection
+          unusedError={unusedError}
+          unusedOfferings={unusedOfferings}
+        />
+      )}
+
+      <BottomCtas href={href} label={label} />
+    </div>
   );
 }

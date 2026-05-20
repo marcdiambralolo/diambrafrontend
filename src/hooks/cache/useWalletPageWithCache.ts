@@ -37,45 +37,11 @@ function computeStats(transactions: any[]): Stats {
   return { totalTransactions, totalSpent };
 }
 
-function checkSimulatedPurchase(transactions: any[]): boolean {
-  if (typeof window === 'undefined' || !transactions.length) return false;
-
-  try {
-    const raw = window.localStorage.getItem('last_simulated_purchase');
-    if (!raw) return false;
-
-    const purchaseData = JSON.parse(raw) as { transactionId?: string } | null;
-    const targetId = purchaseData?.transactionId;
-
-    if (!targetId) {
-      window.localStorage.removeItem('last_simulated_purchase');
-      return false;
-    }
-
-    const exists = transactions.some(
-      (transaction) => transaction.transactionId === targetId
-    );
-
-    if (exists) {
-      window.localStorage.removeItem('last_simulated_purchase');
-      return true;
-    }
-
-    window.localStorage.removeItem('last_simulated_purchase');
-    return false;
-  } catch {
-    window.localStorage.removeItem('last_simulated_purchase');
-    return false;
-  }
-}
-
 export function useWalletPageWithCache() {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams?.get('tab');
-
   const [activeTab, setActiveTab] = useState<WalletTab>('unused-offerings');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
-  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
@@ -91,22 +57,12 @@ export function useWalletPageWithCache() {
     refetch: refetchUnused,
   } = useUnusedOfferingsWithCache();
 
-  // Synchronisation de l'onglet avec l'URL
   useEffect(() => {
     if (isWalletTab(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
 
-  // Vérification de l'achat simulé
-  useEffect(() => {
-    const hasPurchase = checkSimulatedPurchase(rawTransactions);
-    if (hasPurchase) {
-      setShowSuccessBanner(true);
-    }
-  }, [rawTransactions]);
-
-  // Mémorisation des données dérivées
   const stats = useMemo(() => computeStats(rawTransactions), [rawTransactions]);
 
   const filteredTransactions = useMemo(() => {
@@ -135,11 +91,10 @@ export function useWalletPageWithCache() {
     helper: "Retournez à l'accueil.",
   }), []);
 
-  return {
-    dismissBanner: useCallback(() => setShowSuccessBanner(false), []),
+  return { 
     onRefresh, setSortOrder, setActiveTab,
     isLoading: isLoadingCurrentTab || isPageLoading, backLink,
     unusedError, unusedOfferings, stats, sortOrder, filteredTransactions,
-    activeTab, isRefreshing, showSuccessBanner,
+    activeTab, isRefreshing,  
   };
 }

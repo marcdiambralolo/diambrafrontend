@@ -28,15 +28,10 @@ export const UsersPageContent = memo(function UsersPageContent() {
 
   return (
     <div className="w-full relative overflow-hidden  dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-[#070B1A]">
-      <PageHeader isRefreshing={isRefreshing} loading={loading} onRefresh={handleRefresh} />
 
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-4">
-        <div className="flex justify-center">
-          <RefreshBanner loading={loading} isRefreshing={isRefreshing} hasUsers={hasUsers} />
-        </div>
-
-        <StatsSection stats={stats} />
-
+       
+      
         <SearchSection
           searchQuery={searchQuery}
           loading={loading}
@@ -51,7 +46,12 @@ export const UsersPageContent = memo(function UsersPageContent() {
           handleRoleChange={handleRoleChange}
           handleResetFilters={handleResetFilters}
         />
+<PageHeader isRefreshing={isRefreshing} loading={loading} onRefresh={handleRefresh} />
 
+        <StatsSection stats={stats} />
+ <div className="flex justify-center">
+          <RefreshBanner loading={loading} isRefreshing={isRefreshing} hasUsers={hasUsers} />
+        </div>
         <div className="relative">
           <LoadingOverlay loading={loading} users={users} />
 

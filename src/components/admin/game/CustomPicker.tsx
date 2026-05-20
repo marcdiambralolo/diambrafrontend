@@ -41,7 +41,6 @@ function formatDateTimeFR(date: Date): string {
   });
 }
 
-// Constantes extraites
 const MONTHS = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
@@ -60,10 +59,6 @@ const useClickOutside = (ref: React.RefObject<HTMLElement>, onClose: () => void)
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose, ref]);
 };
-
-// ============================================================================
-// COMPOSANT DE SAISIE MANUELLE DE L'HEURE
-// ============================================================================
 
 interface ManualTimeInputProps {
   value: Date;

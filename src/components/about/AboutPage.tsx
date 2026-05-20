@@ -1,8 +1,8 @@
 "use client";
 import { cx } from "@/lib/functions";
 import {
-  ArrowLeft, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick,
-  Move, Target, Trophy, Trophy as TrophyIcon, Users, Zap
+  ArrowLeft, Brain, ChevronRight, Grid, Info, MousePointerClick,
+  Move, Target, Trophy as TrophyIcon
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import CacheLink from "../commons/CacheLink";
@@ -25,17 +25,12 @@ const useScrollReveal = () => {
   }, []);
 };
 
-export const btnPrimary =
+const btnPrimary =
   "inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white transition-all duration-300 " +
   "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg active:scale-95 " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2";
 
-export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition-all duration-300 " +
-  "border-2 border-purple-200 bg-white text-purple-700 hover:bg-purple-50 shadow-sm hover:shadow-md active:scale-95 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2";
-
-export function ConicPanel({ children, className }: { children: React.ReactNode; className?: string }) {
+function ConicPanel({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cx("rounded-[28px] p-[1px] bg-gradient-to-br from-purple-100 via-white to-indigo-50 shadow-sm", className)}>
       <div className="relative overflow-hidden rounded-[28px] border border-purple-100 bg-white p-5 sm:p-7 shadow-lg">
@@ -48,7 +43,7 @@ export function ConicPanel({ children, className }: { children: React.ReactNode;
   );
 }
 
-export function Pill({ icon, title, desc, tooltip }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string }) {
+function Pill({ icon, title, desc, tooltip }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string }) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
     <div className="group relative flex items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
@@ -101,16 +96,10 @@ export default function AboutPageClient() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 px-4 py-2 mb-6">
-            <Gamepad2 className="h-4 w-4 text-purple-600" />
-            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Jeu de logique</span>
-          </div>
+
           <h1 className="text-balance text-4xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent sm:text-6xl">
-            Quatre Cases
+            DIAMBRA WIN
           </h1>
-          <p className="mt-4 text-lg text-purple-700 max-w-2xl mx-auto">
-            Entraînez votre cerveau avec ce puzzle de chiffres simple mais addictif.
-          </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CacheLink href="/star/profil" className={btnPrimary}>
               Jouer maintenant <ChevronRight className="h-4 w-4" />
@@ -122,7 +111,7 @@ export default function AboutPageClient() {
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
             <p className="mt-3 text-sm leading-relaxed text-purple-700">
-              Un jeu simple mais stratégique : remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
+              Remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
@@ -197,39 +186,9 @@ export default function AboutPageClient() {
             </div>
           </ConicPanel>
         </section>
-
-        <section id="pourquoi" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
-          <ConicPanel>
-            <h2 className="text-2xl font-black text-purple-900">✨ Pourquoi jouer à Quatre Cases ?</h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Pill
-                icon={<Brain className="h-5 w-5" />}
-                title="Stimule votre logique"
-                desc="Développez votre raisonnement et votre capacité de déduction."
-              />
-              <Pill
-                icon={<Zap className="h-5 w-5" />}
-                title="Parties rapides"
-                desc="Idéal pour une pause cérébrale de quelques minutes."
-              />
-              <Pill
-                icon={<Trophy className="h-5 w-5" />}
-                title="Défiez-vous"
-                desc="Améliorez votre temps et battez vos propres records."
-              />
-              <Pill
-                icon={<Users className="h-5 w-5" />}
-                title="Gratuit et accessible"
-                desc="Jouez sans inscription, directement dans votre navigateur."
-              />
-            </div>
-          </ConicPanel>
-        </section>
-
         <section className="mt-12 text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-400">
           <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
-            <h2 className="text-2xl font-black">Prêt à relever le défi ?</h2>
-            <p className="mt-2 text-purple-100">Testez votre logique dès maintenant !</p>
+            <h2 className="text-2xl font-black">Prêt à jouer ?</h2>
             <CacheLink href="/star/profil" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
               Commencer la partie <ChevronRight className="h-4 w-4" />
             </CacheLink>

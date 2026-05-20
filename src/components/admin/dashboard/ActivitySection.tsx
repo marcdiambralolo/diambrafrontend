@@ -14,18 +14,6 @@ export const activityCardVariants: Variants = {
   },
 };
 
-const LiveBadge = memo(() => (
-  <motion.div
-    animate={{ scale: [1, 1.05, 1] }}
-    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-    className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1"
-  >
-    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-
-    <span className="text-xs font-semibold">LIVE</span>
-  </motion.div>
-));
-
 const ActivityHeader = memo(() => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -39,11 +27,10 @@ const ActivityHeader = memo(() => (
         </h2>
 
         <p className="text-white/70 text-[10px] sm:text-xs truncate">
-          Statistiques en temps réel
+          Statistiques
         </p>
       </div>
     </div>
-    <LiveBadge />
   </div>
 ));
 

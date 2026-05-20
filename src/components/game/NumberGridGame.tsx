@@ -1,5 +1,5 @@
 "use client";
-import { SLOT_COUNT, DIGITS, formatTime, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
+import { DIGITS, formatTime, SLOT_COUNT, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
 import { AnimatePresence, motion } from "framer-motion";
 import { MousePointerClick, Move, Sparkles, Target, Trash2, Volume2, VolumeX, Zap } from "lucide-react";
 

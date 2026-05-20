@@ -210,18 +210,6 @@ const containerVariants: Variants = {
   },
 };
 
-const pulseVariants: Variants = {
-  pulse: {
-    scale: [1, 1.05, 1],
-    opacity: [0.5, 1, 0.5],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
-
 const LoadingState = memo(() => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-[#070B1A]">
@@ -293,10 +281,7 @@ const LoadingState = memo(() => {
           </motion.div>
         </motion.div>
 
-        {/* Glassmorphic info card */}
-        <motion.div
-          variants={pulseVariants}
-          animate="pulse"
+        < div
           className="
             backdrop-blur-xl 
             bg-white/80 dark:bg-[#0F1C3F]/80 
@@ -314,7 +299,6 @@ const LoadingState = memo(() => {
             Préparation de vos statistiques...
           </p>
 
-          {/* Animated progress dots */}
           <div className="flex items-center justify-center gap-1.5">
             {[0, 1, 2].map((index) => (
               <motion.div
@@ -333,7 +317,7 @@ const LoadingState = memo(() => {
               />
             ))}
           </div>
-        </motion.div>
+        </ div>
       </motion.div>
     </div>
   );

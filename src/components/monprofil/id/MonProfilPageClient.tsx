@@ -1,28 +1,11 @@
 "use client";
-import { useMonProfil } from "@/hooks/carteduciel/useMonProfil";
 import { useConsultationsListPageWithId } from "@/hooks/consultations/useConsultationsListPageWithId";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import {
-  AlertCircle, CalendarDays, Clock, Crown, Gamepad2, History,
-  Loader2, MapPin, Plus, Target, Timer, UserRound
-} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { CalendarDays, Clock, Gamepad2, History, Loader2, Plus, Target, Timer, UserRound } from "lucide-react";
 import Link from "next/link";
 import { memo, type ReactNode, useState } from "react";
-
-const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-  }
-};
 
 const getRelativeTime = (date: string) => {
   const now = new Date();
@@ -75,7 +58,6 @@ export function ConsultationCard({ consultation, index, type = 'history' }: Cons
         "ring-2 ring-emerald-500/30 dark:ring-emerald-400/30"
       )}
     >
-      {/* Effets décoratifs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-[#4F83D1]/14 to-[#9BC2FF]/6 blur-3xl" />
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gradient-to-tr from-[#2E5AA6]/14 to-[#7BA9F1]/7 blur-3xl" />
@@ -90,7 +72,6 @@ export function ConsultationCard({ consultation, index, type = 'history' }: Cons
       />
 
       <div className="relative z-10 flex items-start gap-4 w-full">
-        {/* Icône de jeu avec animation */}
         <div className="flex-shrink-0">
           <div className={cx(
             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
@@ -180,17 +161,15 @@ export function ConsultationCard({ consultation, index, type = 'history' }: Cons
 
 interface TabButtonProps {
   active: boolean;
-  onClick: () => void;
   icon: ReactNode;
   label: string;
   count: number;
 }
 
-const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps) => (
+const TabButton = memo(({ active, icon, label, count }: TabButtonProps) => (
   <motion.button
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
-    onClick={onClick}
     className={cx(
       "relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300",
       active
@@ -224,10 +203,9 @@ const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps)
 
 interface ConsultationsEmptyProps {
   consultationsLength: number;
-  type?: 'history' | 'games';
 }
 
-function ConsultationsEmpty({ consultationsLength, type = 'history' }: ConsultationsEmptyProps) {
+function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -244,19 +222,11 @@ function ConsultationsEmpty({ consultationsLength, type = 'history' }: Consultat
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         className="mx-auto mb-6"
       >
-        {type === 'history' ? (
-          <History className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
-        ) : (
-          <Gamepad2 className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
-        )}
+        <History className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
       </motion.div>
 
       <h3 className="text-2xl font-bold text-white mb-3">
-        {consultationsLength === 0
-          ? type === 'history'
-            ? '📜 Aucun jeu en historique'
-            : '🎮 Commencez à jouer'
-          : '🔍 Aucun résultat trouvé'}
+        {consultationsLength === 0 ? '📜 Aucun jeu en historique' : '🎮 Aucun jeu'}
       </h3>
     </motion.div>
   );
@@ -306,100 +276,10 @@ const NewGameButton = memo(() => (
   </motion.div>
 ));
 
-const ErrorState = memo(() => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="flex items-center justify-center min-h-[400px]"
-  >
-    <div className="max-w-md rounded-2xl border border-red-500/25 bg-gradient-to-br from-red-950/20 to-red-900/10 p-8 text-center backdrop-blur-xl">
-      <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-400" />
-      </motion.div>
-      <h3 className="text-xl font-bold text-white mb-2">Accès refusé</h3>
-      <p className="text-gray-300">Aucun utilisateur connecté. Veuillez vous connecter.</p>
-    </div>
-  </motion.div>
-));
-
-const IdentityOverview = memo(function IdentityOverview({
-  fullName,
-  dateNaissanceLabel,
-  heureNaissance,
-  lieuNaissance,
-}: {
-  fullName: string;
-  dateNaissanceLabel: string;
-  heureNaissance: string;
-  lieuNaissance: string;
-}) {
-  return (
-    <motion.div
-      variants={fadeInUp}
-      className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 shadow-sm"
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-indigo-50/30 dark:from-purple-950/20 dark:to-indigo-950/20" />
-      <div className="relative p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-5 h-5 text-yellow-500" />
-          <h3 className="font-bold text-gray-800 dark:text-white">Mon profil</h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <IdentityPill
-            icon={<UserRound className="h-4 w-4" />}
-            label="Nom complet"
-            value={fullName}
-          />
-          <IdentityPill
-            icon={<CalendarDays className="h-4 w-4" />}
-            label="Date & heure"
-            value={`${dateNaissanceLabel} à ${heureNaissance}`}
-          />
-          <IdentityPill
-            icon={<MapPin className="h-4 w-4" />}
-            label="Lieu de naissance"
-            value={lieuNaissance}
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-const IdentityPill = memo(function IdentityPill({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <motion.div
-      whileHover={{ x: 2 }}
-      className="rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all hover:shadow-sm"
-    >
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-1.5 text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-        {value || "—"}
-      </div>
-    </motion.div>
-  );
-});
-
 function MonProfilPageClientImpl() {
-  const { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance } = useMonProfil();
-  const { consultations, loading, gamesCount, setActiveTab, activeTab, } = useConsultationsListPageWithId();
+  const { consultations, loading, gamesCount, activeTab, } = useConsultationsListPageWithId();
 
   if (loading) return <ConsultationsListLoading />;
-  if (!processedData) return <ErrorState />;
 
   return (
     <main className="relative max-w-2xl mx-auto px-4 py-8 sm:px-6 sm:py-12 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
@@ -407,17 +287,9 @@ function MonProfilPageClientImpl() {
         <div className="flex gap-3 p-1.5 bg-gray-100/50 dark:bg-gray-800/30 rounded-2xl">
           <TabButton
             active={activeTab === 'games'}
-            onClick={() => setActiveTab('games')}
             icon={<Gamepad2 className="w-4 h-4" />}
             label="Mes Jeux"
             count={gamesCount}
-          />
-          <TabButton
-            active={activeTab === 'history'}
-            onClick={() => setActiveTab('history')}
-            icon={<History className="w-4 h-4" />}
-            label="Mon Profil"
-            count={-1}
           />
         </div>
       </div>
@@ -433,7 +305,7 @@ function MonProfilPageClientImpl() {
             className="space-y-5"
           >
             {gamesCount === 0 ? (
-              <ConsultationsEmpty consultationsLength={gamesCount} type="games" />
+              <ConsultationsEmpty consultationsLength={gamesCount} />
             ) : (
               <div className="space-y-3">
                 {consultations.map((consultation, index) => (
@@ -448,26 +320,8 @@ function MonProfilPageClientImpl() {
             )}
           </motion.div>
         )}
-        {activeTab === 'history' && (
-          <div className="relative mt-8">
-            <div className="relative z-10 w-full">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={staggerContainer}
-                className="space-y-6"
-              >
-                <IdentityOverview
-                  fullName={fullName}
-                  dateNaissanceLabel={dateNaissanceLabel}
-                  heureNaissance={heureNaissance}
-                  lieuNaissance={lieuNaissance}
-                />
-              </motion.div>
-            </div>
-          </div>
-        )}
       </AnimatePresence>
+
       <NewGameButton />
     </main>
   );

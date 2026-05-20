@@ -170,7 +170,7 @@ const PaymentProgressSection = memo(({ simulationStep }: { simulationStep: Simul
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 20 }}
-    className="bg-white dark:bg-gray-800 mt-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6"
+    className="bg-white dark:bg-gray-800 mt-16 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6"
   >
     <div className="flex items-center gap-3 mb-6">
       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
@@ -204,7 +204,6 @@ const PaymentProgressSection = memo(({ simulationStep }: { simulationStep: Simul
   </motion.div>
 ));
 
-
 export default function MarcheOffrandesMain() {
   const {
     cart, cartTotal, monoffre, simulationStep, showPaymentProgress,
@@ -216,7 +215,7 @@ export default function MarcheOffrandesMain() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl">
+    <div className="container mx-auto px-3 mt-8 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
           <div className="flex items-center justify-between">

@@ -32,12 +32,12 @@ const addCacheBusting = (url: string, timestamp?: number): string => {
 
   const bustTimestamp = timestamp || Date.now();
   const separator = url.includes('?') ? '&' : '?';
-  
+
   // Éviter d'ajouter plusieurs fois le même paramètre
   if (url.includes('_cb=')) {
     return url.replace(/_cb=\d+/, `_cb=${bustTimestamp}`);
   }
-  
+
   return `${url}${separator}_cb=${bustTimestamp}`;
 };
 
@@ -50,13 +50,13 @@ const getSessionTimestamp = (): number => {
   return Math.floor(Date.now() / 300000) * 300000;
 };
 
-export default function CacheLink({ 
-  href, 
-  children, 
-  className, 
+export default function CacheLink({
+  href,
+  children,
+  className,
   disableCacheBusting = false,
   customTimestamp,
-  ...props 
+  ...props
 }: CacheLinkProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -65,7 +65,7 @@ export default function CacheLink({
   // URL avec cache busting
   const bustedHref = useMemo(() => {
     if (disableCacheBusting) return href;
-    
+
     // Pour les URLs avec ancre (#), on garde l'ancre à la fin
     const [baseUrl, hash] = href.split('#');
     const urlWithCache = addCacheBusting(baseUrl, customTimestamp || getSessionTimestamp());
@@ -98,7 +98,7 @@ export default function CacheLink({
   }, [handlePrefetch, props]);
 
   const handleTouchStart = useCallback<NonNullable<CacheLinkProps['onTouchStart']>>((event) => {
-    props.onTouchStart?.(event);    
+    props.onTouchStart?.(event);
     handlePrefetch();
   }, [handlePrefetch, props]);
 

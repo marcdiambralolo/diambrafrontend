@@ -5,7 +5,7 @@ import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
-  AlertCircle, CalendarDays, Clock, Crown, Gamepad2, History,
+  AlertCircle, CalendarDays, Clock, Gamepad2, History,
   Loader2, MapPin, Plus, Target, Timer, UserRound
 } from "lucide-react";
 import Link from "next/link";
@@ -343,10 +343,6 @@ const IdentityOverview = memo(function IdentityOverview({
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-indigo-50/30 dark:from-purple-950/20 dark:to-indigo-950/20" />
       <div className="relative p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-5 h-5 text-yellow-500" />
-          <h3 className="font-bold text-gray-800 dark:text-white">Mon profil</h3>
-        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <IdentityPill
             icon={<UserRound className="h-4 w-4" />}

@@ -80,8 +80,7 @@ export function useGameConfig(): UseGameConfigReturn {
 export function useProfilUser() {
   const { stats, isLoading: statsLoading } = useStatsDataWithCache();
   const { data: gameConfig, isLoading: configLoading, error: configError } = useGameConfig();
-
-  // Dérivation des dates
+  
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
     [gameConfig?.startgameDate]
@@ -92,9 +91,9 @@ export function useProfilUser() {
     [gameConfig?.endgameDate]
   );
 
-  // État actuel du jeu (recalculé à chaque changement)
   const now = new Date();
 
+  // Vérifier si l'édition est terminée (basé sur la date ET le statut)
   const isGameActive = useMemo(() =>
     gameConfig?.isActive === true &&
     gameConfig?.status === 'active' &&
@@ -106,13 +105,13 @@ export function useProfilUser() {
   );
 
   const isGameEnded = useMemo(() =>
-    endDate !== null && now > endDate,
-    [endDate, now]
+    gameConfig?.status === 'ended' || (endDate !== null && now > endDate),
+    [gameConfig?.status, endDate, now]
   );
 
   const isGameNotStarted = useMemo(() =>
-    startDate !== null && now < startDate,
-    [startDate, now]
+    gameConfig?.status === 'pending' || (startDate !== null && now < startDate),
+    [gameConfig?.status, startDate, now]
   );
 
   const formatDateTime = useCallback((date: Date) =>

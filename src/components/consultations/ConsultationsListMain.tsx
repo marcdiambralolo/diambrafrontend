@@ -1,19 +1,19 @@
 "use client";
- import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
+import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
-import { Eye, Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { memo } from "react";
 
 export interface ConsultationCardProps {
   consultation: Consultation;
 }
 
-function ConsultationCard({ consultation  }: ConsultationCardProps) {
-  
+function ConsultationCard({ consultation }: ConsultationCardProps) {
+
   return (
     <article
-        className={cx(
+      className={cx(
         "group relative isolate overflow-hidden rounded-3xl p-5",
         "border border-white/40 dark:border-[color:var(--theme-border)]",
         "bg-gradient-to-br from-white/95 via-white/90 to-white/95",
@@ -21,7 +21,7 @@ function ConsultationCard({ consultation  }: ConsultationCardProps) {
         "shadow-2xl shadow-black/5 dark:shadow-[0_18px_48px_-30px_rgba(3,10,25,0.88)]",
         "backdrop-blur-xl",
         "transition-transform duration-300 hover:-translate-y-0.5"
-      )} 
+      )}
       aria-label={`Consultation`}
     >
       <div className="pointer-events-none absolute inset-0">
@@ -51,11 +51,11 @@ function ConsultationCard({ consultation  }: ConsultationCardProps) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-center gap-2 w-full">
               <h3 className="line-clamp-1 text-lg font-black tracking-tight text-slate-900 dark:text-white w-full">
-                {consultation._id }
+                {consultation._id}
               </h3>
             </div>
           </div>
-        </div> 
+        </div>
       </div>
     </article>
   );
@@ -98,7 +98,7 @@ export function ConsultationsListLoading() {
 }
 
 const ConsultationsListMain = memo(function ConsultationsListMain() {
-  const { consultations, loading} = useConsultationsListPage();
+  const { consultations, loading } = useConsultationsListPage();
 
   if (loading) { return (<ConsultationsListLoading />); }
 

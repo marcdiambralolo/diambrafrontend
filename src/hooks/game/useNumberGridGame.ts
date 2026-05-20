@@ -3,8 +3,9 @@ import { Consultation } from "@/lib/interfaces";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const SLOT_COUNT = 4;
-const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+ 
+export const SLOT_COUNT = 4;
+export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 const STORAGE_KEY = "number-grid-stats";
 
 interface GameStats {

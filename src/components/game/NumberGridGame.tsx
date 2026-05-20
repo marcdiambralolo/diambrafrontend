@@ -1,10 +1,7 @@
 "use client";
-import { formatTime, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
+import { SLOT_COUNT, DIGITS, formatTime, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
 import { AnimatePresence, motion } from "framer-motion";
 import { MousePointerClick, Move, Sparkles, Target, Trash2, Volume2, VolumeX, Zap } from "lucide-react";
-
-const SLOT_COUNT = 4;
-const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 export function NumberGridGame() {
   const {

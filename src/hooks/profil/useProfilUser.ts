@@ -4,6 +4,37 @@ import { useStatsDataWithCache } from "../cache/useStatsDataWithCache";
 import { api } from "@/lib/api/client";
 import { GameConfiguration } from "@/lib/interfaces";
 
+export type DateLike = Date | string | number | null | undefined;
+export function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && !Number.isNaN(value.getTime());
+}
+
+export function toSafeDate(value: DateLike, fallback?: Date): Date {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return new Date(value);
+  }
+
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return fallback ? new Date(fallback) : new Date();
+}
+export function formatDateFR(value: DateLike): string {
+  const date = toSafeDate(value, new Date());
+  if (!isValidDate(date)) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
+}
+
 // ============================================================================
 // HOOK DE CONFIGURATION DU JEU (SANS REACT QUERY)
 // ============================================================================
@@ -23,7 +54,7 @@ export function useGameConfig(): UseGameConfigReturn {
   const fetchConfig = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await api.get('game-configurations/current-config');
       setData(response.data as GameConfiguration);
@@ -65,7 +96,7 @@ export function useProfilUser() {
   const now = new Date();
 
   const isGameActive = useMemo(() =>
-    gameConfig?.isActive === true && 
+    gameConfig?.isActive === true &&
     gameConfig?.status === 'active' &&
     startDate !== null &&
     endDate !== null &&
@@ -84,16 +115,7 @@ export function useProfilUser() {
     [startDate, now]
   );
 
-  // Formatage des dates
-  const formatDate = useCallback((date: Date) => 
-    date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }), []
-  );
-
-  const formatDateTime = useCallback((date: Date) => 
+  const formatDateTime = useCallback((date: Date) =>
     date.toLocaleString('fr-FR', {
       day: 'numeric',
       month: 'long',
@@ -120,9 +142,31 @@ export function useProfilUser() {
 
   // État de chargement global
   const loading = statsLoading || configLoading;
-  
+
   // Erreur éventuelle
   const error = configError;
+
+
+
+  // État pour savoir si on vient de démarrer (évite redirection multiple)
+  const [gameStarted, setGameStarted] = useState(false);
+  const [matchFinished, setMatchFinished] = useState(false);
+  // 🔥 Fonction appelée quand le chrono d'ouverture finit
+  const handleOpenGame = () => {
+    if (!gameStarted) {
+      setGameStarted(true);
+    }
+  };
+
+  const handleEndMatch = useCallback(() => {
+    if (!matchFinished) {
+      setMatchFinished(true);
+      // Optionnel : appeler une API pour marquer le match comme terminé
+      console.log('Match terminé');
+    }
+  }, [matchFinished]);
+
+  const shouldShowEnded = isGameEnded || matchFinished;
 
   return {
     loading,
@@ -131,11 +175,13 @@ export function useProfilUser() {
     isGameEnded,
     isGameNotStarted,
     timeRemaining,
-    formatDate,
     formatDateTime,
     startDate,
     endDate,
     gameConfig,
     error,
+    handleOpenGame,
+    handleEndMatch,
+    shouldShowEnded
   } as const;
 }

@@ -3,14 +3,6 @@ import { useOfferingForm } from "@/hooks/admin/offrandes/useOfferingForm";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
-export function MobileHint() {
-  return (
-    <div className="mb-2 w-full animate-fade-in text-center text-xs font-semibold text-[#2E5AA6] dark:text-[#9BC2FF] sm:hidden">
-      Astuce : Faites défiler pour voir tous les champs du formulaire.
-    </div>
-  );
-}
-
 export interface OfferingFormData {
   name: string;
   price: number;
@@ -36,7 +28,6 @@ export function OfferingForm({
 
   return (
     <>
-      <MobileHint />
       <form onSubmit={onSubmit} className="theme-dark-panel mt-6 mx-auto flex max-w-xl flex-col items-center justify-center space-y-5 rounded-2xl border border-blue-200 bg-white p-6 shadow-xl animate-fade-in dark:border-[color:var(--theme-border)] dark:bg-[#0F1C3F]">
         <h1 className="text-center text-xl font-extrabold tracking-tight text-cosmic-indigo dark:text-[#DDE7FA] mb-2">Nouveau</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">

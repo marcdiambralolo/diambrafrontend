@@ -78,13 +78,13 @@ const ManualTimeInput = ({ value, onChange }: ManualTimeInputProps) => {
   const handleSave = () => {
     let hours = parseInt(tempHours, 10);
     let minutes = parseInt(tempMinutes, 10);
-    
+
     if (isNaN(hours)) hours = 0;
     if (isNaN(minutes)) minutes = 0;
-    
+
     hours = Math.max(0, Math.min(23, hours));
     minutes = Math.max(0, Math.min(59, minutes));
-    
+
     onChange({ hours, minutes });
     setIsEditing(false);
   };
@@ -283,9 +283,14 @@ const Calendar = React.memo(({
       daysArray.push(
         <motion.button
           key={day}
+          type="button"
           whileHover={!isDisabled ? { scale: 1.05 } : {}}
           whileTap={!isDisabled ? { scale: 0.95 } : {}}
-          onClick={() => !isDisabled && onDateSelect(day, viewMonth.getMonth(), viewMonth.getFullYear())}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!isDisabled) onDateSelect(day, viewMonth.getMonth(), viewMonth.getFullYear());
+          }}
           disabled={isDisabled}
           className={`
             relative h-10 w-10 rounded-full font-semibold transition-all duration-200
@@ -343,7 +348,7 @@ export function CustomDateTimePicker({
   const [tempDate, setTempDate] = useState<Date>(normalizedSelected ?? new Date());
   const [viewMonth, setViewMonth] = useState<Date>(normalizedSelected ?? new Date());
   const [activeTab, setActiveTab] = useState<'date' | 'time'>('date');
-  const [inputMode, setInputMode] = useState<'scroll' | 'manual'>('manual'); // Par défaut : saisie manuelle
+  const [inputMode, setInputMode] = useState<'scroll' | 'manual'>('manual');
 
   const pickerRef = useRef<HTMLDivElement>(null);
 

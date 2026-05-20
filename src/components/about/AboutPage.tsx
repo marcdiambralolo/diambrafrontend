@@ -115,9 +115,6 @@ export default function AboutPageClient() {
             <CacheLink href="/star/profil" className={btnPrimary}>
               Jouer maintenant <ChevronRight className="h-4 w-4" />
             </CacheLink>
-            <CacheLink href="/star/profil?mode=tuto" className={btnSecondary}>
-              Mode démo <Zap className="h-4 w-4" />
-            </CacheLink>
           </div>
         </section>
 

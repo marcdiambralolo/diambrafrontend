@@ -1,147 +1,181 @@
 'use client';
-import { api } from '@/lib/api/client';
+import { buildDefaultForm, ConfigStatus, formatDateFR, normalizeConfigDates, normalizeStatus, showToast, statusConfig, ToastItem, toSafeDate, useGameConfig } from '@/hooks/game/useGameConfig';
 import { GameConfiguration } from '@/lib/interfaces';
 import { AnimatePresence, LayoutGroup, motion, Reorder } from 'framer-motion';
 import {
-  CalendarIcon,
-  GiftIcon, PencilIcon, PlusIcon, SparklesIcon,
-  TrashIcon, TrophyIcon, UsersIcon
+  CalendarIcon, CheckIcon, XIcon,
+  GiftIcon, PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import ConfigForm from './ConfigForm';
+import React, { useEffect, useMemo, useState } from 'react';
+import { CustomDateTimePicker } from "./CustomPicker";
 
-let toastId = 0;
+export function ConfigForm({
+  mode,
+  initialData,
+  onSubmit,
+  onCancel,
+}: {
+  mode: 'create' | 'edit';
+  initialData?: Partial<GameConfiguration>;
+  onSubmit: (data: Partial<GameConfiguration>) => void;
+  onCancel: () => void;
+}) {
+  const initialForm = useMemo(
+    () => normalizeConfigDates(initialData ?? buildDefaultForm()),
+    [initialData]
+  );
 
-type ToastType = 'success' | 'error' | 'info';
+  const [formData, setFormData] = useState<Partial<GameConfiguration>>(initialForm);
 
-type ToastItem = {
-  id: number;
-  message: string;
-  type: ToastType;
-};
+  useEffect(() => {
+    setFormData(initialForm);
+  }, [initialForm]);
 
-type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-type DateLike = Date | string | number | null | undefined;
-
-const DEFAULT_FORM_STATUS: ConfigStatus = 'pending';
-
-const statusConfig: Record<ConfigStatus,
-  {
-    color: string;
-    bg: string;
-    text: string;
-    border: string;
-    icon: string;
-    label: string;
-  }
-> = {
-  pending: {
-    color: 'from-amber-400 to-yellow-500',
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
-    icon: '⏳',
-    label: 'En attente',
-  },
-  active: {
-    color: 'from-emerald-400 to-green-500',
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
-    icon: '⚡',
-    label: 'Actif',
-  },
-  ended: {
-    color: 'from-slate-400 to-gray-500',
-    bg: 'bg-slate-50',
-    text: 'text-slate-700',
-    border: 'border-slate-200',
-    icon: '🏁',
-    label: 'Terminé',
-  },
-  cancelled: {
-    color: 'from-rose-400 to-red-500',
-    bg: 'bg-rose-50',
-    text: 'text-rose-700',
-    border: 'border-rose-200',
-    icon: '❌',
-    label: 'Annulé',
-  },
-};
-
-function showToast(
-  message: string,
-  type: ToastType = 'info',
-  duration = 3000
-) {
-  const id = ++toastId;
-  const event = new CustomEvent('toast', {
-    detail: { id, message, type, duration },
-  });
-  window.dispatchEvent(event);
-
-  setTimeout(() => {
-    const closeEvent = new CustomEvent('toast-close', { detail: { id } });
-    window.dispatchEvent(closeEvent);
-  }, duration);
-
-  return id;
-}
-
-function isValidDate(value: unknown): value is Date {
-  return value instanceof Date && !Number.isNaN(value.getTime());
-}
-
-function toSafeDate(value: DateLike, fallback?: Date): Date {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return new Date(value);
-  }
-
-  if (typeof value === 'string' || typeof value === 'number') {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed;
-    }
-  }
-
-  return fallback ? new Date(fallback) : new Date();
-}
-
-function formatDateFR(value: DateLike): string {
-  const date = toSafeDate(value, new Date());
-  if (!isValidDate(date)) return '';
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
-
-function normalizeStatus(value: unknown): ConfigStatus {
-  if (
-    value === 'pending' ||
-    value === 'active' ||
-    value === 'ended' ||
-    value === 'cancelled'
-  ) {
-    return value;
-  }
-  return DEFAULT_FORM_STATUS;
-}
-
-function normalizeConfigDates(
-  config?: Partial<GameConfiguration> | null
-): Partial<GameConfiguration> {
-  return {
-    ...config,
-    startgameDate: toSafeDate(config?.startgameDate, new Date()),
-    endgameDate: toSafeDate(
-      config?.endgameDate,
+    const startDate = toSafeDate(formData.startgameDate, new Date());
+    const endDate = toSafeDate(
+      formData.endgameDate,
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    ),
-    isActive: Boolean(config?.isActive),
-    status: normalizeStatus(config?.status),
+    );
+
+    if (endDate.getTime() < startDate.getTime()) {
+      showToast('La date de fin doit être postérieure à la date de début', 'error');
+      return;
+    }
+
+    onSubmit({
+      ...formData,
+      startgameDate: startDate,
+      endgameDate: endDate,
+      status: normalizeStatus(formData.status),
+      isActive: Boolean(formData.isActive),
+    });
   };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -18 }}
+      className="overflow-hidden rounded-[30px] border border-purple-200 bg-white shadow-[0_24px_80px_rgba(99,102,241,0.12)]"
+    >
+      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 px-6 py-5">
+        <h3 className="text-xl font-black text-white md:text-2xl">
+          {mode === 'create'
+            ? '✨ Nouvelle Configuration'
+            : '✏️ Modifier la Configuration'}
+        </h3>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5 p-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              📅 Date de début
+            </label>
+            <CustomDateTimePicker
+              selected={formData.startgameDate}
+              onChange={(date: Date) =>
+                setFormData((prev) => ({ ...prev, startgameDate: date }))
+              }
+              minDate={new Date()}
+              placeholder="Sélectionner la date et l'heure"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              🏁 Date de fin
+            </label>
+            <CustomDateTimePicker
+              selected={formData.endgameDate}
+              onChange={(date: Date) =>
+                setFormData((prev) => ({ ...prev, endgameDate: date }))
+              }
+              minDate={new Date()}
+              placeholder="Sélectionner la date et l'heure"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5">
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              📊 Status
+            </label>
+            <select
+              value={normalizeStatus(formData.status)}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  status: e.target.value as ConfigStatus,
+                }))
+              }
+              className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
+            >
+              <option value="pending">⏳ En attente</option>
+              <option value="active">⚡ Actif</option>
+              <option value="ended">🏁 Terminé</option>
+              <option value="cancelled">❌ Annulé</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-gray-700">
+            ✅ Active
+          </label>
+          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-gray-200 p-4 transition hover:bg-gray-50">
+            <input
+              type="checkbox"
+              checked={Boolean(formData.isActive)}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isActive: e.target.checked,
+                }))
+              }
+              className="h-5 w-5 rounded-lg text-purple-600 focus:ring-purple-500"
+            />
+            <span className="font-medium text-gray-700">
+              Configuration active
+            </span>
+          </label>
+        </div>
+
+        <div className="mb-96 flex flex-col gap-3 pt-4 sm:flex-row">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 font-bold text-white shadow-lg"
+          >
+            <CheckIcon className="h-5 w-5" />
+            {mode === 'create' ? 'Créer' : 'Mettre à jour'}
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={onCancel}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-200"
+          >
+            <XIcon className="h-5 w-5" />
+            Annuler
+          </motion.button>
+        </div>
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+      </form>
+    </motion.div>
+  );
 }
 
 const ToastContainer = () => {
@@ -205,66 +239,110 @@ const ToastContainer = () => {
   );
 };
 
+function ConfigCard({
+  config,
+  onEdit,
+  onDelete,
+}: {
+  config: GameConfiguration;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const status = statusConfig[normalizeStatus(config.status)];
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -80 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      whileHover={{ y: -2 }}
+      className="group relative"
+    >
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-15" />
+
+      <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/95 shadow-lg transition-all duration-300 hover:border-purple-200">
+        <div className={`h-1.5 bg-gradient-to-r ${status.color}`} />
+
+        <div className="p-5 md:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex-1">
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className={`rounded-full border px-3 py-1 text-xs font-bold ${status.bg} ${status.text} ${status.border}`}
+                >
+                  <span className="mr-1">{status.icon}</span>
+                  {status.label}
+                </motion.div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
+                  <CalendarIcon className="h-5 w-5 text-purple-500" />
+                  <div>
+                    <div className="text-xs text-gray-400">Début</div>
+                    <div className="text-sm font-semibold">
+                      {formatDateFR(config.startgameDate)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
+                  <CalendarIcon className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <div className="text-xs text-gray-400">Fin</div>
+                    <div className="text-sm font-semibold">
+                      {formatDateFR(config.endgameDate)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ml-0 flex flex-col items-end gap-2 lg:ml-4">
+              <div className="flex gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.08, rotate: 10 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={onEdit}
+                  className="rounded-2xl bg-blue-50 p-3 text-blue-600 transition-all hover:bg-blue-100"
+                >
+                  <PencilIcon className="h-5 w-5" />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.08, rotate: -10 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={onDelete}
+                  className="rounded-2xl bg-red-50 p-3 text-red-600 transition-all hover:bg-red-100"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </motion.button>
+              </div>
+
+              {config.isActive && (
+                <motion.div
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-600"
+                >
+                  ACTIF
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function GameConfigurationManager() {
-  const [configs, setConfigs] = useState<GameConfiguration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    void fetchConfigurations();
-  }, []);
-
-  const fetchConfigurations = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('game-configurations');
-      const normalized = (response.data as GameConfiguration[]).map((config) =>
-        normalizeConfigDates(config) as GameConfiguration
-      );
-      setConfigs(normalized);
-    } catch {
-      showToast('Impossible de charger les configurations', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreate = async (data: Partial<GameConfiguration>) => {
-    try {
-      await api.post('game-configurations', data);
-      showToast('🎮 Configuration créée avec succès !', 'success');
-      await fetchConfigurations();
-      setIsCreating(false);
-    } catch {
-      showToast('Erreur lors de la création', 'error');
-    }
-  };
-
-  const handleUpdate = async (id: string, data: Partial<GameConfiguration>) => {
-    try {
-      await api.put(`game-configurations/${id}`, data);
-      showToast('✨ Configuration mise à jour !', 'success');
-      await fetchConfigurations();
-      setEditingId(null);
-    } catch {
-      showToast('Erreur lors de la mise à jour', 'error');
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette configuration ?')) {
-      return;
-    }
-
-    try {
-      await api.delete(`game-configurations/${id}`);
-      showToast('🗑️ Configuration supprimée', 'success');
-      await fetchConfigurations();
-    } catch {
-      showToast('Erreur lors de la suppression', 'error');
-    }
-  };
+  const {
+    configs, loading, editingId, isCreating, setEditingId,
+    setIsCreating, setConfigs, handleCreate, handleUpdate, handleDelete,
+  } = useGameConfig();
 
   const stats = [
     {
@@ -284,14 +362,8 @@ export default function GameConfigurationManager() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.12),_transparent_35%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.12),_transparent_35%),linear-gradient(135deg,#f8fafc_0%,#ffffff_45%,#f5f3ff_100%)]">
+    <div className="w-full bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.12),_transparent_35%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.12),_transparent_35%),linear-gradient(135deg,#f8fafc_0%,#ffffff_45%,#f5f3ff_100%)]">
       <ToastContainer />
-
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="animate-blob absolute -right-24 -top-24 h-80 w-80 rounded-full bg-purple-300/20 blur-3xl" />
-        <div className="animate-blob animation-delay-2000 absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-blue-300/20 blur-3xl" />
-        <div className="animate-blob animation-delay-4000 absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-300/20 blur-3xl" />
-      </div>
 
       <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <motion.div
@@ -346,6 +418,7 @@ export default function GameConfigurationManager() {
                     {stat.icon}
                   </div>
                 </div>
+
                 <div className="text-sm font-semibold uppercase tracking-[0.14em] text-white/90">
                   {stat.label}
                 </div>
@@ -455,117 +528,5 @@ export default function GameConfigurationManager() {
         }
       `}</style>
     </div>
-  );
-}
-
-function ConfigCard({
-  config,
-  onEdit,
-  onDelete,
-}: {
-  config: GameConfiguration;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  const status = statusConfig[normalizeStatus(config.status)];
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -80 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      whileHover={{ y: -2 }}
-      className="group relative"
-    >
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-15" />
-
-      <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/95 shadow-lg transition-all duration-300 hover:border-purple-200">
-        <div className={`h-1.5 bg-gradient-to-r ${status.color}`} />
-
-        <div className="p-5 md:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex-1">
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <motion.div
-                  whileHover={{ scale: 1.03 }}
-                  className={`rounded-full border px-3 py-1 text-xs font-bold ${status.bg} ${status.text} ${status.border}`}
-                >
-                  <span className="mr-1">{status.icon}</span>
-                  {status.label}
-                </motion.div>
-
-                {config.isActive && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="relative">
-                      <div className="absolute inset-0 h-2 w-2 animate-ping rounded-full bg-green-400" />
-                      <div className="relative h-2 w-2 rounded-full bg-green-500" />
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-green-600">
-                      Live
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
-                  <CalendarIcon className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <div className="text-xs text-gray-400">Début</div>
-                    <div className="text-sm font-semibold">
-                      {formatDateFR(config.startgameDate)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
-                  <CalendarIcon className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <div className="text-xs text-gray-400">Fin</div>
-                    <div className="text-sm font-semibold">
-                      {formatDateFR(config.endgameDate)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="ml-0 flex flex-col items-end gap-2 lg:ml-4">
-              <div className="flex gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.08, rotate: 10 }}
-                  whileTap={{ scale: 0.92 }}
-                  onClick={onEdit}
-                  className="rounded-2xl bg-blue-50 p-3 text-blue-600 transition-all hover:bg-blue-100"
-                >
-                  <PencilIcon className="h-5 w-5" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.08, rotate: -10 }}
-                  whileTap={{ scale: 0.92 }}
-                  onClick={onDelete}
-                  className="rounded-2xl bg-red-50 p-3 text-red-600 transition-all hover:bg-red-100"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </motion.button>
-              </div>
-
-              {config.isActive && (
-                <motion.div
-                  animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-600"
-                >
-                  ACTIF
-                </motion.div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
   );
 }

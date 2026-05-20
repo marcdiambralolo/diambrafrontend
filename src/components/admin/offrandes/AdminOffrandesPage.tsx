@@ -268,9 +268,6 @@ export default function AdminOffrandesPage() {
                             <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                                 Jetons
                             </h1>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                Gérez vos jetons et suivez les ventes
-                            </p>
                         </div>
                         <div className="flex gap-3">
                             <button

@@ -73,7 +73,6 @@ function ConsultationCard({ consultation, index, type = 'history' }: Consultatio
       />
 
       <div className="relative z-10 flex items-start gap-4 w-full">
-        {/* Icône de jeu avec animation */}
         <div className="flex-shrink-0">
           <div className={cx(
             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
@@ -204,7 +203,6 @@ const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps)
     )}
   </motion.button>
 ));
-
 
 function ConsultationsEmpty() {
   return (

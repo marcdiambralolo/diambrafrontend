@@ -1,6 +1,6 @@
 'use client';
 import Loader from "@/app/loading";
-import { useProfilUser } from "@/hooks/profil/useProfilUser";
+import { formatDateFR, useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatNumber } from "@/lib/functions";
 import { motion } from 'framer-motion';
 import {
@@ -181,7 +181,7 @@ const CountdownTimer = ({
   variant?: 'light' | 'dark';
   onFinish?: () => void;
 }) => {
-  const [timeLeft, setTimeLeft] = useState({ jours: 0, heures: 0, minutes: 0, secondes: 0 });
+  const [timeLeft, setTimeLeft] = useState({ j: 0, h: 0, mn: 0, s: 0 });
   const [hasFinished, setHasFinished] = useState(false);
 
   useEffect(() => {
@@ -199,10 +199,10 @@ const CountdownTimer = ({
       }
 
       setTimeLeft({
-        jours: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        heures: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
-        minutes: Math.floor((diff % 3600000) / (1000 * 60)),
-        secondes: Math.floor((diff % 60000) / 1000)
+        j: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        h: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
+        mn: Math.floor((diff % 3600000) / (1000 * 60)),
+        s: Math.floor((diff % 60000) / 1000)
       });
     }, 1000);
 
@@ -324,33 +324,12 @@ const GameStatusBadge = ({ children, variant = 'primary' }: { children: React.Re
   );
 };
 
-
 export default function ProfilPageClient() {
 
   const {
-    formatDate, formatDateTime, loading, stats, isGameEnded,
-    isGameNotStarted, startDate, endDate,gameConfig
+    handleOpenGame, handleEndMatch, formatDateTime, loading, stats,
+    isGameNotStarted, startDate, endDate, gameConfig, shouldShowEnded,
   } = useProfilUser();
-
-  // État pour savoir si on vient de démarrer (évite redirection multiple)
-  const [gameStarted, setGameStarted] = useState(false);
-  const [matchFinished, setMatchFinished] = useState(false);
-  // 🔥 Fonction appelée quand le chrono d'ouverture finit
-  const handleOpenGame = () => {
-    if (!gameStarted) {
-      setGameStarted(true);
-    }
-  };
-
-  const handleEndMatch = useCallback(() => {
-    if (!matchFinished) {
-      setMatchFinished(true);
-      // Optionnel : appeler une API pour marquer le match comme terminé
-      console.log('Match terminé');
-    }
-  }, [matchFinished]);
-
-  const shouldShowEnded = isGameEnded || matchFinished;
 
   if (loading) return <Loader />;
 
@@ -647,7 +626,7 @@ export default function ProfilPageClient() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">Période du championnat</p>
                     <p className="font-extrabold text-gray-800 dark:text-white text-xl">
                       {startDate && endDate ? (
-                        <>Du {formatDate(startDate)} au {formatDate(endDate)}</>
+                        <>Du {formatDateFR(startDate)} au {formatDateFR(endDate)}</>
                       ) : (
                         'Dates à venir'
                       )}
@@ -659,9 +638,9 @@ export default function ProfilPageClient() {
 
             {/* CTA Button */}
             <div className="flex justify-center">
-               <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
-    ⭐ Jouer Maintenant
-  </GlowButton>
+              <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
+                ⭐ Jouer Maintenant
+              </GlowButton>
             </div>
           </div>
         </motion.div>

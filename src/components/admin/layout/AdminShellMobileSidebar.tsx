@@ -1,13 +1,53 @@
 "use client";
 import CacheLink from "@/components/commons/CacheLink";
 import { cx } from "@/lib/functions";
+import { useAuthStore } from '@/lib/store/auth.store';
 import { AnimatePresence, motion, useReducedMotion, Variants } from "framer-motion";
-import { ChevronRight, X } from "lucide-react";
-import { memo, useCallback, useMemo } from "react";
-import { AdminLogoutButton } from "../commons/AdminLogoutButton";
+import { ChevronRight, LogOut, Shield, X } from "lucide-react";
+import Link from 'next/link';
+import React, { memo, useCallback, useMemo } from 'react';
 import { colorClasses, navItems } from "../commons/AdminNavConfig";
-import { AdminSidebarHeader } from "./AdminSidebarHeader";
- 
+
+export const AdminSidebarHeader = React.memo(function AdminSidebarHeader() {
+  const user = useAuthStore((state) => state.user);
+
+  return (
+    <Link
+      href="/"
+      className="flex items-center gap-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cosmic-indigo/40 rounded-xl transition-shadow"
+      title="Retour à l'accueil"
+      prefetch={false}
+    >
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1] shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-transform">
+        <Shield className="w-6 h-6 text-white" />
+      </div>
+      <div>
+        <h2 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-cosmic-indigo transition-colors">Administration</h2>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{user?.username || 'Administrateur'}</p>
+      </div>
+    </Link>
+  );
+});
+
+export const AdminLogoutButton = React.memo(function AdminLogoutButton({ onLogout, isLoggingOut }: { onLogout: () => void, isLoggingOut: boolean }) {
+
+  return (
+    <motion.button
+      onClick={onLogout}
+      disabled={isLoggingOut}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 font-bold text-sm hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {isLoggingOut ? (
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full" />
+      ) : (
+        <LogOut className="w-5 h-5" />
+      )}
+      {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
+    </motion.button>
+  );
+});
 
 type Props = { pathname: string; onNav?: () => void; isMobile?: boolean };
 
@@ -15,8 +55,6 @@ const liVariants: Variants = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.14 } },
 };
-
-const activeBarTransition = { type: "spring", stiffness: 520, damping: 38, mass: 0.6 };
 
 function computeIsActive(pathname: string, href: string) {
   const isRoot = href === "/admin";
@@ -149,7 +187,7 @@ export const AdminSidebarNav = memo(function AdminSidebarNav({ pathname, onNav, 
                   {isActive && (
                     <motion.div
                       layoutId="admin-active-underline"
-        
+
                       className="absolute bottom-1 left-1/2 h-[2px] w-16 -translate-x-1/2 rounded-full bg-white/70"
                     />
                   )}
@@ -168,7 +206,7 @@ export const AdminSidebarNav = memo(function AdminSidebarNav({ pathname, onNav, 
     prev.isMobile === next.isMobile &&
     prev.onNav === next.onNav
 );
- 
+
 interface AdminShellMobileSidebarProps {
   isLoggingOut: boolean;
   showMobileSidebar: boolean;

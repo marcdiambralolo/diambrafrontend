@@ -1,10 +1,8 @@
 'use client';
 import { motion } from 'framer-motion';
 import {
-  ArrowUpRight,
-  BarChart3, Calendar, Clock, DollarSign,
-  ShoppingBag,
-  TrendingDown, TrendingUp
+  ArrowUpRight, BarChart3, Calendar, Clock, DollarSign,
+  ShoppingBag, TrendingDown, TrendingUp
 } from 'lucide-react';
 import React, { memo } from 'react';
 

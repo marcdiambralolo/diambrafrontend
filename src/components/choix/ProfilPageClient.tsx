@@ -1,129 +1,9 @@
 'use client';
+import Loader from '@/app/loading';
 import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterClient';
 import { motion } from 'framer-motion';
 import { AlertCircle, AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gem, Gift, ShoppingBag, Zap } from "lucide-react";
 import { memo } from 'react';
-
-const CategoryLoadingSpinner = memo(() => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#EEF4FF] via-white to-slate-100 dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-[#070B1A]">
-    <div className="absolute inset-0 overflow-hidden">
-      {[...Array(50)].map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [0, -100, 0],
-            x: [0, Math.random() * 100 - 50, 0],
-            opacity: [0, 1, 0]
-          }}
-          transition={{
-            duration: 3 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut"
-          }}
-          className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-[#4F83D1] to-[#9BC2FF] dark:from-[#7BA9F1] dark:to-[#DDE7FA]"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`
-          }}
-        />
-      ))}
-    </div>
-
-    <div className="relative">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 h-32 w-32 rounded-full border-4 border-transparent border-r-[#4F83D1] border-t-[#2E5AA6] opacity-60 dark:border-r-[#9BC2FF] dark:border-t-[#4F83D1] sm:h-40 sm:w-40"
-      />
-
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-2 rounded-full border-3 border-b-[#2E5AA6] border-l-[#7BA9F1] border-transparent opacity-80 dark:border-b-[#4F83D1] dark:border-l-[#9BC2FF] sm:inset-3"
-      />
-
-      <motion.div
-        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute inset-0 h-32 w-32 rounded-full bg-gradient-to-br from-[#2E5AA6]/24 to-[#9BC2FF]/20 blur-xl dark:from-[#2E5AA6]/20 dark:to-[#4F83D1]/20 sm:h-40 sm:w-40"
-      />
-
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="relative flex h-32 w-32 items-center justify-center rounded-full border-2 border-[#4F83D1]/25 bg-gradient-to-br from-white via-[#EEF4FF] to-[#DDE7FA] shadow-2xl dark:border-[#355E9A]/45 dark:from-[#13274C] dark:via-[#0F1C3F] dark:to-[#162A56] sm:h-40 sm:w-40"
-      >
-        <motion.div
-          animate={{ rotate: [0, -15, 15, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Gem className="h-12 w-12 text-[#2E5AA6] dark:text-[#9BC2FF] sm:h-14 sm:w-14" strokeWidth={1.5} />
-        </motion.div>
-      </motion.div>
-
-      {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [0, -30, 0],
-            opacity: [0, 1, 0],
-            scale: [0, 1.5, 0]
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            delay: i * 0.2,
-            ease: "easeOut"
-          }}
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            marginLeft: `${Math.cos(i * Math.PI / 6) * 75}px`,
-            marginTop: `${Math.sin(i * Math.PI / 6) * 75}px`
-          }}
-          className="h-2 w-2 rounded-full bg-gradient-to-r from-[#4F83D1] to-[#9BC2FF] dark:from-[#7BA9F1] dark:to-[#DDE7FA]"
-        />
-      ))}
-    </div>
-
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="absolute bottom-1/3 left-1/2 -translate-x-1/2 text-center"
-    >
-      <motion.p
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="bg-gradient-to-r from-[#163A74] via-[#2E5AA6] to-[#4F83D1] bg-clip-text text-sm font-bold text-transparent dark:from-white dark:via-[#DDE7FA] dark:to-[#9BC2FF] sm:text-base"
-      >
-        Préparation de votre espace de jeu...
-      </motion.p>
-
-      <motion.div className="flex justify-center gap-2 mt-3">
-        {[0, 1, 2, 3].map((i) => (
-          <motion.div
-            key={i}
-            animate={{
-              scale: [1, 1.8, 1],
-              opacity: [0.3, 1, 0.3],
-              backgroundColor: ['#2E5AA6', '#9BC2FF', '#2E5AA6']
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              delay: i * 0.2,
-              ease: "easeInOut"
-            }}
-            className="h-2 w-2 rounded-full"
-          />
-        ))}
-      </motion.div>
-    </motion.div>
-  </div>
-));
 
 interface ErrorToastProps {
   message: string;
@@ -221,7 +101,7 @@ export default function ProfilPageClient() {
   } = useCategoryConsulterClient();
 
   if (dataLoading) {
-    return <CategoryLoadingSpinner />;
+    return <Loader />;
   }
 
   return (
@@ -335,7 +215,7 @@ export default function ProfilPageClient() {
           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
         </motion.button>
       </div>
-      
+
       {(showError || !!dataError) && (
         <ErrorToast message={currentError!} onClose={clearError} />
       )}

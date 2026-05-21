@@ -33,6 +33,30 @@ const formatDateTime = (date: string) => {
     });
 };
 
+/**
+ * Format date au format: 17/12/2026 à 07h00
+ */
+const formatEditionDate = (date: Date | null): string => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} à ${hours}h${minutes}`;
+};
+
+/**
+ * Format date courte (sans heure)
+ */
+const formatShortDate = (date: Date | null): string => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
 const getEditionStatus = (status: string, isActive: boolean) => {
     if (isActive && status === 'active') {
         return { label: 'En cours', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/30', icon: <Zap className="w-3 h-3" /> };
@@ -67,6 +91,12 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
 
     const relativeDate = createdAt ? getRelativeTime(createdAt) : 'Date inconnue';
     const formattedDate = createdAt ? formatDateTime(createdAt) : 'Date inconnue';
+    
+    // Format des dates d'édition
+    const formattedStartDate = formatEditionDate(editionStartDate);
+    const formattedEndDate = formatEditionDate(editionEndDate);
+    const shortStartDate = formatShortDate(editionStartDate);
+    const shortEndDate = formatShortDate(editionEndDate);
 
     return (
         <motion.article
@@ -137,12 +167,21 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                     )}
                 </div>
 
-                {/* Période de l'édition */}
+                {/* Période de l'édition - Format: 17/12/2026 à 07h00 */}
                 {editionStartDate && editionEndDate && (
                     <div className="pt-2 text-center">
-                        <p className="text-[10px] text-gray-400">
-                            {editionStartDate.toLocaleDateString('fr-FR')} → {editionEndDate.toLocaleDateString('fr-FR')}
-                        </p>
+                        <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400">
+                            <Calendar className="w-3 h-3" />
+                            <span>
+                                {shortStartDate} → {shortEndDate}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-center gap-1 text-[9px] text-gray-400 mt-1">
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>
+                                {formattedEndDate.split('à')[1]?.trim() || ''}
+                            </span>
+                        </div>
                     </div>
                 )}
             </div>

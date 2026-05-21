@@ -15,7 +15,7 @@ type SliceState = {
   totalPages: number;
 };
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 100;
 
 function makeSliceState(): SliceState {
   return {

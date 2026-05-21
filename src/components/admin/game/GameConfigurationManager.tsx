@@ -3,11 +3,8 @@ import { buildDefaultForm, ConfigStatus, formatDateFR, normalizeConfigDates, nor
 import { GameConfiguration } from '@/lib/interfaces';
 import { AnimatePresence, LayoutGroup, motion, Reorder } from 'framer-motion';
 import {
-  CalendarIcon, CheckIcon,
-  GiftIcon,
-  LockIcon,
+  CalendarIcon, CheckIcon, GiftIcon, LockIcon, XIcon,
   PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon,
-  XIcon
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CustomDateTimePicker } from "./CustomPicker";

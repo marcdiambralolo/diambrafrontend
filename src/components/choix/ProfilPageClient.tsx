@@ -8,9 +8,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, Award, Calendar, CheckCircle2,
   ChevronRight, Circle, Coins, Crown, Flame, Gift, History,
-  Rocket, ShoppingBag, Sparkles, Star, Trophy, Users, Zap
+  Rocket, ShoppingBag,
+  Star, Trophy, Users, Zap
 } from "lucide-react";
-import Link from 'next/link';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import CacheLink from "../commons/CacheLink";
 
@@ -64,26 +64,6 @@ const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, dela
     </div>
   </motion.div>
 ));
-
-const GlowButton = ({ href, children, variant = 'primary' }: { href: string; children: React.ReactNode; variant?: 'primary' | 'secondary' }) => {
-  const gradient = variant === 'primary'
-    ? 'from-purple-600 via-pink-600 to-orange-500'
-    : 'from-blue-600 via-cyan-500 to-teal-600';
-
-  return (
-    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="relative group w-full sm:w-auto">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition duration-500" />
-      <Link
-        href={href}
-        className={`relative flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r ${gradient} text-white font-bold rounded-2xl shadow-lg transition-all duration-300 text-sm sm:text-base w-full sm:w-auto`}
-      >
-        <Sparkles className="w-4 h-4 animate-pulse" />
-        <span>{children}</span>
-        <Zap className="w-4 h-4" />
-      </Link>
-    </motion.div>
-  );
-};
 
 const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -199,7 +179,7 @@ const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | null })
   </motion.div>
 );
 
-const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig }: any) => (
+const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -230,10 +210,6 @@ const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConf
         </div>
         <div className="text-white text-xs">au {formatDate(endDate)}</div>
       </div>
-
-      <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
-        Jouer Maintenant
-      </GlowButton>
     </div>
   </motion.div>
 );

@@ -239,7 +239,6 @@ export function MobileNav() {
                   })}
                 </nav>
 
-                {/* Logout Button */}
                 <motion.div
                   variants={itemVariants}
                   className="px-6 py-4 border-t border-gray-200 bg-gray-50"

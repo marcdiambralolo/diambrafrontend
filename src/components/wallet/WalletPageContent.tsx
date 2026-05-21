@@ -31,8 +31,7 @@ function normalizeItem(item: TransactionItem) {
   }
 
   return {
-    ...item,
-    name: item.name ?? 'Jeton',
+    ...item, name: item.name ?? 'Jeton',
     price: item.price ?? item.unitPrice ?? 0,
   };
 }

@@ -159,10 +159,6 @@ const ManualTimeInput = ({ value, onChange }: ManualTimeInputProps) => {
   );
 };
 
-// ============================================================================
-// COMPOSANT DE SCROLL POUR L'HEURE (OPTIONNEL)
-// ============================================================================
-
 const TimeScroll = React.memo(({
   items,
   value,
@@ -230,10 +226,6 @@ const TimeScroll = React.memo(({
 });
 
 TimeScroll.displayName = 'TimeScroll';
-
-// ============================================================================
-// COMPOSANT CALENDRIER
-// ============================================================================
 
 const Calendar = React.memo(({
   viewMonth,
@@ -323,10 +315,6 @@ const Calendar = React.memo(({
 });
 
 Calendar.displayName = 'Calendar';
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
 
 export function CustomDateTimePicker({
   selected,

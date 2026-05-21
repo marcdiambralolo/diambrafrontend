@@ -64,17 +64,13 @@ const ReportsHeader = memo<ReportsHeaderProps>(({ dateRange, setDateRange, dateR
   }, [setDateRange]);
 
   return (
-    < div
-      className="flex flex-col items-center gap-6 text-center"
-    >
+    < div className="flex flex-col items-center gap-6 text-center"    >
       <div className="flex gap-3">
         <ActionButton icon={Filter} label="Filtrer" variant="outline" />
         <ActionButton icon={Download} label="Exporter" variant="primary" />
       </div>
 
-      < div
-        className="flex gap-2 overflow-x-auto pb-2 px-2 scrollbar-hide max-w-full"
-      >
+      < div className="flex gap-2 overflow-x-auto pb-2 px-2 scrollbar-hide max-w-full">
         {dateRanges.map((range) => (
           <DateRangeButton
             key={range.value}

@@ -8,6 +8,7 @@ import { Suspense, useEffect, useState } from 'react';
 import CacheLink from '../commons/CacheLink';
 
 const useScrollReveal = () => {
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -27,6 +28,7 @@ const useScrollReveal = () => {
 
 function Pill({ icon, title, desc, tooltip, delay = 0 }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string; delay?: number }) {
   const [showTooltip, setShowTooltip] = useState(false);
+
   return (
     <div
       className="group relative flex items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
@@ -50,6 +52,7 @@ function Pill({ icon, title, desc, tooltip, delay = 0 }: { icon: React.ReactNode
         </div>
         <div className="mt-1 text-[13px] leading-relaxed text-purple-700">{desc}</div>
       </div>
+
       {tooltip && showTooltip && (
         <div className="absolute left-0 top-full mt-2 z-10 w-48 rounded-lg bg-purple-900 px-3 py-2 text-xs text-white shadow-lg">
           {tooltip}
@@ -102,25 +105,6 @@ export function WelcomePageClientContent() {
           </div>
         </section>
 
-        <section id="stats" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-gray-800">📊 Le jeu en chiffres</h2>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-3">
-            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 hover:scale-105 transition-transform">
-              <div className="text-5xl font-black text-purple-600">10</div>
-              <div className="font-semibold text-purple-700 mt-2">chiffres disponibles</div>
-            </div>
-            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 hover:scale-105 transition-transform">
-              <div className="text-5xl font-black text-indigo-600">4</div>
-              <div className="font-semibold text-indigo-700 mt-2">cases à remplir</div>
-            </div>
-            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-100 hover:scale-105 transition-transform">
-              <div className="text-5xl font-black text-purple-600">5 040</div>
-              <div className="font-semibold text-purple-700 mt-2">combinaisons possibles</div>
-            </div>
-          </div>
-        </section>
         <section id="jeu" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-black text-gray-800">🎯 Comment jouer ?</h2>
@@ -140,6 +124,7 @@ export function WelcomePageClientContent() {
                 </div>
               </div>
             </div>
+
             <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-6 hover:shadow-xl transition-all">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
               <div className="relative">
@@ -157,11 +142,32 @@ export function WelcomePageClientContent() {
           </div>
         </section>
 
+        <section id="stats" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-black text-gray-800">📊 Le jeu en chiffres</h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-purple-600">10</div>
+              <div className="font-semibold text-purple-700 mt-2">chiffres disponibles</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-indigo-600">4</div>
+              <div className="font-semibold text-indigo-700 mt-2">cases à remplir</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-100 hover:scale-105 transition-transform">
+              <div className="text-5xl font-black text-purple-600">5 040</div>
+              <div className="font-semibold text-purple-700 mt-2">combinaisons possibles</div>
+            </div>
+          </div>
+        </section>
+
         <section className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-500">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-10 text-center shadow-2xl">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...%3E')] opacity-10" />
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
+
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 mb-4">
                 <Rocket className="w-4 h-4 text-white" />

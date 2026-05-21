@@ -3,6 +3,7 @@ import { useEditOffrande } from "@/hooks/admin/offrandes/useEditOffrande";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { memo, useCallback, useState } from "react";
 import { AlertCircle, ArrowLeft, Loader2, Save, X } from "lucide-react";
+import Loader from "@/app/admin/loading";
 
 const CONSTANTS = {
     MAX_NAME_LENGTH: 64,
@@ -216,19 +217,6 @@ export const EditOffrandeForm = memo(({
     );
 });
 
-export const EditOffrandeLoading = memo(() => (
-    <div className="flex flex-col items-center justify-center min-h-[50vh]">
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center"
-        >
-            <Loader2 className="w-12 h-12 animate-spin text-indigo-600 dark:text-indigo-400 mx-auto mb-4" />
-            <p className="text-slate-600 dark:text-slate-400 font-medium">Chargement de l'offrande...</p>
-        </motion.div>
-    </div>
-));
-
 export const EditOffrandeError = memo(({ error, onRetry }: { error: string; onRetry: () => void }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -263,7 +251,7 @@ export default function EditOffrandePageClient() {
         handleChange, handleSubmit, handleCancel, fetchData,
     } = useEditOffrande();
 
-    if (loading) return <EditOffrandeLoading />;
+    if (loading) return <Loader />;
     if (error) return <EditOffrandeError error={error} onRetry={fetchData} />;
     if (!formData) return null;
 

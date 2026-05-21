@@ -57,7 +57,6 @@ export function useOfferingForm() {
         },
         withCredentials: true,
       });
-      console.log('✅ Offrande ajoutée:', res.data);
       router.replace('/admin/offrandes');
       router.refresh();
     } catch (err: unknown) {

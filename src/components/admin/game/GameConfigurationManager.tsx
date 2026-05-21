@@ -3,8 +3,11 @@ import { buildDefaultForm, ConfigStatus, formatDateFR, normalizeConfigDates, nor
 import { GameConfiguration } from '@/lib/interfaces';
 import { AnimatePresence, LayoutGroup, motion, Reorder } from 'framer-motion';
 import {
-  CalendarIcon, CheckIcon, XIcon,
-  GiftIcon, PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon,
+  CalendarIcon, CheckIcon,
+  GiftIcon,
+  LockIcon,
+  PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon,
+  XIcon
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CustomDateTimePicker } from "./CustomPicker";
@@ -26,6 +29,7 @@ export function ConfigForm({
   );
 
   const [formData, setFormData] = useState<Partial<GameConfiguration>>(initialForm);
+  const isEnded = initialData?.status === 'ended';
 
   useEffect(() => {
     setFormData(initialForm);
@@ -33,6 +37,11 @@ export function ConfigForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isEnded) {
+      showToast('Les éditions terminées ne peuvent pas être modifiées', 'error');
+      return;
+    }
 
     const startDate = toSafeDate(formData.startgameDate, new Date());
     const endDate = toSafeDate(
@@ -61,17 +70,27 @@ export function ConfigForm({
       exit={{ opacity: 0, y: -18 }}
       className="overflow-hidden rounded-[30px] border border-purple-200 bg-white shadow-[0_24px_80px_rgba(99,102,241,0.12)]"
     >
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 px-6 py-5">
+      {isEnded && (
+        <div className="bg-gradient-to-r from-gray-500 to-gray-600 px-6 py-3">
+          <div className="flex items-center justify-center gap-2 text-white">
+            <LockIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Cette édition est terminée et ne peut plus être modifiée</span>
+          </div>
+        </div>
+      )}
+
+      <div className={`px-6 py-5 ${isEnded ? 'bg-gradient-to-r from-gray-500 to-gray-600' : 'bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600'}`}>
         <h3 className="text-xl font-black text-white md:text-2xl">
           {mode === 'create'
             ? '✨ Nouvelle Configuration'
-            : '✏️ Modifier la Configuration'}
+            : isEnded
+              ? '🔒 Édition Terminée (Lecture seule)'
+              : '✏️ Modifier la Configuration'}
         </h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 p-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
           <div>
             <label className="mb-2 block text-sm font-semibold text-gray-700">
               📅 Date de début
@@ -79,10 +98,11 @@ export function ConfigForm({
             <CustomDateTimePicker
               selected={formData.startgameDate}
               onChange={(date: Date) =>
-                setFormData((prev) => ({ ...prev, startgameDate: date }))
+                !isEnded && setFormData((prev) => ({ ...prev, startgameDate: date }))
               }
               minDate={new Date()}
               placeholder="Sélectionner la date et l'heure"
+              disabled={isEnded}
             />
           </div>
 
@@ -93,16 +113,16 @@ export function ConfigForm({
             <CustomDateTimePicker
               selected={formData.endgameDate}
               onChange={(date: Date) =>
-                setFormData((prev) => ({ ...prev, endgameDate: date }))
+                !isEnded && setFormData((prev) => ({ ...prev, endgameDate: date }))
               }
               minDate={new Date()}
               placeholder="Sélectionner la date et l'heure"
+              disabled={isEnded}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-5">
-
           <div>
             <label className="mb-2 block text-sm font-semibold text-gray-700">
               📊 Status
@@ -110,12 +130,16 @@ export function ConfigForm({
             <select
               value={normalizeStatus(formData.status)}
               onChange={(e) =>
-                setFormData((prev) => ({
+                !isEnded && setFormData((prev) => ({
                   ...prev,
                   status: e.target.value as ConfigStatus,
                 }))
               }
-              className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
+              disabled={isEnded}
+              className={`w-full rounded-2xl border-2 px-4 py-3 transition-all focus:ring-4 ${isEnded
+                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100'
+                }`}
             >
               <option value="pending">⏳ En attente</option>
               <option value="active">⚡ Actif</option>
@@ -129,34 +153,47 @@ export function ConfigForm({
           <label className="mb-2 block text-sm font-semibold text-gray-700">
             ✅ Active
           </label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-gray-200 p-4 transition hover:bg-gray-50">
+          <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-4 transition ${isEnded
+            ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+            : 'border-gray-200 hover:bg-gray-50'
+            }`}>
             <input
               type="checkbox"
               checked={Boolean(formData.isActive)}
               onChange={(e) =>
-                setFormData((prev) => ({
+                !isEnded && setFormData((prev) => ({
                   ...prev,
                   isActive: e.target.checked,
                 }))
               }
-              className="h-5 w-5 rounded-lg text-purple-600 focus:ring-purple-500"
+              disabled={isEnded}
+              className="h-5 w-5 rounded-lg text-purple-600 focus:ring-purple-500 disabled:opacity-50"
             />
-            <span className="font-medium text-gray-700">
+            <span className={`font-medium ${isEnded ? 'text-gray-400' : 'text-gray-700'}`}>
               Configuration active
             </span>
           </label>
         </div>
 
-        <div className="mb-96 flex flex-col gap-3 pt-4 sm:flex-row">
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 font-bold text-white shadow-lg"
-          >
-            <CheckIcon className="h-5 w-5" />
-            {mode === 'create' ? 'Créer' : 'Mettre à jour'}
-          </motion.button>
+        <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+          {!isEnded && (
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 font-bold text-white shadow-lg"
+            >
+              <CheckIcon className="h-5 w-5" />
+              {mode === 'create' ? 'Créer' : 'Mettre à jour'}
+            </motion.button>
+          )}
+
+          {isEnded && (
+            <div className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-100 px-6 py-3 font-bold text-gray-400">
+              <LockIcon className="h-5 w-5" />
+              Non modifiable
+            </div>
+          )}
 
           <motion.button
             whileHover={{ scale: 1.01 }}
@@ -169,9 +206,8 @@ export function ConfigForm({
             Annuler
           </motion.button>
         </div>
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
+        <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
       </form>
     </motion.div>
   );
@@ -248,6 +284,7 @@ function ConfigCard({
   onDelete: () => void;
 }) {
   const status = statusConfig[normalizeStatus(config.status)];
+  const isEnded = config.status === 'ended';
 
   return (
     <motion.div
@@ -262,6 +299,14 @@ function ConfigCard({
       <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-15" />
       <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white/95 shadow-lg transition-all duration-300 hover:border-purple-200">
         <div className={`h-1.5 bg-gradient-to-r ${status.color}`} />
+
+        {isEnded && (
+          <div className="absolute top-4 right-4 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
+            <LockIcon className="w-3 h-3" />
+            Terminée
+          </div>
+        )}
+
         <div className="p-5 md:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex-1">
@@ -273,6 +318,11 @@ function ConfigCard({
                   <span className="mr-1">{status.icon}</span>
                   {status.label}
                 </motion.div>
+                {isEnded && (
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-500">
+                    Lecture seule
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
@@ -300,19 +350,29 @@ function ConfigCard({
             <div className="ml-0 flex flex-col items-end gap-2 lg:ml-4">
               <div className="flex gap-2">
                 <motion.button
-                  whileHover={{ scale: 1.08, rotate: 10 }}
-                  whileTap={{ scale: 0.92 }}
+                  whileHover={!isEnded ? { scale: 1.08, rotate: 10 } : {}}
+                  whileTap={!isEnded ? { scale: 0.92 } : {}}
                   onClick={onEdit}
-                  className="rounded-2xl bg-blue-50 p-3 text-blue-600 transition-all hover:bg-blue-100"
+                  disabled={isEnded}
+                  className={`rounded-2xl p-3 transition-all ${isEnded
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                    }`}
+                  title={isEnded ? 'Cette édition est terminée et ne peut pas être modifiée' : 'Modifier'}
                 >
                   <PencilIcon className="h-5 w-5" />
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.08, rotate: -10 }}
-                  whileTap={{ scale: 0.92 }}
+                  whileHover={!isEnded ? { scale: 1.08, rotate: -10 } : {}}
+                  whileTap={!isEnded ? { scale: 0.92 } : {}}
                   onClick={onDelete}
-                  className="rounded-2xl bg-red-50 p-3 text-red-600 transition-all hover:bg-red-100"
+                  disabled={isEnded}
+                  className={`rounded-2xl p-3 transition-all ${isEnded
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-red-50 text-red-600 hover:bg-red-100'
+                    }`}
+                  title={isEnded ? 'Cette édition est terminée et ne peut pas être supprimée' : 'Supprimer'}
                 >
                   <TrashIcon className="h-5 w-5" />
                 </motion.button>
@@ -356,6 +416,13 @@ export default function GameConfigurationManager() {
       color: 'from-emerald-400 via-green-500 to-teal-500',
       delay: 0.1,
     },
+    {
+      label: 'Terminées',
+      value: configs.filter((c) => c.status === 'ended').length,
+      icon: <LockIcon className="h-6 w-6" />,
+      color: 'from-gray-500 to-gray-600',
+      delay: 0.2,
+    },
   ];
 
   return (
@@ -367,7 +434,7 @@ export default function GameConfigurationManager() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
-          <div className="overflow-hidden  bg-white  p-6 md:p-8">
+          <div className="overflow-hidden bg-white p-6 md:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <h1 className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-4xl font-black tracking-tight text-transparent md:text-6xl">
@@ -414,7 +481,6 @@ export default function GameConfigurationManager() {
                     {stat.icon}
                   </div>
                 </div>
-
                 <div className="text-sm font-semibold uppercase tracking-[0.14em] text-white/90">
                   {stat.label}
                 </div>
@@ -494,35 +560,6 @@ export default function GameConfigurationManager() {
           </LayoutGroup>
         )}
       </div>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </div>
   );
 }

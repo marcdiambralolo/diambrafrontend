@@ -105,7 +105,6 @@ export function EditUserForm({ formData, setFormData, saving, success, onSubmit 
           Rôle et permissions
         </h2>
         <div className="space-y-4">
-          {/* Role */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-[#DDE7FA]">
               Rôle

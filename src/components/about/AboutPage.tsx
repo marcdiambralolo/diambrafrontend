@@ -106,32 +106,6 @@ export default function AboutPageClient() {
             </CacheLink>
           </div>
         </section>
-
-        <section id="jeu" className="mt-12 sm:mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
-          <ConicPanel>
-            <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
-            <p className="mt-3 text-sm leading-relaxed text-purple-700">
-              Remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
-            </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <MousePointerClick className="h-5 w-5 text-purple-600" />
-                  <h3 className="font-bold text-purple-800">Mode Clic</h3>
-                </div>
-                <p className="text-sm text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
-              </div>
-              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Move className="h-5 w-5 text-purple-600" />
-                  <h3 className="font-bold text-purple-800">Mode Glisser-Déposer</h3>
-                </div>
-                <p className="text-sm text-purple-600">Glissez un chiffre directement dans la case de votre choix.</p>
-              </div>
-            </div>
-          </ConicPanel>
-        </section>
-
         <section id="regles" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-black text-purple-900">📜 Règles du jeu</h2>
@@ -167,6 +141,31 @@ export default function AboutPageClient() {
           </div>
         </section>
 
+        <section id="jeu" className="mt-12 sm:mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
+          <ConicPanel>
+            <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
+            <p className="mt-3 text-sm leading-relaxed text-purple-700">
+              Remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <MousePointerClick className="h-5 w-5 text-purple-600" />
+                  <h3 className="font-bold text-purple-800">Mode Clic</h3>
+                </div>
+                <p className="text-sm text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
+              </div>
+              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Move className="h-5 w-5 text-purple-600" />
+                  <h3 className="font-bold text-purple-800">Mode Glisser-Déposer</h3>
+                </div>
+                <p className="text-sm text-purple-600">Glissez un chiffre directement dans la case de votre choix.</p>
+              </div>
+            </div>
+          </ConicPanel>
+        </section>
+
         <section id="stats" className="mt-10 sm:mt-12 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300">
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">📊 Le jeu en chiffres</h2>
@@ -186,6 +185,7 @@ export default function AboutPageClient() {
             </div>
           </ConicPanel>
         </section>
+
         <section className="mt-12 text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-400">
           <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
             <h2 className="text-2xl font-black">Prêt à jouer ?</h2>

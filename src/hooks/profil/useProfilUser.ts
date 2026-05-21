@@ -160,8 +160,6 @@ export function useProfilUser() {
   const handleEndMatch = useCallback(() => {
     if (!matchFinished) {
       setMatchFinished(true);
-      // Optionnel : appeler une API pour marquer le match comme terminé
-      console.log('Match terminé');
     }
   }, [matchFinished]);
 

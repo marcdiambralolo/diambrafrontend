@@ -43,11 +43,10 @@ export function useTermsSections(): TermsSection[] {
       iconColor: 'bg-indigo-100 text-indigo-600',
       content: (
         <>
-          <p>Diambra est un jeu de logique où vous devez : </p>
+          <p>Diambra est un jeu où vous devez : </p>
           <List items={[
             'Remplir 4 cases avec des chiffres de 0 à 9',
             'Ne jamais répéter le même chiffre',
-            'Utiliser votre logique pour trouver la bonne combinaison',
             'Jouer en mode clic ou glisser-déposer',
           ]} />
         </>

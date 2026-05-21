@@ -125,7 +125,7 @@ export default function TermsPageClient() {
     const sections = useTermsSections();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50">
+        <div className="bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50">
             <motion.div
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -190,7 +190,7 @@ export default function TermsPageClient() {
                                     En jouant à <span className="text-purple-600">Diambra</span>, vous acceptez ces conditions.
                                 </p>
                                 <p className="text-xs text-purple-600">
-                                    Ce jeu est un divertissement purement ludique et logique.
+                                    Ce jeu est un divertissement purement ludique.
                                 </p>
                             </div>
                         </div>

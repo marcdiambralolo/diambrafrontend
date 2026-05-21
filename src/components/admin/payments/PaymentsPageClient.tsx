@@ -1,10 +1,10 @@
 "use client";
+import Loader from '@/app/admin/loading';
 import CacheLink from '@/components/commons/CacheLink';
 import { useAdminPaymentsPage } from '@/hooks/admin/payments/useAdminPaymentsPage';
-import { motion, Variants } from 'framer-motion';
-import { AlertCircle, Calendar, CheckCircle, Clock, CreditCard, Eye, RefreshCw, Smartphone, User, XCircle } from 'lucide-react';
-import React, { memo } from 'react';
-import { Filter, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { AlertCircle, Calendar, CheckCircle, Clock, CreditCard, Eye, Filter, RefreshCw, Smartphone, User, X, XCircle } from 'lucide-react';
+import React from 'react';
 
 type PaymentStatus = 'all' | 'pending' | 'completed' | 'failed' | 'cancelled';
 type PaymentMethod = 'all' | 'orange_money' | 'mtn_money' | 'moov_money' | 'wave';
@@ -381,45 +381,6 @@ export const AdminPaymentsPagination: React.FC<AdminPaymentsPaginationProps> = (
   </div>
 );
 
-const spinnerVariants: Variants = {
-  initial: { scale: 0.8, opacity: 0.7 },
-  animate: {
-    scale: [0.8, 1.05, 0.95, 1],
-    opacity: [0.7, 1, 0.9, 1],
-    boxShadow: [
-      '0 0 0px #34d399',
-      '0 0 12px #34d399',
-      '0 0 6px #34d399',
-      '0 0 0px #34d399'
-    ],
-    transition: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }
-  }
-};
-
-const AdminPaymentsLoader = memo(() => (
-  <div className="flex items-center justify-center min-h-[40vh] sm:min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-    <div className="flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 max-w-xs w-full mx-auto">
-
-      <motion.div
-        variants={spinnerVariants}
-        initial="initial"
-        animate="animate"
-        className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-green-500 border-t-transparent rounded-full mb-2 sm:mb-3 animate-spin"
-        style={{ boxShadow: '0 0 8px #34d399' }}
-      />
-
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-wide"
-      >
-        Chargement en cours...
-      </motion.p>
-    </div>
-  </div>
-));
-
 
 interface AdminPaymentsHeaderProps {
   total: number;
@@ -506,7 +467,7 @@ export default function PaymentsPageClient() {
     setCurrentPage, setShowFilters, handleResetFilters,
   } = useAdminPaymentsPage();
 
-  if (loading) { return <AdminPaymentsLoader />; }
+  if (loading) { return <Loader />; }
 
   if (error) {
     return (
@@ -518,10 +479,8 @@ export default function PaymentsPageClient() {
 
   return (
     <>
-      {/* Skip link accessibilité */}
       <a href="#admin-payments-main" className="sr-only focus:not-sr-only absolute top-2 left-2 z-50 bg-cosmic-indigo text-white font-bold px-4 py-2 rounded-xl">Aller au contenu principal</a>
       <main id="admin-payments-main" aria-labelledby="admin-payments-title" className="bg-gray-50">
-        {/* h1 sr-only pour accessibilité, le header visuel reste */}
         <h1 id="admin-payments-title" className="sr-only">Gestion des paiements</h1>
         <AdminPaymentsHeader total={total} isRefreshing={isRefreshing} onRefresh={handleRefresh} />
 

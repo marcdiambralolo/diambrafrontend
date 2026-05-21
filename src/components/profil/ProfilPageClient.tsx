@@ -10,10 +10,7 @@ import {
 import Link from 'next/link';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api/client';
-
-// ============================================================================
-// TYPES
-// ============================================================================
+import CacheLink from "../commons/CacheLink";
 
 interface LastEndedGame {
   id: string;
@@ -24,10 +21,6 @@ interface LastEndedGame {
   createdAt?: string;
   updatedAt?: string;
 }
-
-// ============================================================================
-// COMPOSANTS STATISTIQUES (inchangés)
-// ============================================================================
 
 interface StatCardProps {
   value: number | null;
@@ -141,13 +134,13 @@ const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { targetDat
 };
 
 const HistoryButton = memo(({ gameId }: { gameId?: string }) => (
-  <Link
+  <CacheLink
     href={`/star/historique${gameId ? `/${gameId}` : ''}`}
     className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-sm w-full sm:w-auto"
   >
     <History className="w-4 h-4" />
     <span>Historique</span>
-  </Link>
+  </CacheLink>
 ));
 
 HistoryButton.displayName = 'HistoryButton';
@@ -274,10 +267,6 @@ const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConf
   </motion.div>
 );
 
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
-
 export default function ProfilPageClient() {
   const {
     handleOpenGame, handleEndMatch: originalHandleEndMatch, formatDateTime,
@@ -288,11 +277,9 @@ export default function ProfilPageClient() {
   const [loadingLastEnded, setLoadingLastEnded] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Fonction de récupération du dernier jeu terminé
   const fetchLastEndedGame = useCallback(async () => {
     try {
       const response = await api.get('/game-configurations/last-ended');
-      console.log('Dernier jeu terminé:', response.data);
 
       type LastEndedResponse = {
         success: boolean;

@@ -1,7 +1,7 @@
 'use client';
 import { fadeInUp, SIMULATION_STEPS, SimulationStep, STEP_WIDTHS, STEPS, useMarcheOffrandesMain } from '@/hooks/marcheoffrandes/useMarcheOffrandesMain';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, CreditCard, Loader2, Package, Plus, ShoppingCart } from 'lucide-react';
+import { CheckCircle2, CreditCard, Loader2, Plus, ShoppingCart } from 'lucide-react';
 import { memo, useCallback } from 'react';
 
 const SimulationProgress = memo(({ step }: { step: SimulationStep }) => {
@@ -231,7 +231,6 @@ export default function MarcheOffrandesMain() {
             <ProductCard product={monoffre} onAddToCart={handleAddToCart} />
           ) : (
             <>
-              {/* Liste des articles */}
               <div className="space-y-3 mb-4">
                 <AnimatePresence mode="popLayout">
                   {cart.map((item) => (

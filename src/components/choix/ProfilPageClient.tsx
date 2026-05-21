@@ -53,7 +53,7 @@ const StatusBanner = memo<StatusBannerProps>(({
       <motion.div
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        className="relative overflow-hidden flex items-start gap-3 p-4 rounded-2xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800"
+        className="relative overflow-hidden mb-4 flex items-start gap-3 p-4 rounded-2xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border border-red-200 dark:border-red-800"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-red-400/5 to-transparent" />
         <div className="rounded-full bg-red-100 dark:bg-red-900/40 p-2">
@@ -105,7 +105,7 @@ export default function ProfilPageClient() {
   }
 
   return (
-    <div className="relative w-full mt-16 flex flex-col items-center justify-center sm:px-0 overflow-x-hidden  dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
+    <div className="relative w-full mt-8 flex flex-col items-center justify-center sm:px-0 overflow-x-hidden  dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
       <div className="mb-2 mt-6">
         <StatusBanner
           isSufficient={isSufficient}

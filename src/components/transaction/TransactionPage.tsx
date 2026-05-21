@@ -62,7 +62,7 @@ export default function TransactionPage() {
                                 <CheckCircle2 className="w-12 h-12 text-green-600" />
                             </div>
                             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                                Paiement confirmé !
+                                Paiement confirmé!
                             </h1>
                             <p className="text-gray-600 text-lg">
                                 Merci pour votre confiance. Votre transaction a été enregistrée.

@@ -113,6 +113,7 @@ export interface Consultation {
   updatedAt: string;
   combinaison: string;
   timeSpent: string;
+  idjeu: string | GameConfiguration
   [key: string]: unknown;
 }
 
@@ -172,7 +173,7 @@ export interface Transaction {
 
 export interface GameConfiguration {
   id?: string;
-    _id?: string;
+  _id?: string;
   startgameDate: Date;
   endgameDate: Date;
   isActive: boolean;

@@ -1,6 +1,6 @@
 'use client';
 import Loader from '@/app/admin/loading';
-import { ConsultationCard } from '@/components/monprofil/MonProfilPageClient';
+import ConsultationCard from '@/components/commons/ConsultationCard';
 import { useAdminConsultationsPageFinished } from '@/hooks/admin/consultations/useAdminConsultationsPageFinished';
 import { Consultation } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';

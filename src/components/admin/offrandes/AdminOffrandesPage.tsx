@@ -1,4 +1,5 @@
 "use client";
+import Loader from '@/app/admin/loading';
 import OffrandesStats from '@/components/admin/offrandes/stats/OffrandesStats';
 import { CONSTANTS, useAdminOffrandes, ViewMode } from '@/hooks/admin/offrandes/useAdminOffrandes';
 import { Offering } from '@/lib/interfaces';
@@ -103,25 +104,6 @@ const OffrandesPagination = memo(({
     );
 });
 
-const OffrandesLoading = memo(() => (
-    <div className="flex items-center justify-center min-h-[40vh] w-full">
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center gap-4"
-        >
-            <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full"
-            />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Chargement des jetons...
-            </p>
-        </motion.div>
-    </div>
-)); 
-
 const OffrandesCard = memo(({
     offering,
     onEdit,
@@ -139,12 +121,12 @@ const OffrandesCard = memo(({
             whileHover={{ y: -4 }}
             className="group relative rounded-2xl bg-white dark:bg-[#0F1C3F] border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
         >
-            
+
             <div className="p-4">
                 <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1 line-clamp-1">
                     {offering.name}
                 </h3>
-                
+
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-500">Prix</p>
@@ -153,7 +135,7 @@ const OffrandesCard = memo(({
                         </p>
                     </div>
                 </div>
-    
+
                 <div className="mt-3 flex gap-2">
                     <button
                         onClick={() => onEdit(offering)}
@@ -191,7 +173,7 @@ const OffrandesList = memo(({
             })}
         </div>
     );
-}); 
+});
 
 const EmptyState = memo(({ onAdd }: { onAdd: () => void }) => (
     <motion.div
@@ -210,7 +192,7 @@ const EmptyState = memo(({ onAdd }: { onAdd: () => void }) => (
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-5 py-2.5 font-bold text-white shadow-lg hover:from-indigo-700 hover:to-indigo-800 transition"
         >
             <Plus className="w-4 h-4" />
-            Ajouter 
+            Ajouter
         </button>
     </motion.div>
 ));
@@ -319,10 +301,8 @@ export default function AdminOffrandesPage() {
                     )}
                 </AnimatePresence>
 
-                {/* Tabs */}
                 <OffrandesTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-                {/* Contenu */}
                 <AnimatePresence mode="wait">
                     {activeTab === 'gestion' ? (
                         <motion.div
@@ -331,9 +311,9 @@ export default function AdminOffrandesPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: CONSTANTS.ANIMATION_DURATION }}
-                        >                        
+                        >
                             {loading ? (
-                                <OffrandesLoading />
+                                <Loader />
                             ) : offerings.length === 0 ? (
                                 <EmptyState onAdd={handleAdd} />
                             ) : (
@@ -358,7 +338,7 @@ export default function AdminOffrandesPage() {
                                     </h2>
                                 </div>
                                 {statsLoading ? (
-                                    <OffrandesLoading />
+                                    <Loader />
                                 ) : statsData ? (
                                     <OffrandesStats statsData={statsData} />
                                 ) : (

@@ -4,8 +4,8 @@ import { filterOptions, useNotificationsPage } from "@/hooks/notifications/useNo
 import { cx, formatDateFRNew } from "@/lib/functions";
 import type { Notification } from "@/lib/types/notification.types";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { ArrowLeft, Bell, CheckCheck, Clock, Settings, Trash2 } from "lucide-react";
 import { memo, useMemo } from "react";
+import { ArrowLeft, Bell, CheckCheck, Clock, Settings, Trash2 } from "lucide-react";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },

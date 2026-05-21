@@ -41,10 +41,6 @@ function getNiceError(err: unknown): string {
       return 'Délai dépassé : la requête a pris trop de temps. Veuillez réessayer.';
     }
 
-    if (error.code === 'ERR_CANCELED' || error.name === 'CanceledError') {
-      return 'Requête annulée.';
-    }
-
     if (error.response) {
       return error.response.data?.message || `Erreur ${error.response.status}`;
     }
@@ -61,15 +57,6 @@ function getNiceError(err: unknown): string {
   }
 
   return 'Erreur inconnue';
-}
-
-function isAbortError(err: unknown): boolean {
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    ((err as { code?: string }).code === 'ERR_CANCELED' ||
-      (err as { name?: string }).name === 'CanceledError')
-  );
 }
 
 function buildParams(opts: {
@@ -93,13 +80,11 @@ export function useAdminConsultationsPageFinished() {
   const [state, setState] = useState<SliceState>(() => makeSliceState());
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
-  const listAbortRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+  const isFetchingRef = useRef(false);
 
   const fetchSlice = useCallback(
-    async (
-      page: number,
-      signal?: AbortSignal,
-    ): Promise<{ consultations: Consultation[]; total: number }> => {
+    async (page: number): Promise<{ consultations: Consultation[]; total: number }> => {
       const query = buildParams({
         search: searchQuery,
         page,
@@ -111,7 +96,6 @@ export function useAdminConsultationsPageFinished() {
         {
           headers: { 'Cache-Control': 'no-cache' },
           timeout: 30000,
-          signal,
         },
       );
 
@@ -125,25 +109,27 @@ export function useAdminConsultationsPageFinished() {
 
   const fetchData = useCallback(
     async (page: number = currentPage) => {
-      listAbortRef.current?.abort();
-      const controller = new AbortController();
-      listAbortRef.current = controller;
-
+      // Éviter les appels multiples simultanés
+      if (isFetchingRef.current) return;
+      
+      isFetchingRef.current = true;
       setState(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        const { consultations, total } = await fetchSlice(page, controller.signal);
-        const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-
-        setState({
-          consultations,
-          total,
-          loading: false,
-          error: null,
-          totalPages,
-        });
+        const { consultations, total } = await fetchSlice(page);
+        
+        if (isMountedRef.current) {
+          const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+          setState({
+            consultations,
+            total,
+            loading: false,
+            error: null,
+            totalPages,
+          });
+        }
       } catch (err) {
-        if (!isAbortError(err)) {
+        if (isMountedRef.current) {
           setState(prev => ({
             ...prev,
             loading: false,
@@ -151,17 +137,21 @@ export function useAdminConsultationsPageFinished() {
           }));
         }
       } finally {
-        setIsInitialLoad(false);
+        if (isMountedRef.current) {
+          isFetchingRef.current = false;
+          setIsInitialLoad(false);
+        }
       }
     },
     [currentPage, fetchSlice],
   );
 
   useEffect(() => {
+    isMountedRef.current = true;
     fetchData(currentPage);
 
     return () => {
-      listAbortRef.current?.abort();
+      isMountedRef.current = false;
     };
   }, [fetchData, currentPage]);
 

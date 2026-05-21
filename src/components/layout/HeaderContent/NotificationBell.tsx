@@ -11,11 +11,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const notificationIcons: Record<string, string> = {
   CONSULTATION_RESULT: '✨',
-  NEW_KNOWLEDGE: '📚',
-  CONSULTATION_ASSIGNED: '📋',
   PAYMENT_CONFIRMED: '💳',
   SYSTEM_ANNOUNCEMENT: '🔔',
-  GRADE_CHANGE: '🌟',
 };
 
 const notificationColors: Record<string, string> = {

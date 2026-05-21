@@ -37,6 +37,7 @@ const ReportsChart: React.FC<ReportsChartProps> = ({ chartData, chartConfig, sel
     className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-lg"
   >
     <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">{chartConfig.title}</h2>
+   
     <ResponsiveContainer width="100%" height={300}>
       {selectedReport === 'overview' ? (
         <BarChart data={chartData}>

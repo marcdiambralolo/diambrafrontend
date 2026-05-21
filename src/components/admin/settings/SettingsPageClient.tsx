@@ -1,18 +1,30 @@
 'use client';
 import useSettingsPage from '@/hooks/admin/settings/useSettingsPage';
 import { AnimatePresence, motion } from "framer-motion";
-import { 
-  Bell, CreditCard, Database, Globe, Lock, Settings, 
-  CheckCircle, Loader, Save, AlertCircle, Shield, 
-  Eye, EyeOff, 
-  Smartphone, Phone, Mail, Building, Clock, Server, 
-  Zap, RefreshCw, Users, MessageSquare, DollarSign
+import {
+  AlertCircle,
+  Bell,
+  Building,
+  CheckCircle,
+  Clock,
+  CreditCard, Database,
+  DollarSign,
+  Eye, EyeOff,
+  Globe,
+  Loader,
+  Lock,
+  Mail,
+  MessageSquare,
+  Phone,
+  RefreshCw,
+  Save,
+  Server,
+  Settings,
+  Shield,
+  Users,
+  Zap
 } from 'lucide-react';
-import React, { memo, useCallback } from "react";
-
-// ============================================================================
-// TYPES
-// ============================================================================
+import React, { memo } from "react";
 
 type PaymentMethod = 'orangeMoney' | 'mtnMoney' | 'moovMoney' | 'wave';
 type TabId = 'general' | 'notifications' | 'payment' | 'security' | 'system';
@@ -23,10 +35,6 @@ interface Tab {
   icon: React.ElementType;
   description?: string;
 }
-
-// ============================================================================
-// COMPOSANTS RÉUTILISABLES
-// ============================================================================
 
 const ToggleSwitch = memo(({ 
   enabled, 
@@ -206,10 +214,6 @@ const SettingsTabs = memo(({ tabs, activeTab, setActiveTab }: SettingsTabsProps)
 
 SettingsTabs.displayName = 'SettingsTabs';
 
-// ============================================================================
-// BOUTON D'ENREGISTREMENT
-// ============================================================================
-
 const SettingsSaveButton = memo(({ isSaving, saveSuccess, onClick }: { isSaving: boolean; saveSuccess: boolean; onClick: () => void }) => (
   <motion.button
     whileHover={!isSaving && !saveSuccess ? { scale: 1.02 } : {}}
@@ -246,10 +250,6 @@ const SettingsSaveButton = memo(({ isSaving, saveSuccess, onClick }: { isSaving:
 ));
 
 SettingsSaveButton.displayName = 'SettingsSaveButton';
-
-// ============================================================================
-// ONGLET GÉNÉRAL
-// ============================================================================
 
 interface SettingsGeneralTabProps {
   siteName: string;

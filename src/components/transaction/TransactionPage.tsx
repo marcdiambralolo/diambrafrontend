@@ -1,4 +1,5 @@
 "use client";
+import Loader from "@/app/loading";
 import { PAYMENT_METHODS, useTransactionPage } from "@/hooks/transaction/useTransactionPage";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -14,14 +15,7 @@ export default function TransactionPage() {
     } = useTransactionPage();
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-gray-600">Chargement de votre transaction...</p>
-                </div>
-            </div>
-        );
+        return (<Loader />);
     }
 
     if (error || !transaction) {

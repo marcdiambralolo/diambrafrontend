@@ -179,3 +179,15 @@ export interface GameConfiguration {
   isActive: boolean;
   status: 'pending' | 'active' | 'ended' | 'cancelled';
 }
+
+export interface LastEndedGame {
+  id: string;
+  isActive: boolean;
+  status: string;
+  startgameDate: string;
+  endgameDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type DateLike = Date | string | number | null | undefined;

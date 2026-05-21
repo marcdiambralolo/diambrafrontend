@@ -1,10 +1,8 @@
-// hooks/profil/useProfilUser.ts
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useStatsDataWithCache } from "../cache/useStatsDataWithCache";
 import { api } from "@/lib/api/client";
-import { GameConfiguration } from "@/lib/interfaces";
+import { DateLike, GameConfiguration, LastEndedGame } from "@/lib/interfaces";
 
-export type DateLike = Date | string | number | null | undefined;
 export function isValidDate(value: unknown): value is Date {
   return value instanceof Date && !Number.isNaN(value.getTime());
 }
@@ -23,6 +21,7 @@ export function toSafeDate(value: DateLike, fallback?: Date): Date {
 
   return fallback ? new Date(fallback) : new Date();
 }
+
 export function formatDateFR(value: DateLike): string {
   const date = toSafeDate(value, new Date());
   if (!isValidDate(date)) return '';
@@ -34,10 +33,6 @@ export function formatDateFR(value: DateLike): string {
   const second = String(date.getSeconds()).padStart(2, '0');
   return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
 }
-
-// ============================================================================
-// HOOK DE CONFIGURATION DU JEU (SANS REACT QUERY)
-// ============================================================================
 
 interface UseGameConfigReturn {
   data: GameConfiguration | null;
@@ -73,14 +68,16 @@ export function useGameConfig(): UseGameConfigReturn {
   return { data, isLoading, error, refetch: fetchConfig };
 }
 
-// ============================================================================
-// HOOK PRINCIPAL PROFIL UTILISATEUR
-// ============================================================================
-
 export function useProfilUser() {
   const { stats, isLoading: statsLoading } = useStatsDataWithCache();
   const { data: gameConfig, isLoading: configLoading, error: configError } = useGameConfig();
-  
+
+  const [gameStarted, setGameStarted] = useState(false);
+  const [matchFinished, setMatchFinished] = useState(false);
+  const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
+  const [loadingLastEnded, setLoadingLastEnded] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
     [gameConfig?.startgameDate]
@@ -93,7 +90,6 @@ export function useProfilUser() {
 
   const now = new Date();
 
-  // Vérifier si l'édition est terminée (basé sur la date ET le statut)
   const isGameActive = useMemo(() =>
     gameConfig?.isActive === true &&
     gameConfig?.status === 'active' &&
@@ -114,6 +110,31 @@ export function useProfilUser() {
     [gameConfig?.status, startDate, now]
   );
 
+  const fetchLastEndedGame = useCallback(async () => {
+    try {
+      const response = await api.get('/game-configurations/last-ended');
+
+      type LastEndedResponse = {
+        success: boolean;
+        hasEndedEdition: boolean;
+        configuration: LastEndedGame;
+      };
+
+      const data = response.data as LastEndedResponse;
+
+      if (data?.hasEndedEdition && data?.configuration) {
+        setLastEndedGame(data.configuration);
+      } else {
+        setLastEndedGame(null);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
+      setLastEndedGame(null);
+    } finally {
+      setLoadingLastEnded(false);
+    }
+  }, []);
+
   const formatDateTime = useCallback((date: Date) =>
     date.toLocaleString('fr-FR', {
       day: 'numeric',
@@ -124,7 +145,6 @@ export function useProfilUser() {
     }), []
   );
 
-  // Calcul du temps restant
   const getTimeRemaining = useCallback(() => {
     if (!endDate) return null;
     const diff = endDate.getTime() - new Date().getTime();
@@ -139,18 +159,6 @@ export function useProfilUser() {
 
   const timeRemaining = getTimeRemaining();
 
-  // État de chargement global
-  const loading = statsLoading || configLoading;
-
-  // Erreur éventuelle
-  const error = configError;
-
-
-
-  // État pour savoir si on vient de démarrer (évite redirection multiple)
-  const [gameStarted, setGameStarted] = useState(false);
-  const [matchFinished, setMatchFinished] = useState(false);
-  // 🔥 Fonction appelée quand le chrono d'ouverture finit
   const handleOpenGame = () => {
     if (!gameStarted) {
       setGameStarted(true);
@@ -161,24 +169,26 @@ export function useProfilUser() {
     if (!matchFinished) {
       setMatchFinished(true);
     }
-  }, [matchFinished]);
+    setRefreshTrigger(prev => prev + 1);
+  }, [matchFinished, setRefreshTrigger, setMatchFinished]);
 
-  const shouldShowEnded = isGameEnded || matchFinished;
+  useEffect(() => {
+    fetchLastEndedGame();
+  }, [fetchLastEndedGame]);
+
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      fetchLastEndedGame();
+    }
+  }, [refreshTrigger, fetchLastEndedGame]);
+
+  const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
+  const showActive = isGameActive && !isGameEnded;
+  const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
 
   return {
-    loading,
-    stats,
-    isGameActive,
-    isGameEnded,
-    isGameNotStarted,
-    timeRemaining,
-    formatDateTime,
-    startDate,
-    endDate,
-    gameConfig,
-    error,
-    handleOpenGame,
-    handleEndMatch,
-    shouldShowEnded
+    handleOpenGame, formatDateTime, handleEndMatch, loading: statsLoading || configLoading, showActive,
+    stats, startDate, endDate, gameConfig, loadingLastEnded, showNotStarted, lastEndedGame, showEnded,
+    error: configError,
   } as const;
 }

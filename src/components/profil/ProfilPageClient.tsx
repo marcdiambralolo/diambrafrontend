@@ -2,25 +2,15 @@
 import Loader from "@/app/loading";
 import { formatDateFR, useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatNumber } from "@/lib/functions";
+import { LastEndedGame } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Award, Calendar, Clock, Crown, Flame, History, Hourglass,
   Rocket, Sparkles, Star, Trophy, Users, Zap
 } from "lucide-react";
 import Link from 'next/link';
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { api } from '@/lib/api/client';
+import React, { memo } from 'react';
 import CacheLink from "../commons/CacheLink";
-
-interface LastEndedGame {
-  id: string;
-  isActive: boolean;
-  status: string;
-  startgameDate: string;
-  endgameDate: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 interface StatCardProps {
   value: number | null;
@@ -62,8 +52,6 @@ const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, dela
     </div>
   </motion.div>
 ));
-
-StatCard.displayName = 'StatCard';
 
 const GlowButton = ({ href, children, variant = 'primary' }: { href: string; children: React.ReactNode; variant?: 'primary' | 'secondary' }) => {
   const gradient = variant === 'primary'
@@ -142,8 +130,6 @@ const HistoryButton = memo(({ gameId }: { gameId?: string }) => (
     <span>Historique</span>
   </CacheLink>
 ));
-
-HistoryButton.displayName = 'HistoryButton';
 
 const GameStatusBadge = ({ children, variant = 'primary' }: { children: React.ReactNode; variant?: 'primary' | 'success' | 'error' }) => {
   const colors = {
@@ -269,63 +255,12 @@ const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConf
 
 export default function ProfilPageClient() {
   const {
-    handleOpenGame, handleEndMatch: originalHandleEndMatch, formatDateTime,
-    loading, stats, isGameNotStarted, isGameActive, isGameEnded, startDate, endDate, gameConfig,
+    handleOpenGame, formatDateTime, handleEndMatch,
+    loading, stats, startDate, endDate, gameConfig,
+    loadingLastEnded, showNotStarted, lastEndedGame, showActive, showEnded,
   } = useProfilUser();
 
-  const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loadingLastEnded, setLoadingLastEnded] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const fetchLastEndedGame = useCallback(async () => {
-    try {
-      const response = await api.get('/game-configurations/last-ended');
-
-      type LastEndedResponse = {
-        success: boolean;
-        hasEndedEdition: boolean;
-        configuration: LastEndedGame;
-      };
-
-      const data = response.data as LastEndedResponse;
-
-      if (data?.hasEndedEdition && data?.configuration) {
-        setLastEndedGame(data.configuration);
-      } else {
-        setLastEndedGame(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
-      setLastEndedGame(null);
-    } finally {
-      setLoadingLastEnded(false);
-    }
-  }, []);
-
-  // Handler modifié pour rafraîchir quand l'édition se termine
-  const handleEndMatch = useCallback(() => {
-    originalHandleEndMatch();
-    // Déclencher le rafraîchissement du dernier jeu terminé
-    setRefreshTrigger(prev => prev + 1);
-  }, [originalHandleEndMatch]);
-
-  // Premier chargement
-  useEffect(() => {
-    fetchLastEndedGame();
-  }, [fetchLastEndedGame]);
-
-  // Rafraîchissement déclenché par refreshTrigger
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      fetchLastEndedGame();
-    }
-  }, [refreshTrigger, fetchLastEndedGame]);
-
   if (loading || loadingLastEnded) return <Loader />;
-
-  const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
-  const showActive = isGameActive && !isGameEnded;
-  const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-950 dark:to-purple-950/20 px-4 py-6">
@@ -360,9 +295,7 @@ export default function ProfilPageClient() {
             />
           )}
 
-          {showEnded && (
-            <EndedBanner key="ended" lastEndedGame={lastEndedGame} />
-          )}
+          {showEnded && (<EndedBanner key="ended" lastEndedGame={lastEndedGame} />)}
         </AnimatePresence>
 
         <StatCard

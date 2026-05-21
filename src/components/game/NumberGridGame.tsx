@@ -2,7 +2,6 @@
 import Loader from '@/app/loading';
 import { DIGITS, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
 import { formatDateFR, useProfilUser } from "@/hooks/profil/work/useProfilUser";
-import { api } from '@/lib/api/client';
 import { formatNumber } from "@/lib/functions";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -10,7 +9,7 @@ import {
   MousePointerClick, Move, Rocket, Sparkles, Star, Target, Trash2,
   Trophy, Users, Volume2, VolumeX,
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import CacheLink from "../commons/CacheLink";
 
 const staggerContainer = {
@@ -293,69 +292,18 @@ const DigitButton = ({ digit, isUsed, isSelected, mode, onDragStart, onDragEnd, 
 
 export function NumberGridGame() {
   const {
-    slots, selected, dragOverSlot, isDragging, mode, soundEnabled,
-    used, isComplete,
+    slots, selected, dragOverSlot, isDragging, mode, soundEnabled, used, isComplete,
     handleDragOver, handleDrop, removeFromSlot, setDragOverSlot, setIsDragging,
     setSelected, setMode, setSoundEnabled, placeSelectedDigitInSlot, handleSubmitAndNavigate
   } = useNumberGridGame();
 
   const {
-    handleEndMatch: originalHandleEndMatch,
-    loading, stats, isGameNotStarted, isGameActive, isGameEnded, startDate, endDate, gameConfig,
+    handleEndMatch,
+    loading, stats, startDate, endDate, gameConfig,
+    loadingLastEnded, lastEndedGame, showEnded, showActive,
   } = useProfilUser();
 
-  const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loadingLastEnded, setLoadingLastEnded] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const fetchLastEndedGame = useCallback(async () => {
-    try {
-      const response = await api.get('/game-configurations/last-ended');
-
-      type LastEndedResponse = {
-        success: boolean;
-        hasEndedEdition: boolean;
-        configuration: LastEndedGame;
-      };
-
-      const data = response.data as LastEndedResponse;
-
-      if (data?.hasEndedEdition && data?.configuration) {
-        setLastEndedGame(data.configuration);
-      } else {
-        setLastEndedGame(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
-      setLastEndedGame(null);
-    } finally {
-      setLoadingLastEnded(false);
-    }
-  }, []);
-
-  // Handler modifié pour rafraîchir quand l'édition se termine
-  const handleEndMatch = useCallback(() => {
-    originalHandleEndMatch();
-    // Déclencher le rafraîchissement du dernier jeu terminé
-    setRefreshTrigger(prev => prev + 1);
-  }, [originalHandleEndMatch]);
-
-  // Premier chargement
-  useEffect(() => {
-    fetchLastEndedGame();
-  }, [fetchLastEndedGame]);
-
-  // Rafraîchissement déclenché par refreshTrigger
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      fetchLastEndedGame();
-    }
-  }, [refreshTrigger, fetchLastEndedGame]);
-
   if (loading || loadingLastEnded) return <Loader />;
-
-  const showActive = isGameActive && !isGameEnded;
-  const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
 
   return (
     <div className="bg-gradient-to-br from-gray-50 via-white to-purple-50/30 px-2 py-4 sm:py-6">
@@ -519,6 +467,7 @@ export function NumberGridGame() {
                 )}
               </button>
             </div>
+            
             <AnimatePresence>
               {isDragging && (
                 <motion.div
@@ -534,6 +483,7 @@ export function NumberGridGame() {
           </div>
         </>
       )}
+
       <div className="fixed inset-0 overflow-hidden pointer-events-none mt-4">
         <div className="absolute top-10 left-10 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-30 animate-ping" />
         <div className="absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-30 animate-ping delay-75" />

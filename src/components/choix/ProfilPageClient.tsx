@@ -2,27 +2,16 @@
 import Loader from '@/app/loading';
 import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterClient';
 import { formatDateFR, useProfilUser } from "@/hooks/profil/work/useProfilUser";
-import { api } from '@/lib/api/client';
 import { formatNumber } from "@/lib/functions";
+import { LastEndedGame } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, Award, Calendar, CheckCircle2,
-  ChevronRight, Circle, Coins, Crown, Flame, Gift, History,
-  Rocket, ShoppingBag,
+  ChevronRight, Circle, Coins, Crown, Flame, Gift, History, Rocket, ShoppingBag,
   Star, Trophy, Users, Zap
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import CacheLink from "../commons/CacheLink";
-
-interface LastEndedGame {
-  id: string;
-  isActive: boolean;
-  status: string;
-  startgameDate: string;
-  endgameDate: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 interface StatCardProps {
   value: number | null;
@@ -310,66 +299,12 @@ export default function ProfilPageClient() {
   } = useCategoryConsulterClient();
 
   const {
-    handleEndMatch: originalHandleEndMatch,
-    loading, stats, isGameNotStarted, isGameActive, isGameEnded, startDate, endDate, gameConfig,
+    handleEndMatch,
+    loading, stats, startDate, endDate, gameConfig,
+    loadingLastEnded, lastEndedGame, showEnded, showActive,
   } = useProfilUser();
 
-  const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loadingLastEnded, setLoadingLastEnded] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const fetchLastEndedGame = useCallback(async () => {
-    try {
-      const response = await api.get('/game-configurations/last-ended');
-
-      type LastEndedResponse = {
-        success: boolean;
-        hasEndedEdition: boolean;
-        configuration: LastEndedGame;
-      };
-
-      const data = response.data as LastEndedResponse;
-
-      if (data?.hasEndedEdition && data?.configuration) {
-        setLastEndedGame(data.configuration);
-      } else {
-        setLastEndedGame(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
-      setLastEndedGame(null);
-    } finally {
-      setLoadingLastEnded(false);
-    }
-  }, []);
-
-  // Handler modifié pour rafraîchir quand l'édition se termine
-  const handleEndMatch = useCallback(() => {
-    originalHandleEndMatch();
-    // Déclencher le rafraîchissement du dernier jeu terminé
-    setRefreshTrigger(prev => prev + 1);
-  }, [originalHandleEndMatch]);
-
-  // Premier chargement
-  useEffect(() => {
-    fetchLastEndedGame();
-  }, [fetchLastEndedGame]);
-
-  // Rafraîchissement déclenché par refreshTrigger
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      fetchLastEndedGame();
-    }
-  }, [refreshTrigger, fetchLastEndedGame]);
-
-  if (loading || loadingLastEnded) return <Loader />;
-
-  const showActive = isGameActive && !isGameEnded;
-  const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
-
-  if (dataLoading) {
-    return <Loader />;
-  }
+  if (loading || loadingLastEnded || dataLoading) return <Loader />;
 
   return (
     <div className="relative w-full mt-8 flex flex-col items-center justify-center sm:px-0 overflow-x-hidden  dark:bg-none dark:bg-[#0C0B1D] dark:bg-gradient-to-b dark:from-[#0C0B1D] dark:to-[#162A56]">
@@ -504,9 +439,9 @@ export default function ProfilPageClient() {
         <div className="absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-30 animate-ping delay-75" />
         <div className="absolute bottom-20 left-20 w-1.5 h-1.5 bg-orange-400 rounded-full opacity-30 animate-ping delay-150" />
       </div>
+
       <div className="max-w-md mx-auto mt-8">
         <AnimatePresence mode="wait">
-
           {showActive && endDate && startDate && (
             <ActiveBanner
               key="active"

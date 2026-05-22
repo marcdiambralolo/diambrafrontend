@@ -1,72 +1,8 @@
 import { api } from "@/lib/api/client";
-import { DateLike, GameConfiguration, LastEndedGame } from "@/lib/interfaces";
+import { LastEndedGame } from "@/lib/interfaces";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStatsDataWithCache } from "../../cache/useStatsDataWithCache";
-
-export function isValidDate(value: unknown): value is Date {
-  return value instanceof Date && !Number.isNaN(value.getTime());
-}
-
-export function toSafeDate(value: DateLike, fallback?: Date): Date {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return new Date(value);
-  }
-
-  if (typeof value === 'string' || typeof value === 'number') {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed;
-    }
-  }
-
-  return fallback ? new Date(fallback) : new Date();
-}
-
-export function formatDateFR(value: DateLike): string {
-  const date = toSafeDate(value, new Date());
-  if (!isValidDate(date)) return '';
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  const second = String(date.getSeconds()).padStart(2, '0');
-  return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
-}
-
-interface UseGameConfigReturn {
-  data: GameConfiguration | null;
-  isLoading: boolean;
-  error: Error | null;
-  refetch: () => Promise<void>;
-}
-
-export function useGameConfig(): UseGameConfigReturn {
-  const [data, setData] = useState<GameConfiguration | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchConfig = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await api.get('game-configurations/current-config');
-      setData(response.data as GameConfiguration);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erreur lors du chargement de la configuration'));
-      console.error('Erreur useGameConfig:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchConfig();
-  }, [fetchConfig]);
-
-  return { data, isLoading, error, refetch: fetchConfig };
-}
+import { useGameConfig } from "../useGameConfig";
 
 export function useProfilUser() {
   const { stats, isLoading: statsLoading } = useStatsDataWithCache();

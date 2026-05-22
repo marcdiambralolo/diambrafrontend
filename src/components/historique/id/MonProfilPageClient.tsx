@@ -4,29 +4,17 @@ import ConsultationCard from "@/components/commons/ConsultationCard";
 import { api } from "@/lib/api/client";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion } from "framer-motion";
-import { History, ArrowUp, ArrowDown } from "lucide-react";
+import { History } from "lucide-react";
 import { useParams } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
-
-/**
- * Trier les consultations par valeur de combinaison (ordre croissant)
- * Convertit la combinaison en nombre pour un tri numérique correct
- */
 const sortByCombinaison = (consultations: Consultation[]): Consultation[] => {
   return [...consultations].sort((a, b) => {
     const valueA = parseInt(a.combinaison || '0', 10);
     const valueB = parseInt(b.combinaison || '0', 10);
-    return valueA - valueB; // Ordre croissant (plus petit → plus grand)
+    return valueA - valueB;
   });
 };
-
-// ============================================================================
-// COMPOSANTS
-// ============================================================================
 
 const ConsultationsEmpty = memo(() => (
   <motion.div
@@ -40,23 +28,13 @@ const ConsultationsEmpty = memo(() => (
     <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
       Aucun historique
     </h3>
-    <p className="text-sm text-gray-500 dark:text-gray-400">
-      Vous n'avez pas encore joué de parties
-    </p>
   </motion.div>
 ));
-
-ConsultationsEmpty.displayName = 'ConsultationsEmpty';
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
 
 function HistoriquePageClientImpl() {
   const params = useParams();
   const gameId = useMemo(() => params?.id as string, [params?.id]);
 
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [sortedConsultations, setSortedConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,9 +55,6 @@ function HistoriquePageClientImpl() {
       }>(`/consultations/by-idjeu/${gameId}`);
 
       const data = response.data?.consultations ?? [];
-      setConsultations(data);
-      
-      // Appliquer le tri par combinaison croissant
       const sorted = sortByCombinaison(data);
       setSortedConsultations(sorted);
     } catch (err: any) {
@@ -98,7 +73,6 @@ function HistoriquePageClientImpl() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-6">
-      {/* En-tête */}
       <div className="text-center mb-6">
         <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 dark:bg-purple-900/30 px-3 py-1 mb-3">
           <History className="w-3.5 h-3.5 text-purple-600" />
@@ -109,7 +83,6 @@ function HistoriquePageClientImpl() {
         </p>
       </div>
 
-      {/* Liste des consultations triées par combinaison */}
       <AnimatePresence mode="wait">
         {sortedConsultations.length === 0 ? (
           <ConsultationsEmpty key="empty" />
@@ -132,10 +105,9 @@ function HistoriquePageClientImpl() {
         )}
       </AnimatePresence>
 
-      {/* Note sur le tri */}
       {sortedConsultations.length > 1 && (
         <div className="text-center mt-4">
-          <p className="text-[10px] text-gray-400">
+          <p className="text-[12px] text-gray-400">
             ⚡ Trié par combinaison (ordre croissant)
           </p>
         </div>

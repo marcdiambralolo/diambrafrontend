@@ -1,8 +1,8 @@
 'use client';
 import Loader from '@/app/loading';
 import { ANIMATION_CONFIG, toastVariants, useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterClient';
-import { formatDateFR, useProfilUser } from "@/hooks/profil/work/useProfilUser";
-import { formatNumber } from "@/lib/functions";
+import {  useProfilUser } from "@/hooks/profil/work/useProfilUser";
+import {formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { LastEndedGame } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -448,7 +448,7 @@ export default function ProfilPageClient() {
               endDate={endDate}
               handleEndMatch={handleEndMatch}
               startDate={startDate}
-              formatDate={formatDateFR}
+              formatDate={formatDateFRJeu}
               gameConfig={gameConfig}
             />
           )}

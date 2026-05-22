@@ -249,7 +249,6 @@ const LoadingState = memo(() => {
             className="absolute inset-0 rounded-full bg-gradient-to-r from-[#2E5AA6] via-[#4F83D1] to-[#9BC2FF] blur-2xl"
           />
 
-          {/* Main animated spinner */}
           <motion.div
             animate={{ rotate: 360 }}
             transition={{

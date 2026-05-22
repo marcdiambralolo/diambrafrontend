@@ -102,7 +102,7 @@ export default function AboutPageClient() {
           </h1>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CacheLink href="/star/profil" className={btnPrimary}>
-              Jouer maintenant <ChevronRight className="h-4 w-4" />
+              Jouez maintenant! <ChevronRight className="h-4 w-4" />
             </CacheLink>
           </div>
         </section>
@@ -190,7 +190,7 @@ export default function AboutPageClient() {
           <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
             <h2 className="text-2xl font-black">Prêt à jouer ?</h2>
             <CacheLink href="/star/profil" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
-              Commencer la partie <ChevronRight className="h-4 w-4" />
+              Commencez la partie! <ChevronRight className="h-4 w-4" />
             </CacheLink>
           </div>
         </section>

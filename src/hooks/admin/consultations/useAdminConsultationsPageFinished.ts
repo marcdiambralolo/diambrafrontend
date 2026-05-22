@@ -1,190 +1,74 @@
+// hooks/admin/consultations/useAdminConsultationsPageFinished.ts
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api/client';
 import { Consultation } from '@/lib/interfaces';
-import { useCallback, useEffect, useRef, useState } from 'react';
 
-type ConsultationListResponse = {
-  consultations?: Consultation[];
-  total?: number;
-};
-
-type SliceState = {
-  consultations: Consultation[];
-  total: number;
-  loading: boolean;
-  error: string | null;
-  totalPages: number;
-};
-
-const ITEMS_PER_PAGE = 100;
-
-function makeSliceState(): SliceState {
-  return {
-    consultations: [],
-    total: 0,
-    loading: true,
-    error: null,
-    totalPages: 1,
-  };
-}
-
-function getNiceError(err: unknown): string {
-  if (typeof err === 'object' && err !== null) {
-    const error = err as {
-      code?: string;
-      response?: { status?: number; data?: { message?: string } };
-      request?: unknown;
-      message?: string;
-      name?: string;
-    };
-
-    if (error.code === 'ECONNABORTED') {
-      return 'Délai dépassé : la requête a pris trop de temps. Veuillez réessayer.';
-    }
-
-    if (error.response) {
-      return error.response.data?.message || `Erreur ${error.response.status}`;
-    }
-
-    if (error.request) {
-      return 'Erreur de connexion au serveur';
-    }
-
-    if (error.message === 'Network Error') {
-      return 'Erreur réseau : vérifiez votre connexion internet';
-    }
-
-    return error.message || 'Erreur inconnue';
-  }
-
-  return 'Erreur inconnue';
-}
-
-function buildParams(opts: {
-  search: string;
-  page: number;
-  limit: number;
-}) {
-  const params = new URLSearchParams({
-    search: opts.search || '',
-    page: String(opts.page || 1),
-    limit: String(opts.limit || ITEMS_PER_PAGE),
-  });
-
-  return params.toString();
-}
+export const ITEMS_PER_PAGE = 144;
 
 export function useAdminConsultationsPageFinished() {
-  const [searchQuery] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [state, setState] = useState<SliceState>(() => makeSliceState());
-  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [total, setTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const isMountedRef = useRef(true);
-  const isFetchingRef = useRef(false);
-
-  const fetchSlice = useCallback(
-    async (page: number): Promise<{ consultations: Consultation[]; total: number }> => {
-      const query = buildParams({
-        search: searchQuery,
-        page,
-        limit: ITEMS_PER_PAGE,
-      });
-
-      const res = await api.get<ConsultationListResponse>(
-        `/admin/consultations?${query}`,
-        {
-          headers: { 'Cache-Control': 'no-cache' },
-          timeout: 30000,
-        },
-      );
-
-      return {
-        consultations: res.data?.consultations || [],
-        total: Number(res.data?.total || 0),
-      };
-    },
-    [searchQuery],
-  );
-
-  const fetchData = useCallback(
-    async (page: number = currentPage) => {
-      // Éviter les appels multiples simultanés
-      if (isFetchingRef.current) return;
-      
-      isFetchingRef.current = true;
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      try {
-        const { consultations, total } = await fetchSlice(page);
-        
-        if (isMountedRef.current) {
-          const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-          setState({
-            consultations,
-            total,
-            loading: false,
-            error: null,
-            totalPages,
-          });
-        }
-      } catch (err) {
-        if (isMountedRef.current) {
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            error: getNiceError(err),
-          }));
-        }
-      } finally {
-        if (isMountedRef.current) {
-          isFetchingRef.current = false;
-          setIsInitialLoad(false);
-        }
-      }
-    },
-    [currentPage, fetchSlice],
-  );
-
-  useEffect(() => {
-    isMountedRef.current = true;
-    fetchData(currentPage);
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [fetchData, currentPage]);
-
-  const handleRefresh = useCallback(async () => {
-    if (isRefreshing) return;
-
-    setIsRefreshing(true);
+  const fetchData = useCallback(async (page: number) => {
+    setLoading(true);
+    setError(null);
 
     try {
-      await fetchData(currentPage);
+      const response = await api.get('/admin/consultations', {
+        params: {
+          page: page,
+          limit: ITEMS_PER_PAGE,
+        },
+      });
+
+      const data:any = response.data;
+      setConsultations(data?.consultations as unknown  as Consultation[] || []);
+      setTotal(data?.total || 0);
+      setCurrentPage(page);
+    } catch (err: any) {
+      console.error('Erreur:', err);
+      setError(err?.message || 'Erreur lors du chargement');
+      setConsultations([]);
     } finally {
-      setTimeout(() => setIsRefreshing(false), 500);
+      setLoading(false);
     }
+  }, []);
+
+  // Chargement initial
+  useEffect(() => {
+    fetchData(1);
+  }, [fetchData]);
+
+  // Changement de page
+  const handlePageChange = useCallback((page: number) => {
+    if (page === currentPage) return;
+    fetchData(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage, fetchData]);
+
+  // Rafraîchissement
+  const handleRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    await fetchData(currentPage);
+    setIsRefreshing(false);
   }, [fetchData, currentPage, isRefreshing]);
 
-  const handlePageChange = useCallback(
-    (page: number) => {
-      const nextPage = Math.max(1, Math.min(page, state.totalPages));
-      if (nextPage === currentPage) return;
-
-      setCurrentPage(nextPage);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-    [currentPage, state.totalPages],
-  );
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
   return {
-    consultations: state.consultations,
-    total: state.total,
-    totalPages: state.totalPages,
-    error: state.error,
+    consultations,
+    total,
+    totalPages,
     currentPage,
-    loading: state.loading && isInitialLoad,
+    loading,
+    error,
     isRefreshing,
     handleRefresh,
     handlePageChange,

@@ -1,4 +1,4 @@
-import { User } from "./interfaces";
+import { DateLike, User } from "./interfaces";
 
 export const formatDate = (date: string | Date | undefined | null) => {
   if (!date) return '';
@@ -207,4 +207,35 @@ export function clamp(s: string, max = 140) {
 
 export function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
+}
+
+export function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && !Number.isNaN(value.getTime());
+}
+
+export function toSafeDate(value: DateLike, fallback?: Date): Date {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return new Date(value);
+  }
+
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return fallback ? new Date(fallback) : new Date();
+} 
+
+export function formatDateFRJeu(value: DateLike): string {
+  const date = toSafeDate(value, new Date());
+  if (!isValidDate(date)) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
 }

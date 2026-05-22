@@ -2,27 +2,9 @@
 import useSettingsPage from '@/hooks/admin/settings/useSettingsPage';
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertCircle,
-  Bell,
-  Building,
-  CheckCircle,
-  Clock,
-  CreditCard, Database,
-  DollarSign,
-  Eye, EyeOff,
-  Globe,
-  Loader,
-  Lock,
-  Mail,
-  MessageSquare,
-  Phone,
-  RefreshCw,
-  Save,
-  Server,
-  Settings,
-  Shield,
-  Users,
-  Zap
+  AlertCircle, Bell, Building, CheckCircle, Clock, CreditCard, Database, DollarSign,
+  Eye, EyeOff, Globe, Loader, Lock, Mail, MessageSquare, Phone, RefreshCw,
+  Save, Server, Settings, Shield, Users, Zap
 } from 'lucide-react';
 import React, { memo } from "react";
 
@@ -36,14 +18,14 @@ interface Tab {
   description?: string;
 }
 
-const ToggleSwitch = memo(({ 
-  enabled, 
-  onChange, 
+const ToggleSwitch = memo(({
+  enabled,
+  onChange,
   activeColor = 'bg-blue-600',
-  disabled = false 
-}: { 
-  enabled: boolean; 
-  onChange: () => void; 
+  disabled = false
+}: {
+  enabled: boolean;
+  onChange: () => void;
   activeColor?: string;
   disabled?: boolean;
 }) => (
@@ -51,31 +33,29 @@ const ToggleSwitch = memo(({
     type="button"
     onClick={onChange}
     disabled={disabled}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${
-      enabled ? activeColor : 'bg-gray-200 dark:bg-gray-700'
-    } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${enabled ? activeColor : 'bg-gray-200 dark:bg-gray-700'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
   >
-    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-      enabled ? 'translate-x-6' : 'translate-x-1'
-    }`} />
+    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${enabled ? 'translate-x-6' : 'translate-x-1'
+      }`} />
   </button>
 ));
 
 ToggleSwitch.displayName = 'ToggleSwitch';
 
-const SettingsInput = memo(({ 
-  label, 
-  value, 
-  onChange, 
-  type = 'text', 
+const SettingsInput = memo(({
+  label,
+  value,
+  onChange,
+  type = 'text',
   placeholder,
   icon: Icon,
   helperText
-}: { 
-  label: string; 
-  value: string; 
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
-  type?: string; 
+}: {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
   placeholder?: string;
   icon?: React.ElementType;
   helperText?: string;
@@ -98,16 +78,16 @@ const SettingsInput = memo(({
 
 SettingsInput.displayName = 'SettingsInput';
 
-const SettingsSelect = memo(({ 
-  label, 
-  value, 
-  onChange, 
+const SettingsSelect = memo(({
+  label,
+  value,
+  onChange,
   options,
   icon: Icon
-}: { 
-  label: string; 
-  value: string; 
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; 
+}: {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: { value: string; label: string }[];
   icon?: React.ElementType;
 }) => (
@@ -262,9 +242,9 @@ interface SettingsGeneralTabProps {
   setMaintenanceMode: (v: boolean) => void;
 }
 
-export const SettingsGeneralTab = memo(({ 
-  siteName, setSiteName, siteEmail, setSiteEmail, 
-  sitePhone, setSitePhone, maintenanceMode, setMaintenanceMode 
+export const SettingsGeneralTab = memo(({
+  siteName, setSiteName, siteEmail, setSiteEmail,
+  sitePhone, setSitePhone, maintenanceMode, setMaintenanceMode
 }: SettingsGeneralTabProps) => (
   <SettingsSection title="Paramètres généraux" icon={Globe}>
     <SettingsInput icon={Building} label="Nom du site" value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Mon site" helperText="Nom affiché dans l'application" />
@@ -297,9 +277,9 @@ interface SettingsNotificationsTabProps {
   setPaymentNotif: (v: boolean) => void;
 }
 
-export const SettingsNotificationsTab = memo(({ 
-  emailNotifications, setEmailNotifications, newUserNotif, setNewUserNotif, 
-  newConsultationNotif, setNewConsultationNotif, paymentNotif, setPaymentNotif 
+export const SettingsNotificationsTab = memo(({
+  emailNotifications, setEmailNotifications, newUserNotif, setNewUserNotif,
+  newConsultationNotif, setNewConsultationNotif, paymentNotif, setPaymentNotif
 }: SettingsNotificationsTabProps) => {
   const notifications = [
     { id: 'email', title: 'Notifications par email', desc: 'Recevoir des alertes par email', enabled: emailNotifications, setter: setEmailNotifications, color: 'bg-blue-600', icon: Mail },
@@ -343,9 +323,9 @@ interface SettingsPaymentTabProps {
   setPaymentMethods: (fn: (prev: Record<PaymentMethod, boolean>) => Record<PaymentMethod, boolean>) => void;
 }
 
-export const SettingsPaymentTab = memo(({ 
-  moneyFusionApiKey, setMoneyFusionApiKey, showApiKey, setShowApiKey, 
-  paymentMethods, setPaymentMethods 
+export const SettingsPaymentTab = memo(({
+  moneyFusionApiKey, setMoneyFusionApiKey, showApiKey, setShowApiKey,
+  paymentMethods, setPaymentMethods
 }: SettingsPaymentTabProps) => {
   const methods = [
     { id: 'orangeMoney', label: 'Orange Money', color: 'text-orange-600 dark:text-orange-400', activeColor: 'bg-orange-600' },
@@ -382,8 +362,8 @@ export const SettingsPaymentTab = memo(({
           {methods.map(method => (
             <div key={method.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
               <span className={`text-sm font-medium ${method.color}`}>{method.label}</span>
-              <ToggleSwitch 
-                enabled={paymentMethods[method.id as PaymentMethod]} 
+              <ToggleSwitch
+                enabled={paymentMethods[method.id as PaymentMethod]}
                 onChange={() => setPaymentMethods(prev => ({ ...prev, [method.id]: !prev[method.id as PaymentMethod] }))}
                 activeColor={method.activeColor}
               />
@@ -410,8 +390,8 @@ interface SettingsSecurityTabProps {
   setPasswordExpiry: (v: string) => void;
 }
 
-export const SettingsSecurityTab = memo(({ 
-  twoFactorAuth, setTwoFactorAuth, sessionTimeout, setSessionTimeout, passwordExpiry, setPasswordExpiry 
+export const SettingsSecurityTab = memo(({
+  twoFactorAuth, setTwoFactorAuth, sessionTimeout, setSessionTimeout, passwordExpiry, setPasswordExpiry
 }: SettingsSecurityTabProps) => (
   <SettingsSection title="Sécurité" icon={Shield}>
     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -441,33 +421,33 @@ interface SettingsSystemTabProps {
   setLogLevel: (v: string) => void;
 }
 
-export const SettingsSystemTab = memo(({ 
-  maxUploadSize, setMaxUploadSize, backupFrequency, setBackupFrequency, logLevel, setLogLevel 
+export const SettingsSystemTab = memo(({
+  maxUploadSize, setMaxUploadSize, backupFrequency, setBackupFrequency, logLevel, setLogLevel
 }: SettingsSystemTabProps) => (
   <SettingsSection title="Paramètres système" icon={Database}>
     <SettingsInput icon={Server} label="Taille max upload (MB)" type="number" value={maxUploadSize} onChange={e => setMaxUploadSize(e.target.value)} helperText="Taille maximale des fichiers uploadés" />
-    <SettingsSelect 
+    <SettingsSelect
       icon={RefreshCw}
-      label="Fréquence de sauvegarde" 
-      value={backupFrequency} 
-      onChange={e => setBackupFrequency(e.target.value)} 
+      label="Fréquence de sauvegarde"
+      value={backupFrequency}
+      onChange={e => setBackupFrequency(e.target.value)}
       options={[
         { value: 'daily', label: '📅 Quotidienne' },
         { value: 'weekly', label: '📆 Hebdomadaire' },
         { value: 'monthly', label: '🗓️ Mensuelle' }
-      ]} 
+      ]}
     />
-    <SettingsSelect 
+    <SettingsSelect
       icon={Zap}
-      label="Niveau de logs" 
-      value={logLevel} 
-      onChange={e => setLogLevel(e.target.value)} 
+      label="Niveau de logs"
+      value={logLevel}
+      onChange={e => setLogLevel(e.target.value)}
       options={[
         { value: 'error', label: '❌ Erreurs uniquement' },
         { value: 'warning', label: '⚠️ Avertissements' },
         { value: 'info', label: 'ℹ️ Informations' },
         { value: 'debug', label: '🐛 Debug' }
-      ]} 
+      ]}
     />
     <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-100 dark:hover:bg-red-950/40 transition-all border-2 border-red-200 dark:border-red-800 group">
       <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />

@@ -98,7 +98,7 @@ export function useHeaderState() {
     ] : []),
     { href: "/about", label: "A propos", icon: Stars },
     { href: "/star/monprofil", label: "Mon Profil", icon: User },
-    { href: "/star/wallet", label: "Mon Portefeuille", icon: Wallet },
+    { href: "/star/wallet", label: "Mes jetons", icon: Wallet },
   ], [hasRole]);
 
   const hasMountedUser = mounted && Boolean(user);

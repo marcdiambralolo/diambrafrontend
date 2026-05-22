@@ -6,7 +6,7 @@ import { AlertCircle, ArrowLeft, Loader2, Save, X } from "lucide-react";
 import Loader from "@/app/admin/loading";
 
 const CONSTANTS = {
-    MAX_NAME_LENGTH: 64,
+    MAX_NAME_LENGTH: 50,
     MIN_NAME_LENGTH: 2,
     ANIMATION_DURATION: 0.3,
 } as const;

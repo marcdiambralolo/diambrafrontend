@@ -1,8 +1,8 @@
 "use client";
 import Loader from '@/app/loading';
 import { DIGITS, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
-import { formatDateFR, useProfilUser } from "@/hooks/profil/work/useProfilUser";
-import { formatNumber } from "@/lib/functions";
+import { useProfilUser } from "@/hooks/profil/work/useProfilUser";
+import {  formatDateFRJeu,formatNumber } from "@/lib/functions";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Award, Calendar, Flame, History,
@@ -498,7 +498,7 @@ export function NumberGridGame() {
               endDate={endDate}
               handleEndMatch={handleEndMatch}
               startDate={startDate}
-              formatDate={formatDateFR}
+              formatDate={formatDateFRJeu}
               gameConfig={gameConfig}
             />
           )}

@@ -84,7 +84,7 @@ export function WelcomePageClientContent() {
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <CacheLink href="/star/profil" className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-bold shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all">
               <span className="relative z-10 flex items-center gap-2">
-                🎮 Jouer maintenant
+                🎮 Jouez maintenant!
                 <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent" />

@@ -2,15 +2,8 @@
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { motion } from "framer-motion";
-import { 
-    CalendarDays, Clock, Gamepad2, History, Target, Timer, 
-    UserRound, Trophy, Award, Zap, Calendar, CheckCircle2 
-} from "lucide-react";
+import { Award, Calendar, Gamepad2, Timer, UserRound, Zap } from "lucide-react";
 import { useState } from "react";
-
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
 
 const getRelativeTime = (date: string) => {
     const now = new Date();
@@ -33,9 +26,6 @@ const formatDateTime = (date: string) => {
     });
 };
 
-/**
- * Format date au format: 17/12/2026 à 07h00
- */
 const formatEditionDate = (date: Date | null): string => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -46,9 +36,6 @@ const formatEditionDate = (date: Date | null): string => {
     return `${day}/${month}/${year} à ${hours}h${minutes}`;
 };
 
-/**
- * Format date courte (sans heure)
- */
 const formatShortDate = (date: Date | null): string => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -67,10 +54,6 @@ const getEditionStatus = (status: string, isActive: boolean) => {
     return { label: 'À venir', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30', icon: <Calendar className="w-3 h-3" /> };
 };
 
-// ============================================================================
-// COMPOSANT CARTE
-// ============================================================================
-
 interface ConsultationCardProps {
     consultation: Consultation;
     index: number;
@@ -83,20 +66,14 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
     const combinaison = consultation.combinaison || '????';
     const timeSpent = consultation.timeSpent;
     const createdAt = consultation.createdAt;
-    
+
     const gameEdition = consultation.idjeu as any;
     const editionStatus = gameEdition ? getEditionStatus(gameEdition.status, gameEdition.isActive) : null;
     const editionStartDate = gameEdition?.startgameDate ? new Date(gameEdition.startgameDate) : null;
     const editionEndDate = gameEdition?.endgameDate ? new Date(gameEdition.endgameDate) : null;
-
     const relativeDate = createdAt ? getRelativeTime(createdAt) : 'Date inconnue';
-    const formattedDate = createdAt ? formatDateTime(createdAt) : 'Date inconnue';
-    
-    // Format des dates d'édition
     const formattedStartDate = formatEditionDate(editionStartDate);
     const formattedEndDate = formatEditionDate(editionEndDate);
-    const shortStartDate = formatShortDate(editionStartDate);
-    const shortEndDate = formatShortDate(editionEndDate);
 
     return (
         <motion.article
@@ -115,7 +92,6 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
             )}
         >
             <div className="relative z-10 space-y-3">
-                {/* Édition et date */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
@@ -123,7 +99,7 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                         </div>
                         <span className="text-xs text-gray-500">{relativeDate}</span>
                     </div>
-                    
+
                     {editionStatus && (
                         <div className={cx(
                             "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium",
@@ -136,7 +112,6 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                     )}
                 </div>
 
-                {/* Combinaison */}
                 <div className="flex justify-center gap-1 py-2">
                     {combinaison.split('').map((digit, i) => (
                         <span
@@ -167,26 +142,18 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                     )}
                 </div>
 
-                {/* Période de l'édition - Format: 17/12/2026 à 07h00 */}
                 {editionStartDate && editionEndDate && (
                     <div className="pt-2 text-center">
                         <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400">
                             <Calendar className="w-3 h-3" />
                             <span>
-                                {shortStartDate} → {shortEndDate}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-center gap-1 text-[9px] text-gray-400 mt-1">
-                            <Clock className="w-2.5 h-2.5" />
-                            <span>
-                                {formattedEndDate.split('à')[1]?.trim() || ''}
+                                {formattedStartDate} → {formattedEndDate}
                             </span>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Effet hover */}
             {isHovered && (
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-purple-500/5 to-transparent" />
             )}

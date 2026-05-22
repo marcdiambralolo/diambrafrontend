@@ -4,7 +4,6 @@ import { cx } from "@/lib/functions";
 import { useAuthStore } from '@/lib/store/auth.store';
 import { AnimatePresence, motion, useReducedMotion, Variants } from "framer-motion";
 import { ChevronRight, LogOut, Shield, X } from "lucide-react";
-import Link from 'next/link';
 import React, { memo, useCallback, useMemo } from 'react';
 import { colorClasses, navItems } from "../commons/AdminNavConfig";
 
@@ -12,7 +11,7 @@ export const AdminSidebarHeader = React.memo(function AdminSidebarHeader() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <Link
+    <CacheLink
       href="/"
       className="flex items-center gap-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cosmic-indigo/40 rounded-xl transition-shadow"
       title="Retour à l'accueil"
@@ -25,7 +24,7 @@ export const AdminSidebarHeader = React.memo(function AdminSidebarHeader() {
         <h2 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-cosmic-indigo transition-colors">Administration</h2>
         <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{user?.username || 'Administrateur'}</p>
       </div>
-    </Link>
+    </CacheLink>
   );
 });
 

@@ -221,7 +221,7 @@ export default function MarcheOffrandesMain() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
               <ShoppingCart className="w-6 h-6" />
-              ACHAT DE JETONS
+             JETONS
             </h2>
           </div>
         </div>
@@ -251,7 +251,7 @@ export default function MarcheOffrandesMain() {
                   className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CreditCard className="w-5 h-5" />
-                  Procéder au paiement
+                  Acquerir GRATUITEMENT
                 </button>
               </div>
             </>

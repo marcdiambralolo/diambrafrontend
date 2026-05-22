@@ -20,15 +20,15 @@ export function useAdminConsultationsPageFinished() {
     setError(null);
 
     try {
-      const response = await api.get('/admin/consultations/active-game', {
+      const response = await api.get('/admin/consultations/ended-editions', {
         params: {
           page: page,
           limit: ITEMS_PER_PAGE,
         },
       });
 
-      const data:any = response.data;
-      setConsultations(data?.consultations as unknown  as Consultation[] || []);
+      const data: any = response.data;
+      setConsultations(data?.consultations as unknown as Consultation[] || []);
       setTotal(data?.total || 0);
       setCurrentPage(page);
     } catch (err: any) {

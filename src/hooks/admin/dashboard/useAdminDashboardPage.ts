@@ -156,7 +156,7 @@ export function useAdminDashboardPage() {
   const chartConfig = useMemo(() => {
     switch (selectedReport) {
       case 'consultations':
-        return { dataKey: 'consultations', color: CHART_COLORS.consultations, title: 'Consultations par Mois' };
+        return { dataKey: 'consultations', color: CHART_COLORS.consultations, title: '' };
       case 'revenue':
         return { dataKey: 'revenue', color: CHART_COLORS.revenue, title: 'Revenus par Mois' };
       case 'users':

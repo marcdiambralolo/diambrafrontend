@@ -52,7 +52,8 @@ function HistoriquePageClientImpl() {
       const response = await api.get<{
         success: boolean;
         consultations: Consultation[];
-      }>(`/consultations/by-idjeu/${gameId}`);
+      }>("/admin/last-ended-game/stats");
+      console.log(response);
 
       const data = response.data?.consultations ?? [];
       const sorted = sortByCombinaison(data);

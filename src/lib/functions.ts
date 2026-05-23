@@ -239,3 +239,24 @@ export function formatDateFRJeu(value: DateLike): string {
   const second = String(date.getSeconds()).padStart(2, '0');
   return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
 }
+
+export const getRelativeTime = (date: string) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? 's' : ''}`;
+    if (diffInSeconds < 3600) return `il y a ${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
+    if (diffInSeconds < 86400) return `il y a ${Math.floor(diffInSeconds / 3600)} heure${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
+    return `le ${past.toLocaleDateString('fr-FR')}`;
+};
+
+export const formatEditionDate = (date: Date | null): string => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} à ${hours}h${minutes}mn`;
+};

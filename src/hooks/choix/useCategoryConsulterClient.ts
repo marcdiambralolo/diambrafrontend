@@ -1,15 +1,10 @@
-// hooks/choix/useCategoryConsulterClient.ts
 import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
- import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
+import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
 import { Variants } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-
-// ============================================================================
-// CONSTANTES
-// ============================================================================
 
 export const ANIMATION_CONFIG = {
     spring: {
@@ -49,11 +44,8 @@ const POT_CONFIG: OfferingAlternative = {
     _id: '69ada22a910a174365e2a216',
 } as const;
 
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
- export function buildCategoryConsultationPath(categoryId: string,monjeu: string): string {
-  return `/star/game/${categoryId}?monjeu=${monjeu}`;
+export function buildCategoryConsultationPath(categoryId: string, monjeu: string): string {
+    return `/star/game/${categoryId}?monjeu=${monjeu}`;
 }
 
 const getOfferingId = (alternative: OfferingAlternative): string => {
@@ -63,10 +55,6 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
     }
     return offeringId as string;
 };
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface State {
     loading: boolean;
@@ -82,10 +70,6 @@ const initialState: State = {
     walletOfferings: [],
 };
 
-// ============================================================================
-// HOOK PRINCIPAL
-// ============================================================================
-
 export function useCategoryConsulterClient() {
     const params = useParams();
 
@@ -98,7 +82,6 @@ export function useCategoryConsulterClient() {
     const isMountedRef = useRef(true);
     const [state, setState] = useState<State>(initialState);
 
-    // Mémorisation des valeurs dérivées
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
         state.walletOfferings.forEach(w => map.set(w.offeringId, w.quantity));
@@ -121,29 +104,22 @@ export function useCategoryConsulterClient() {
         return `${baseClasses} border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed`;
     }, [isSufficient]);
 
-    // ============================================================================
-    // HANDLERS
-    // ============================================================================
-
     const handleGoToMarket = useCallback(() => {
-        router.push("/star/marcheoffrandes");
+        router.push(`/star/marcheoffrandes?monjeu=${monidjeu}`);
     }, [router]);
 
     const handleValidation = useCallback(async () => {
-        // Éviter les doubles appels
         if (state.loading) return;
 
         setState(prev => ({ ...prev, loading: true, error: null, showError: false }));
 
         try {
-            // Création de la consultation
             const consultationId = await createCategoryConsultation(monidjeu || '');
 
             if (!consultationId) {
                 throw new Error('Impossible de créer la consultation');
             }
 
-            // Validation des offrandes
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: getOfferingId(POT_CONFIG),
                 quantity: POT_CONFIG.quantity,
@@ -153,11 +129,9 @@ export function useCategoryConsulterClient() {
                 throw new Error(consumeRes.message || 'Erreur lors de la consommation');
             }
 
-            // Nettoyage du cache
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS, exact: true });
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
-            // Redirection vers la page de jeu
             router.push(buildCategoryConsultationPath(consultationId, monidjeu || ''));
 
         } catch (err) {
@@ -185,11 +159,6 @@ export function useCategoryConsulterClient() {
         setState(prev => ({ ...prev, showError: false, error: null }));
     }, []);
 
-    // ============================================================================
-    // EFFETS
-    // ============================================================================
-
-    // Chargement initial des offrandes
     useEffect(() => {
         isMountedRef.current = true;
 
@@ -224,23 +193,14 @@ export function useCategoryConsulterClient() {
         };
     }, []);
 
-    // ============================================================================
-    // RETOUR
-    // ============================================================================
-
     return {
-        // Actions
         handleGoToMarket,
         handleNext,
         clearError,
-
-        // États
         dataLoading: state.loading,
         dataError: state.error,
         showError: state.showError,
         currentError: state.showError ? state.error : null,
-
-        // Données
         pot: POT_CONFIG,
         availableQuantity,
         requiredQuantity,

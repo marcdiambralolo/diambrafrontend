@@ -148,14 +148,10 @@ const ErrorState = memo(() => (
 
 const IdentityOverview = memo(function IdentityOverview({
   fullName,
-  dateNaissanceLabel,
-  heureNaissance,
-  lieuNaissance,
+  dateNaissanceLabel, 
 }: {
   fullName: string;
-  dateNaissanceLabel: string;
-  heureNaissance: string;
-  lieuNaissance: string;
+  dateNaissanceLabel: string; 
 }) {
   return (
     <motion.div
@@ -173,13 +169,8 @@ const IdentityOverview = memo(function IdentityOverview({
           <IdentityPill
             icon={<CalendarDays className="h-4 w-4" />}
             label="Date & heure"
-            value={`${dateNaissanceLabel} à ${heureNaissance}`}
-          />
-          <IdentityPill
-            icon={<MapPin className="h-4 w-4" />}
-            label="Lieu de naissance"
-            value={lieuNaissance}
-          />
+            value={`${dateNaissanceLabel}`}
+          /> 
         </div>
       </div>
     </motion.div>
@@ -275,9 +266,7 @@ function MonProfilPageClientImpl() {
               >
                 <IdentityOverview
                   fullName={fullName}
-                  dateNaissanceLabel={dateNaissanceLabel}
-                  heureNaissance={heureNaissance}
-                  lieuNaissance={lieuNaissance}
+                  dateNaissanceLabel={dateNaissanceLabel} 
                 />
               </motion.div>
             </div>

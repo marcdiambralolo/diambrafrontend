@@ -1,48 +1,11 @@
 "use client";
-import { cx } from "@/lib/functions";
+import { cx, formatEditionDate, getRelativeTime } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { motion } from "framer-motion";
 import { Award, Calendar, Gamepad2, Timer, UserRound, Zap } from "lucide-react";
 import { useState } from "react";
 
-const getRelativeTime = (date: string) => {
-    const now = new Date();
-    const past = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-
-    if (diffInSeconds < 60) return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? 's' : ''}`;
-    if (diffInSeconds < 3600) return `il y a ${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
-    if (diffInSeconds < 86400) return `il y a ${Math.floor(diffInSeconds / 3600)} heure${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
-    return `le ${past.toLocaleDateString('fr-FR')}`;
-};
-
-const formatDateTime = (date: string) => {
-    return new Date(date).toLocaleString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-};
-
-const formatEditionDate = (date: Date | null): string => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${day}/${month}/${year} à ${hours}h${minutes}`;
-};
-
-const formatShortDate = (date: Date | null): string => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-};
+ 
 
 const getEditionStatus = (status: string, isActive: boolean) => {
     if (isActive && status === 'active') {
@@ -128,7 +91,6 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                     ))}
                 </div>
 
-                {/* Informations supplémentaires */}
                 <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-1">
                         <UserRound className="w-3 h-3" />

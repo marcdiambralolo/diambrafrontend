@@ -77,6 +77,7 @@ export interface User {
   heureNaissance?: string;
   password?: string;
   role?: Role;
+  secretCode?: string;
   createdAt: string | number | Date;
   customPermissions?: Permission[];
   address?: string;
@@ -191,3 +192,13 @@ export interface LastEndedGame {
 }
 
 export type DateLike = Date | string | number | null | undefined;
+
+export interface FormData {
+  secretCode: string;
+  nom: string;
+  prenoms: string;
+  dateNaissance: string;
+  country: string;
+  phone?: string;
+  gender?: string;
+}

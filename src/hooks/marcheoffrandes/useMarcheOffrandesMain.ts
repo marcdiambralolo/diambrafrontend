@@ -2,9 +2,10 @@
 import { api } from "@/lib/api/client";
 import { QUERY_KEYS } from "@/lib/cache/queryClient";
 import type { Offering } from "@/lib/interfaces";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
 import { Variants } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export const STEPS: SimulationStep[] = ["processing", "validating", "saving", "success"];
@@ -46,27 +47,15 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function buildWalletUrl() {
-  const qs = new URLSearchParams();
-  const query = qs.toString();
-  //  return `/star/transaction${query ? `?${query}` : ""}`;
-  return `/star/profil${query ? `?${query}` : ""}`;
-}
-
-function getSafeErrorMessage(err: unknown, fallback = "Une erreur est survenue pendant la simulation.") {
-  if (err instanceof Error && err.message) return err.message;
-  if (typeof err === 'string') return err;
-  return fallback;
-}
-
 export function useMarcheOffrandesMain() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const monjeu = searchParams?.get("monjeu");
+  const { user } = useAuthStore();
 
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [showCart, setShowCartRaw] = useState(false);
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");
-  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const isSubmittingRef = useRef(false);
 
@@ -106,7 +95,6 @@ export function useMarcheOffrandesMain() {
     });
   }, []);
 
-
   const updateQuantity = useCallback((id: string, delta: number) => {
     setCart((prev) =>
       prev
@@ -124,18 +112,13 @@ export function useMarcheOffrandesMain() {
       return;
     }
 
-    if (cart.length === 0) {
-      setPaymentError("Le panier est vide.");
-      return;
-    }
-
     isSubmittingRef.current = true;
-    setPaymentError(null);
+
     setSimulationStep("processing");
     await sleep(400);
 
     try {
-      await sleep(400); // Petit délai pour l'UX
+      await sleep(200); // Petit délai pour l'UX
 
       setSimulationStep("validating");
       await sleep(200);
@@ -182,7 +165,6 @@ export function useMarcheOffrandesMain() {
         throw new Error(response?.data?.message || `Erreur HTTP ${response?.status}`);
       }
 
-      // ✅ CORRECTION 2: Stockage sécurisé
       try {
         localStorage.setItem("last_simulated_purchase", JSON.stringify(transactionData));
         localStorage.setItem("payment_token", paymentToken);
@@ -191,7 +173,6 @@ export function useMarcheOffrandesMain() {
         console.warn("⚠️ LocalStorage non disponible:", storageError);
       }
 
-      // ✅ CORRECTION 3: Invalidation avec gestion d'erreur
       try {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_TRANSACTIONS }),
@@ -202,38 +183,34 @@ export function useMarcheOffrandesMain() {
       }
 
       setSimulationStep("success");
- 
-      const walletUrl = buildWalletUrl();
+
+      const qs = new URLSearchParams();
+      const query = qs.toString();
+      let walletUrl = `/star/profil${query ? `?${query}` : ""}`;
+      if (monjeu) {
+        walletUrl= `/star/choix/${monjeu}`;
+      }
+
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
       const redirectUrl = walletUrl.includes('?')
-        ? `${walletUrl}&${transactionIdParam}`
-        : `${walletUrl}?${transactionIdParam}`;
+        ? `${walletUrl}&${transactionIdParam}&monjeu=${monjeu}`
+        : `${walletUrl}?${transactionIdParam}&monjeu=${monjeu}`;
 
-      router.push(redirectUrl);
+      if (user && user.secretCode) {
+        router.push(redirectUrl);
+      } else {
+        router.push(`/star/profil/doors?monjeu=${monjeu}`);
+      }
 
     } catch (err: unknown) {
       console.error("❌ [CheckoutModal] Erreur détaillée:", err);
-
-      // ✅ CORRECTION 5: Message d'erreur plus explicite
-      let errorMessage = "Erreur lors de la validation";
-      if (err instanceof Error) {
-        if (err.message.includes("timeout")) {
-          errorMessage = "Le serveur ne répond pas. Veuillez réessayer.";
-        } else if (err.message.includes("Network")) {
-          errorMessage = "Problème de connexion. Vérifiez votre réseau.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
-
-      setPaymentError(getSafeErrorMessage(err, errorMessage));
       setSimulationStep("idle");
     } finally {
       if (simulationStep !== "success") {
         isSubmittingRef.current = false;
       }
     }
-  }, [cart, cartTotal,  queryClient, router, simulationStep]);
+  }, [cart, cartTotal, queryClient, router, simulationStep]);
 
   const monoffre: Offering = {
     _id: "6945ae01b8af14d5f56cec09",

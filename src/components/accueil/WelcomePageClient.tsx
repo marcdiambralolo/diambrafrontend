@@ -184,7 +184,7 @@ export function WelcomePageClientContent() {
         </section>
 
         <div className="mt-12 text-center">
-          <p className="text-xs text-gray-400">© 2026 Diambra - Tous droits réservés</p>
+          <p className="text-xs text-gray-400">© 2026 Diambra - Tous droits réservés.</p>
         </div>
       </div>
     </main>

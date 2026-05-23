@@ -1,14 +1,22 @@
-// hooks/admin/consultations/useAdminConsultationsPageFinished.ts
+// hooks/admin/consultations/archives/useAdminConsultationsPageFinished.ts
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api/client';
 import { Consultation } from '@/lib/interfaces';
 
-export const ITEMS_PER_PAGE = 144;
+export const ITEMS_PER_PAGE = 10000;
+
+interface Edition {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
 
 export function useAdminConsultationsPageFinished() {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [editions, setEditions] = useState<Edition[]>([]);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -29,12 +37,14 @@ export function useAdminConsultationsPageFinished() {
 
       const data: any = response.data;
       setConsultations(data?.consultations as unknown as Consultation[] || []);
+      setEditions(data?.editions || []);
       setTotal(data?.total || 0);
       setCurrentPage(page);
     } catch (err: any) {
       console.error('Erreur:', err);
       setError(err?.message || 'Erreur lors du chargement');
       setConsultations([]);
+      setEditions([]);
     } finally {
       setLoading(false);
     }
@@ -64,6 +74,7 @@ export function useAdminConsultationsPageFinished() {
 
   return {
     consultations,
+    editions,
     total,
     totalPages,
     currentPage,

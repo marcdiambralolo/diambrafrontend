@@ -19,6 +19,6 @@ export const colorClasses = {
   indigo: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-400',
   ocean: 'bg-blue-50 text-[#2E5AA6] hover:bg-blue-100 dark:bg-[#163A74]/40 dark:text-[#9BC2FF]',
   orange: 'bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/30 dark:text-orange-400',
-  gray: 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-gray-950/30 dark:text-gray-400',
   teal: 'bg-teal-50 text-teal-700 hover:bg-teal-100 dark:bg-teal-950/30 dark:text-teal-400',
+  gray: 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-gray-950/30 dark:text-gray-400',
 };

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Award, Calendar, Gamepad2, Timer, UserRound, Zap } from "lucide-react";
 import { useState } from "react";
 
- 
+
 
 const getEditionStatus = (status: string, isActive: boolean) => {
     if (isActive && status === 'active') {
@@ -20,9 +20,11 @@ const getEditionStatus = (status: string, isActive: boolean) => {
 interface ConsultationCardProps {
     consultation: Consultation;
     index: number;
+    showDate?: boolean;
+    showState?: boolean;
 }
 
-export default function ConsultationCard({ consultation, index }: ConsultationCardProps) {
+export default function ConsultationCard({ consultation, index, showDate = true, showState = true }: ConsultationCardProps) {
     const [isHovered, setIsHovered] = useState(false);
 
     const nomJoueur = consultation.clientId?.username || 'Anonyme';
@@ -63,7 +65,7 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                         <span className="text-xs text-gray-500">{relativeDate}</span>
                     </div>
 
-                    {editionStatus && (
+                    {editionStatus && showState && (
                         <div className={cx(
                             "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium",
                             editionStatus.bg,
@@ -104,7 +106,7 @@ export default function ConsultationCard({ consultation, index }: ConsultationCa
                     )}
                 </div>
 
-                {editionStartDate && editionEndDate && (
+                {editionStartDate && showDate && editionEndDate && (
                     <div className="pt-2 text-center">
                         <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400">
                             <Calendar className="w-3 h-3" />

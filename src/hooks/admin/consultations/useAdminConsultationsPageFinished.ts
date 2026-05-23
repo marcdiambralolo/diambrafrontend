@@ -1,14 +1,21 @@
-// hooks/admin/consultations/useAdminConsultationsPageFinished.ts
 'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api/client';
 import { Consultation } from '@/lib/interfaces';
 
-export const ITEMS_PER_PAGE = 144;
+export const ITEMS_PER_PAGE = 10000;
+
+interface ActiveEdition {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  isActive: boolean;
+}
 
 export function useAdminConsultationsPageFinished() {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [activeEdition, setActiveEdition] = useState<ActiveEdition | null>(null);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -27,14 +34,16 @@ export function useAdminConsultationsPageFinished() {
         },
       });
 
-      const data:any = response.data;
-      setConsultations(data?.consultations as unknown  as Consultation[] || []);
+      const data: any = response.data;
+      setConsultations(data?.consultations as unknown as Consultation[] || []);
+      setActiveEdition(data?.activeEdition || null);
       setTotal(data?.total || 0);
       setCurrentPage(page);
     } catch (err: any) {
       console.error('Erreur:', err);
       setError(err?.message || 'Erreur lors du chargement');
       setConsultations([]);
+      setActiveEdition(null);
     } finally {
       setLoading(false);
     }
@@ -62,14 +71,26 @@ export function useAdminConsultationsPageFinished() {
 
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
+  // Calcul des jours restants pour l'édition active
+  const getRemainingDays = useCallback(() => {
+    if (!activeEdition) return null;
+    const endDate = new Date(activeEdition.endDate);
+    const now = new Date();
+    const diffTime = endDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  }, [activeEdition]);
+
   return {
     consultations,
+    activeEdition,
     total,
     totalPages,
     currentPage,
     loading,
     error,
     isRefreshing,
+    remainingDays: getRemainingDays(),
     handleRefresh,
     handlePageChange,
   };

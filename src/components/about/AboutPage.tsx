@@ -45,6 +45,7 @@ function ConicPanel({ children, className }: { children: React.ReactNode; classN
 
 function Pill({ icon, title, desc, tooltip }: { icon: React.ReactNode; title: string; desc: string; tooltip?: string }) {
   const [showTooltip, setShowTooltip] = useState(false);
+
   return (
     <div className="group relative flex items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
       <div className="mt-0.5 grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-700 group-hover:scale-110 transition-transform">
@@ -96,7 +97,6 @@ export default function AboutPageClient() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-
           <h1 className="text-balance text-4xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent sm:text-6xl">
             DIAMBRA WIN
           </h1>

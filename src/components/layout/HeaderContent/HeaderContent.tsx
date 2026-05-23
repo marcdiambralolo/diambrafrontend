@@ -266,12 +266,6 @@ export function HeaderLogo() {
       <div className="hidden sm:block">
         <h1 className="flex items-center gap-1.5 bg-gradient-to-r from-[#244A8A] via-[#2E5AA6] to-[#4F83D1] bg-clip-text text-lg font-black text-transparent sm:text-xl">
           Diambra
-          <motion.div
-            animate={{ rotate: [0, 15, -15, 0] }}
-            transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-          >
-            <Sparkles className="h-4 w-4 text-[#2E5AA6]" />
-          </motion.div>
         </h1>
       </div>
 

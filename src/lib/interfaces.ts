@@ -107,6 +107,7 @@ export interface Consultation {
   clientId?: {
     _id: string;
     username: string;
+    country: string;
   };
   paymentId?: string;
   price: number;

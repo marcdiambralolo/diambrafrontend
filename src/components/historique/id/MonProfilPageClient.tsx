@@ -4,7 +4,7 @@ import { api } from "@/lib/api/client";
 import { cx, formatEditionDate, getRelativeTime } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Calendar, CheckCircle, Gamepad2, History, Timer, Trophy, UserRound } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle, Globe, History, Timer, Trophy, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useState } from "react";
 
@@ -57,9 +57,10 @@ interface ConsultationCardProps {
 
 export function ConsultationCard({ consultation, index, isDuplicate = false, duplicateCount = 0 }: ConsultationCardProps) {
   const nomJoueur = consultation.clientId?.username || 'Diambra';
+   const country = consultation.clientId?.country || 'Côte d\'Ivoire';
   const combinaison = consultation.combinaison || '????';
   const timeSpent = consultation.timeSpent;
-  const relativeDate = consultation.createdAt ? getRelativeTime(consultation.createdAt) : 'Date inconnue';
+  const relativeDate = formatEditionDate(new Date(consultation.createdAt || ''));
 
   return (
     <motion.article
@@ -82,29 +83,20 @@ export function ConsultationCard({ consultation, index, isDuplicate = false, dup
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
               <UserRound className="w-3.5 h-3.5" />
-              <span className="font-medium">{nomJoueur}</span>
+              <span className="text-xs font-medium">{nomJoueur}</span>
             </div>
             {timeSpent && (
               <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
                 <Timer className="w-3.5 h-3.5" />
-                <span className="font-medium">{timeSpent}</span>
+                <span className="text-xs  font-medium">{relativeDate}</span>
               </div>
-            )}    <Gamepad2 className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{relativeDate}</span>
+            )}    <Globe className="w-3.5 h-3.5" />
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{country}</span>
           </div>
         </div>
 
         <div className="flex justify-center gap-0.5 py-2">
-          {isDuplicate && (
-            <div className="absolute top-3 right-3 z-10">
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shadow-md">
-                <CheckCircle className="w-3 h-3" />
-                {duplicateCount > 1 ? `x${duplicateCount}` : 'Doublon'}
-              </div>
-            </div>
-          )}
-
-          {combinaison.split('').map((digit, i) => (
+            {combinaison.split('').map((digit, i) => (
             <motion.span
               key={i}
               initial={{ scale: 0 }}
@@ -121,6 +113,14 @@ export function ConsultationCard({ consultation, index, isDuplicate = false, dup
               {digit}
             </motion.span>
           ))}
+          {isDuplicate && (
+            <div className="relative   z-10">
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shadow-md">
+                <CheckCircle className="w-3 h-3" />
+                {duplicateCount > 1 ? `x${duplicateCount}` : 'Doublon'}
+              </div>
+            </div>
+          )}        
         </div>
       </div>
     </motion.article>

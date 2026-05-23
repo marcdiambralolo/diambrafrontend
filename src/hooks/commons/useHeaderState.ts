@@ -1,5 +1,5 @@
+import { useAuth } from '@/lib/hooks';
 import { Role } from '@/lib/interfaces';
-import { useAuthStore } from '@/lib/store/auth.store';
 import { useScroll, useTransform } from 'framer-motion';
 import { LayoutDashboard, MessageCircle, Stars, User, Wallet } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 export function useHeaderState() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const user = useAuthStore((state) => state.user);
+  const { user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,7 +85,7 @@ export function useHeaderState() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   }, [theme, setTheme]);
 
-  const userBadge = useMemo(() => {     
+  const userBadge = useMemo(() => {
     if (hasRole(Role.ADMIN) || hasRole(Role.SUPER_ADMIN)) {
       return { text: 'Admin ⚡', label: 'Membre Admin' };
     }

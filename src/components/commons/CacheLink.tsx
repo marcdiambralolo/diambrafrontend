@@ -1,6 +1,6 @@
 'use client';
 import { prefetchRouteData } from '@/lib/cache/route-prefetch';
-import { useAuthStore } from '@/lib/store/auth.store';
+import { useAuth } from '@/lib/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -60,7 +60,7 @@ export default function CacheLink({
 }: CacheLinkProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const isAuthenticated = Boolean(useAuthStore((state) => state.user));
+   const { isAuthenticated } = useAuth(); 
 
   // URL avec cache busting
   const bustedHref = useMemo(() => {

@@ -2,12 +2,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { notificationsService } from '@/lib/api/services/notifications.service';
 import { QUERY_KEYS } from '@/lib/cache/queryClient';
 import type { NotificationResponse } from '@/lib/types/notification.types';
-
-import { useAuthStore } from '@/lib/store/auth.store';
+import { useAuth } from '@/lib/hooks';
 
 export function useNotificationsWithCache() {
   const queryClient = useQueryClient();
-  const user = useAuthStore((state) => state.user);
+ const { user } = useAuth();
   const isAuthenticated = Boolean(user);
   const {
     data,

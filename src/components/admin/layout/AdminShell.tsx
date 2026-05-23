@@ -6,7 +6,6 @@ import { cx } from "@/lib/functions";
 import { useAuth } from '@/lib/hooks';
 import { Role } from '@/lib/interfaces';
 import { dispatchClientNavigation, dispatchLoginNavigation } from '@/lib/navigation/clientNavigation';
-import { useAuthStore } from '@/lib/store/auth.store';
 import { AnimatePresence, motion, useReducedMotion, Variants } from 'framer-motion';
 import { Activity, ChevronRight, Loader2, LogOut, Menu, ShieldAlert, Sparkles, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,7 +15,7 @@ import { AdminShellMobileSidebar } from './AdminShellMobileSidebar';
 import { Shield } from 'lucide-react';
 
 export const AdminSidebarHeader = React.memo(function AdminSidebarHeader() {
-  const user = useAuthStore((state) => state.user);
+   const { user } = useAuth();
 
   return (
     <CacheLink
@@ -596,7 +595,7 @@ const AccessDenied: React.FC<{ message: string; }> = ({
   message, }) => {
   const router = useRouter();
 
-  const user = useAuthStore((state) => state.user);
+ const { user } = useAuth();
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-red-50 p-4 dark:from-[#070B1A] dark:via-[#0F1C3F] dark:to-[#1A0C16]">

@@ -1,8 +1,8 @@
 "use client";
 import { api } from "@/lib/api/client";
 import { QUERY_KEYS } from "@/lib/cache/queryClient";
+import { useAuth } from "@/lib/hooks";
 import type { Offering } from "@/lib/interfaces";
-import { useAuthStore } from "@/lib/store/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
 import { Variants } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -52,7 +52,7 @@ export function useMarcheOffrandesMain() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const monjeu = searchParams?.get("monjeu");
-  const { user } = useAuthStore();
+ const { user } = useAuth();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");

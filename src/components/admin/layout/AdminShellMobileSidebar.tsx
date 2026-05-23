@@ -1,14 +1,14 @@
 "use client";
 import CacheLink from "@/components/commons/CacheLink";
 import { cx } from "@/lib/functions";
-import { useAuthStore } from '@/lib/store/auth.store';
 import { AnimatePresence, motion, useReducedMotion, Variants } from "framer-motion";
 import { ChevronRight, LogOut, Shield, X } from "lucide-react";
 import React, { memo, useCallback, useMemo } from 'react';
 import { colorClasses, navItems } from "../commons/AdminNavConfig";
+import { useAuth } from "@/lib/hooks";
 
 export const AdminSidebarHeader = React.memo(function AdminSidebarHeader() {
-  const user = useAuthStore((state) => state.user);
+ const { user } = useAuth();
 
   return (
     <CacheLink

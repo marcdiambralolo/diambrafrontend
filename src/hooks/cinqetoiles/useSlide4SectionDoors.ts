@@ -128,14 +128,11 @@ export function useSlide4SectionDoors() {
 
       if (response.data.success && response.data.user) {
         updateUser(response.data.user);
-
         if (monjeu) {
           router.push(`/star/choix/${monjeu}`);
         } else {
           router.push(`/star/profil/doors?monjeu=${monjeu}`);
         }
-
-
       } else {
         setApiError(response.data.error || "Une erreur est survenue");
       }

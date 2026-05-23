@@ -194,6 +194,9 @@ export interface LastEndedGame {
 export type DateLike = Date | string | number | null | undefined;
 
 export interface FormData {
+  month?: string;
+  year?: string;
+  day?: string;
   secretCode: string;
   nom: string;
   prenoms: string;

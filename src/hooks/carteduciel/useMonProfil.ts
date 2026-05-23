@@ -23,8 +23,6 @@ export function useMonProfil() {
   const nom = safeTrim(user?.nom); 
   const fullName = prenoms || nom ? `${prenoms}${prenoms && nom ? " " : ""}${nom}` : "Profil";
   const dateNaissanceLabel = user?.dateNaissance ? formatDateFR(coerceIsoDate(user.dateNaissance)) : "—";
-  const heureNaissance = safeTrim(user?.heureNaissance) || "—";
-  const lieuNaissance = safeTrim(user?.villeNaissance) || "—";
 
-  return { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance, };
+  return { processedData, fullName, dateNaissanceLabel,};
 }

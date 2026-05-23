@@ -1,32 +1,59 @@
-import { consultationsService } from '@/lib/api/services';
-import { QUERY_KEYS } from '@/lib/cache/queryClient';
-import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { api } from '@/lib/api/client';
+import { Consultation } from '@/lib/interfaces';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export function useConsultationsListPage() {
   const [activeTab, setActiveTab] = useState<'history' | 'games'>('games');
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { 
-    data: myConsultationsData, 
-    isLoading: isLoadingMy,
-    error: myError,
-  } = useQuery({
-    queryKey: QUERY_KEYS.CONSULTATIONS_MY,
-    queryFn: () => consultationsService.getMine(),
-    staleTime: 5 * 60 * 1000,
-  });
- 
-  const myConsultations = useMemo(
-    () => myConsultationsData?.consultations ?? [],
-    [myConsultationsData]
-  );
+  const fetchConsultations = useCallback(async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      const response = await api.get('/consultations/me');
+      const data:any = response.data;
+      const newLocal:any = data?.consultations as unknown as Consultation[] || [];
+      setConsultations(newLocal);
+    } catch (err: any) {
+      console.error('Erreur:', err);
+      setError(err?.response?.data?.message || err?.message || 'Erreur lors du chargement');
+      setConsultations([]);
+    } finally {
+      if (showLoading) {
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  // Chargement initial
+  useEffect(() => {
+    fetchConsultations();
+  }, [fetchConsultations]);
+
+  // Rafraîchissement manuel
+  const handleRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    await fetchConsultations(false);
+    setIsRefreshing(false);
+  }, [fetchConsultations, isRefreshing]);
+
+  const gamesCount = consultations.length;
 
   return {
-    consultations: myConsultations,
-    loading: isLoadingMy,
-    gamesCount: myConsultations.length,
+    consultations,
+    loading,
+    gamesCount,
     activeTab,
     setActiveTab,
-    error: myError ? (myError as Error).message : null,
+    error,
+    isRefreshing,
+    handleRefresh,
   };
 }

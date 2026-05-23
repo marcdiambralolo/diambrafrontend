@@ -64,13 +64,13 @@ function normalizeFrontData(payload: ConsultationFrontDataPayload, consultationI
 
 export const consultationsService = {
   async getMine() {
-    const response = await api.get<PaginatedConsultationsPayload>('/consultations/me');
-    return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
+    const response = await api.get<any>('/consultations/me');
+    return  response.data ;
   },
 
   async getMineGame(gameId: string) {
     const response = await api.get<PaginatedConsultationsPayload>(`/consultations/by-idjeu/${gameId}`);
-    return normalizeConsultationsPayload(response.data, { page: 1, limit: 50 });
+    return normalizeConsultationsPayload(response.data, { page: 1, limit: 10000 });
   },
 
   async getFrontData(consultationId: string): Promise<ConsultationFrontDataResult> {

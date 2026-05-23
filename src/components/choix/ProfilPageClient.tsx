@@ -433,7 +433,7 @@ export default function ProfilPageClient() {
           )}
         </>
       )}
-      <br /><br />
+  
       <div className="fixed inset-0 overflow-hidden pointer-events-none mt-4">
         <div className="absolute top-10 left-10 w-1.5 h-1.5 bg-purple-400 rounded-full opacity-30 animate-ping" />
         <div className="absolute top-20 right-16 w-2 h-2 bg-pink-400 rounded-full opacity-30 animate-ping delay-75" />

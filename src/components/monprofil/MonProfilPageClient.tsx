@@ -203,7 +203,7 @@ const IdentityPill = memo(function IdentityPill({
 });
 
 function MonProfilPageClientImpl() {
-  const { processedData, fullName, dateNaissanceLabel, heureNaissance, lieuNaissance } = useMonProfil();
+  const { processedData, fullName, dateNaissanceLabel } = useMonProfil();
   const { consultations, loading, gamesCount, setActiveTab, activeTab, } = useConsultationsListPage();
 
   if (loading) return <Loader />;

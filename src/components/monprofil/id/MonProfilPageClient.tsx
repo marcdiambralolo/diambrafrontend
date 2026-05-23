@@ -8,17 +8,23 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Gamepad2, History, Plus } from "lucide-react";
 import { memo, type ReactNode } from "react";
 
+// ============================================================================
+// COMPOSANT ONGLET
+// ============================================================================
+
 interface TabButtonProps {
   active: boolean;
+  onClick?: () => void;
   icon: ReactNode;
   label: string;
   count: number;
 }
 
-const TabButton = memo(({ active, icon, label, count }: TabButtonProps) => (
+const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps) => (
   <motion.button
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
+    onClick={onClick}
     className={cx(
       "relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300",
       active
@@ -28,18 +34,20 @@ const TabButton = memo(({ active, icon, label, count }: TabButtonProps) => (
   >
     {icon}
     <span>{label}</span>
-    {count >= 0 && <motion.span
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      className={cx(
-        "px-2 py-0.5 rounded-full text-xs font-bold",
-        active
-          ? "bg-white/20 text-white"
-          : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-      )}
-    >
-      {count > 0 && count}
-    </motion.span>}
+    {count >= 0 && (
+      <motion.span
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        className={cx(
+          "px-2 py-0.5 rounded-full text-xs font-bold",
+          active
+            ? "bg-white/20 text-white"
+            : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+        )}
+      >
+        {count > 0 && count}
+      </motion.span>
+    )}
     {active && (
       <motion.div
         layoutId="activeTab"
@@ -49,6 +57,10 @@ const TabButton = memo(({ active, icon, label, count }: TabButtonProps) => (
     )}
   </motion.button>
 ));
+
+// ============================================================================
+// COMPOSANT ÉTAT VIDE
+// ============================================================================
 
 interface ConsultationsEmptyProps {
   consultationsLength: number;
@@ -81,7 +93,15 @@ function ConsultationsEmpty({ consultationsLength }: ConsultationsEmptyProps) {
   );
 }
 
-const NewGameButton = memo(() => (
+// ============================================================================
+// COMPOSANT BOUTON NOUVEAU JEU
+// ============================================================================
+
+interface NewGameButtonProps {
+  gameId?: string;
+}
+
+const NewGameButton = memo(({ gameId }: NewGameButtonProps) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
@@ -89,7 +109,7 @@ const NewGameButton = memo(() => (
     className="fixed bottom-6 right-6 z-50"
   >
     <CacheLink
-      href="/star/profil"
+      href={`/star/choix/${gameId || ''}`}
       className="group relative flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 text-white font-bold rounded-2xl shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 transition-all duration-300 overflow-hidden"
     >
       <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -102,8 +122,12 @@ const NewGameButton = memo(() => (
   </motion.div>
 ));
 
+// ============================================================================
+// COMPOSANT PRINCIPAL
+// ============================================================================
+
 function MonProfilPageClientImpl() {
-  const { consultations, loading, gamesCount, } = useConsultationsListPageWithId();
+  const { consultations, loading, gamesCount, gameId } = useConsultationsListPageWithId();
 
   if (loading) return <Loader />;
 
@@ -120,6 +144,7 @@ function MonProfilPageClientImpl() {
         </div>
       </div>
 
+      {/* Liste des jeux */}
       <AnimatePresence mode="wait">
         <motion.div
           key="games"
@@ -145,7 +170,8 @@ function MonProfilPageClientImpl() {
         </motion.div>
       </AnimatePresence>
 
-      <NewGameButton />
+      {/* Bouton Nouveau jeu */}
+      <NewGameButton gameId={gameId} />
     </main>
   );
 }

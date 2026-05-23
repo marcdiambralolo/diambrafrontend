@@ -2,7 +2,7 @@
 import Loader from '@/app/loading';
 import { DIGITS, useNumberGridGame } from "@/hooks/game/useNumberGridGame";
 import { useProfilUser } from "@/hooks/profil/work/useProfilUser";
-import {  formatDateFRJeu,formatNumber } from "@/lib/functions";
+import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Award, Calendar, Flame, History,
@@ -467,7 +467,7 @@ export function NumberGridGame() {
                 )}
               </button>
             </div>
-            
+
             <AnimatePresence>
               {isDragging && (
                 <motion.div

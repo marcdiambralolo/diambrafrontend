@@ -60,5 +60,6 @@ export function useConsultationsListPageWithId() {
     loading: state.loading,
     gamesCount: myConsultations.length,
     error: state.error,
+    gameId,
   };
 }

@@ -19,6 +19,7 @@ const initialForm: FormData = {
   secretCode: "",
 };
 
+
 const validateForm = (form: FormData): FormErrors => {
   const errors: FormErrors = {};
 
@@ -131,7 +132,7 @@ export function useSlide4SectionDoors() {
         if (monjeu) {
           router.push(`/star/choix/${monjeu}`);
         } else {
-          router.push(`/star/profil/doors?monjeu=${monjeu}`);
+          router.push(`/star/profil`);
         }
       } else {
         setApiError(response.data.error || "Une erreur est survenue");
@@ -142,14 +143,23 @@ export function useSlide4SectionDoors() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [form, router, updateUser, isSubmitting]);
+  }, [form, router, updateUser, isSubmitting, monjeu]);
 
   const handleReset = useCallback(() => {
     router.back();
   }, [router]);
 
   return {
-    handleChange, handleReset, handleSubmit,
-    apiError, errors, form, countryOptions, submitClass, cancelClass, isSubmitting
+    handleChange,
+    handleReset,
+    handleSubmit,
+    apiError,
+    errors,
+    form,
+    setForm, // ✅ Ajout de setForm
+    countryOptions,
+    submitClass,
+    cancelClass,
+    isSubmitting
   };
 }

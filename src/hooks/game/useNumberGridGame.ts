@@ -25,11 +25,10 @@ export const formatTime = (seconds: number) => {
 export function useNumberGridGame() {
     const router = useRouter();
     const params = useParams();
-        const searchParams = useSearchParams(); // 👈 Pour les query strings
+    const searchParams = useSearchParams(); 
     
-    // Mémoïsation des IDs pour éviter les recalculs
     const gameId = useMemo(() => params?.id as string, [params?.id]);
-      const monjeuId = useMemo(() => searchParams?.get('monjeu') as string, [searchParams]);
+    const monjeuId = useMemo(() => searchParams?.get('monjeu') as string, [searchParams]);
 
     // État du jeu
     const [slots, setSlots] = useState<(number | null)[]>(
@@ -262,7 +261,7 @@ export function useNumberGridGame() {
 
     const handleSubmitAndNavigate = useCallback(async () => {
         // Déterminer l'ID à utiliser
-        
+
         if (!gameId) {
             console.error("No ID found");
             return;
@@ -283,7 +282,7 @@ export function useNumberGridGame() {
             };
 
             await api.put(`/consultations/${gameId}`, payload);
- 
+
             // Navigation selon le contexte
             if (monjeuId) {
                 router.push(`/star/monprofil/${monjeuId}`);
@@ -308,7 +307,7 @@ export function useNumberGridGame() {
         // IDs mémoïsés
         gameId,
         monjeuId,
-        
+
         // État du jeu
         slots,
         setSlots,
@@ -330,17 +329,17 @@ export function useNumberGridGame() {
         setStartTime,
         elapsedTime,
         setElapsedTime,
-        
+
         // Références
         dragStartRef,
         timerRef,
-        
+
         // Valeurs dérivées
         used,
         isComplete,
         combinaison,
         formattedTime,
-        
+
         // Handlers optimisés
         placeSelectedDigitInSlot,
         handleDragStart,
@@ -349,12 +348,12 @@ export function useNumberGridGame() {
         removeFromSlot,
         resetGame,
         handleSubmitAndNavigate,
-        
+
         // Utilitaires
         formatTime,
         DIGITS,
         SLOT_COUNT,
-        
+
         // État de soumission
         isSubmitting,
     };

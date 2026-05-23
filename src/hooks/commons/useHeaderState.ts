@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/hooks';
 import { Role } from '@/lib/interfaces';
+import { useAuthStore } from '@/lib/store/auth.store';
 import { useScroll, useTransform } from 'framer-motion';
 import { LayoutDashboard, MessageCircle, Stars, User, Wallet } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -10,6 +11,7 @@ export function useHeaderState() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const {user:userstore} = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -105,7 +107,7 @@ export function useHeaderState() {
 
   return {
     handleLogout, setMobileMenuOpen, setShowUserMenu, closeMobileMenu, toggleTheme,
-    user, theme, mounted, mobileMenuOpen, isScrolled, showUserMenu,
+    user:user||userstore, theme, mounted, mobileMenuOpen, isScrolled, showUserMenu,
     scrollY, progressWidth, userBadge, navItems, hasMountedUser,
   };
 }

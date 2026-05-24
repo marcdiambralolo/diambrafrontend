@@ -7,7 +7,7 @@ export function getRootMetadata() {
       template: "%s | Diambra",
     },
     description:
-      "✨ Jouez dès maintenant!",
+      "✨ Jouez DIAMBRA dès maintenant!",
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://www.diambra.net"),
     openGraph: {
       type: "website",
@@ -18,7 +18,7 @@ export function getRootMetadata() {
       description:
         "🔮 Jeu .",
       images: [
-        { url: "/og-image.jpg", width: 1200, height: 630, alt: "Diambra - Plateforme Spirituelle", type: "image/jpeg" },
+        { url: "/og-image.jpg", width: 1200, height: 630, alt: "Diambra", type: "image/jpeg" },
         { url: "/og-image-square.jpg", width: 800, height: 800, alt: "Diambra", type: "image/jpeg" },
       ],
     },
@@ -26,7 +26,7 @@ export function getRootMetadata() {
       card: "summary_large_image",
       site: "@DiambraApp",
       creator: "@DiambraApp",
-      title: "Diambra ",
+      title: "Diambra",
       description: "🔮 Jeu.",
       images: ["/twitter-image.jpg"],
     },

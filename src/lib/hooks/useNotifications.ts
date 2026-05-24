@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
 import { notificationsService } from '@/lib/api/services';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { logger } from '@/lib/utils/logger';
 import type { Notification } from '@/lib/types/notification.types';
+import { logger } from '@/lib/utils/logger';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useNotifications(pollingInterval: number = 300000) {
   const [notifications, setNotifications] = useState<Notification[]>([]);

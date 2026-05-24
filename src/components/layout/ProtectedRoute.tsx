@@ -299,7 +299,7 @@ const CosmicLoader = memo(() => (
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Protection spirituelle en cours
+          Protection de vos jeux en cours
         </motion.h2>
 
         <motion.p
@@ -345,9 +345,9 @@ const CosmicLoader = memo(() => (
         className="mt-10 space-y-2 sm:mt-12"
       >
         {[
-          { icon: Shield, text: 'Activation du cercle de protection', delay: 0 },
-          { icon: Lock, text: 'Scellage énergétique de la session', delay: 0.3 },
-          { icon: Sparkles, text: 'Ouverture de votre espace sacré', delay: 0.6 },
+          { icon: Shield, text: 'Activation de la protection', delay: 0 },
+          { icon: Lock, text: 'Securisation de la session', delay: 0.3 },
+          { icon: Sparkles, text: 'Ouverture de votre espace', delay: 0.6 },
         ].map((step, index) => (
           <motion.div
             key={index}

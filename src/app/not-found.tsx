@@ -53,16 +53,6 @@ export default function NotFoundPage() {
     },
   };
 
-  const floatingAnimation = {
-    y: [0, -20, 0],
-    rotate: [0, 5, -5, 0],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      repeatType: "reverse" as const,
-      ease: "easeInOut",
-    },
-  };
 
   const starVariants: Variants = {
     hidden: { opacity: 0, scale: 0 },

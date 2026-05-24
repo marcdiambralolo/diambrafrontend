@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Diambra — Quatre cases",
+    name: "Diambra Win",
     short_name: "Diambra",
     description:
       "Jeu Diambra.",

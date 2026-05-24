@@ -60,6 +60,7 @@ export function normalizePrefetchHref(href: string): string | null {
   }
 
   const pathname = href.split('#')[0]?.split('?')[0]?.trim();
+  
   if (!pathname) {
     return null;
   }

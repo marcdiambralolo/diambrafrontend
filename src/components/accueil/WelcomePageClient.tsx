@@ -97,12 +97,11 @@ export function WelcomePageClientContent() {
             <h2 className="text-3xl font-black text-gray-800">📜 Règles du jeu</h2>
             <p className="text-gray-500 mt-2">4 cases, 10 chiffres, 1 combinaison gagnante</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Pill icon={<Grid className="h-5 w-5" />} title="4 cases à remplir" desc="Chaque partie comporte 4 cases vides." tooltip="Les cases sont numérotées de 1 à 4" delay={0} />
             <Pill icon={<Brain className="h-5 w-5" />} title="Chiffres 0 à 9" desc="10 chiffres disponibles, 4 utilisés." tooltip="Utilisez votre logique" delay={50} />
             <Pill icon={<TrophyIcon className="h-5 w-5" />} title="Pas de répétition" desc="Un chiffre = une seule utilisation." tooltip="Chaque chiffre est unique" delay={100} />
-            <Pill icon={<Target className="h-5 w-5" />} title="Objectif" desc="Trouvez la bonne combinaison !" tooltip="Solution unique par partie" delay={150} />
-          </div>
+           </div>
         </section>
 
         <section id="jeu" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">

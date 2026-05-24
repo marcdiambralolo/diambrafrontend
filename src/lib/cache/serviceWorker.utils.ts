@@ -119,7 +119,6 @@ export function formatBytes(bytes: number, decimals = 2): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
 }
 
-
 export function isOnline(): boolean {
   return typeof navigator !== 'undefined' && navigator.onLine;
 }

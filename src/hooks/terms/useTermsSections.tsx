@@ -63,7 +63,6 @@ export function useTermsSections(): TermsSection[] {
           <List items={[
             'Sauvegarder vos scores et statistiques',
             'Suivre votre progression',
-            'Participer au classement des joueurs',
             'Recevoir des défis quotidiens',
           ]} />
         </>

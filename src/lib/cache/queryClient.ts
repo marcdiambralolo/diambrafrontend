@@ -18,10 +18,7 @@ export const QUERY_KEYS = {
   ADMIN_USER_DETAIL: (userId: string) => ['admin', 'user', userId],
   CONSULTATIONS_MY: ['consultations', 'me'],
   CONSULTATIONS_GAME: (gameId?: string) => ['consultations', 'pergame', gameId] as const,
-  MESSAGING_CLIENT_THREAD: (consultantId: string) => ['messaging', 'client-thread', consultantId],
-  MESSAGING_CONSULTATION_THREAD: (consultationId: string) => ['messaging', 'consultation-thread', consultationId],
   NOTIFICATIONS: ['notifications'],
-  PLATFORM_STATS: ['platform-stats'],
   WALLET_TRANSACTIONS: ['wallet', 'transactions'],
   WALLET_UNUSED_OFFERINGS: ['wallet', 'unused-offerings'],
 };

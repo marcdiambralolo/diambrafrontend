@@ -24,7 +24,6 @@ export function getBackendApiUrl(pathname: string) {
   const cleanBaseURL = stripTrailingSlashes(rawBaseUrl);
   const normalizedPath = pathname.replace(/^\/+/, '');
 
-  // ✅ Éviter la double route /api/v1/api/v1/...
   return `${cleanBaseURL}/${normalizedPath}`;
 }
 

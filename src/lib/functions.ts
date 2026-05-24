@@ -28,7 +28,6 @@ export function cx(...v: Array<string | false | null | undefined>) {
   return v.filter(Boolean).join(" ");
 }
  
-
 export function processUserData(userData: User | null): User | null {
   if (!userData) return null;
 

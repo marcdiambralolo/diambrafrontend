@@ -192,6 +192,7 @@ const LoginForm = () => {
             </div>
           </div>
         </div>
+        
         <p className="mt-6 text-center text-xs text-gray-400 mb-16">
           © 2026 Diambra. Tous droits réservés.
         </p>

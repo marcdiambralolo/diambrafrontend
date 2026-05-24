@@ -65,7 +65,7 @@ const Loader = memo(function Loader() {
             transition={{ duration: 0.35, delay: 0.12 }}
             className="text-[12px] leading-snug text-slate-600 dark:text-slate-300/85"
           >
-            Préparation de vos données, merci de patienter.
+            Préparation de vos données, merci de patienter
           </motion.div>
 
           <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">

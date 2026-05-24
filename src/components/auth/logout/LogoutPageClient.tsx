@@ -9,7 +9,7 @@ const checkVariants: Variants = {
   visible: { scale: 1, rotate: 0, opacity: 1, transition: { delay: 0.15, type: "spring", stiffness: 220, damping: 18 } }
 };
 
-const CELEBRATION_STARS = 10;
+const CELEBRATION_STARS = 8;
 
 export const SuccessState = () => (
   <motion.div

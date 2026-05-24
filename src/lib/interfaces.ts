@@ -1,3 +1,5 @@
+export type DateLike = Date | string | number | null | undefined;
+
 export interface Offering {
   createdAt?: string | Date;
   updatedAt?: string | Date;
@@ -191,8 +193,6 @@ export interface LastEndedGame {
   createdAt?: string;
   updatedAt?: string;
 }
-
-export type DateLike = Date | string | number | null | undefined;
 
 export interface FormData {
   month?: string;

@@ -89,8 +89,6 @@ export function fetchApiStatus() {
   return apiFetch<ApiStatusResponse>("/status");
 }
 
-
-
 type DecodedToken = {
   exp?: number;
   role?: string;

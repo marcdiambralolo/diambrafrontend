@@ -165,7 +165,7 @@ export default function TermsPageClient() {
                         transition={{ delay: 0.2 }}
                         className="text-purple-500 text-sm"
                     >
-                        Dernière mise à jour : <span className="font-semibold text-purple-700">21 avril 2026</span>
+                        Dernière mise à jour : <span className="font-semibold text-purple-700">24 mai 2026</span>
                     </motion.p>
                 </div>
             </div>

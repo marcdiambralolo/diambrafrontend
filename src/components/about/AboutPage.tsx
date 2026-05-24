@@ -124,19 +124,13 @@ export default function AboutPageClient() {
               icon={<Brain className="h-5 w-5" />}
               title="Chiffres de 0 à 9"
               desc="10 chiffres disponibles, mais seulement 4 seront utilisés."
-              tooltip="Utilisez votre logique pour choisir les bons"
+              tooltip="10 chiffres disponibles, mais seulement 4 seront utilisés."
             />
             <Pill
               icon={<TrophyIcon className="h-5 w-5" />}
               title="Pas de répétition"
               desc="Un même chiffre ne peut être utilisé qu'une seule fois."
-              tooltip="Chaque chiffre est unique dans la combinaison"
-            />
-            <Pill
-              icon={<Target className="h-5 w-5" />}
-              title="Objectif"
-              desc="Trouvez la bonne combinaison pour gagner !"
-              tooltip="La solution est unique à chaque partie"
+              tooltip="10 chiffres disponibles, mais seulement 4 seront utilisés."
             />
           </div>
         </section>

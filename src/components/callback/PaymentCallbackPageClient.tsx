@@ -7,7 +7,7 @@ import { ArrowRight, Clock, Home, Loader2, RefreshCw, ShieldCheck, Sparkles, } f
 import React from 'react';
 
 const DM = {
-  page: 'min-h-screen bg-[var(--bg-dark)] text-[var(--text-dark)]',
+  page: 'bg-[var(--bg-dark)] text-[var(--text-dark)]',
   shell: 'relative mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-10',
   panel:
     'relative overflow-hidden rounded-[28px] border border-[var(--accent-violet)]/20 bg-gradient-lux-dark shadow-[0_24px_90px_rgba(79,92,255,0.18)]',

@@ -47,7 +47,6 @@ export function useTermsSections(): TermsSection[] {
           <List items={[
             'Remplir 4 cases avec des chiffres de 0 à 9',
             'Ne jamais répéter le même chiffre',
-            'Jouer en mode clic ou glisser-déposer',
           ]} />
         </>
       ),

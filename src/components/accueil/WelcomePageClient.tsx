@@ -1,14 +1,15 @@
 "use client";
 import Loader from '@/app/loading';
+import { useAuth } from '@/lib/hooks';
 import {
   ArrowRight, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick, Move,
-  Rocket, Target, TrophyIcon, Zap
+  Rocket, TrophyIcon, Zap,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import CacheLink from '../commons/CacheLink';
 
 const useScrollReveal = () => {
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -71,7 +72,24 @@ export default function WelcomePageClient() {
 }
 
 export function WelcomePageClientContent() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
   useScrollReveal();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      setIsRedirecting(true);
+      router.replace('/star/profil');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || isRedirecting) {
+    return (
+      <Loader />
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 overflow-x-hidden">
@@ -101,14 +119,14 @@ export function WelcomePageClientContent() {
             <Pill icon={<Grid className="h-5 w-5" />} title="4 cases à remplir" desc="Chaque partie comporte 4 cases vides." tooltip="Les cases sont numérotées de 1 à 4" delay={0} />
             <Pill icon={<Brain className="h-5 w-5" />} title="Chiffres 0 à 9" desc="10 chiffres disponibles, 4 utilisés." tooltip="Utilisez votre logique" delay={50} />
             <Pill icon={<TrophyIcon className="h-5 w-5" />} title="Pas de répétition" desc="Un chiffre = une seule utilisation." tooltip="Chaque chiffre est unique" delay={100} />
-           </div>
+          </div>
         </section>
 
         <section id="jeu" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-100">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-black text-gray-800">🎯 Comment jouer ?</h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-1">
             <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-6 hover:shadow-xl transition-all">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
               <div className="relative">
@@ -120,21 +138,6 @@ export function WelcomePageClientContent() {
                 <div className="mt-4 flex items-center gap-1 text-sm text-purple-500">
                   <Zap className="w-4 h-4" />
                   <span>Simple et intuitif</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-6 hover:shadow-xl transition-all">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-              <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg">
-                  <Move className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-indigo-800 mb-2">Mode Glisser-Déposer</h3>
-                <p className="text-indigo-600">Glissez un chiffre directement dans la case de votre choix.</p>
-                <div className="mt-4 flex items-center gap-1 text-sm text-indigo-500">
-                  <Zap className="w-4 h-4" />
-                  <span>Rapide et fluide</span>
                 </div>
               </div>
             </div>

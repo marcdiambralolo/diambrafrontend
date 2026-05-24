@@ -3,14 +3,10 @@ import { useAdminConsultationsPageFinished } from "@/hooks/profil/ended/useAdmin
 import { useProfilUser } from "@/hooks/profil/useProfilUser";
 import { formatDateFRJeu, formatEditionDate } from "@/lib/functions";
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Award, Crown, FileText, Flame, Gift, Hash, ListOrdered, Medal, RefreshCw,
-  Shuffle, Sparkles, Star, Trophy, Users,
-} from "lucide-react";
-import { useMemo } from 'react';
-import { fadeInUp, LoadingSkeleton, staggerContainer, TopCard } from "../admin/consultations/ConsultationsPageClientEnded";
+import { Award, Crown, FileText, Flame, Gift, ListOrdered, RefreshCw, Shuffle, Sparkles, Trophy, Users } from "lucide-react";
+import { fadeInUp, LoadingSkeleton, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
 import CacheLink from '../commons/CacheLink';
-import { ActiveBanner, EndedBanner, GameStatusBadge, NotStartedBanner, Podium, StatCard, StatCard2, StatisticsPanel, WinnersList, WinningCombinationCard } from "./Features";
+import { ActiveBanner, EndedBanner, GameStatusBadge, NotStartedBanner, Podium, StatCard, WinnersList, WinningCombinationCard } from "./Features";
 
 export default function ProfilPageClient() {
   const {
@@ -24,54 +20,7 @@ export default function ProfilPageClient() {
   } = useAdminConsultationsPageFinished();
 
   const hasWinners = winners && winners.totalWinners > 0;
-  const hasStatistics = statistics !== null;
   const winningCombination = statistics?.winningCombination || activeEdition?.winningCombination || null;
-
-  const localStats = useMemo(() => {
-    const playersMap = new Map();
-    consultations.forEach(c => {
-      const username = c.clientId?.username;
-      if (username && !playersMap.has(username)) {
-        playersMap.set(username, { username, games: 0, combinaisons: new Set() });
-      }
-      if (username) {
-        const player = playersMap.get(username);
-        player.games++;
-        if (c.combinaison) player.combinaisons.add(c.combinaison);
-      }
-    });
-
-    const uniquePlayers = playersMap.size;
-    const avgGamesPerPlayer = uniquePlayers > 0 ? (consultations.length / uniquePlayers).toFixed(1) : 0;
-
-    const combinaisonsMap = new Map();
-    consultations.forEach(c => {
-      const comb = c.combinaison;
-      if (comb && comb !== '????') {
-        combinaisonsMap.set(comb, (combinaisonsMap.get(comb) || 0) + 1);
-      }
-    });
-    const uniqueCombinaisons = combinaisonsMap.size;
-
-    const topCombinaisons = Array.from(combinaisonsMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-
-    const topPlayers = Array.from(playersMap.entries())
-      .map(([username, data]) => ({ username, games: data.games, combinaisons: data.combinaisons.size }))
-      .sort((a, b) => b.games - a.games)
-      .slice(0, 5);
-
-    return {
-      totalGames: consultations.length,
-      uniquePlayers,
-      avgGamesPerPlayer,
-      uniqueCombinaisons,
-      topCombinaisons,
-      topPlayers,
-    };
-  }, [consultations]);
-
   const isLoading = profilLoading || loadingLastEnded || endedLoading;
 
   if (isLoading) return <LoadingSkeleton />;
@@ -133,7 +82,6 @@ export default function ProfilPageClient() {
               gameConfig={gameConfig}
             />
           )}
-
           {showEnded && (<EndedBanner key="ended" lastEndedGame={lastEndedGame} />)}
         </AnimatePresence>
 
@@ -153,23 +101,22 @@ export default function ProfilPageClient() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div>
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 px-4 py-1.5 mb-3 shadow-sm"
-              >
-                <Crown className="w-4 h-4 text-yellow-500" />
-                <span className="text-xs font-black uppercase tracking-wider text-purple-700 dark:text-purple-400">
-                  {showEnded ? "RÉSULTATS DE LA DERNIÈRE ÉDITION" : "PROCLAMATION DES RÉSULTATS"}
-                </span>
-                <Sparkles className="w-4 h-4 text-purple-500" />
-              </motion.div>
-              <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
-                DIAMBRA WINNER'S
-              </h1>
-            </div>
+          <div className="flex flex-col  items-start lg:items-center justify-between gap-4">
+
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="flex items-center text-center  gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 px-4 py-1.5 mb-3 shadow-sm"
+            >
+              <Crown className="w-4 h-4 text-yellow-500" />
+              <span className="text-xs text-center  font-black uppercase tracking-wider text-purple-700 dark:text-purple-400">
+                {showEnded ? "RÉSULTATS DE LA DERNIÈRE ÉDITION" : "PROCLAMATION DES RÉSULTATS"}
+              </span>
+              <Sparkles className="w-4 h-4 text-purple-500" />
+            </motion.div>
+            <h1 className="text-xl text-center sm:text-3xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
+              DIAMBRA WINNER'S
+            </h1>
           </div>
         </motion.div>
 
@@ -202,7 +149,6 @@ export default function ProfilPageClient() {
           </motion.div>
         )}
 
-        {/* SECTION GAGNANTS (backend) */}
         {hasWinners && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -228,64 +174,6 @@ export default function ProfilPageClient() {
           </motion.div>
         )}
 
-        {/* SECTION STATISTIQUES (backend) */}
-        {hasStatistics && (
-          <StatisticsPanel stats={statistics} />
-        )}
-
-
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8"
-        >
-          <StatCard2
-            icon={<Trophy className="w-4 h-4" />}
-            label="Total jeux"
-            value={localStats.totalGames}
-            color="from-purple-600 to-indigo-600"
-          />
-          <StatCard2
-            icon={<Users className="w-4 h-4" />}
-            label="Joueurs uniques"
-            value={localStats.uniquePlayers}
-            subValue={`${localStats.avgGamesPerPlayer} parties/joueur`}
-            color="from-blue-600 to-cyan-600"
-          />
-          <StatCard2
-            icon={<Hash className="w-4 h-4" />}
-            label="Combinaisons uniques"
-            value={localStats.uniqueCombinaisons}
-            color="from-amber-600 to-orange-600"
-          />
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <TopCard
-            title="Top joueurs"
-            icon={<Medal className="w-5 h-5 text-yellow-400" />}
-            items={localStats.topPlayers.map((player, idx) => ({
-              name: player.username,
-              value: `${player.games} parties`,
-              subValue: `${player.combinaisons} combinaisons`,
-              rank: idx + 1
-            }))}
-            color="from-purple-600 to-indigo-600"
-          />
-          <TopCard
-            title="Top combinaisons"
-            icon={<Star className="w-5 h-5 text-yellow-400" />}
-            items={localStats.topCombinaisons.map(([comb, count], idx) => ({
-              name: comb,
-              value: `${count} fois`,
-              rank: idx + 1
-            }))}
-            color="from-green-600 to-emerald-600"
-          />
-        </div>
-
-        {/* MESSAGE PAS DE GAGNANTS */}
         {!hasWinners && consultations.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -300,7 +188,6 @@ export default function ProfilPageClient() {
           </motion.div>
         )}
 
-        {/* LISTE DES PARTICIPATIONS */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"

@@ -1,16 +1,16 @@
 'use client';
+import { Winner } from "@/hooks/profil/ended/useAdminConsultationsPageFinished";
 import { formatNumber } from "@/lib/functions";
 import { LastEndedGame } from "@/lib/interfaces";
 import { motion } from 'framer-motion';
 import {
-    Award, Calendar, CheckCircle2, Clock, Crown, TrendingUp, Trophy, Users, Zap,
-    Flame, Hash, History, Hourglass, Medal, Rocket, Shuffle, Sparkles, Star,
+    Award, Calendar, Clock, Crown, Flame, History, Hourglass, Medal, Rocket,
+    Sparkles, Star, TrendingUp, Trophy, Zap
 } from "lucide-react";
 import Link from 'next/link';
 import React, { memo } from 'react';
 import { fadeInUp } from "../admin/consultations/ConsultationsPageClientEnded";
 import CacheLink from "../commons/CacheLink";
-import { StatisticsData, Winner } from "@/hooks/profil/ended/useAdminConsultationsPageFinished";
 
 interface StatCard2Props {
     icon: React.ReactNode;
@@ -74,7 +74,6 @@ export const WinningCombinationCard = ({ combination }: { combination: string })
                     </motion.div>
                 ))}
             </div>
-            <p className="text-sm opacity-90">La combinaison qui rapporte gros ! 🎉</p>
         </div>
     </motion.div>
 );
@@ -102,7 +101,6 @@ export const Podium = ({ winners }: { winners: Winner[] }) => {
                         </div>
                         <div className="mt-2 text-center">
                             <p className="font-bold text-gray-800 dark:text-white">{silver.username}</p>
-                            <p className="text-xs text-gray-500">{silver.timeSpent}s</p>
                         </div>
                         <div className="mt-1 w-20 h-16 bg-gradient-to-t from-gray-400 to-gray-300 rounded-t-lg flex items-center justify-center">
                             <span className="text-2xl font-black text-white">2</span>
@@ -125,7 +123,6 @@ export const Podium = ({ winners }: { winners: Winner[] }) => {
                         </div>
                         <div className="mt-2 text-center">
                             <p className="font-bold text-lg text-gray-800 dark:text-white">{gold.username}</p>
-                            <p className="text-xs text-gray-500">{gold.timeSpent}s</p>
                         </div>
                         <div className="mt-1 w-24 h-20 bg-gradient-to-t from-yellow-500 to-yellow-400 rounded-t-lg flex items-center justify-center">
                             <span className="text-3xl font-black text-white">1</span>
@@ -148,7 +145,6 @@ export const Podium = ({ winners }: { winners: Winner[] }) => {
                         </div>
                         <div className="mt-2 text-center">
                             <p className="font-bold text-gray-800 dark:text-white">{bronze.username}</p>
-                            <p className="text-xs text-gray-500">{bronze.timeSpent}s</p>
                         </div>
                         <div className="mt-1 w-20 h-14 bg-gradient-to-t from-amber-700 to-amber-600 rounded-t-lg flex items-center justify-center">
                             <span className="text-2xl font-black text-white">3</span>
@@ -199,45 +195,12 @@ export const WinnersList = ({ title, winners, icon, color }: { title: string; wi
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-mono font-bold text-purple-600 dark:text-purple-400">{winner.timeSpent}s</p>
-                                <p className="text-xs text-gray-500">Temps</p>
+                                <p className="text-sm font-mono font-bold text-purple-600 dark:text-purple-400">{winner.country}</p>
                             </div>
                         </div>
                     </motion.div>
                 ))
             )}
-        </div>
-    </motion.div>
-);
-
-export const StatisticsPanel = ({ stats }: { stats: StatisticsData }) => (
-    <motion.div variants={fadeInUp} className="space-y-6">
-        {/* Taux de succès */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-            <div className="rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-4 text-white">
-                <div className="flex items-center justify-between mb-2">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-xs opacity-80">Ordre</span>
-                </div>
-                <p className="text-2xl font-bold">{stats.successRate.exact.toFixed(1)}%</p>
-                <p className="text-xs opacity-80 mt-1">{stats.successRate.exact > 0 ? `${Math.round(stats.successRate.exact * stats.totalParticipants / 100)} joueurs` : 'Aucun'}</p>
-            </div>
-            <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 p-4 text-white">
-                <div className="flex items-center justify-between mb-2">
-                    <Shuffle className="w-5 h-5" />
-                    <span className="text-xs opacity-80">Désordre</span>
-                </div>
-                <p className="text-2xl font-bold">{stats.successRate.disordered.toFixed(1)}%</p>
-                <p className="text-xs opacity-80 mt-1">{stats.successRate.disordered > 0 ? `${Math.round(stats.successRate.disordered * stats.totalParticipants / 100)} joueurs` : 'Aucun'}</p>
-            </div>
-            <div className="rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 p-4 text-white">
-                <div className="flex items-center justify-between mb-2">
-                    <Users className="w-5 h-5" />
-                    <span className="text-xs opacity-80">Participation</span>
-                </div>
-                <p className="text-2xl font-bold">{stats.uniqueParticipants}</p>
-                <p className="text-xs opacity-80 mt-1">joueurs uniques</p>
-            </div>
         </div>
     </motion.div>
 );

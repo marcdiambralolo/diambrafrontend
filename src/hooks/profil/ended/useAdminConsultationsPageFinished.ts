@@ -23,6 +23,7 @@ export interface WinnersData {
 }
 
 export interface Winner {
+  country: string;
   consultationId: string;
   clientId: string;
   username: string;

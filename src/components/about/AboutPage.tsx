@@ -149,13 +149,6 @@ export default function AboutPageClient() {
                 </div>
                 <p className="text-sm text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Move className="h-5 w-5 text-purple-600" />
-                  <h3 className="font-bold text-purple-800">Mode Glisser-Déposer</h3>
-                </div>
-                <p className="text-sm text-purple-600">Glissez un chiffre directement dans la case de votre choix.</p>
-              </div>
             </div>
           </ConicPanel>
         </section>

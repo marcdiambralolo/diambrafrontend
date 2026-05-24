@@ -7,8 +7,7 @@ import { formatDateFRJeu } from "@/lib/functions";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight, CheckCircle2, ChevronRight, Circle, Coins,
-  Gift, MousePointerClick, Move, Rocket,
-  ShoppingBag, Sparkles, Star, Trophy, Users, Zap
+  Gift, Rocket, ShoppingBag, Sparkles, Star, Trophy, Users, Zap
 } from "lucide-react";
 import { ActiveBanner, DigitButton, EndedBanner, ErrorToast, GameHeader, SlotCard, StatCard, StatusBanner } from './Features';
 
@@ -32,7 +31,6 @@ interface ActiveGameProps {
   onDrop: (e: any, index: number) => void;
   onPlace: (index: number) => void;
   onRemove: (index: number) => void;
-  onModeChange: (mode: 'drag' | 'click') => void;
   onDigitSelect: (digit: number) => void;
   onValidate: () => void;
   setDragOverSlot: (index: number | null) => void;
@@ -41,8 +39,7 @@ interface ActiveGameProps {
 
 const ActiveGame = ({
   slots, selected, dragOverSlot, mode, isDragging, isComplete, used,
-  onDragOver, onDrop, onPlace, onRemove,
-  onModeChange, onDigitSelect, onValidate,
+  onDragOver, onDrop, onPlace, onRemove, onDigitSelect, onValidate,
   setDragOverSlot, setIsDragging,
 }: ActiveGameProps) => (
   <div className="bg-gradient-to-br from-gray-50 via-white to-purple-50/30 px-2 py-4 sm:py-6">
@@ -147,31 +144,6 @@ const ActiveGame = ({
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="flex justify-center gap-4 flex-wrap">
-        <div className="flex gap-2 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-md border border-purple-100">
-          <button
-            onClick={() => onModeChange('click')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${mode === 'click'
-              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
-          >
-            <MousePointerClick className="w-4 h-4" />
-            <span className="font-semibold">Mode Clic</span>
-          </button>
-          <button
-            onClick={() => onModeChange('drag')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ${mode === 'drag'
-              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg scale-105'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
-          >
-            <Move className="w-4 h-4" />
-            <span className="font-semibold">Mode Glisser-Déposer</span>
-          </button>
-        </div>
-      </div>
 
       <AnimatePresence>
         {isDragging && (
@@ -303,7 +275,7 @@ const OfferSelection = ({
 export default function ProfilPageClient() {
   const {
     handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
-    setIsDragging, setSelected, setMode, placeSelectedDigitInSlot, handleSubmitAndNavigate,
+    setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate,
     dataLoading, dataError, showError, currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity,
     gamehasStarted, slots, selected, dragOverSlot, isDragging, mode, used, isComplete,
   } = useCategoryConsulterClient();
@@ -336,7 +308,6 @@ export default function ProfilPageClient() {
           onDrop={handleDrop}
           onPlace={placeSelectedDigitInSlot}
           onRemove={removeFromSlot}
-          onModeChange={setMode}
           onDigitSelect={(digit) => setSelected(selected === digit ? null : digit)}
           onValidate={handleSubmitAndNavigate}
           setDragOverSlot={setDragOverSlot}

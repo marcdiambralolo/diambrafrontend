@@ -1,266 +1,105 @@
 'use client';
-import Loader from "@/app/loading";
+import { useAdminConsultationsPageFinished } from "@/hooks/profil/ended/useAdminConsultationsPageFinished";
 import { useProfilUser } from "@/hooks/profil/useProfilUser";
-import { formatDateFRJeu, formatNumber } from "@/lib/functions";
-import { LastEndedGame } from "@/lib/interfaces";
+import { formatDateFRJeu, formatEditionDate } from "@/lib/functions";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Award, Calendar, Clock, Crown, Flame, History, Hourglass,
-  Rocket, Sparkles, Star, Trophy, Users, Zap
+  Award, Crown, FileText, Flame, Gift, Hash, ListOrdered, Medal, RefreshCw,
+  Shuffle, Sparkles, Star, Trophy, Users,
 } from "lucide-react";
-import Link from 'next/link';
-import React, { memo } from 'react';
-import CacheLink from "../commons/CacheLink";
-
-interface StatCardProps {
-  value: number | null;
-  label: string;
-  icon: React.ReactNode;
-  loading: boolean;
-  color: string;
-  delay?: number;
-}
-
-const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay, duration: 0.5, type: "spring", stiffness: 200 }}
-    whileHover={{ scale: 1.02, y: -4 }}
-    whileTap={{ scale: 0.98 }}
-    className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-5 text-white shadow-xl cursor-pointer group border border-white/20`}
-  >
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-white/15 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
-    <div className="relative z-10">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold opacity-90">{label}</span>
-        <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">{icon}</div>
-      </div>
-      {loading ? (
-        <div className="h-10 w-20 bg-white/30 rounded-xl animate-pulse" />
-      ) : (
-        <div className="relative">
-          <p className="text-3xl font-extrabold tracking-tight">
-            {value !== null ? formatNumber(value) : '--'}
-          </p>
-          <div className="absolute -top-2 -right-2">
-            <Star className="w-3 h-3 text-yellow-300 animate-pulse" />
-          </div>
-        </div>
-      )}
-    </div>
-  </motion.div>
-));
-
-const GlowButton = ({ href, children, variant = 'primary' }: { href: string; children: React.ReactNode; variant?: 'primary' | 'secondary' }) => {
-  const gradient = variant === 'primary'
-    ? 'from-purple-600 via-pink-600 to-orange-500'
-    : 'from-blue-600 via-cyan-500 to-teal-600';
-
-  return (
-    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="relative group w-full sm:w-auto">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition duration-500" />
-      <Link
-        href={href}
-        className={`relative flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r ${gradient} text-white font-bold rounded-2xl shadow-lg transition-all duration-300 text-sm sm:text-base w-full sm:w-auto`}
-      >
-        <Sparkles className="w-4 h-4 animate-pulse" />
-        <span>{children}</span>
-        <Zap className="w-4 h-4" />
-      </Link>
-    </motion.div>
-  );
-};
-
-const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
-  const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [hasFinished, setHasFinished] = React.useState(false);
-
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        clearInterval(timer);
-        if (!hasFinished) {
-          setHasFinished(true);
-          onFinish?.();
-        }
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
-        minutes: Math.floor((diff % 3600000) / (1000 * 60)),
-        seconds: Math.floor((diff % 60000) / 1000)
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [targetDate, hasFinished, onFinish]);
-
-  const textColor = variant === 'light' ? 'text-white' : 'text-gray-800';
-  const bgColor = variant === 'light' ? 'bg-black/25' : 'bg-white/80';
-
-  return (
-    <div className="flex gap-2 justify-center flex-wrap">
-      {Object.entries(timeLeft).map(([unit, value]) => (
-        <div key={unit} className={`text-center ${bgColor} backdrop-blur-lg rounded-xl px-2 py-1.5 min-w-[55px] shadow-lg`}>
-          <p className={`${textColor} font-black text-xl sm:text-2xl leading-tight`}>
-            {value.toString().padStart(2, '0')}
-          </p>
-          <p className={`${textColor}/70 text-[9px] uppercase tracking-wider font-medium`}>
-            {unit === 'days' ? 'j' : unit === 'hours' ? 'h' : unit === 'minutes' ? 'm' : 's'}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const HistoryButton = memo(({ gameId }: { gameId?: string }) => (
-  <CacheLink
-    href={`/star/historique${gameId ? `/${gameId}` : ''}`}
-    className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-sm w-full sm:w-auto"
-  >
-    <History className="w-4 h-4" />
-    <span>Historique</span>
-  </CacheLink>
-));
-
-const GameStatusBadge = ({ children, variant = 'primary' }: { children: React.ReactNode; variant?: 'primary' | 'success' | 'error' }) => {
-  const colors = {
-    primary: 'from-purple-600 to-pink-600',
-    success: 'from-green-600 to-emerald-600',
-    error: 'from-red-600 to-orange-600'
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${colors[variant]} px-4 py-2 shadow-xl`}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-const NotStartedBanner = ({ startDate, handleOpenGame, formatDateTime }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-5 mb-6 shadow-xl"
-  >
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-    <div className="relative flex flex-col items-center gap-4">
-      <div className="flex items-center gap-3">
-        <div className="rounded-full bg-white/20 p-3">
-          <Hourglass className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <p className="text-white font-bold text-lg">Préparez-vous !</p>
-          <p className="text-white/80 text-xs">Le jeu n'a pas encore commencé</p>
-        </div>
-      </div>
-      <CountdownTimer targetDate={startDate} variant="light" onFinish={handleOpenGame} />
-      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-xl">
-        <Clock className="w-4 h-4 text-white" />
-        <span className="text-white text-xs font-medium">Ouverture {formatDateTime(startDate)}</span>
-      </div>
-    </div>
-  </motion.div>
-);
-
-const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | null }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 p-5 mb-6 shadow-xl"
-  >
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-3">
-        <div className="rounded-full bg-yellow-500/20 p-3">
-          <Award className="w-8 h-8 text-yellow-400" />
-        </div>
-        <div>
-          <p className="text-white font-bold text-lg">Édition terminée !</p>
-          <p className="text-gray-300 text-xs">
-            {lastEndedGame ? (
-              <>Terminée le {new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR')}</>
-            ) : (
-              'Merci pour votre participation'
-            )}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-        <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2">
-          <Trophy className="w-5 h-5 text-yellow-400" />
-          <div>
-            <p className="text-[10px] text-gray-300">Prochaine édition</p>
-            <p className="font-bold text-white text-sm">Très bientôt</p>
-          </div>
-        </div>
-        <HistoryButton gameId={lastEndedGame?.id} />
-      </div>
-    </div>
-  </motion.div>
-);
-
-const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-5 mb-6 shadow-xl"
-  >
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-    <div className="relative flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <div className="rounded-full bg-white/20 p-3">
-          <Flame className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <p className="text-white font-bold text-lg flex items-center gap-1">
-            <Rocket className="w-4 h-4" />
-            Jeu en cours !
-          </p>
-          <p className="text-white/80 text-xs">Temps restant pour jouer</p>
-        </div>
-      </div>
-
-      <CountdownTimer targetDate={endDate} variant="light" onFinish={handleEndMatch} />
-
-      <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white" />
-          <span className="text-white text-xs">Du {formatDate(startDate)}</span>
-        </div>
-        <div className="text-white text-xs">au {formatDate(endDate)}</div>
-      </div>
-
-      <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
-        Jouer Maintenant
-      </GlowButton>
-    </div>
-  </motion.div>
-);
+import { useMemo } from 'react';
+import { fadeInUp, LoadingSkeleton, staggerContainer, TopCard } from "../admin/consultations/ConsultationsPageClientEnded";
+import CacheLink from '../commons/CacheLink';
+import { ActiveBanner, EndedBanner, GameStatusBadge, NotStartedBanner, Podium, StatCard, StatCard2, StatisticsPanel, WinnersList, WinningCombinationCard } from "./Features";
 
 export default function ProfilPageClient() {
   const {
     handleOpenGame, formatDateTime, handleEndMatch,
-    loading, stats, startDate, endDate, gameConfig,
+    loading: profilLoading, stats, startDate, endDate, gameConfig,
     loadingLastEnded, showNotStarted, lastEndedGame, showActive, showEnded,
   } = useProfilUser();
 
-  if (loading || loadingLastEnded) return <Loader />;
+  const {
+    consultations, activeEdition, winners, statistics, loading: endedLoading, error, refresh,
+  } = useAdminConsultationsPageFinished();
+
+  const hasWinners = winners && winners.totalWinners > 0;
+  const hasStatistics = statistics !== null;
+  const winningCombination = statistics?.winningCombination || activeEdition?.winningCombination || null;
+
+  const localStats = useMemo(() => {
+    const playersMap = new Map();
+    consultations.forEach(c => {
+      const username = c.clientId?.username;
+      if (username && !playersMap.has(username)) {
+        playersMap.set(username, { username, games: 0, combinaisons: new Set() });
+      }
+      if (username) {
+        const player = playersMap.get(username);
+        player.games++;
+        if (c.combinaison) player.combinaisons.add(c.combinaison);
+      }
+    });
+
+    const uniquePlayers = playersMap.size;
+    const avgGamesPerPlayer = uniquePlayers > 0 ? (consultations.length / uniquePlayers).toFixed(1) : 0;
+
+    const combinaisonsMap = new Map();
+    consultations.forEach(c => {
+      const comb = c.combinaison;
+      if (comb && comb !== '????') {
+        combinaisonsMap.set(comb, (combinaisonsMap.get(comb) || 0) + 1);
+      }
+    });
+    const uniqueCombinaisons = combinaisonsMap.size;
+
+    const topCombinaisons = Array.from(combinaisonsMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    const topPlayers = Array.from(playersMap.entries())
+      .map(([username, data]) => ({ username, games: data.games, combinaisons: data.combinaisons.size }))
+      .sort((a, b) => b.games - a.games)
+      .slice(0, 5);
+
+    return {
+      totalGames: consultations.length,
+      uniquePlayers,
+      avgGamesPerPlayer,
+      uniqueCombinaisons,
+      topCombinaisons,
+      topPlayers,
+    };
+  }, [consultations]);
+
+  const isLoading = profilLoading || loadingLastEnded || endedLoading;
+
+  if (isLoading) return <LoadingSkeleton />;
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 border border-red-100 dark:border-red-900/30"
+        >
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <FileText className="w-10 h-10 text-red-500" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Erreur de chargement</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={refresh}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
+          >
+            <RefreshCw className="w-4 h-4 inline mr-2" />
+            Réessayer
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-950 dark:to-purple-950/20 px-4 py-6">
@@ -300,12 +139,202 @@ export default function ProfilPageClient() {
 
         <StatCard
           value={stats?.subscribers ?? null}
-          label="Participants"
+          label="Inscrits"
           icon={<Users className="w-3.5 h-3.5" />}
-          loading={loading}
+          loading={profilLoading}
           color="from-purple-600 to-indigo-600"
           delay={0.2}
         />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto p-6">
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div>
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 px-4 py-1.5 mb-3 shadow-sm"
+              >
+                <Crown className="w-4 h-4 text-yellow-500" />
+                <span className="text-xs font-black uppercase tracking-wider text-purple-700 dark:text-purple-400">
+                  {showEnded ? "RÉSULTATS DE LA DERNIÈRE ÉDITION" : "PROCLAMATION DES RÉSULTATS"}
+                </span>
+                <Sparkles className="w-4 h-4 text-purple-500" />
+              </motion.div>
+              <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
+                DIAMBRA WINNER'S
+              </h1>
+            </div>
+          </div>
+        </motion.div>
+
+        {activeEdition && (
+          <motion.div
+            variants={fadeInUp}
+            className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-5 shadow-xl"
+          >
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                  <Flame className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/80">Édition</p>
+                  <p className="text-white font-bold">
+                    Du {formatEditionDate(new Date(activeEdition.startDate))} au {formatEditionDate(new Date(activeEdition.endDate))}
+                  </p>
+                </div>
+              </div>
+              {winningCombination && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                  <Award className="w-4 h-4 text-white" />
+                  <span className="text-xs font-semibold text-white">
+                    Combinaison Gagnante de l'Edition : {winningCombination}
+                  </span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* SECTION GAGNANTS (backend) */}
+        {hasWinners && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8 mb-8"
+          >
+            <WinningCombinationCard combination={winningCombination || "????"} />
+            <Podium winners={winners.exact} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <WinnersList
+                title="🏆 Gagnants - Ordre Exact"
+                winners={winners.exact}
+                icon={<ListOrdered className="w-4 h-4" />}
+                color="from-yellow-500 to-orange-500"
+              />
+              <WinnersList
+                title="🔄 Gagnants - Désordre"
+                winners={winners.disordered}
+                icon={<Shuffle className="w-4 h-4" />}
+                color="from-blue-500 to-cyan-500"
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* SECTION STATISTIQUES (backend) */}
+        {hasStatistics && (
+          <StatisticsPanel stats={statistics} />
+        )}
+
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8"
+        >
+          <StatCard2
+            icon={<Trophy className="w-4 h-4" />}
+            label="Total jeux"
+            value={localStats.totalGames}
+            color="from-purple-600 to-indigo-600"
+          />
+          <StatCard2
+            icon={<Users className="w-4 h-4" />}
+            label="Joueurs uniques"
+            value={localStats.uniquePlayers}
+            subValue={`${localStats.avgGamesPerPlayer} parties/joueur`}
+            color="from-blue-600 to-cyan-600"
+          />
+          <StatCard2
+            icon={<Hash className="w-4 h-4" />}
+            label="Combinaisons uniques"
+            value={localStats.uniqueCombinaisons}
+            color="from-amber-600 to-orange-600"
+          />
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <TopCard
+            title="Top joueurs"
+            icon={<Medal className="w-5 h-5 text-yellow-400" />}
+            items={localStats.topPlayers.map((player, idx) => ({
+              name: player.username,
+              value: `${player.games} parties`,
+              subValue: `${player.combinaisons} combinaisons`,
+              rank: idx + 1
+            }))}
+            color="from-purple-600 to-indigo-600"
+          />
+          <TopCard
+            title="Top combinaisons"
+            icon={<Star className="w-5 h-5 text-yellow-400" />}
+            items={localStats.topCombinaisons.map(([comb, count], idx) => ({
+              name: comb,
+              value: `${count} fois`,
+              rank: idx + 1
+            }))}
+            color="from-green-600 to-emerald-600"
+          />
+        </div>
+
+        {/* MESSAGE PAS DE GAGNANTS */}
+        {!hasWinners && consultations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl mb-8"
+          >
+            <Gift className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Aucun gagnant</h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              Personne n'a trouvé la bonne combinaison dans cette édition.
+            </p>
+          </motion.div>
+        )}
+
+        {/* LISTE DES PARTICIPATIONS */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="max-w-7xl mx-auto"
+        >
+          {consultations.length === 0 ? (
+            <motion.div
+              variants={fadeInUp}
+              className="text-center py-20 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-800"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="w-24 h-24 mx-auto mb-4 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center"
+              >
+                <Sparkles className="w-12 h-12 text-purple-400" />
+              </motion.div>
+              <p className="text-gray-500 dark:text-gray-400">Aucune partie n'a été jouée dans cette édition</p>
+            </motion.div>
+          ) : (
+            <div className="flex justify-center items-center mb-4">
+              <CacheLink
+                href={`/star/historique/${activeEdition?.id || ''}`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-400 dark:bg-purple-900/30 text-white dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                VOIR TOUTES LES PARTICIPATIONS
+              </CacheLink>
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );

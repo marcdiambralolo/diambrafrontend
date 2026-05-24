@@ -11,12 +11,12 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-const fadeInUp: Variants = {
+export const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: "spring", stiffness: 100 } }
 };
 
-const staggerContainer = {
+export const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -24,7 +24,7 @@ const staggerContainer = {
   }
 };
 
-const LoadingSkeleton = () => (
+export const LoadingSkeleton = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 p-6">
     {[...Array(8)].map((_, i) => (
       <div key={i} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700 animate-pulse">
@@ -45,7 +45,7 @@ interface StatCardProps {
   trend?: number;
 }
 
-const StatCard = ({ icon, label, value, subValue, color, delay = 0, trend }: StatCardProps) => (
+export const StatCard = ({ icon, label, value, subValue, color, delay = 0, trend }: StatCardProps) => (
   <motion.div
     variants={fadeInUp}
     custom={delay}
@@ -79,7 +79,7 @@ interface TopCardProps {
   color: string;
 }
 
-const TopCard = ({ title, icon, items, color }: TopCardProps) => (
+export const TopCard = ({ title, icon, items, color }: TopCardProps) => (
   <motion.div
     variants={fadeInUp}
     whileHover={{ y: -5 }}
@@ -123,8 +123,7 @@ const TopCard = ({ title, icon, items, color }: TopCardProps) => (
 export default function ConsultationsPage() {
   const {
     consultations, totalPages, currentPage, loading, error,
-    isRefreshing, activeEdition, remainingDays,
-    handleRefresh, handlePageChange,
+    isRefreshing, activeEdition, remainingDays, handleRefresh, handlePageChange,
   } = useAdminConsultationsPageFinished();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

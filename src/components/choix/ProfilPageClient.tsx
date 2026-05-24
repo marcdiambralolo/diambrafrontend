@@ -381,7 +381,7 @@ export default function ProfilPageClient() {
 
         <StatCard
           value={stats?.subscribers ?? null}
-          label="Participants"
+          label="Inscrits"
           icon={<Users className="w-3.5 h-3.5" />}
           loading={loading}
           color="from-purple-600 to-indigo-600"

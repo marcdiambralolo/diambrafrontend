@@ -1,6 +1,5 @@
 'use client';
 import { useAdminConsultationsPageFinished } from "@/hooks/profil/ended/useAdminConsultationsPageFinished";
-import { LoadingSkeleton } from "../admin/consultations/ConsultationsPageClientEnded";
 import {
   BannersSection, EditionCard, ErrorState, HeaderSection, ParticipationsSection, TitleSection, WinnersSection,
 } from "./Features";
@@ -8,12 +7,10 @@ import {
 export default function ProfilPageClient() {
   const {
     handleOpenGame, handleEndMatch, handleRefresh,
-    stats, startDate, endDate, gameConfig, lastEndedGame, isLoading,
-    showEnded, consultations, activeEdition, winners,  error,
+    stats, startDate, endDate, gameConfig, lastEndedGame,
+    showEnded, consultations, activeEdition, winners, error,
     hasWinners, winningCombination, hasActiveEdition, hasNotStartedEdition,
   } = useAdminConsultationsPageFinished();
-
-  if (isLoading) return <LoadingSkeleton />;
 
   if (error) {
     return <ErrorState onRefresh={handleRefresh} />;
@@ -32,7 +29,6 @@ export default function ProfilPageClient() {
         gameConfig={gameConfig}
         lastEndedGame={lastEndedGame}
         stats={stats}
-        profilLoading={isLoading}
         onOpenGame={handleOpenGame}
         onEndMatch={handleEndMatch}
       />

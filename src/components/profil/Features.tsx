@@ -83,7 +83,6 @@ interface BannersSectionProps {
     gameConfig: any;
     lastEndedGame: any;
     stats: any;
-    profilLoading: boolean;
     onOpenGame: () => void;
     onEndMatch: () => void;
 }
@@ -97,7 +96,6 @@ export const BannersSection = memo(({
     gameConfig,
     lastEndedGame,
     stats,
-    profilLoading,
     onOpenGame,
     onEndMatch,
 }: BannersSectionProps) => (
@@ -132,7 +130,6 @@ export const BannersSection = memo(({
             value={stats?.subscribers ?? null}
             label="Inscrits"
             icon={<Users className="w-3.5 h-3.5" />}
-            loading={profilLoading}
             color="from-purple-600 to-indigo-600"
             delay={0.2}
         />
@@ -481,12 +478,11 @@ interface StatCardProps {
     value: number | null;
     label: string;
     icon: React.ReactNode;
-    loading: boolean;
     color: string;
     delay?: number;
 }
 
-export const StatCard = memo<StatCardProps>(({ value, label, icon, loading, color, delay = 0 }) => (
+export const StatCard = memo<StatCardProps>(({ value, label, icon, color, delay = 0 }) => (
     <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -502,18 +498,14 @@ export const StatCard = memo<StatCardProps>(({ value, label, icon, loading, colo
                 <span className="text-xs font-semibold opacity-90">{label}</span>
                 <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">{icon}</div>
             </div>
-            {loading ? (
-                <div className="h-10 w-20 bg-white/30 rounded-xl animate-pulse" />
-            ) : (
-                <div className="relative">
-                    <p className="text-3xl font-extrabold tracking-tight">
-                        {value !== null ? formatNumber(value) : '--'}
-                    </p>
-                    <div className="absolute -top-2 -right-2">
-                        <Star className="w-3 h-3 text-yellow-300 animate-pulse" />
-                    </div>
+            <div className="relative">
+                <p className="text-3xl font-extrabold tracking-tight">
+                    {value !== null ? formatNumber(value) : '--'}
+                </p>
+                <div className="absolute -top-2 -right-2">
+                    <Star className="w-3 h-3 text-yellow-300 animate-pulse" />
                 </div>
-            )}
+            </div>
         </div>
     </motion.div>
 ));

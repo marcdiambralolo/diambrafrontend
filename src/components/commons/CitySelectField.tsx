@@ -75,16 +75,15 @@ interface CitySelectFieldProps {
   countryValue?: string; 
   placeholder?: string;
 
-  cityApiUrl: string; // route same-origin ou endpoint absolu
-  cityApiKey?: string; // optionnel
+  cityApiUrl: string;
+  cityApiKey?: string;
   limit?: number;
 
-  onChangeText: (nextValue: string) => void;                // quand l’utilisateur tape
-  onSelectCity: (selected: CitySelectValue) => void;        // quand il choisit une suggestion
+  onChangeText: (nextValue: string) => void;
+  onSelectCity: (selected: CitySelectValue) => void;
 
   error?: string;
   disabled?: boolean;
-  // fallback local si API KO (optionnel)
   fallbackCities?: Array<{ name: string; countryName?: string }>;
 }
 
@@ -108,17 +107,17 @@ function CitySelectFieldBase({
   const [loading, setLoading] = useState(false);
   const [netError, setNetError] = useState<string | null>(null);
 
-  // refs anti-jank
-  const abortRef = useRef<AbortController | null>(null);
-  const lastQueryRef = useRef<string>("");
+  // refs pour gestion des requêtes
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const lastQueryRef = useRef<string>("");
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFetchingRef = useRef(false);
 
   const query = value.trim();
-
   const hasQuery = query.length >= 2;
   const showDropdown = open && (loading || netError || items.length > 0 || (hasQuery && items.length === 0));
 
-  // dataset fallback filtré (si API KO)
+  // dataset fallback filtré
   const fallbackFiltered = useMemo(() => {
     if (!fallbackCities.length || !hasQuery) return [];
     const q = query.toLowerCase();
@@ -145,7 +144,7 @@ function CitySelectFieldBase({
     [onSelectCity]
   );
 
-  // click outside => close
+  // click outside
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       const el = rootRef.current;
@@ -156,7 +155,16 @@ function CitySelectFieldBase({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  // fetch debounced + abort
+  // Nettoyage au démontage
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // fetch avec debounce
   useEffect(() => {
     if (!open) return;
     if (!hasQuery) {
@@ -169,44 +177,47 @@ function CitySelectFieldBase({
     const qKey = `${query}__${countryValue ?? ""}`.toLowerCase();
     lastQueryRef.current = qKey;
 
+    // Annuler le timeout précédent
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     setLoading(true);
     setNetError(null);
 
-    const t = window.setTimeout(async () => {
-      // abort prev
-      abortRef.current?.abort();
-      const ac = new AbortController();
-      abortRef.current = ac;
+    timeoutRef.current = setTimeout(async () => {
+      // Éviter les appels simultanés
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
 
       try {
         const url = typeof window === 'undefined'
           ? new URL(cityApiUrl, 'http://localhost')
           : new URL(cityApiUrl, window.location.origin);
-        // chemins flexibles : si cityApiUrl est déjà un endpoint, tu peux passer .../search
-        // Ici on assume que c'est un endpoint "search" ou qu'il supporte query param.
+        
         url.searchParams.set("query", query);
         url.searchParams.set("limit", String(limit));
         if (countryValue) url.searchParams.set("country", countryValue);
 
         const res = await fetch(url.toString(), {
           method: "GET",
-          signal: ac.signal,
           headers: cityApiKey ? { Authorization: `Bearer ${cityApiKey}` } : undefined,
         });
 
+        // Si la requête est obsolète, ignorer le résultat
+        if (lastQueryRef.current !== qKey) return;
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-
-        // si la requête est obsolète, ignorer
-        if (lastQueryRef.current !== qKey) return;
 
         const parsed = parseCities(json);
         setItems(parsed);
         setLoading(false);
         setNetError(null);
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-        // fallback local si dispo
+        // Ignorer si la requête n'est plus pertinente
+        if (lastQueryRef.current !== qKey) return;
+        
         if (fallbackFiltered.length) {
           setItems(fallbackFiltered);
           setLoading(false);
@@ -215,11 +226,17 @@ function CitySelectFieldBase({
         }
         setItems([]);
         setLoading(false);
-        setNetError("");
+        setNetError("Impossible de charger les villes");
+      } finally {
+        isFetchingRef.current = false;
       }
-    }, 250); // debounce = 250ms (réactif mobile)
+    }, 250);
 
-    return () => window.clearTimeout(t);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [cityApiUrl, cityApiKey, countryValue, fallbackFiltered, hasQuery, limit, open, query]);
 
   const onKeyDown = useCallback(
@@ -249,7 +266,6 @@ function CitySelectFieldBase({
             disabled={disabled}
           />
 
-          {/* petit indicateur à droite */}
           <div className="pointer-events-none absolute right-3 top-[42px] hidden sm:block">
             <Sparkles className={cx("h-4 w-4", "text-slate-300 dark:text-zinc-600")} />
           </div>

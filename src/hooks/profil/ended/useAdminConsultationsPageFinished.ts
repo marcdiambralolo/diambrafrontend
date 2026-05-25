@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { api } from '@/lib/api/client';
 import { ActiveEdition, Consultation, EndedGameResponse, LastEndedGame, LastEndedResponse, StatisticsData, WinnersData } from '@/lib/interfaces';
@@ -12,7 +12,7 @@ export function useAdminConsultationsPageFinished() {
   const { data: gameConfig, isLoading: configLoading, error: configError } = useGameConfig();
 
   const isMountedRef = useRef(true);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isFetchingRef = useRef(false);
 
   const [gameStarted, setGameStarted] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
@@ -25,6 +25,10 @@ export function useAdminConsultationsPageFinished() {
   const [loadingConsultations, setLoadingConsultations] = useState(true);
   const [loadingLastEnded, setLoadingLastEnded] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ==========================================================================
+  // VALEURS DÉRIVÉES
+  // ==========================================================================
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -103,26 +107,24 @@ export function useAdminConsultationsPageFinished() {
     [loadingConsultations, statsLoading, configLoading]
   );
 
-  const fetchLastEndedGame = useCallback(async () => {
-    // Annuler la requête précédente si elle existe
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  // ==========================================================================
+  // FONCTIONS API
+  // ==========================================================================
 
-    abortControllerRef.current = new AbortController();
+  const fetchLastEndedGame = useCallback(async () => {
+    // Éviter les appels simultanés
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
     try {
-      const response = await api.get('/game-configurations/last-ended', {
-        signal: abortControllerRef.current.signal,
-      });
-
+      const response = await api.get('/game-configurations/last-ended');
       const data = response.data as LastEndedResponse;
 
       if (isMountedRef.current) {
         setLastEndedGame(data?.hasEndedEdition ? data.configuration : null);
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError' && isMountedRef.current) {
+    } catch (error) {
+      if (isMountedRef.current) {
         console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
         setLastEndedGame(null);
       }
@@ -130,20 +132,18 @@ export function useAdminConsultationsPageFinished() {
       if (isMountedRef.current) {
         setLoadingLastEnded(false);
       }
+      isFetchingRef.current = false;
     }
   }, []);
 
   const fetchConsultationsData = useCallback(async () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
+    // Éviter les appels simultanés
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
     try {
       const response = await api.get('/consultations/ended-game', {
         params: { page: 1, limit: ITEMS_PER_PAGE },
-        signal: abortControllerRef.current.signal,
       });
 
       const data = response.data as EndedGameResponse;
@@ -156,7 +156,7 @@ export function useAdminConsultationsPageFinished() {
         setError(null);
       }
     } catch (err: any) {
-      if (err.name !== 'AbortError' && isMountedRef.current) {
+      if (isMountedRef.current) {
         console.error('Erreur:', err);
         setError(err?.message || 'Erreur lors du chargement');
         setConsultations([]);
@@ -168,18 +168,24 @@ export function useAdminConsultationsPageFinished() {
       if (isMountedRef.current) {
         setLoadingConsultations(false);
       }
+      isFetchingRef.current = false;
     }
   }, []);
 
   const refreshAllData = useCallback(async () => {
     setLoadingConsultations(true);
     setLoadingLastEnded(true);
+    setError(null);
 
     await Promise.allSettled([
       fetchConsultationsData(),
       fetchLastEndedGame(),
     ]);
   }, [fetchConsultationsData, fetchLastEndedGame]);
+
+  // ==========================================================================
+  // CALLBACKS
+  // ==========================================================================
 
   const handleOpenGame = useCallback(() => {
     if (!gameStarted) {
@@ -198,14 +204,14 @@ export function useAdminConsultationsPageFinished() {
     refreshAllData();
   }, [refreshAllData]);
 
+  // ==========================================================================
+  // EFFETS
+  // ==========================================================================
+
   useEffect(() => {
     isMountedRef.current = true;
-
     return () => {
       isMountedRef.current = false;
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
     };
   }, []);
 
@@ -219,10 +225,42 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [refreshTrigger, refreshAllData]);
 
+  // ==========================================================================
+  // RETOUR
+  // ==========================================================================
+
   return {
-    handleOpenGame, handleEndMatch, handleRefresh, hasWinners, winningCombination, hasActiveEdition,
-    stats, gameConfig, consultations, activeEdition, winners, statistics, lastEndedGame,
-    isLoading, profilLoading, loadingLastEnded, error: error || configError,
-    startDate, endDate, showEnded, showActive, showNotStarted, hasNotStartedEdition,
+    // Actions
+    handleOpenGame,
+    handleEndMatch,
+    handleRefresh,
+    
+    // États booléens
+    hasWinners,
+    hasActiveEdition,
+    hasNotStartedEdition,
+    showEnded,
+    showActive,
+    showNotStarted,
+    
+    // Données
+    stats,
+    gameConfig,
+    consultations,
+    activeEdition,
+    winners,
+    statistics,
+    lastEndedGame,
+    winningCombination,
+    
+    // États de chargement
+    isLoading,
+    profilLoading,
+    loadingLastEnded,
+    
+    // Dates et erreurs
+    startDate,
+    endDate,
+    error: error || configError,
   };
 }

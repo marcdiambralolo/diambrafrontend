@@ -9,7 +9,7 @@ export default function ProfilPageClient() {
   const {
     handleOpenGame, handleEndMatch, handleRefresh,
     stats, startDate, endDate, gameConfig, lastEndedGame, isLoading,
-    showEnded, consultations, activeEdition, winners, profilLoading, error,
+    showEnded, consultations, activeEdition, winners,  error,
     hasWinners, winningCombination, hasActiveEdition, hasNotStartedEdition,
   } = useAdminConsultationsPageFinished();
 
@@ -32,7 +32,7 @@ export default function ProfilPageClient() {
         gameConfig={gameConfig}
         lastEndedGame={lastEndedGame}
         stats={stats}
-        profilLoading={profilLoading}
+        profilLoading={isLoading}
         onOpenGame={handleOpenGame}
         onEndMatch={handleEndMatch}
       />

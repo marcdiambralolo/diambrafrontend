@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { api } from '@/lib/api/client';
 import { ActiveEdition, Consultation, EndedGameResponse, LastEndedGame, LastEndedResponse, StatisticsData, WinnersData } from '@/lib/interfaces';
@@ -25,10 +25,6 @@ export function useAdminConsultationsPageFinished() {
   const [loadingConsultations, setLoadingConsultations] = useState(true);
   const [loadingLastEnded, setLoadingLastEnded] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // ==========================================================================
-  // VALEURS DÉRIVÉES
-  // ==========================================================================
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -97,22 +93,7 @@ export function useAdminConsultationsPageFinished() {
     [showNotStarted, startDate]
   );
 
-  const isLoading = useMemo(() =>
-    loadingConsultations || loadingLastEnded,
-    [loadingConsultations, loadingLastEnded]
-  );
-
-  const profilLoading = useMemo(() =>
-    loadingConsultations || statsLoading || configLoading,
-    [loadingConsultations, statsLoading, configLoading]
-  );
-
-  // ==========================================================================
-  // FONCTIONS API
-  // ==========================================================================
-
   const fetchLastEndedGame = useCallback(async () => {
-    // Éviter les appels simultanés
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
@@ -137,7 +118,6 @@ export function useAdminConsultationsPageFinished() {
   }, []);
 
   const fetchConsultationsData = useCallback(async () => {
-    // Éviter les appels simultanés
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
@@ -183,10 +163,6 @@ export function useAdminConsultationsPageFinished() {
     ]);
   }, [fetchConsultationsData, fetchLastEndedGame]);
 
-  // ==========================================================================
-  // CALLBACKS
-  // ==========================================================================
-
   const handleOpenGame = useCallback(() => {
     if (!gameStarted) {
       setGameStarted(true);
@@ -203,10 +179,6 @@ export function useAdminConsultationsPageFinished() {
   const handleRefresh = useCallback(() => {
     refreshAllData();
   }, [refreshAllData]);
-
-  // ==========================================================================
-  // EFFETS
-  // ==========================================================================
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -225,42 +197,11 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [refreshTrigger, refreshAllData]);
 
-  // ==========================================================================
-  // RETOUR
-  // ==========================================================================
-
   return {
-    // Actions
-    handleOpenGame,
-    handleEndMatch,
-    handleRefresh,
-    
-    // États booléens
-    hasWinners,
-    hasActiveEdition,
-    hasNotStartedEdition,
-    showEnded,
-    showActive,
-    showNotStarted,
-    
-    // Données
-    stats,
-    gameConfig,
-    consultations,
-    activeEdition,
-    winners,
-    statistics,
-    lastEndedGame,
-    winningCombination,
-    
-    // États de chargement
-    isLoading,
-    profilLoading,
-    loadingLastEnded,
-    
-    // Dates et erreurs
-    startDate,
-    endDate,
-    error: error || configError,
+    handleOpenGame, handleEndMatch, handleRefresh, 
+    isLoading: loadingConsultations || loadingLastEnded || configLoading || statsLoading,
+    startDate, endDate, error: error || configError,hasWinners, winningCombination,
+    hasActiveEdition, hasNotStartedEdition, showEnded, showActive, showNotStarted, stats,
+    gameConfig, consultations, activeEdition, winners, statistics, lastEndedGame,   
   };
 }

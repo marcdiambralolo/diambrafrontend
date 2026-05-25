@@ -206,3 +206,110 @@ export interface FormData {
   phone?: string;
   gender?: string;
 }
+
+
+export interface Winner {
+  country: string;
+  consultationId: string;
+  clientId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+  combination: string;
+  timeSpent: number;
+  createdAt: string;
+  rank: number;
+}
+
+
+
+export interface ActiveEdition {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  isActive: boolean;
+  winningCombination?: string;
+}
+
+export interface WinnersData {
+  exact: Winner[];
+  disordered: Winner[];
+  totalExact: number;
+  totalDisordered: number;
+  totalWinners: number;
+}
+
+
+
+export interface StatisticsData {
+  totalConsultations: number;
+  totalParticipants: number;
+  uniqueParticipants: number;
+  winningCombination: string;
+  successRate: {
+    exact: number;
+    disordered: number;
+    overall: number;
+  };
+  digits: {
+    frequency: Record<string, number>;
+    mostFrequent: Array<{ digit: number; count: number; percentage: number }>;
+    leastFrequent: Array<{ digit: number; count: number; percentage: number }>;
+  };
+  timeStats: {
+    average: number;
+    fastest: {
+      time: number;
+      clientId: string | null;
+      username: string | null;
+      combination: string | null;
+    };
+    slowest: {
+      time: number;
+      clientId: string | null;
+      username: string | null;
+      combination: string | null;
+    };
+    distribution: {
+      under30s: number;
+      under60s: number;
+      under120s: number;
+      over120s: number;
+    };
+  };
+  combinations: {
+    totalUnique: number;
+    mostCommon: Array<{ combination: string; count: number; percentage: number }>;
+    diversity: number;
+  };
+  topParticipants: Array<{
+    clientId: string;
+    username: string;
+    participations: number;
+  }>;
+  medals: {
+    gold: Winner | null;
+    silver: Winner | null;
+    bronze: Winner | null;
+  };
+}
+
+export interface EndedGameResponse {
+  consultations: Consultation[];
+  activeEdition: ActiveEdition;
+  winners: WinnersData | null;
+  statistics: StatisticsData | null;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface LastEndedResponse {
+  success: boolean;
+  hasEndedEdition: boolean;
+  configuration: LastEndedGame;
+}

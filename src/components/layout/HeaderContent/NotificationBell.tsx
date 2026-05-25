@@ -26,7 +26,6 @@ const notificationColors: Record<string, string> = {
 
 export default function NotificationBell() {
   // Hook pour jouer le son de notification
-  const playNotificationSound = useNotificationSound('/notification.mp3');
 
 
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -36,7 +35,6 @@ export default function NotificationBell() {
   }, []);
 
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationsProps = useNotificationsWithCache();
@@ -60,13 +58,10 @@ export default function NotificationBell() {
     const unread = notifications.filter((n) => !n.isRead);
     const lastSeen = lastSeenIdsRef.current;
     // Détecte si une nouvelle notification non lue est arrivée
-    const newUnread = unread.filter((n) => !lastSeen.includes(n._id));
-    if (newUnread.length > 0) {
-      playNotificationSound();
-    }
+
     // Met à jour la liste des notifications non lues
     lastSeenIdsRef.current = unread.map((n) => n._id);
-  }, [notifications, playNotificationSound]);
+  }, [notifications,]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

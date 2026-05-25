@@ -102,12 +102,12 @@ export function useLoginForm() {
   }, []);
 
   const usernameProps = useMemo(() => ({
-    label: "Nom Utilisateur",
+    label: "Email",
     name: "username",
     type: "text",
     value: formData.username,
     error: errors.username,
-    placeholder: "Votre nom d'utilisateur",
+    placeholder: "Email",
     icon: User as React.ElementType,
     onChange: handleChange,
   }), [formData.username, errors.username, handleChange]);

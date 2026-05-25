@@ -256,9 +256,7 @@ const RegisterForm: React.FC = () => {
               Créer un compte
             </h1>
 
-            <p className="mx-auto max-w-md text-xs text-gray-600 sm:text-sm">
-              Créez votre compte en toute confidentialité. Vous pourrez demander une consultation
-              pour vous ou un tiers.
+            <p className="mx-auto max-w-md text-xs text-gray-600 sm:text-sm">Diambra
             </p>
           </div>
 
@@ -266,12 +264,12 @@ const RegisterForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <RegisterInputField
-              label="Nom d'utilisateur"
+              label="Email"
               name="username"
               value={formData.username}
               onChange={handleChange}
               error={errors.username}
-              placeholder="Nom d'utilisateur unique"
+              placeholder="Email"
               icon={<User className="w-4 h-4" />}
               showSuccess
             />

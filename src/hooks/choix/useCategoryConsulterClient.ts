@@ -3,9 +3,11 @@ import { api } from '@/lib/api/client';
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import type { Consultation, OfferingAlternative, WalletOffering } from '@/lib/interfaces';
-import { Variants } from 'framer-motion';
+import { LastEndedGame } from "@/lib/interfaces";
 import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { useStatsDataWithCache } from '../cache/useStatsDataWithCache';
+import { useGameConfig } from '../profil/useGameConfig';
 
 export const SLOT_COUNT = 4;
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -20,6 +22,10 @@ const POT_CONFIG: OfferingAlternative = {
     _id: '69ada22a910a174365e2a216',
 } as const;
 
+const BASE_CLASSES = "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group";
+const INSUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed";
+const SUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#9BC2FF] hover:shadow-xl hover:shadow-[#4F83D1]/10 active:scale-[0.98] cursor-pointer";
+
 interface State {
     loading: boolean;
     error: string | null;
@@ -30,47 +36,27 @@ interface State {
 interface DragData {
     value: number;
     fromSlot?: number;
-    toSlot?: number;
-    index?: number;
 }
 
 export const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const tenths = Math.floor((seconds % 1) * 10);
-
     return mins > 0
         ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
         : `${secs}.${tenths}s`;
 };
 
 export const ANIMATION_CONFIG = {
-    spring: {
-        type: 'spring' as const,
-        stiffness: 280,
-        damping: 22
-    },
-    duration: {
-        fast: 0.2,
-        normal: 0.3
-    }
+    spring: { type: 'spring' as const, stiffness: 280, damping: 22 },
+    duration: { fast: 0.2, normal: 0.3 }
 } as const;
 
-export const toastVariants: Variants = {
+export const toastVariants = {
     hidden: { opacity: 0, x: 100, scale: 0.9 },
-    visible: {
-        opacity: 1,
-        x: 0,
-        scale: 1,
-        transition: ANIMATION_CONFIG.spring
-    },
-    exit: {
-        opacity: 0,
-        x: 100,
-        scale: 0.95,
-        transition: { duration: ANIMATION_CONFIG.duration.fast }
-    }
-};
+    visible: { opacity: 1, x: 0, scale: 1, transition: ANIMATION_CONFIG.spring },
+    exit: { opacity: 0, x: 100, scale: 0.95, transition: { duration: ANIMATION_CONFIG.duration.fast } }
+} as const;
 
 const getOfferingId = (alternative: OfferingAlternative): string => {
     const offeringId = alternative.offeringId;
@@ -87,105 +73,150 @@ const initialState: State = {
     walletOfferings: [],
 };
 
+const createEmptySlots = (): (number | null)[] => Array.from({ length: SLOT_COUNT }, () => null);
+
 export function useCategoryConsulterClient() {
     const params = useParams();
     const router = useRouter();
+    const [, startTransition] = useTransition();
+
+    const { stats, isLoading: statsLoading } = useStatsDataWithCache();
+    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
 
     const isMountedRef = useRef(true);
     const timerRef = useRef<NodeJS.Timeout>();
     const dragStartRef = useRef<DragData | null>(null);
+    const slotsRef = useRef<(number | null)[]>(createEmptySlots());
+
+    const [walletState, setWalletState] = useState<State>(initialState);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [matchFinished, setMatchFinished] = useState(false);
+    const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
+    const [loadingLastEnded, setLoadingLastEnded] = useState(true);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [gameState, setGameState] = useState({
+        slots: createEmptySlots(),
+        selected: null as number | null,
+        dragOverSlot: null as number | null,
+        isDragging: false,
+        mode: 'click' as 'drag' | 'click',
+        startTime: null as number | null,
+        elapsedTime: 0,
+        isSubmitting: false,
+    });
+
+    useEffect(() => {
+        slotsRef.current = gameState.slots;
+    }, [gameState.slots]);
 
     const monidjeu = useMemo(() => {
         if (!params?.id) return null;
         return Array.isArray(params.id) ? params.id[0] : params.id;
     }, [params?.id]);
 
-    const [state, setState] = useState<State>(initialState);
-    const [gamehasStarted, setGamehasStarted] = useState(false);
-    const [slots, setSlots] = useState<(number | null)[]>(() =>
-        Array.from({ length: SLOT_COUNT }, () => null)
-    );
-    const [selected, setSelected] = useState<number | null>(null);
-    const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [mode, setMode] = useState<'drag' | 'click'>('click');
-    const [startTime, setStartTime] = useState<number | null>(null);
-    const [elapsedTime, setElapsedTime] = useState(0);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
-        state.walletOfferings.forEach(w => map.set(w.offeringId, w.quantity));
+        walletState.walletOfferings.forEach(w => map.set(w.offeringId, w.quantity));
         return map;
-    }, [state.walletOfferings]);
+    }, [walletState.walletOfferings]);
 
     const availableQuantity = useMemo(() =>
         walletMap.get(getOfferingId(POT_CONFIG)) || 0,
         [walletMap]
     );
 
-    const requiredQuantity = POT_CONFIG.quantity;
-    const isSufficient = availableQuantity >= requiredQuantity;
+    const isSufficient = useMemo(() =>
+        availableQuantity >= POT_CONFIG.quantity,
+        [availableQuantity]
+    );
 
-    const cardClasses = useMemo(() => {
-        const baseClasses = "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group";
-        const insufficientClasses = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed";
-        const sufficientClasses = "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#9BC2FF] hover:shadow-xl hover:shadow-[#4F83D1]/10 active:scale-[0.98] cursor-pointer";
-
-        return `${baseClasses} ${isSufficient ? sufficientClasses : insufficientClasses}`;
-    }, [isSufficient]);
+    const cardClasses = useMemo(() =>
+        `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`,
+        [isSufficient]
+    );
 
     const used = useMemo(() =>
-        new Set(slots.filter((v): v is number => v !== null)),
-        [slots]
+        new Set(gameState.slots.filter((v): v is number => v !== null)),
+        [gameState.slots]
     );
 
     const isComplete = useMemo(() =>
-        slots.every(s => s !== null) && new Set(slots).size === SLOT_COUNT,
-        [slots]
+        gameState.slots.every(s => s !== null) && new Set(gameState.slots).size === SLOT_COUNT,
+        [gameState.slots]
     );
 
     const combinaison = useMemo(() =>
-        slots.map(slot => slot !== null ? slot.toString() : '0').join(''),
-        [slots]
+        gameState.slots.map(slot => slot !== null ? slot.toString() : '0').join(''),
+        [gameState.slots]
     );
 
     const formattedTime = useMemo(() =>
-        formatTime(elapsedTime),
-        [elapsedTime]
+        formatTime(gameState.elapsedTime),
+        [gameState.elapsedTime]
+    );
+
+    const startDate = useMemo(() => gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null, [gameConfig?.startgameDate]);
+    const endDate = useMemo(() => gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null, [gameConfig?.endgameDate]);
+    const now = useMemo(() => new Date(), []);
+
+    const isGameActive = useMemo(() =>
+        gameConfig?.isActive === true &&
+        gameConfig?.status === 'active' &&
+        startDate !== null &&
+        endDate !== null &&
+        now >= startDate &&
+        now <= endDate,
+        [gameConfig?.isActive, gameConfig?.status, startDate, endDate, now]
+    );
+
+    const isGameEnded = useMemo(() =>
+        gameConfig?.status === 'ended' || (endDate !== null && now > endDate),
+        [gameConfig?.status, endDate, now]
+    );
+
+    const isGameNotStarted = useMemo(() =>
+        gameConfig?.status === 'pending' || (startDate !== null && now < startDate),
+        [gameConfig?.status, startDate, now]
     );
 
     const clearError = useCallback(() => {
-        setState(prev => ({ ...prev, showError: false, error: null }));
+        setWalletState(prev => ({ ...prev, showError: false, error: null }));
+    }, []);
+
+    const updateGameState = useCallback((updater: Partial<typeof gameState>) => {
+        setGameState(prev => ({ ...prev, ...updater }));
     }, []);
 
     const placeSelectedDigitInSlot = useCallback((slotIndex: number) => {
-        if (selected === null || used.has(selected)) return;
+        const { selected, slots } = gameState;
+        if (selected === null || used.has(selected) || slots[slotIndex] !== null) return;
 
-        setSlots(prev => {
-            if (prev[slotIndex] !== null) return prev;
-            const next = [...prev];
-            next[slotIndex] = selected;
-            return next;
+        const newSlots = [...slots];
+        newSlots[slotIndex] = selected;
+
+        updateGameState({
+            slots: newSlots,
+            selected: null,
         });
-
-        setSelected(null);
-    }, [selected, used,]);
+    }, [gameState.selected, gameState.slots, used, updateGameState]);
 
     const removeFromSlot = useCallback((index: number) => {
-        setSlots(prev => {
-            const next = [...prev];
-            next[index] = null;
-            return next;
+        const newSlots = [...gameState.slots];
+        newSlots[index] = null;
+        updateGameState({
+            slots: newSlots,
+            selected: null,
         });
-        setSelected(null);
-    }, []);
+    }, [gameState.slots, updateGameState]);
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
         e.preventDefault();
         e.stopPropagation();
-        setDragOverSlot(null);
-        setIsDragging(false);
+
+        updateGameState({
+            dragOverSlot: null,
+            isDragging: false,
+        });
 
         try {
             const rawData = e.dataTransfer.getData("text/plain");
@@ -193,50 +224,48 @@ export function useCategoryConsulterClient() {
 
             const { value, fromSlot } = JSON.parse(rawData) as DragData;
 
-            setSlots(prev => {
-                const next = [...prev];
+            setGameState(prev => {
+                const nextSlots = [...prev.slots];
 
                 if (fromSlot !== undefined) {
-                    const movingValue = next[fromSlot];
-                    const targetValue = next[index];
+                    const movingValue = nextSlots[fromSlot];
+                    const targetValue = nextSlots[index];
 
                     if (movingValue !== null) {
                         if (targetValue !== null) {
-                            // Échange
-                            next[fromSlot] = targetValue;
-                            next[index] = movingValue;
+                            nextSlots[fromSlot] = targetValue;
+                            nextSlots[index] = movingValue;
                         } else {
-                            // Déplacement
-                            next[fromSlot] = null;
-                            next[index] = movingValue;
+                            nextSlots[fromSlot] = null;
+                            nextSlots[index] = movingValue;
                         }
                     }
-                    return next;
+                    return { ...prev, slots: nextSlots };
                 }
 
-                if (value !== undefined && !used.has(value) && next[index] === null) {
-                    next[index] = value;
-                    setSelected(null);
+                if (value !== undefined && !used.has(value) && nextSlots[index] === null) {
+                    nextSlots[index] = value;
+                    return { ...prev, slots: nextSlots, selected: null };
                 }
 
-                return next;
+                return prev;
             });
         } catch (err) {
             console.error("Drop error:", err);
         }
 
         dragStartRef.current = null;
-    }, [used,]);
+    }, [used, updateGameState]);
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
-        setDragOverSlot(index);
-    }, []);
+        updateGameState({ dragOverSlot: index });
+    }, [updateGameState]);
 
-    const handleValidation = useCallback(async () => {
-        setGamehasStarted(true);
-    }, [setGamehasStarted]);
+    const handleValidation = useCallback(() => {
+        setGameStarted(true);
+    }, []);
 
     const handleNext = useCallback(() => {
         if (isSufficient) {
@@ -249,15 +278,15 @@ export function useCategoryConsulterClient() {
     }, [router, monidjeu]);
 
     const handleSubmitAndNavigate = useCallback(async () => {
-        if (isSubmitting) return;
-        setIsSubmitting(true);
-        setState(prev => ({ ...prev, loading: true, error: null, showError: false }));
+        if (gameState.isSubmitting) return;
+
+        updateGameState({ isSubmitting: true });
+        setWalletState(prev => ({ ...prev, loading: true, error: null, showError: false }));
 
         try {
             const consultationId = await createCategoryConsultation(monidjeu || '');
-            if (!consultationId) {
-                throw new Error('Impossible de créer la consultation');
-            }
+            if (!consultationId) throw new Error('Impossible de créer la consultation');
+
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: getOfferingId(POT_CONFIG),
                 quantity: POT_CONFIG.quantity,
@@ -271,32 +300,73 @@ export function useCategoryConsulterClient() {
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
             const { data } = await api.get(`/consultations/${consultationId}`);
-            const existingConsultation = data as Consultation;
-
             const payload = {
-                ...existingConsultation,
+                ...(data as Consultation),
                 combinaison,
                 timeSpent: formattedTime,
             };
 
             await api.put(`/consultations/${consultationId}`, payload);
 
-            if (monidjeu) {
-                router.push(`/star/monprofil/${monidjeu}`);
-            } else if (consultationId) {
-                router.push(`/star/monprofil?gameId=${consultationId}`);
-            } else {
-                router.push('/star/monprofil');
-            }
-
+            startTransition(() => {
+                if (monidjeu) {
+                    router.push(`/star/monprofil/${monidjeu}`);
+                } else {
+                    router.push(`/star/monprofil?gameId=${consultationId}`);
+                }
+            });
         } catch (error: any) {
             console.error('Error saving consultation:', error);
         } finally {
             if (isMountedRef.current) {
-                setIsSubmitting(false);
+                updateGameState({ isSubmitting: false });
+                setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu, combinaison, formattedTime, router, isSubmitting]);
+    }, [monidjeu, combinaison, formattedTime, router, gameState.isSubmitting, updateGameState]);
+
+    const fetchLastEndedGame = useCallback(async () => {
+        try {
+            const response = await api.get('/game-configurations/last-ended');
+            const data = response.data as { success: boolean; hasEndedEdition: boolean; configuration: LastEndedGame };
+
+            setLastEndedGame(data?.hasEndedEdition ? data.configuration : null);
+        } catch (error) {
+            console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
+            setLastEndedGame(null);
+        } finally {
+            setLoadingLastEnded(false);
+        }
+    }, []);
+
+    const handleEndMatch = useCallback(() => {
+        if (!matchFinished) {
+            setMatchFinished(true);
+        }
+        setRefreshTrigger(prev => prev + 1);
+    }, [matchFinished]);
+
+    useEffect(() => {
+        const hasStarted = gameState.slots.some(s => s !== null);
+
+        if (!isComplete && hasStarted && !gameState.startTime) {
+            updateGameState({ startTime: Date.now() });
+        }
+
+        if (isComplete && gameState.startTime) {
+            const elapsed = (Date.now() - gameState.startTime) / 1000;
+            updateGameState({ elapsedTime: elapsed });
+            if (timerRef.current) clearInterval(timerRef.current);
+        } else if (!isComplete && gameState.startTime) {
+            timerRef.current = setInterval(() => {
+                updateGameState({ elapsedTime: (Date.now() - gameState.startTime!) / 1000 });
+            }, 100);
+        }
+
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [isComplete, gameState.startTime, gameState.slots, updateGameState]);
 
     useEffect(() => {
         isMountedRef.current = true;
@@ -305,16 +375,12 @@ export function useCategoryConsulterClient() {
             try {
                 const walletRes = await walletService.getUnusedWalletOfferings();
                 if (isMountedRef.current) {
-                    setState(prev => ({
-                        ...prev,
-                        walletOfferings: walletRes,
-                        loading: false
-                    }));
+                    setWalletState(prev => ({ ...prev, walletOfferings: walletRes, loading: false }));
                 }
             } catch (err) {
                 console.error('Erreur chargement wallet:', err);
                 if (isMountedRef.current) {
-                    setState(prev => ({
+                    setWalletState(prev => ({
                         ...prev,
                         error: getCategoryErrorMessage(err, 'Erreur lors du chargement'),
                         showError: true,
@@ -325,40 +391,42 @@ export function useCategoryConsulterClient() {
         };
 
         loadWalletOfferings();
+        fetchLastEndedGame();
 
         return () => {
             isMountedRef.current = false;
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, []);
+    }, [fetchLastEndedGame]);
 
     useEffect(() => {
-        const hasStarted = slots.some(s => s !== null);
-
-        if (!isComplete && hasStarted && !startTime) {
-            setStartTime(Date.now());
+        if (refreshTrigger > 0) {
+            fetchLastEndedGame();
         }
+    }, [refreshTrigger, fetchLastEndedGame]);
 
-        if (isComplete && startTime) {
-            const elapsed = (Date.now() - startTime) / 1000;
-            setElapsedTime(elapsed);
-            if (timerRef.current) clearInterval(timerRef.current);
-        } else if (!isComplete && startTime) {
-            timerRef.current = setInterval(() => {
-                setElapsedTime((Date.now() - startTime!) / 1000);
-            }, 100);
-        }
-
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-        };
-    }, [isComplete, startTime, slots]);
+    const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
+    const afficheselection = !showEnded && !gameStarted;
+    const affichebanner = isGameActive && !isGameEnded && endDate && startDate;
 
     return {
-        handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
-        setIsDragging, setSelected, setMode, placeSelectedDigitInSlot, handleSubmitAndNavigate,
-        dataLoading: state.loading, dataError: state.error, showError: state.showError,
-        currentError: state.showError ? state.error : null, cardClasses, isSufficient, requiredQuantity,
-        gamehasStarted, monidjeu, availableQuantity, slots, selected, dragOverSlot, isDragging, mode, used, isComplete,
+        setDragOverSlot: (value: number | null) => updateGameState({ dragOverSlot: value }),
+        setIsDragging: (value: boolean) => updateGameState({ isDragging: value }),
+        setSelected: (value: number | null) => updateGameState({ selected: value }),
+        setMode: (value: 'drag' | 'click') => updateGameState({ mode: value }),
+        dataLoading: walletState.loading,
+        dataError: walletState.error, showError: walletState.showError,
+        currentError: walletState.showError ? walletState.error : null,
+        requiredQuantity: POT_CONFIG.quantity,
+        gamehasStarted: gameStarted,
+        slots: gameState.slots, mode: gameState.mode,
+        selected: gameState.selected,
+        dragOverSlot: gameState.dragOverSlot,
+        isDragging: gameState.isDragging, error: walletState.showError,
+        loading: statsLoading || configLoading || loadingLastEnded || walletState.loading,
+        handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot,
+        placeSelectedDigitInSlot, handleSubmitAndNavigate, handleEndMatch,
+        availableQuantity, cardClasses, isSufficient, afficheselection, used, isComplete,
+        stats, startDate, endDate, gameConfig, lastEndedGame, showEnded, affichebanner,
     };
 }

@@ -27,7 +27,7 @@ export function mapFormDataToBackend(form: User | null): Record<string, unknown>
 export function cx(...v: Array<string | false | null | undefined>) {
   return v.filter(Boolean).join(" ");
 }
- 
+
 export function processUserData(userData: User | null): User | null {
   if (!userData) return null;
 
@@ -65,7 +65,7 @@ export function hashString(input: string): number {
 export function clampText(s: string, max = 120) {
   return clamp(s, max);
 }
- 
+
 export const formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
@@ -225,7 +225,7 @@ export function toSafeDate(value: DateLike, fallback?: Date): Date {
   }
 
   return fallback ? new Date(fallback) : new Date();
-} 
+}
 
 export function formatDateFRJeu(value: DateLike): string {
   const date = toSafeDate(value, new Date());
@@ -240,22 +240,31 @@ export function formatDateFRJeu(value: DateLike): string {
 }
 
 export const getRelativeTime = (date: string) => {
-    const now = new Date();
-    const past = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+  const now = new Date();
+  const past = new Date(date);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? 's' : ''}`;
-    if (diffInSeconds < 3600) return `il y a ${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
-    if (diffInSeconds < 86400) return `il y a ${Math.floor(diffInSeconds / 3600)} heure${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
-    return `le ${past.toLocaleDateString('fr-FR')}`;
+  if (diffInSeconds < 60) return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? 's' : ''}`;
+  if (diffInSeconds < 3600) return `il y a ${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''}`;
+  if (diffInSeconds < 86400) return `il y a ${Math.floor(diffInSeconds / 3600)} heure${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''}`;
+  return `le ${past.toLocaleDateString('fr-FR')}`;
 };
 
 export const formatEditionDate = (date: Date | null): string => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${day}/${month}/${year} à ${hours}h${minutes}mn`;
+  if (!date) return '';
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${day}/${month}/${year} à ${hours}h${minutes}mn`;
 };
+
+export const formatDateTime = (date: Date) =>
+  date.toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });

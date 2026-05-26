@@ -2,15 +2,10 @@
 import ActivitySection from '@/components/admin/dashboard/ActivitySection';
 import CacheLink from '@/components/commons/CacheLink';
 import { useAdminDashboardPage } from '@/hooks/admin/dashboard/useAdminDashboardPage';
-import { DATE_RANGES, REPORT_TABS } from '@/hooks/admin/dashboard/useAdminReportsPage';
+import { toNumber } from '@/lib/functions';
 import { motion, Variants } from 'framer-motion';
 import { Activity, AlertCircle, BarChart3, CheckCircle, Clock, CreditCard, DollarSign, FileText, LucideIcon, RefreshCw, Sparkles, TrendingDown, TrendingUp, Users } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import React, { memo, useMemo } from 'react';
-import ReportsActivity from './reports/ReportsActivity';
-import ReportsHeader from './reports/ReportsHeader';
-import ReportsMetricsGrid from './reports/ReportsMetricsGrid';
-import ReportsTabs from './reports/ReportsTabs';
 
 interface DetailItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -482,10 +477,6 @@ interface StatsGridProps {
   derivedStats: DerivedDashboardStats;
 }
 
-function toNumber(value: string | number | undefined): number {
-  return typeof value === 'number' ? value : Number.parseFloat(value ?? '0');
-}
-
 const StatsGrid = memo<StatsGridProps>(({ stats, derivedStats }) => {
   const statsData = useMemo(() => [
     {
@@ -621,21 +612,12 @@ const ErrorState = memo<ErrorStateProps>(({ error, isRefreshing, onRetry }) => {
 });
 
 interface AdminHeaderProps {
-  lastUpdated?: string;
   isRefreshing: boolean;
   loading: boolean;
   onRefresh: () => void;
 }
 
-const AdminHeader = memo<AdminHeaderProps>(({ lastUpdated, isRefreshing, loading, onRefresh }) => {
-  const formattedTime = useMemo(() => {
-    if (!lastUpdated) return null;
-    return new Date(lastUpdated).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }, [lastUpdated]);
-
+const AdminHeader = memo<AdminHeaderProps>(({ isRefreshing, loading, onRefresh }) => {
   const isDisabled = isRefreshing || loading;
 
   return (
@@ -655,12 +637,6 @@ const AdminHeader = memo<AdminHeaderProps>(({ lastUpdated, isRefreshing, loading
               <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent truncate">
                 Tableau de bord
               </h1>
-              {formattedTime && (
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">{formattedTime}</span>
-                </p>
-              )}
             </div>
           </div>
 
@@ -687,21 +663,8 @@ const AdminHeader = memo<AdminHeaderProps>(({ lastUpdated, isRefreshing, loading
   );
 });
 
-const ReportsChart = dynamic(() => import('./reports/ReportsChart'), {
-  ssr: false,
-  loading: () => (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-lg h-[380px] flex items-center justify-center">
-      <div className="animate-pulse text-slate-400">Chargement du graphique...</div>
-    </div>
-  ),
-});
-
 export default function AdminDashboardPage() {
-  const {
-    handleRefresh, setDateRange, setSelectedReport, stats, loading, error,
-    lastUpdated, dateRange, selectedReport, metrics, safeDerivedStats,
-    showRefreshBanner, isRefreshing, chartData, chartConfig,
-  } = useAdminDashboardPage();
+  const { handleRefresh, stats, loading, error, safeDerivedStats, showRefreshBanner, isRefreshing, } = useAdminDashboardPage();
 
   if (loading) return <LoadingState />;
 
@@ -734,7 +697,6 @@ export default function AdminDashboardPage() {
       <h1 id="admin-dashboard-title" className="sr-only">Tableau de bord administration</h1>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <AdminHeader
-          lastUpdated={lastUpdated!}
           isRefreshing={isRefreshing}
           loading={loading}
           onRefresh={handleRefresh}
@@ -752,14 +714,13 @@ export default function AdminDashboardPage() {
           <ActivitySection stats={stats} derivedStats={safeDerivedStats} />
           <StatsGrid stats={stats} derivedStats={safeDerivedStats} />
           <DetailsGrid stats={stats} derivedStats={safeDerivedStats} />
-        </section>
-
-        <section className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6 max-w-7xl mx-auto" role="region" aria-label="Rapports et graphiques">
-          <ReportsHeader dateRange={dateRange} setDateRange={setDateRange} dateRanges={DATE_RANGES} />
-          <ReportsMetricsGrid metrics={metrics} />
-          <ReportsTabs selectedReport={selectedReport} setSelectedReport={setSelectedReport} REPORT_TABS={REPORT_TABS} />
-          <ReportsChart chartData={chartData} chartConfig={chartConfig} selectedReport={selectedReport} />
-          <ReportsActivity stats={stats} />
+          <CacheLink
+            href="/admin/stats"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500 rounded-lg text-xl font-semibold transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Statistiques détaillées</span>
+          </CacheLink>
         </section>
       </div>
     </main>

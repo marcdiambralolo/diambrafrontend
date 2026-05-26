@@ -1,23 +1,14 @@
 'use client';
+import Loader from '@/app/admin/loading';
 import { formatDateFR, normalizeStatus, statusConfig, ToastItem, useGameConfig } from '@/hooks/game/useGameConfig';
 import { GameConfiguration } from '@/lib/interfaces';
 import { AnimatePresence, LayoutGroup, motion, Reorder } from 'framer-motion';
 import {
-  CalendarIcon, GiftIcon, LockIcon, PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon,
-  ChevronLeft, ChevronRight
+  CalendarIcon, ChevronLeft, ChevronRight,
+  GiftIcon, LockIcon, PencilIcon, PlusIcon, SparklesIcon, TrashIcon, TrophyIcon
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ConfigForm from './ConfigForm';
-
-// ============================================================================
-// CONSTANTES
-// ============================================================================
-
-const ITEMS_PER_PAGE = 6;
-
-// ============================================================================
-// COMPOSANT TOAST
-// ============================================================================
 
 const ToastContainer = () => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -63,10 +54,6 @@ const ToastContainer = () => {
     </div>
   );
 };
-
-// ============================================================================
-// COMPOSANT CARTE
-// ============================================================================
 
 function ConfigCard({ config, onEdit, onDelete }: { config: GameConfiguration; onEdit: () => void; onDelete: () => void }) {
   const status = statusConfig[normalizeStatus(config.status)];
@@ -154,10 +141,6 @@ function ConfigCard({ config, onEdit, onDelete }: { config: GameConfiguration; o
   );
 }
 
-// ============================================================================
-// COMPOSANT PAGINATION
-// ============================================================================
-
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -192,7 +175,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
-      
+
       {getPageNumbers().map((page, index) => (
         page === '...' ? (
           <span key={`dots-${index}`} className="px-2 text-gray-400">...</span>
@@ -200,17 +183,16 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
           <button
             key={page}
             onClick={() => onPageChange(page as number)}
-            className={`min-w-[40px] h-10 px-3 rounded-lg font-medium transition ${
-              page === currentPage
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md'
-                : 'border  bg-green-400 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
-            }`}
+            className={`min-w-[40px] h-10 px-3 rounded-lg font-medium transition ${page === currentPage
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md'
+              : 'border  bg-green-400 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
           >
             {page}
           </button>
         )
       ))}
-      
+
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
@@ -222,23 +204,11 @@ function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) 
   );
 }
 
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
-
 export default function GameConfigurationManager() {
   const {
-    configs, loading, editingId, isCreating, setEditingId,
-    setIsCreating, setConfigs, handleCreate, handleUpdate, handleDelete,
+    setEditingId, setIsCreating, setConfigs, handleCreate, handleUpdate, handleDelete, setCurrentPage,
+    currentPage, totalPages, paginatedConfigs, configs, loading, editingId, isCreating,
   } = useGameConfig();
-
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  // Calcul de la pagination
-  const totalPages = Math.max(1, Math.ceil(configs.length / ITEMS_PER_PAGE));
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedConfigs = configs.slice(startIndex, endIndex);
 
   const stats = [
     { label: 'Configurations', value: configs.length, icon: <TrophyIcon className="h-6 w-6" />, color: 'from-violet-500 via-purple-500 to-fuchsia-500', delay: 0 },
@@ -251,12 +221,15 @@ export default function GameConfigurationManager() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className="w-full bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.12),_transparent_35%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.12),_transparent_35%),linear-gradient(135deg,#f8fafc_0%,#ffffff_45%,#f5f3ff_100%)]">
       <ToastContainer />
-      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        
-        {/* En-tête */}
+
+      <div className="relative mx-auto max-w-8xl px-4 py-4 sm:px-6 lg:px-4 lg:py-8">
         <motion.div initial={{ opacity: 0, y: -28 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="overflow-hidden bg-white p-6 md:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -284,7 +257,6 @@ export default function GameConfigurationManager() {
           </div>
         </motion.div>
 
-        {/* Statistiques */}
         <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {stats.map((stat, idx) => (
             <motion.div
@@ -307,7 +279,6 @@ export default function GameConfigurationManager() {
           ))}
         </div>
 
-        {/* Formulaire de création */}
         <AnimatePresence mode="wait">
           {isCreating && (
             <motion.div
@@ -322,44 +293,31 @@ export default function GameConfigurationManager() {
           )}
         </AnimatePresence>
 
-        {/* Liste des configurations */}
-        {loading ? (
-          <div className="flex h-96 flex-col items-center justify-center gap-4">
-            <div className="relative">
-              <div className="h-20 w-20 animate-spin rounded-full border-b-4 border-purple-600" />
-              <div className="absolute inset-0 flex items-center justify-center"><TrophyIcon className="h-8 w-8 text-purple-600" /></div>
-            </div>
-            <p className="font-medium text-gray-500">Chargement des configurations...</p>
-          </div>
-        ) : (
-          <>
-            <LayoutGroup>
-              <Reorder.Group axis="y" values={paginatedConfigs} onReorder={setConfigs} className="space-y-4">
-                <AnimatePresence mode="popLayout">
-                  {paginatedConfigs.map((config) => (
-                    <Reorder.Item key={config._id} value={config}>
-                      {editingId === config._id ? (
-                        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} className="mb-4">
-                          <ConfigForm
-                            mode="edit"
-                            initialData={config}
-                            onSubmit={(data: Partial<GameConfiguration>) => handleUpdate(config._id!, data)}
-                            onCancel={() => setEditingId(null)}
-                          />
-                        </motion.div>
-                      ) : (
-                        <ConfigCard config={config} onEdit={() => setEditingId(config._id!)} onDelete={() => handleDelete(config._id!)} />
-                      )}
-                    </Reorder.Item>
-                  ))}
-                </AnimatePresence>
-              </Reorder.Group>
-            </LayoutGroup>
-            
-            {/* Pagination */}
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-          </>
-        )}
+        <LayoutGroup>
+          <Reorder.Group axis="y" values={paginatedConfigs} onReorder={setConfigs} className="space-y-4">
+            <AnimatePresence mode="popLayout">
+              {paginatedConfigs.map((config) => (
+                <Reorder.Item key={config._id} value={config}>
+                  {editingId === config._id ? (
+                    <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} className="mb-4">
+                      <ConfigForm
+                        mode="edit"
+                        initialData={config}
+                        onSubmit={(data: Partial<GameConfiguration>) => handleUpdate(config._id!, data)}
+                        onCancel={() => setEditingId(null)}
+                      />
+                    </motion.div>
+                  ) : (
+                    <ConfigCard config={config} onEdit={() => setEditingId(config._id!)} onDelete={() => handleDelete(config._id!)} />
+                  )}
+                </Reorder.Item>
+              ))}
+            </AnimatePresence>
+          </Reorder.Group>
+        </LayoutGroup>
+
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+
       </div>
     </div>
   );

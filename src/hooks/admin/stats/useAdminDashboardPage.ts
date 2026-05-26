@@ -1,7 +1,7 @@
 ﻿import { api } from '@/lib/api/client';
+import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { CalendarCheck, Coins, TrendingUp, Users } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { getErrorMessage } from '@/lib/utils/errorHelpers';
 
 export type ReportType = 'overview' | 'consultations' | 'revenue' | 'users';
 export type DateRangeType = '7' | '30' | '90' | '365';
@@ -51,6 +51,7 @@ export interface ChartDataPoint {
 }
 
 export function useAdminDashboardPage() {
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRangeType>('30');
   const [selectedReport, setSelectedReport] = useState<ReportType>('overview');
   const [stats, setStats] = useState<BackendStats | null>(null);
@@ -66,6 +67,7 @@ export function useAdminDashboardPage() {
         params: { range: dateRange, report: selectedReport }
       });
       setStats(response.data);
+      setLastUpdated(new Date().toISOString());
     } catch (err: unknown) {
       const message = getErrorMessage(err, 'Erreur de chargement');
       setError(message);
@@ -169,11 +171,8 @@ export function useAdminDashboardPage() {
     [isRefreshing, loading, stats]
   );
 
-  const safeDerivedStats = derivedStats ?? {};
-
   return {
-    handleRefresh, setDateRange, setSelectedReport, stats, loading, error,
-    dateRange, selectedReport, metrics, safeDerivedStats,
-    showRefreshBanner, chartData, isRefreshing, chartConfig,
+    handleRefresh, setDateRange, setSelectedReport, stats, loading, error, isRefreshing, chartData, chartConfig,
+    lastUpdated, dateRange, selectedReport, metrics, showRefreshBanner,
   };
 }

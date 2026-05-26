@@ -1,20 +1,21 @@
 'use client';
 import CacheLink from '@/components/commons/CacheLink';
-import { useAdminConsultationsPageFinished } from '@/hooks/admin/consultations/useAdminConsultationsPageFinished';
+import ConsultationCard from '@/components/commons/ConsultationCard';
+import { useAdminConsultationsPageFinished } from '@/hooks/admin/consultations/parties/useAdminConsultationsPageFinished';
 import { formatEditionDate } from '@/lib/functions';
-import { motion, Variants } from 'framer-motion';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 import {
-  ArrowLeft, FileText, Flame, Hash, LayoutGrid, Medal, RefreshCw, Sparkles, Star,
-  TrendingUp, Trophy, Users,
+  ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Clock, FileText, Flame, Hash,
+  RefreshCw, Sparkles, Target, TrendingUp, Trophy, Users,
 } from 'lucide-react';
 import { useMemo } from 'react';
 
-export const fadeInUp: Variants = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: "spring", stiffness: 100 } }
 };
 
-export const staggerContainer = {
+const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -119,7 +120,10 @@ const TopCard = ({ title, icon, items, color }: TopCardProps) => (
 );
 
 export default function ConsultationsPage() {
-  const { consultations, loading, error, isRefreshing, activeEdition, handleRefresh, } = useAdminConsultationsPageFinished();
+  const {
+    consultations, totalPages, currentPage, loading, error,
+    isRefreshing, activeEdition, remainingDays, handleRefresh, handlePageChange,
+  } = useAdminConsultationsPageFinished();
 
   const stats = useMemo(() => {
     const playersMap = new Map();
@@ -139,6 +143,7 @@ export default function ConsultationsPage() {
     const activePlayers = consultations.filter(c => c.clientId?.username).length;
     const avgGamesPerPlayer = uniquePlayers > 0 ? (consultations.length / uniquePlayers).toFixed(1) : 0;
 
+    // Combinaisons uniques
     const combinaisonsMap = new Map();
     consultations.forEach(c => {
       const comb = c.combinaison;
@@ -148,17 +153,29 @@ export default function ConsultationsPage() {
     });
     const uniqueCombinaisons = combinaisonsMap.size;
 
+    // Top combinaisons
     const topCombinaisons = Array.from(combinaisonsMap.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 15);
 
+    // Top joueurs
     const topPlayers = Array.from(playersMap.entries())
       .map(([username, data]) => ({ username, games: data.games, combinaisons: data.combinaisons.size }))
       .sort((a, b) => b.games - a.games)
       .slice(0, 15);
 
+    // Taux de complétion
     const completedGames = consultations.filter(c => c.combinaison && c.combinaison !== '????').length;
     const completionRate = consultations.length > 0 ? Math.round((completedGames / consultations.length) * 100) : 0;
+
+    // Statistiques de temps
+    let totalTime = 0;
+    consultations.forEach(c => {
+      if (c.timeSpent) {
+        const timeInSeconds = parseFloat(c.timeSpent.replace('s', ''));
+        if (!isNaN(timeInSeconds)) totalTime += timeInSeconds;
+      }
+    });
 
     return {
       totalGames: consultations.length,
@@ -167,6 +184,8 @@ export default function ConsultationsPage() {
       avgGamesPerPlayer,
       uniqueCombinaisons,
       completionRate,
+      totalTime: totalTime.toFixed(1),
+      avgTime: consultations.length > 0 ? (totalTime / consultations.length).toFixed(1) : 0,
       topCombinaisons,
       topPlayers,
     };
@@ -224,21 +243,13 @@ export default function ConsultationsPage() {
         >
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
-              Édition active
+              Jeux
             </h1>
+            <div>
+
+            </div>
 
             <div className="flex items-center gap-3">
-              <CacheLink
-                href="/admin/consultations/parties"
-              >
-                <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                  <button
-                    className=" p-2 rounded-lg transition-all  bg-white dark:bg-gray-700 shadow-md text-purple-600"
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                  </button>
-                </div>
-              </CacheLink>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -272,10 +283,17 @@ export default function ConsultationsPage() {
                   <Flame className="w-6 h-6 text-white" />
                 </div>
                 <div>
+                  <p className="text-xs text-white/80">Édition active</p>
                   <p className="text-white font-bold">
                     Du {formatEditionDate(new Date(activeEdition.startDate))} {' '} au {formatEditionDate(new Date(activeEdition.endDate))}
                   </p>
                 </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                <Target className="w-4 h-4 text-white" />
+                <span className="text-xs font-semibold text-white">
+                  {remainingDays} jour{remainingDays !== 1 ? 's' : ''} restant{remainingDays !== 1 ? 's' : ''}
+                </span>
               </div>
             </div>
           </motion.div>
@@ -287,7 +305,7 @@ export default function ConsultationsPage() {
               variants={staggerContainer}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8"
             >
               <StatCard
                 icon={<Trophy className="w-4 h-4" />}
@@ -310,36 +328,31 @@ export default function ConsultationsPage() {
                 value={stats.uniqueCombinaisons}
                 color="from-amber-600 to-orange-600"
               />
+              <StatCard
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Taux complétion"
+                value={`${stats.completionRate}%`}
+                color="from-emerald-600 to-teal-600"
+                trend={stats.completionRate > 50 ? 10 : -5}
+              />
+              <StatCard
+                icon={<Clock className="w-4 h-4" />}
+                label="Temps moyen"
+                value={`${stats.avgTime}s`}
+                color="from-rose-600 to-pink-600"
+                trend={-3}
+              />
             </motion.div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <TopCard
-                title="Top joueurs"
-                icon={<Medal className="w-5 h-5 text-yellow-400" />}
-                items={stats.topPlayers.map((player, idx) => ({
-                  name: player.username,
-                  value: `${player.games} parties`,
-                  subValue: `${player.combinaisons} combinaisons`,
-                  rank: idx + 1
-                }))}
-                color="from-purple-600 to-indigo-600"
-              />
-              <TopCard
-                title="Top combinaisons"
-                icon={<Star className="w-5 h-5 text-yellow-400" />}
-                items={stats.topCombinaisons.map(([comb, count], idx) => ({
-                  name: comb,
-                  value: `${count} fois`,
-                  rank: idx + 1
-                }))}
-                color="from-green-600 to-emerald-600"
-              />
-            </div>
           </>
         )}
 
-        <div className="max-w-7xl mx-auto">
-          {consultations.length === 0 && (
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="max-w-7xl mx-auto"
+        >
+          {consultations.length === 0 ? (
             <motion.div
               variants={fadeInUp}
               className="text-center py-20 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-800"
@@ -354,8 +367,84 @@ export default function ConsultationsPage() {
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Aucun jeu</h3>
               <p className="text-gray-500 dark:text-gray-400">Aucune partie n'a encore été jouée dans cette édition</p>
             </motion.div>
+          ) : (
+            <>
+              <div className=" grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 ">
+                <AnimatePresence>
+                  {consultations.map((consultation, index) => (
+                    <motion.div
+                      key={consultation._id ?? index}
+                      variants={fadeInUp}
+                      layout
+                      whileHover={{ y: -5 }}
+                    >
+                      <ConsultationCard
+                        consultation={consultation}
+                        index={index}
+                        showDate={false}
+                        showState={false}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {totalPages > 1 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-center items-center gap-2 mt-8 pt-4 border-t border-gray-200 dark:border-gray-800"
+                >
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum: number;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <motion.button
+                          key={pageNum}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`min-w-[40px] h-10 px-2 rounded-lg font-medium transition-all ${pageNum === currentPage
+                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md scale-105'
+                            : 'border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                        >
+                          {pageNum}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </motion.div>
+              )}
+            </>
           )}
-        </div>
+        </motion.div>
       </div>
 
       <style jsx>{`

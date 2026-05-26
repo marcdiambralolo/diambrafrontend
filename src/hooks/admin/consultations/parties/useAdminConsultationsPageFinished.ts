@@ -49,10 +49,19 @@ export function useAdminConsultationsPageFinished() {
     }
   }, []);
 
+  // Chargement initial
   useEffect(() => {
     fetchData(1);
   }, [fetchData]);
 
+  // Changement de page
+  const handlePageChange = useCallback((page: number) => {
+    if (page === currentPage) return;
+    fetchData(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage, fetchData]);
+
+  // Rafraîchissement
   const handleRefresh = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -60,7 +69,29 @@ export function useAdminConsultationsPageFinished() {
     setIsRefreshing(false);
   }, [fetchData, currentPage, isRefreshing]);
 
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+
+  // Calcul des jours restants pour l'édition active
+  const getRemainingDays = useCallback(() => {
+    if (!activeEdition) return null;
+    const endDate = new Date(activeEdition.endDate);
+    const now = new Date();
+    const diffTime = endDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  }, [activeEdition]);
+
   return {
-    consultations, loading, error, isRefreshing, activeEdition, handleRefresh,
+    consultations,
+    activeEdition,
+    total,
+    totalPages,
+    currentPage,
+    loading,
+    error,
+    isRefreshing,
+    remainingDays: getRemainingDays(),
+    handleRefresh,
+    handlePageChange,
   };
 }

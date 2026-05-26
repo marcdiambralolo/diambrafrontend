@@ -2,6 +2,8 @@ import { api } from "@/lib/api/client";
 import { GameConfiguration } from "@/lib/interfaces";
 import { useEffect, useState } from "react";
 
+const ITEMS_PER_PAGE = 10;
+
 export const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -217,8 +219,17 @@ export function useGameConfig() {
         void fetchConfigurations();
     }, []);
 
+      const [currentPage, setCurrentPage] = useState(1);
+    
+      // Calcul de la pagination
+      const totalPages = Math.max(1, Math.ceil(configs.length / ITEMS_PER_PAGE));
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const paginatedConfigs = configs.slice(startIndex, endIndex);
+
     return {
         configs, loading, editingId, isCreating, setEditingId,
         setIsCreating, setConfigs, handleCreate, handleUpdate, handleDelete,
+        currentPage, setCurrentPage, totalPages, paginatedConfigs,
     };
 }

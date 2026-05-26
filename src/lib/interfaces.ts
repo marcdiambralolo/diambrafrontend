@@ -323,3 +323,19 @@ export interface EditionInfo {
   isActive: boolean;
   winningCombination: string | null;
 }
+
+
+export interface ReportMetric {
+  label: string;
+  value: string | number;
+  change: number;
+  icon: React.ReactNode;
+  color: string;
+  subLabel?: string;
+}
+
+export interface DateRange {
+  value: string;
+  label: string;
+  icon?: string;
+}

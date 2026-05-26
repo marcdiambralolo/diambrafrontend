@@ -7,6 +7,7 @@ export const navItems = [
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, color: 'blue' },
   { href: '/admin/payments', label: 'Paiements', icon: CreditCard, color: 'ocean' },
   { href: '/admin/offrandes', label: 'Jetons', icon: Shield, color: 'cyan' },
+  { href: '/admin/stats', label: 'Statistiques', icon: LayoutDashboard, color: 'amber' },
   { href: '/admin/settings', label: 'Paramètres', icon: Settings, color: 'gray' },
 ];
 

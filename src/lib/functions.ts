@@ -277,3 +277,7 @@ export const formatDateTime = (date: Date) =>
         ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
         : `${secs}.${tenths}s`;
 };
+
+export function toNumber(value: string | number | undefined): number {
+  return typeof value === 'number' ? value : Number.parseFloat(value ?? '0');
+}

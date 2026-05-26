@@ -200,8 +200,10 @@ export default function ConfigForm({
                         Annuler
                     </motion.button>
                 </div>
+
                 <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
                 <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />  <br />
+
             </form>
         </motion.div>
     );

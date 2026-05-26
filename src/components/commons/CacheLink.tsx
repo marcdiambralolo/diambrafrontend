@@ -12,9 +12,7 @@ type NextLinkProps = ComponentPropsWithoutRef<typeof Link>;
 interface CacheLinkProps extends Omit<NextLinkProps, 'href' | 'children'> {
   href: string;
   children: ReactNode;
-  /** Éviter le cache busting (désactivé par défaut) */
   disableCacheBusting?: boolean;
-  /** Ajouter un timestamp personnalisé */
   customTimestamp?: number;
 }
 
@@ -60,7 +58,7 @@ export default function CacheLink({
 }: CacheLinkProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-   const { isAuthenticated } = useAuth(); 
+  const { isAuthenticated } = useAuth();
 
   // URL avec cache busting
   const bustedHref = useMemo(() => {

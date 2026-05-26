@@ -9,7 +9,7 @@ export default function ProfilPageClient() {
     handleOpenGame, handleEndMatch, handleRefresh,
     stats, startDate, endDate, gameConfig, lastEndedGame,
     showEnded, consultations, activeEdition, winners, error,
-    hasWinners, winningCombination, hasActiveEdition, hasNotStartedEdition,
+    hasWinners, winningCombination,   hasNotStartedEdition,showActive,gameStarted,
   } = useAdminConsultationsPageFinished();
 
   if (error) {
@@ -17,12 +17,12 @@ export default function ProfilPageClient() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-950 dark:to-purple-950/20 px-4 py-6">
+    <main className="bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-950 dark:to-purple-950/20 px-2 py-4">
       <HeaderSection />
 
       <BannersSection
         showNotStarted={hasNotStartedEdition as boolean}
-        showActive={hasActiveEdition as boolean}
+        showActive={gameStarted}
         showEnded={showEnded}
         startDate={startDate}
         endDate={endDate}
@@ -33,15 +33,14 @@ export default function ProfilPageClient() {
         onEndMatch={handleEndMatch}
       />
 
-      <div className="relative max-w-7xl mx-auto p-6">
-        <TitleSection showEnded={showEnded} />
-
+      <div className="relative max-w-8xl mx-auto p-2 mt-4">
         {activeEdition && (
           <EditionCard
             activeEdition={activeEdition}
             winningCombination={winningCombination}
           />
         )}
+        <TitleSection showEnded={showEnded} />
 
         <WinnersSection
           hasWinners={hasWinners!}
@@ -49,7 +48,6 @@ export default function ProfilPageClient() {
           winners={winners}
           consultations={consultations}
         />
-
         <ParticipationsSection
           consultations={consultations}
           activeEditionId={activeEdition?.id}

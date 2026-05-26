@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { AlertCircle, Eye, EyeOff, Loader2, Lock } from 'lucide-react';
 import Image from "next/image";
 import React, { memo } from "react";
+import WelcomePageClient from './welcome/WelcomePageClient';
 
 interface InputFieldProps {
   label: string;
@@ -191,8 +192,9 @@ const LoginForm = () => {
               <span>Connexion sécurisée et cryptée.</span>
             </div>
           </div>
+          <WelcomePageClient />
         </div>
-        
+
         <p className="mt-6 text-center text-xs text-gray-400 mb-16">
           © 2026 Diambra. Tous droits réservés.
         </p>

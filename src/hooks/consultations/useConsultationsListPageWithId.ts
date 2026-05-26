@@ -1,5 +1,5 @@
 import { api } from '@/lib/api/client';
-import { Consultation } from '@/lib/interfaces';
+import { Consultation, EditionInfo } from '@/lib/interfaces';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -7,17 +7,18 @@ interface ConsultationsState {
   data: Consultation[];
   loading: boolean;
   error: string | null;
+  edition: EditionInfo | null;
 }
 
 export function useConsultationsListPageWithId() {
   const params = useParams();
 
-  // Paramètre de route (URL dynamique)
   const gameId = useMemo(() => params?.id as string, [params?.id]);
   const [state, setState] = useState<ConsultationsState>({
     data: [],
     loading: true,
     error: null,
+    edition: null,
   });
 
   const fetchConsultations = useCallback(async () => {
@@ -32,10 +33,12 @@ export function useConsultationsListPageWithId() {
       const response = await api.get<{
         success: boolean;
         consultations: Consultation[];
+        edition: EditionInfo;
       }>(`/consultations/me/by-idjeu/${gameId}`);
 
       setState({
         data: response.data?.consultations ?? [],
+        edition: response.data?.edition ?? null,
         loading: false,
         error: null,
       });
@@ -43,6 +46,7 @@ export function useConsultationsListPageWithId() {
       console.error('Erreur lors du chargement des consultations:', err);
       setState({
         data: [],
+        edition: null,
         loading: false,
         error: err?.response?.data?.message || err?.message || 'Erreur lors du chargement des consultations',
       });
@@ -61,5 +65,6 @@ export function useConsultationsListPageWithId() {
     gamesCount: myConsultations.length,
     error: state.error,
     gameId,
+    edition: state.edition,
   };
 }

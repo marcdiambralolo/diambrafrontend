@@ -27,10 +27,8 @@ const scaleOnHover: Variants = {
 
 const notificationIcons: Record<string, { icon: string; bg: string }> = {
   CONSULTATION_RESULT: { icon: "✨", bg: "bg-purple-100" },
-  CONSULTATION_ASSIGNED: { icon: "📋", bg: "bg-blue-100" },
   PAYMENT_CONFIRMED: { icon: "💰", bg: "bg-emerald-100" },
-  SYSTEM_ANNOUNCEMENT: { icon: "🔔", bg: "bg-amber-100" },
-  GRADE_CHANGE: { icon: "🌟", bg: "bg-indigo-100" },
+  SYSTEM_ANNOUNCEMENT: { icon: "🔔", bg: "bg-amber-100" }
 };
 
 export const LoadingState = memo(function LoadingState() {

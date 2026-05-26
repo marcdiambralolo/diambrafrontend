@@ -2,8 +2,7 @@
 import Loader from '@/app/loading';
 import { useAuth } from '@/lib/hooks';
 import {
-  ArrowRight, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick, Move,
-  Rocket, TrophyIcon, Zap,
+  ArrowRight, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick, Rocket, TrophyIcon, Zap
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';

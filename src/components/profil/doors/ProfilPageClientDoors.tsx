@@ -3,15 +3,7 @@ import InputField from "@/components/commons/InputField";
 import RegisterSelectField from "@/components/commons/RegisterSelectField";
 import { useSlide4SectionDoors } from "@/hooks/cinqetoiles/useSlide4SectionDoors";
 import { cx } from "@/lib/functions";
-import {
-  AlertCircle,
-  KeyRound,
-  Phone,
-  Shield,
-  X,
-  Info,
-  Calendar,
-} from "lucide-react";
+import { AlertCircle, KeyRound, Phone, Shield, X, Info, Calendar, } from "lucide-react";
 import { memo, useState, useCallback, useEffect } from "react";
 
 export const GENDER_OPTIONS = [

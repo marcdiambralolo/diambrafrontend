@@ -11,7 +11,7 @@ export function useHeaderState() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
-  const {user:userstore} = useAuthStore();
+  const { user: userstore } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -89,10 +89,10 @@ export function useHeaderState() {
 
   const userBadge = useMemo(() => {
     if (hasRole(Role.ADMIN) || hasRole(Role.SUPER_ADMIN)) {
-      return { text: 'Admin ⚡', label: 'Membre Admin' };
+      return { text: 'Admin ⚡', label: 'Admin' };
     }
-    return { text: 'Premium ⭐', label: 'Membre Premium' };
-  }, [user?.grade, hasRole]);
+    return { text: 'Premium ⭐', label: 'Joueur Premium' };
+  }, [hasRole]);
 
   const navItems = useMemo(() => [
     ...(hasRole(Role.SUPER_ADMIN) || hasRole(Role.ADMIN) ? [
@@ -107,7 +107,7 @@ export function useHeaderState() {
 
   return {
     handleLogout, setMobileMenuOpen, setShowUserMenu, closeMobileMenu, toggleTheme,
-    user:user||userstore, theme, mounted, mobileMenuOpen, isScrolled, showUserMenu,
+    user: user || userstore, theme, mounted, mobileMenuOpen, isScrolled, showUserMenu,
     scrollY, progressWidth, userBadge, navItems, hasMountedUser,
   };
 }

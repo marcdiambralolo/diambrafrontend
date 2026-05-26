@@ -257,7 +257,7 @@ export const formatEditionDate = (date: Date | null): string => {
   const year = date.getFullYear();
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${day}/${month}/${year} à ${hours}h${minutes}mn`;
+  return `${day}/${month}/${year} à ${hours}:${minutes}`;
 };
 
 export const formatDateTime = (date: Date) =>

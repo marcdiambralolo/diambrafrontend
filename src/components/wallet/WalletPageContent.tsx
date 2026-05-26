@@ -242,7 +242,7 @@ function TransactionEmptyState() {
       </div>
       <h3 className="mb-1 text-lg font-bold text-gray-800">Aucune transaction</h3>
       <p className="text-sm text-gray-500">
-        Vos prochains achats de jetons apparaîtront ici.
+        Vos prochains achats de jetons apparaîtront ici
       </p>
     </motion.div>
   );

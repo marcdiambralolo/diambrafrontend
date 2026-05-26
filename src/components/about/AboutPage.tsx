@@ -113,7 +113,7 @@ export default function AboutPageClient() {
               4 cases, 10 chiffres, 1 combinaison gagnante
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <Pill
               icon={<Grid className="h-5 w-5" />}
               title="4 cases à remplir"
@@ -141,12 +141,8 @@ export default function AboutPageClient() {
             <p className="mt-3 text-sm leading-relaxed text-purple-700">
               Remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
             </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-1">
               <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <MousePointerClick className="h-5 w-5 text-purple-600" />
-                  <h3 className="font-bold text-purple-800">Mode Clic</h3>
-                </div>
                 <p className="text-sm text-purple-600">Sélectionnez un chiffre, puis cliquez sur une case vide pour le placer.</p>
               </div>
             </div>
@@ -177,7 +173,7 @@ export default function AboutPageClient() {
           <div className="rounded-3xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
             <h2 className="text-2xl font-black">Prêt à jouer ?</h2>
             <CacheLink href="/star/profil" className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-white text-purple-700 rounded-2xl font-bold hover:shadow-lg transition-all hover:scale-105">
-              Commencez la partie! <ChevronRight className="h-4 w-4" />
+              Commencez! <ChevronRight className="h-4 w-4" />
             </CacheLink>
           </div>
         </section>

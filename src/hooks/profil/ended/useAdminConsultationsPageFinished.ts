@@ -13,6 +13,7 @@ export function useAdminConsultationsPageFinished() {
 
   const isMountedRef = useRef(true);
   const isFetchingRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [gameStarted, setGameStarted] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
@@ -25,6 +26,20 @@ export function useAdminConsultationsPageFinished() {
   const [loadingConsultations, setLoadingConsultations] = useState(true);
   const [loadingLastEnded, setLoadingLastEnded] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date()); // 🔥 État pour la date actuelle
+
+  // 🔥 Mettre à jour l'heure actuelle toutes les secondes
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -36,26 +51,25 @@ export function useAdminConsultationsPageFinished() {
     [gameConfig?.endgameDate]
   );
 
-  const now = useMemo(() => new Date(), []);
-
+  // 🔥 Utiliser currentTime au lieu de new Date() pour les comparaisons
   const isGameActive = useMemo(() =>
     gameConfig?.isActive === true &&
     gameConfig?.status === 'active' &&
     startDate !== null &&
     endDate !== null &&
-    now >= startDate &&
-    now <= endDate,
-    [gameConfig?.isActive, gameConfig?.status, startDate, endDate, now]
+    currentTime >= startDate &&
+    currentTime <= endDate,
+    [gameConfig?.isActive, gameConfig?.status, startDate, endDate, currentTime]
   );
 
   const isGameEnded = useMemo(() =>
-    gameConfig?.status === 'ended' || (endDate !== null && now > endDate),
-    [gameConfig?.status, endDate, now]
+    gameConfig?.status === 'ended' || (endDate !== null && currentTime > endDate),
+    [gameConfig?.status, endDate, currentTime]
   );
 
   const isGameNotStarted = useMemo(() =>
-    gameConfig?.status === 'pending' || (startDate !== null && now < startDate),
-    [gameConfig?.status, startDate, now]
+    gameConfig?.status === 'pending' || (startDate !== null && currentTime < startDate),
+    [gameConfig?.status, startDate, currentTime]
   );
 
   const showNotStarted = useMemo(() =>
@@ -81,11 +95,6 @@ export function useAdminConsultationsPageFinished() {
   const winningCombination = useMemo(() =>
     statistics?.winningCombination || activeEdition?.winningCombination || null,
     [statistics?.winningCombination, activeEdition?.winningCombination]
-  );
-
-  const hasActiveEdition = useMemo(() =>
-    showActive && endDate && startDate,
-    [showActive, endDate, startDate]
   );
 
   const hasNotStartedEdition = useMemo(() =>
@@ -180,6 +189,15 @@ export function useAdminConsultationsPageFinished() {
     refreshAllData();
   }, [refreshAllData]);
 
+  // 🔥 Vérifier périodiquement si l'édition est terminée et recharger les données
+  useEffect(() => {
+    // Si l'édition est terminée et qu'on n'a pas encore chargé les données finales
+    if (isGameEnded && !matchFinished) {
+      refreshAllData();
+      setMatchFinished(true);
+    }
+  }, [isGameEnded, matchFinished, refreshAllData]);
+
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -197,11 +215,35 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [refreshTrigger, refreshAllData]);
 
+  useEffect(() => {
+    // Quand l'édition devient active, démarrer automatiquement le jeu
+    if (showActive && !gameStarted && !hasNotStartedEdition) {
+      setGameStarted(true);
+    }
+  }, [showActive, gameStarted, hasNotStartedEdition]);
+
   return {
-    handleOpenGame, handleEndMatch, handleRefresh, 
+    handleOpenGame, 
+    handleEndMatch, 
+    handleRefresh,
     isLoading: loadingConsultations || loadingLastEnded || configLoading || statsLoading,
-    startDate, endDate, error: error || configError,hasWinners, winningCombination,
-    hasActiveEdition, hasNotStartedEdition, showEnded, showActive, showNotStarted, stats,
-    gameConfig, consultations, activeEdition, winners, statistics, lastEndedGame,   
+    startDate, 
+    endDate, 
+    error: error || configError, 
+    hasWinners, 
+    winningCombination,
+    hasNotStartedEdition, 
+    showEnded, 
+    showActive, 
+    showNotStarted, 
+    stats,
+    gameConfig, 
+    consultations, 
+    activeEdition, 
+    winners, 
+    statistics, 
+    lastEndedGame,
+    gameStarted,
+    currentTime, // 🔥 Exporter pour déboguer si nécessaire
   };
 }

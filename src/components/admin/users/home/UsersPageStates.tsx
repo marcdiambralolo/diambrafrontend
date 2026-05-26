@@ -29,8 +29,6 @@ const UsersErrorState = ({ error, handleRefresh, isRefreshing }: UsersErrorState
   </div>
 );
 
- 
-
 export function UsersPageError({ error, handleRefresh, isRefreshing }: UsersErrorStateProps) {
   
   return (

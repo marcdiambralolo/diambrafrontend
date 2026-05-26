@@ -17,11 +17,8 @@ const notificationIcons: Record<string, string> = {
 
 const notificationColors: Record<string, string> = {
   CONSULTATION_RESULT: 'from-[#2E5AA6]/20 to-[#4F83D1]/20',
-  NEW_KNOWLEDGE: 'from-blue-500/20 to-cyan-500/20',
-  CONSULTATION_ASSIGNED: 'from-green-500/20 to-emerald-500/20',
   PAYMENT_CONFIRMED: 'from-amber-500/20 to-orange-500/20',
   SYSTEM_ANNOUNCEMENT: 'from-gray-500/20 to-slate-500/20',
-  GRADE_CHANGE: 'from-yellow-400/30 to-[#4F83D1]/30',
 };
 
 export default function NotificationBell() {

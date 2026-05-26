@@ -1,7 +1,7 @@
 "use client";
 import Loader from "@/app/loading";
 import { api } from "@/lib/api/client";
-import { cx, formatEditionDate, getRelativeTime } from "@/lib/functions";
+import { cx, formatEditionDate } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Calendar, CheckCircle, Globe, History, Timer, Trophy, UserRound } from "lucide-react";

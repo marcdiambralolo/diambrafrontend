@@ -182,7 +182,7 @@ export function StatusCard({
           <div className="min-w-0 flex-1">
             <div className={DM.badge}>
               <ShieldCheck className="h-3.5 w-3.5" />
-              Paiement sécurisé
+              Paiement sécurisé.
             </div>
 
             <div className="mt-5 flex items-start gap-4 sm:gap-5">

@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import { Award, Calendar, Gamepad2, Timer, UserRound, Zap } from "lucide-react";
 import { useState } from "react";
 
-
-
 const getEditionStatus = (status: string, isActive: boolean) => {
     if (isActive && status === 'active') {
         return { label: 'En cours', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/30', icon: <Zap className="w-3 h-3" /> };

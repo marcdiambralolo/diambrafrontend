@@ -117,7 +117,8 @@ export interface Consultation {
   updatedAt: string;
   combinaison: string;
   timeSpent: string;
-  idjeu: string | GameConfiguration
+  idjeu: string | GameConfiguration;
+  edition: any;  
   [key: string]: unknown;
 }
 
@@ -312,4 +313,13 @@ export interface LastEndedResponse {
   success: boolean;
   hasEndedEdition: boolean;
   configuration: LastEndedGame;
+}
+
+export interface EditionInfo {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  isActive: boolean;
+  winningCombination: string | null;
 }

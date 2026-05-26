@@ -11,7 +11,7 @@ export default function ProfilPageClient() {
     handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
     setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate, handleEndMatch,
     currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity, afficheselection,
-    gamehasStarted, slots, selected, dragOverSlot, isDragging, mode, used, isComplete, error,
+    gamehasStarted, slots, selected, dragOverSlot, isDragging, error, mode, used, isComplete,
     loading, stats, startDate, endDate, gameConfig, lastEndedGame, showEnded, affichebanner,
   } = useCategoryConsulterClient();
 

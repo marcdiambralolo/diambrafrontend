@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, Check, Eye, EyeOff, Loader2, Lock, Shield, User, X } from 'lucide-react';
 import Image from "next/image";
 import { memo, default as React } from 'react';
+import WelcomePageClient from '../login/welcome/WelcomePageClient';
 
 const PASSWORD_STRENGTH_CONFIG = {
   0: { color: 'bg-gray-200', text: '', textColor: '' },
@@ -361,7 +362,7 @@ const RegisterForm: React.FC = () => {
             Conditions générales d'utilisation
           </CacheLink>
         </div>
-
+        <WelcomePageClient />
         <p className="mt-2 text-center text-xs mb-16 text-gray-400">
           © 2026 Diambra. Tous droits réservés.
         </p>

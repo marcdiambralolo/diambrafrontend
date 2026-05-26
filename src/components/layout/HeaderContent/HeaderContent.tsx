@@ -253,14 +253,6 @@ export function HeaderLogo() {
           transition={{ duration: 2.5, repeat: Infinity }}
           className="absolute inset-0 -z-10 rounded-xl bg-[#4F83D1] opacity-40 blur-lg"
         />
-
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-1 -right-1"
-        >
-          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 drop-shadow-lg" />
-        </motion.div>
       </motion.div>
 
       <div className="hidden sm:block">

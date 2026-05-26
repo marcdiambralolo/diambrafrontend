@@ -6,7 +6,7 @@ import { LastEndedGame } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, Award, Calendar, CheckCircle2, ChevronRight, Circle, Coins,
-  Crown, Flame, Gift, History, MousePointerClick, Move, Rocket, ShoppingBag, Sparkles,
+  Flame, Gift, History, MousePointerClick, Move, Rocket, ShoppingBag, Sparkles,
   Star, Target, Trash2, Trophy, Zap,
 } from "lucide-react";
 import React, { memo } from 'react';
@@ -378,7 +378,7 @@ export const StatCard = memo<StatCardProps>(({ value, label, icon, loading, colo
     transition={{ delay, duration: 0.5, type: "spring", stiffness: 200 }}
     whileHover={{ scale: 1.02, y: -4 }}
     whileTap={{ scale: 0.98 }}
-    className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-5 text-white shadow-xl cursor-pointer group border border-white/20`}
+    className={`relative overflow-hidden rounded-2xl mb-8 bg-gradient-to-br ${color} p-5 text-white shadow-xl cursor-pointer group border border-white/20`}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-white/15 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
@@ -394,9 +394,6 @@ export const StatCard = memo<StatCardProps>(({ value, label, icon, loading, colo
           <p className="text-3xl font-extrabold tracking-tight">
             {value !== null ? formatNumber(value) : '--'}
           </p>
-          <div className="absolute -top-2 -right-2">
-            <Star className="w-3 h-3 text-yellow-300 animate-pulse" />
-          </div>
         </div>
       )}
     </div>
@@ -525,23 +522,19 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate }:
     className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-5 mb-6 shadow-xl"
   >
     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-    <div className="relative flex flex-col gap-4">
+    <div className="relative flex flex-col gap-2">
       <div className="flex items-center gap-3">
         <div className="rounded-full bg-white/20 p-3">
-          <Flame className="w-8 h-8 text-white" />
+          <Flame className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="text-white font-bold text-lg flex items-center gap-1">
-            <Rocket className="w-4 h-4" />
-            Jeu en cours !
-          </p>
           <p className="text-white/80 text-xs">Temps restant pour jouer</p>
         </div>
       </div>
 
       <CountdownTimer targetDate={endDate} variant="light" onFinish={handleEndMatch} />
 
-      <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
+      <div className="flex items-center justify-between bg-white/10 rounded-xl p-2">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-white" />
           <span className="text-white text-xs">Du {formatDate(startDate)}</span>
@@ -650,7 +643,6 @@ export const GameHeader = ({ title, icon }: GameHeaderProps) => (
     <GameStatusBadge>
       <Trophy className="w-4 h-4 text-yellow-400" />
       <span className="text-xs font-black uppercase tracking-wide text-white">{title}</span>
-      <Crown className="w-4 h-4 text-yellow-400" />
     </GameStatusBadge>
     {icon && <div className="mt-2">{icon}</div>}
   </div>

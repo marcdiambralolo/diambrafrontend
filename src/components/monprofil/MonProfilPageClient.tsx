@@ -1,13 +1,13 @@
 "use client";
+import Loader from "@/app/loading";
 import { useMonProfil } from "@/hooks/carteduciel/useMonProfil";
 import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
-import { cx } from "@/lib/functions";
+import { cx, formatEditionDate } from "@/lib/functions";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { AlertCircle, CalendarDays, Gamepad2, History, Loader2, MapPin, Plus, UserRound } from "lucide-react";
+import { AlertCircle, CalendarDays, ChevronRight, Crown, Flame, Gamepad2, History, Plus, Trophy, UserRound } from "lucide-react";
 import Link from "next/link";
 import { memo, type ReactNode } from "react";
 import ConsultationCard from "../commons/ConsultationCard";
-import Loader from "@/app/loading";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -44,18 +44,20 @@ const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps)
   >
     {icon}
     <span>{label}</span>
-    {count >= 0 && <motion.span
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      className={cx(
-        "px-2 py-0.5 rounded-full text-xs font-bold",
-        active
-          ? "bg-white/20 text-white"
-          : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-      )}
-    >
-      {count > 0 && count}
-    </motion.span>}
+    {count >= 0 && (
+      <motion.span
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        className={cx(
+          "px-2 py-0.5 rounded-full text-xs font-bold",
+          active
+            ? "bg-white/20 text-white"
+            : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+        )}
+      >
+        {count > 0 && count}
+      </motion.span>
+    )}
     {active && (
       <motion.div
         layoutId="activeTab"
@@ -66,45 +68,135 @@ const TabButton = memo(({ active, onClick, icon, label, count }: TabButtonProps)
   </motion.button>
 ));
 
-interface ConsultationsEmptyProps {
-  consultationsLength: number;
-  type?: 'history' | 'games';
+interface EditionCardProps {
+  edition: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    isActive: boolean;
+    winningCombination: string | null;
+  };
+  gamesCount: number;
 }
 
-function ConsultationsEmpty({ consultationsLength, type = 'history' }: ConsultationsEmptyProps) {
+const EditionCard = memo(({ edition, gamesCount }: EditionCardProps) => {
+  const now = new Date();
+  const startDate = new Date(edition.startDate);
+  const endDate = new Date(edition.endDate);
+  const isActive = now >= startDate && now <= endDate && edition.status === 'active';
+  const isEnded = edition.status === 'ended' || now > endDate;
+
+  const getStatusBadge = () => {
+    if (isActive) {
+      return { text: "En cours", color: "bg-green-500", icon: <Flame className="w-3 h-3" /> };
+    }
+    if (isEnded) {
+      return { text: "Terminée", color: "bg-red-500", icon: <Trophy className="w-3 h-3" /> };
+    }
+    return { text: "À venir", color: "bg-yellow-500", icon: <CalendarDays className="w-3 h-3" /> };
+  };
+
+  const status = getStatusBadge();
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-white/10 to-white/5 p-12 text-center backdrop-blur-lg dark:bg-[color:var(--theme-layer-3)]/78"
+      variants={fadeInUp}
+      whileHover={{ y: -2 }}
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 shadow-xl"
     >
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-purple-500/20 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl" />
-      </div>
+      <Link href={`/star/monprofil/${edition.id}`}>
+        <div className="p-5 cursor-pointer">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                <Crown className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-xs text-white/80">Édition</p>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${status.color} text-white`}>
+                    {status.icon}
+                    {status.text}
+                  </span>
+                </div>
+                <p className="text-white font-bold text-sm mt-1">
+                  Du {formatEditionDate(startDate)} au {formatEditionDate(endDate)}
+                </p>
+              </div>
+            </div>
 
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="mx-auto mb-6"
-      >
-        {type === 'history' ? (
-          <History className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
-        ) : (
-          <Gamepad2 className="h-20 w-20 text-purple-400 mx-auto" strokeWidth={1.5} />
-        )}
-      </motion.div>
+            <div className="flex items-center gap-4">
+              {gamesCount > 0 && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{gamesCount}</div>
+                  <div className="text-[10px] text-white/70">parties</div>
+                </div>
+              )}
 
-      <h3 className="text-2xl font-bold text-white mb-3">
-        {consultationsLength === 0
-          ? type === 'history'
-            ? '📜 Aucun jeu en historique'
-            : '🎮 Commencez à jouer'
-          : '🔍 Aucun résultat trouvé'}
-      </h3>
+              {edition.winningCombination && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
+                  <Trophy className="w-4 h-4 text-yellow-400" />
+                  <span className="text-xs font-semibold text-white">
+                    {edition.winningCombination}
+                  </span>
+                </div>
+              )}
+
+              <ChevronRight className="w-5 h-5 text-white/70 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+        </div>
+      </Link>
     </motion.div>
   );
+});
+
+EditionCard.displayName = "EditionCard";
+
+interface EditionsListProps {
+  editions: Array<{
+    id: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    isActive: boolean;
+    winningCombination: string | null;
+  }>;
+  getGamesCountByEdition: (editionId: string) => number;
 }
+
+const EditionsList = memo(({ editions, getGamesCountByEdition }: EditionsListProps) => {
+  if (editions.length === 0) {
+    return (
+      <motion.div
+        variants={fadeInUp}
+        className="text-center py-12 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl"
+      >
+        <p className="text-gray-500 dark:text-gray-400">Aucune édition disponible</p>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-4"
+    >
+      {editions.map((edition) => (
+        <EditionCard
+          key={edition.id}
+          edition={edition}
+          gamesCount={getGamesCountByEdition(edition.id)}
+        />
+      ))}
+    </motion.div>
+  );
+});
+
+EditionsList.displayName = "EditionsList";
 
 const NewGameButton = memo(() => (
   <motion.div
@@ -148,10 +240,10 @@ const ErrorState = memo(() => (
 
 const IdentityOverview = memo(function IdentityOverview({
   fullName,
-  dateNaissanceLabel, 
+  dateNaissanceLabel,
 }: {
   fullName: string;
-  dateNaissanceLabel: string; 
+  dateNaissanceLabel: string;
 }) {
   return (
     <motion.div
@@ -169,8 +261,8 @@ const IdentityOverview = memo(function IdentityOverview({
           <IdentityPill
             icon={<CalendarDays className="h-4 w-4" />}
             label="Date & heure"
-            value={`${dateNaissanceLabel}`}
-          /> 
+            value={dateNaissanceLabel}
+          />
         </div>
       </div>
     </motion.div>
@@ -204,10 +296,15 @@ const IdentityPill = memo(function IdentityPill({
 
 function MonProfilPageClientImpl() {
   const { processedData, fullName, dateNaissanceLabel } = useMonProfil();
-  const { consultations, loading, gamesCount, setActiveTab, activeTab, } = useConsultationsListPage();
+  const {
+    consultations, editions, loading, activeTab,
+    setActiveTab, getGamesCountByEdition,
+  } = useConsultationsListPage();
 
   if (loading) return <Loader />;
   if (!processedData) return <ErrorState />;
+
+  const isGamesTab = activeTab === 'games';
 
   return (
     <main className="relative max-w-2xl mx-auto px-4 py-8 sm:px-6 sm:py-12 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
@@ -217,8 +314,8 @@ function MonProfilPageClientImpl() {
             active={activeTab === 'games'}
             onClick={() => setActiveTab('games')}
             icon={<Gamepad2 className="w-4 h-4" />}
-            label="Mes Jeux"
-            count={gamesCount}
+            label="Mes Éditions"
+            count={editions.length}
           />
           <TabButton
             active={activeTab === 'history'}
@@ -231,7 +328,7 @@ function MonProfilPageClientImpl() {
       </div>
 
       <AnimatePresence mode="wait">
-        {activeTab === 'games' && (
+        {isGamesTab ? (
           <motion.div
             key="games"
             initial={{ opacity: 0, x: -20 }}
@@ -240,23 +337,20 @@ function MonProfilPageClientImpl() {
             transition={{ duration: 0.3 }}
             className="space-y-5"
           >
-            {gamesCount === 0 ? (
-              <ConsultationsEmpty consultationsLength={gamesCount} type="games" />
-            ) : (
-              <div className="space-y-3">
-                {consultations.map((consultation, index) => (
-                  <ConsultationCard
-                    key={consultation?._id ?? consultation?.id ?? index}
-                    consultation={consultation}
-                    index={index}
-                  />
-                ))}
-              </div>
-            )}
+            <EditionsList
+              editions={editions}
+              getGamesCountByEdition={getGamesCountByEdition}
+            />
           </motion.div>
-        )}
-        {activeTab === 'history' && (
-          <div className="relative mt-8">
+        ) : (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="relative mt-8"
+          >
             <div className="relative z-10 w-full">
               <motion.div
                 initial="hidden"
@@ -266,13 +360,33 @@ function MonProfilPageClientImpl() {
               >
                 <IdentityOverview
                   fullName={fullName}
-                  dateNaissanceLabel={dateNaissanceLabel} 
+                  dateNaissanceLabel={dateNaissanceLabel}
                 />
+
+                {consultations.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                      <History className="w-5 h-5 text-purple-500" />
+                      Dernières parties (top 10)
+                    </h3>
+                    <div className="space-y-3">
+                      {consultations.slice(0, 10).map((consultation, index) => (
+                        <ConsultationCard
+                          key={consultation?._id ?? consultation?.id ?? index}
+                          consultation={consultation}
+                          index={index}
+                          showDate={true}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             </div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
+
       <NewGameButton />
     </main>
   );

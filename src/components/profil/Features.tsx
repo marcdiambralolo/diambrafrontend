@@ -4,10 +4,10 @@ import { LastEndedGame, Winner } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Award, Calendar, Clock, Crown, FileText, Flame, Gift, History, Hourglass,
-    ListOrdered, Medal, RefreshCw, Rocket, Shuffle, Sparkles, Star, TrendingUp, Trophy, Users, Zap
+    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, TrendingUp, Trophy, Users,
 } from "lucide-react";
 import Link from 'next/link';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
 import CacheLink from "../commons/CacheLink";
 
@@ -40,7 +40,6 @@ export const HeaderSection = memo(() => (
         <GameStatusBadge>
             <Trophy className="w-4 h-4 text-yellow-400" />
             <span className="text-xs font-black uppercase tracking-wide text-white">DIAMBRA WIN</span>
-            <Crown className="w-4 h-4 text-yellow-400" />
         </GameStatusBadge>
     </div>
 ));
@@ -65,9 +64,6 @@ export const TitleSection = memo(({ showEnded }: { showEnded: boolean }) => (
                 </span>
                 <Sparkles className="w-4 h-4 text-purple-500" />
             </motion.div>
-            <h1 className="text-xl text-center sm:text-3xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
-                DIAMBRA WINNER'S
-            </h1>
         </div>
     </motion.div>
 ));
@@ -98,19 +94,18 @@ export const BannersSection = memo(({
     stats,
     onOpenGame,
     onEndMatch,
-}: BannersSectionProps) => (
-    <div className="max-w-md mx-auto">
-        <AnimatePresence mode="wait">
-            {showNotStarted && startDate && (
-                <NotStartedBanner
-                    key="not-started"
-                    startDate={startDate}
-                    handleOpenGame={onOpenGame}
-                    formatDateTime={formatDateTime}
-                />
-            )}
+}: BannersSectionProps) => {
 
-            {showActive && endDate && startDate && (
+
+    const getActiveBanner = () => {
+        // Priorité 1: Édition terminée
+        if (showEnded) {
+            return <EndedBanner key="ended" lastEndedGame={lastEndedGame} />;
+        }
+
+        // Priorité 2: Édition active
+        if (showActive && endDate && startDate) {
+            return (
                 <ActiveBanner
                     key="active"
                     endDate={endDate}
@@ -119,22 +114,40 @@ export const BannersSection = memo(({
                     formatDate={formatDateFRJeu}
                     gameConfig={gameConfig}
                 />
-            )}
+            );
+        }
 
-            {showEnded && lastEndedGame && (
-                <EndedBanner key="ended" lastEndedGame={lastEndedGame} />
-            )}
-        </AnimatePresence>
+        // Priorité 3: Édition non commencée
+        if (showNotStarted && startDate) {
+            return (
+                <NotStartedBanner
+                    key="not-started"
+                    startDate={startDate}
+                    handleOpenGame={onOpenGame}
+                    formatDateTime={formatDateTime}
+                />
+            );
+        }
 
-        <StatCard
-            value={stats?.subscribers ?? null}
-            label="Inscrits"
-            icon={<Users className="w-3.5 h-3.5" />}
-            color="from-purple-600 to-indigo-600"
-            delay={0.2}
-        />
-    </div>
-));
+        return null;
+    };
+
+    return (
+        <div className="max-w-md mx-auto">
+            <AnimatePresence mode="wait">
+                {getActiveBanner()}
+            </AnimatePresence>
+
+            <StatCard
+                value={stats?.subscribers ?? null}
+                label="Inscrits"
+                icon={<Users className="w-3.5 h-3.5" />}
+                color="from-purple-600 to-indigo-600"
+                delay={0.2}
+            />
+        </div>
+    );
+});
 
 BannersSection.displayName = 'BannersSection';
 
@@ -150,16 +163,13 @@ interface EditionCardProps {
 export const EditionCard = memo(({ activeEdition, winningCombination }: EditionCardProps) => (
     <motion.div
         variants={fadeInUp}
-        className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-5 shadow-xl"
+        className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-600 to-gray-600 p-5 shadow-xl"
     >
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
-                    <Flame className="w-6 h-6 text-white" />
-                </div>
                 <div>
-                    <p className="text-xs text-white/80">Édition</p>
-                    <p className="text-white font-bold">
+                    <p className="text-xs text-white font-bold">Édition</p>
+                    <p className="text-white text-xs ">
                         Du {formatEditionDate(new Date(activeEdition.startDate))} au {formatEditionDate(new Date(activeEdition.endDate))}
                     </p>
                 </div>
@@ -502,9 +512,6 @@ export const StatCard = memo<StatCardProps>(({ value, label, icon, color, delay 
                 <p className="text-3xl font-extrabold tracking-tight">
                     {value !== null ? formatNumber(value) : '--'}
                 </p>
-                <div className="absolute -top-2 -right-2">
-                    <Star className="w-3 h-3 text-yellow-300 animate-pulse" />
-                </div>
             </div>
         </div>
     </motion.div>
@@ -522,9 +529,7 @@ export const GlowButton = ({ href, children, variant = 'primary' }: { href: stri
                 href={href}
                 className={`relative flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r ${gradient} text-white font-bold rounded-2xl shadow-lg transition-all duration-300 text-sm sm:text-base w-full sm:w-auto`}
             >
-                <Sparkles className="w-4 h-4 animate-pulse" />
                 <span>{children}</span>
-                <Zap className="w-4 h-4" />
             </Link>
         </motion.div>
     );
@@ -578,9 +583,9 @@ export const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { ta
     );
 };
 
-export const HistoryButton = memo(({ gameId }: { gameId?: string }) => (
+export const HistoryButton = memo(() => (
     <CacheLink
-        href={`/star/historique${gameId ? `/${gameId}` : ''}`}
+        href="/star/historique/1779760200000"
         className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-sm w-full sm:w-auto"
     >
         <History className="w-4 h-4" />
@@ -665,7 +670,7 @@ export const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | 
                         <p className="font-bold text-white text-sm">Très bientôt</p>
                     </div>
                 </div>
-                <HistoryButton gameId={lastEndedGame?.id} />
+                <HistoryButton />
             </div>
         </div>
     </motion.div>
@@ -682,14 +687,10 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
         <div className="relative flex flex-col gap-4">
             <div className="flex items-center gap-3">
                 <div className="rounded-full bg-white/20 p-3">
-                    <Flame className="w-8 h-8 text-white" />
+                    <Flame className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                    <p className="text-white font-bold text-lg flex items-center gap-1">
-                        <Rocket className="w-4 h-4" />
-                        Jeu en cours !
-                    </p>
-                    <p className="text-white/80 text-xs">Temps restant pour jouer</p>
+                    <p className="text-white text-xs">Temps restant pour jouer</p>
                 </div>
             </div>
 
@@ -700,7 +701,7 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     <Calendar className="w-4 h-4 text-white" />
                     <span className="text-white text-xs">Du {formatDate(startDate)}</span>
                 </div>
-                <div className="text-white text-xs">au {formatDate(endDate)}</div>
+                <div className="text-white text-xs">Au {formatDate(endDate)}</div>
             </div>
 
             <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>

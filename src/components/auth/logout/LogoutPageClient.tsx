@@ -1,6 +1,6 @@
 'use client';
 import { useLogoutPage } from "@/hooks/auth/logout/useLogoutPage";
-import { motion,Variants  } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Check, Loader2, LogOut, Shield, Sparkles, Star, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,7 @@ const checkVariants: Variants = {
   visible: { scale: 1, rotate: 0, opacity: 1, transition: { delay: 0.15, type: "spring", stiffness: 220, damping: 18 } }
 };
 
-const CELEBRATION_STARS = 8;
+const CELEBRATION_STARS = 6;
 
 export const SuccessState = () => (
   <motion.div
@@ -89,7 +89,7 @@ const cardVariants: Variants = {
   visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 250, damping: 22, mass: 0.8 } },
   exit: { opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.15 } }
 };
- 
+
 
 export const LoadingState = ({ progress }: { progress: number }) => (
   <motion.div
@@ -136,7 +136,7 @@ export const LoadingState = ({ progress }: { progress: number }) => (
         { Icon: Zap, color: "text-yellow-400" },
         { Icon: Star, color: "text-[#9BC2FF]" }
       ].map(({ Icon, color }, i) => (
-        <motion.div key={i}   className={color}>
+        <motion.div key={i} className={color}>
           <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
         </motion.div>
       ))}

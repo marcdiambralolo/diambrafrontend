@@ -150,7 +150,7 @@ export default function TermsPageClient() {
             </motion.div>
 
             <div className="relative overflow-hidden">
-                <div className="relative max-w-4xl mx-auto px-4 pt-12 pb-8 text-center">
+                <div className="relative max-w-4xl mx-auto px-2 pt-8 pb-6 text-center">
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

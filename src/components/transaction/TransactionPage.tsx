@@ -3,8 +3,8 @@ import Loader from "@/app/loading";
 import { PAYMENT_METHODS, useTransactionPage } from "@/hooks/transaction/useTransactionPage";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    AlertCircle, ArrowRight, CheckCircle2, CreditCard, ExternalLink,
-    Lock, RefreshCw, Shield, Smartphone,
+    AlertCircle, ArrowRight, Smartphone, CheckCircle2, CreditCard, ExternalLink,
+    Lock, RefreshCw, Shield,
 } from "lucide-react";
 
 export default function TransactionPage() {

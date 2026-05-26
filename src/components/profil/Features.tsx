@@ -583,6 +583,44 @@ export const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { ta
     );
 };
 
+export const CountdownTimerLight = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
+    const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [hasFinished, setHasFinished] = React.useState(false);
+
+    React.useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                clearInterval(timer);
+                if (!hasFinished) {
+                    setHasFinished(true);
+                    onFinish?.();
+                }
+                return;
+            }
+
+            setTimeLeft({
+                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
+                minutes: Math.floor((diff % 3600000) / (1000 * 60)),
+                seconds: Math.floor((diff % 60000) / 1000)
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [targetDate, hasFinished, onFinish]);
+
+
+    return (
+        <div className="flex gap-2 justify-center flex-wrap">
+            <p className="text-center bg-black/25 backdrop-blur-lg rounded-xl px-2 py-1.5 min-w-[55px] shadow-lg text-white font-black text-xs sm:text-xl leading-tight">C'EST LE MOMENT DE GAGNER</p>
+        </div>
+    );
+};
+
+
 export const HistoryButton = memo(() => (
     <CacheLink
         href="/star/historique/1779760200000"
@@ -690,11 +728,11 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     <Flame className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                    <p className="text-white text-xs">Temps restant pour jouer</p>
+                    <p className="text-white text-xs">Edition en cours</p>
                 </div>
             </div>
 
-            <CountdownTimer targetDate={endDate} variant="light" onFinish={handleEndMatch} />
+            <CountdownTimerLight targetDate={endDate} variant="light" onFinish={handleEndMatch} />
 
             <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
                 <div className="flex items-center gap-2">

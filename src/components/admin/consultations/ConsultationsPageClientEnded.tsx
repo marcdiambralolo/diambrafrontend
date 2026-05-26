@@ -159,13 +159,13 @@ export default function ConsultationsPage() {
     // Top combinaisons
     const topCombinaisons = Array.from(combinaisonsMap.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+      .slice(0, 15);
 
     // Top joueurs
     const topPlayers = Array.from(playersMap.entries())
       .map(([username, data]) => ({ username, games: data.games, combinaisons: data.combinaisons.size }))
       .sort((a, b) => b.games - a.games)
-      .slice(0, 5);
+      .slice(0, 15);
 
     // Taux de complétion
     const completedGames = consultations.filter(c => c.combinaison && c.combinaison !== '????').length;

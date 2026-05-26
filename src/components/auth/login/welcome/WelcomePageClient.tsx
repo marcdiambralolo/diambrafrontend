@@ -71,13 +71,13 @@ const STATS: StatItem[] = [
 ];
 
 const sectionTitleClass =
-  'text-center text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white';
+  'text-center text-xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white';
 
 const sectionTextClass =
-  'mx-auto mt-2 max-w-md text-center text-sm leading-relaxed text-slate-500 sm:text-[15px] dark:text-slate-300/80';
+  'mx-auto mt-2 max-w-md text-center text-sm leading-relaxed text-slate-500 sm:text-[14px] dark:text-slate-300/80';
 
 const cardBaseClass =
-  'relative overflow-hidden rounded-3xl border border-purple-100/80 bg-white/90 shadow-[0_10px_30px_rgba(109,40,217,0.08)] backdrop-blur-sm transition-all duration-300 dark:border-white/10 dark:bg-white/5 dark:shadow-[0_10px_30px_rgba(80,50,180,0.20)]';
+  'relative overflow-hidden rounded-2xl border border-purple-100/80 bg-white/90 shadow-[0_10px_30px_rgba(109,40,217,0.08)] backdrop-blur-sm transition-all duration-300 dark:border-white/10 dark:bg-white/5 dark:shadow-[0_10px_30px_rgba(80,50,180,0.20)]';
 
 const SectionHeader = memo(function SectionHeader({
   badge,
@@ -99,7 +99,7 @@ const SectionHeader = memo(function SectionHeader({
         </div>
       ) : null}
 
-      <h3 className={sectionTitleClass}>{title}</h3>
+      <h4 className={sectionTitleClass}>{title}</h4>
 
       {subtitle ? <p className={sectionTextClass}>{subtitle}</p> : null}
     </div>
@@ -273,11 +273,11 @@ export default function WelcomePageClient() {
         <section id="regles">
           <SectionHeader
             badge="Règles du jeu"
-            title="📜 Comprendre le jeu en quelques secondes"
+            title="📜 Comprendre le jeu maintenant"
             subtitle="4 cases, 10 chiffres, 1 seule bonne combinaison.  "
           />
 
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-1 lg:grid-cols-1">
             {RULES.map((item, index) => (
               <Pill
                 key={item.id}
@@ -294,8 +294,8 @@ export default function WelcomePageClient() {
         <section id="jeu">
           <SectionHeader
             badge="Comment jouer"
-            title="🎯 Une expérience pensée pour le tactile"
-           />
+            title="🎯 Une expérience pensée pour vous"
+          />
 
           <HowToPlayCard />
         </section>

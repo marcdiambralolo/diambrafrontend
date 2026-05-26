@@ -9,7 +9,7 @@ export default function ProfilPageClient() {
     handleOpenGame, handleEndMatch, handleRefresh,
     stats, startDate, endDate, gameConfig, lastEndedGame,
     showEnded, consultations, activeEdition, winners, error,
-    hasWinners, winningCombination,   hasNotStartedEdition,showActive,gameStarted,
+    hasWinners, winningCombination, hasNotStartedEdition, gameStarted,
   } = useAdminConsultationsPageFinished();
 
   if (error) {
@@ -40,6 +40,7 @@ export default function ProfilPageClient() {
             winningCombination={winningCombination}
           />
         )}
+
         <TitleSection showEnded={showEnded} />
 
         <WinnersSection

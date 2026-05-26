@@ -1,6 +1,6 @@
 "use client";
 import Loader from '@/app/loading';
-import { useAuth } from '@/lib/hooks';
+import { useAuthStore } from '@/lib/store/auth.store';
 import {
   ArrowRight, Brain, ChevronRight, Gamepad2, Grid, Info, MousePointerClick, Rocket, TrophyIcon, Zap
 } from 'lucide-react';
@@ -72,23 +72,19 @@ export default function WelcomePageClient() {
 
 export function WelcomePageClientContent() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, } = useAuthStore();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useScrollReveal();
 
   useEffect(() => {
-    if (!isLoading && user) {
+    if (user && user.secretCode) {
       setIsRedirecting(true);
       router.replace('/star/profil');
     }
-  }, [user, isLoading, router]);
+  }, [user, router, setIsRedirecting]);
 
-  if (isLoading || isRedirecting) {
-    return (
-      <Loader />
-    );
-  }
+  if (isRedirecting) { return (<Loader />); }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 overflow-x-hidden">
@@ -168,7 +164,6 @@ export function WelcomePageClientContent() {
             <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...%3E')] opacity-10" />
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
-
             <div className="relative">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 mb-4">
                 <Rocket className="w-4 h-4 text-white" />

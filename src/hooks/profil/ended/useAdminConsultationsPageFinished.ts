@@ -12,32 +12,30 @@ export function useAdminConsultationsPageFinished() {
   const { data: gameConfig, isLoading: configLoading, error: configError } = useGameConfig();
 
   const isMountedRef = useRef(true);
-  const isFetchingRef = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const endGameCalledRef = useRef(false);
 
   const [gameStarted, setGameStarted] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [activeEdition, setActiveEdition] = useState<ActiveEdition | null>(null);
   const [winners, setWinners] = useState<WinnersData | null>(null);
   const [statistics, setStatistics] = useState<StatisticsData | null>(null);
   const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loadingConsultations, setLoadingConsultations] = useState(true);
-  const [loadingLastEnded, setLoadingLastEnded] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date()); // 🔥 État pour la date actuelle
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isEndingGame, setIsEndingGame] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 🔥 Mettre à jour l'heure actuelle toutes les secondes
+  // Mettre à jour l'heure actuelle toutes les secondes
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
 
@@ -51,7 +49,6 @@ export function useAdminConsultationsPageFinished() {
     [gameConfig?.endgameDate]
   );
 
-  // 🔥 Utiliser currentTime au lieu de new Date() pour les comparaisons
   const isGameActive = useMemo(() =>
     gameConfig?.isActive === true &&
     gameConfig?.status === 'active' &&
@@ -102,75 +99,74 @@ export function useAdminConsultationsPageFinished() {
     [showNotStarted, startDate]
   );
 
-  const fetchLastEndedGame = useCallback(async () => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
+  // 🔥 Fonction unique pour rafraîchir toutes les données
+  const refreshAllData = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
 
     try {
-      const response = await api.get('/game-configurations/last-ended');
-      const data = response.data as LastEndedResponse;
+      // Récupérer les données des consultations terminées
+      const [consultationsResponse, lastEndedResponse] = await Promise.all([
+        api.get('/consultations/ended-game', {
+          params: { page: 1, limit: ITEMS_PER_PAGE },
+        }),
+        api.get('/game-configurations/last-ended'),
+      ]);
+
+      const consultationsData = consultationsResponse.data as EndedGameResponse;
+      const lastEndedData = lastEndedResponse.data as LastEndedResponse;
 
       if (isMountedRef.current) {
-        setLastEndedGame(data?.hasEndedEdition ? data.configuration : null);
-      }
-    } catch (error) {
-      if (isMountedRef.current) {
-        console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
-        setLastEndedGame(null);
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setLoadingLastEnded(false);
-      }
-      isFetchingRef.current = false;
-    }
-  }, []);
-
-  const fetchConsultationsData = useCallback(async () => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
-
-    try {
-      const response = await api.get('/consultations/ended-game', {
-        params: { page: 1, limit: ITEMS_PER_PAGE },
-      });
-
-      const data = response.data as EndedGameResponse;
-
-      if (isMountedRef.current) {
-        setConsultations(data?.consultations || []);
-        setActiveEdition(data?.activeEdition || null);
-        setWinners(data?.winners || null);
-        setStatistics(data?.statistics || null);
+        setConsultations(consultationsData?.consultations || []);
+        setActiveEdition(consultationsData?.activeEdition || null);
+        setWinners(consultationsData?.winners || null);
+        setStatistics(consultationsData?.statistics || null);
+        setLastEndedGame(lastEndedData?.hasEndedEdition ? lastEndedData.configuration : null);
         setError(null);
       }
     } catch (err: any) {
       if (isMountedRef.current) {
         console.error('Erreur:', err);
         setError(err?.message || 'Erreur lors du chargement');
-        setConsultations([]);
-        setActiveEdition(null);
-        setWinners(null);
-        setStatistics(null);
       }
     } finally {
       if (isMountedRef.current) {
-        setLoadingConsultations(false);
+        setLoading(false);
+        setIsRefreshing(false);
       }
-      isFetchingRef.current = false;
     }
-  }, []);
+  }, [isRefreshing]);
 
-  const refreshAllData = useCallback(async () => {
-    setLoadingConsultations(true);
-    setLoadingLastEnded(true);
-    setError(null);
+  // 🔥 Fonction pour terminer l'édition dans le backend
+  const endGameInBackend = useCallback(async () => {
+    if (!gameConfig?._id || isEndingGame || endGameCalledRef.current) return;
 
-    await Promise.allSettled([
-      fetchConsultationsData(),
-      fetchLastEndedGame(),
-    ]);
-  }, [fetchConsultationsData, fetchLastEndedGame]);
+    setIsEndingGame(true);
+
+    try {
+      const response = await api.post(`/game-configurations/${gameConfig._id}/end`);
+      const data = response.data as any;
+
+      if (data?.success) {
+        console.log('Édition terminée avec succès');
+        endGameCalledRef.current = true;
+        setMatchFinished(true);
+        // 🔥 Recharger les données immédiatement
+        await refreshAllData();
+      }
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        console.log('L\'édition était déjà terminée');
+        endGameCalledRef.current = true;
+        setMatchFinished(true);
+        await refreshAllData();
+      } else {
+        console.error('Erreur:', err);
+      }
+    } finally {
+      setIsEndingGame(false);
+    }
+  }, [gameConfig?._id, isEndingGame, refreshAllData]);
 
   const handleOpenGame = useCallback(() => {
     if (!gameStarted) {
@@ -178,72 +174,80 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [gameStarted]);
 
-  const handleEndMatch = useCallback(() => {
-    if (!matchFinished) {
+  const handleEndMatch = useCallback(async () => {
+    if (!matchFinished && !isEndingGame) {
       setMatchFinished(true);
-      setRefreshTrigger(prev => prev + 1);
+      await endGameInBackend();
     }
-  }, [matchFinished]);
+  }, [matchFinished, isEndingGame, endGameInBackend]);
 
   const handleRefresh = useCallback(() => {
     refreshAllData();
+    endGameCalledRef.current = false;
   }, [refreshAllData]);
 
-  // 🔥 Vérifier périodiquement si l'édition est terminée et recharger les données
+  // 🔥 Détection de fin d'édition
   useEffect(() => {
-    // Si l'édition est terminée et qu'on n'a pas encore chargé les données finales
-    if (isGameEnded && !matchFinished) {
-      refreshAllData();
-      setMatchFinished(true);
-    }
-  }, [isGameEnded, matchFinished, refreshAllData]);
+    const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
+      !matchFinished &&
+      !endGameCalledRef.current &&
+      gameConfig?._id;
 
+    if (shouldEnd) {
+      console.log('Détection de fin d\'édition');
+      endGameInBackend();
+    }
+  }, [isGameEnded, currentTime, endDate, matchFinished, endGameInBackend, gameConfig?._id]);
+
+  // 🔥 Rechargement périodique pour les mises à jour (toutes les 5 secondes)
+  useEffect(() => {
+    const reloadInterval = setInterval(() => {
+      if (!isRefreshing && !isEndingGame) {
+        refreshAllData();
+      }
+    }, 5000);
+
+    return () => clearInterval(reloadInterval);
+  }, [isRefreshing, isEndingGame, refreshAllData]);
+
+  // Chargement initial
   useEffect(() => {
     isMountedRef.current = true;
+    refreshAllData();
+
     return () => {
       isMountedRef.current = false;
     };
-  }, []);
-
-  useEffect(() => {
-    refreshAllData();
   }, [refreshAllData]);
 
+  // Démarrage automatique quand l'édition devient active
   useEffect(() => {
-    if (refreshTrigger > 0) {
-      refreshAllData();
-    }
-  }, [refreshTrigger, refreshAllData]);
-
-  useEffect(() => {
-    // Quand l'édition devient active, démarrer automatiquement le jeu
     if (showActive && !gameStarted && !hasNotStartedEdition) {
       setGameStarted(true);
     }
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
   return {
-    handleOpenGame, 
-    handleEndMatch, 
+    handleOpenGame,
+    handleEndMatch,
     handleRefresh,
-    isLoading: loadingConsultations || loadingLastEnded || configLoading || statsLoading,
-    startDate, 
-    endDate, 
-    error: error || configError, 
-    hasWinners, 
+    isLoading: loading || statsLoading || configLoading,
+    startDate,
+    endDate,
+    error: error || configError,
+    hasWinners,
     winningCombination,
-    hasNotStartedEdition, 
-    showEnded, 
-    showActive, 
-    showNotStarted, 
+    hasNotStartedEdition,
+    showEnded,
+    showNotStarted,
     stats,
-    gameConfig, 
-    consultations, 
-    activeEdition, 
-    winners, 
-    statistics, 
+    gameConfig,
+    consultations,
+    activeEdition,
+    winners,
+    statistics,
     lastEndedGame,
     gameStarted,
-    currentTime, // 🔥 Exporter pour déboguer si nécessaire
+    currentTime,
   };
 }

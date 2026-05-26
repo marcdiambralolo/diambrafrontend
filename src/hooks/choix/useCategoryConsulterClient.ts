@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useStatsDataWithCache } from '../cache/useStatsDataWithCache';
 import { useGameConfig } from '../profil/useGameConfig';
+import { formatTime } from '@/lib/functions';
 
 export const SLOT_COUNT = 4;
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -37,15 +38,6 @@ interface DragData {
     value: number;
     fromSlot?: number;
 }
-
-export const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const tenths = Math.floor((seconds % 1) * 10);
-    return mins > 0
-        ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
-        : `${secs}.${tenths}s`;
-};
 
 export const ANIMATION_CONFIG = {
     spring: { type: 'spring' as const, stiffness: 280, damping: 22 },

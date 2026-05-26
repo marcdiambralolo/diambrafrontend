@@ -60,11 +60,9 @@ export default function CacheLink({
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
 
-  // URL avec cache busting
   const bustedHref = useMemo(() => {
     if (disableCacheBusting) return href;
 
-    // Pour les URLs avec ancre (#), on garde l'ancre à la fin
     const [baseUrl, hash] = href.split('#');
     const urlWithCache = addCacheBusting(baseUrl, customTimestamp || getSessionTimestamp());
     return hash ? `${urlWithCache}#${hash}` : urlWithCache;
@@ -72,7 +70,6 @@ export default function CacheLink({
 
   // Version sans cache busting pour la préfetch (évite de polluer le cache)
   const prefetchHref = useMemo(() => {
-    // Supprimer les paramètres de cache busting pour la préfetch
     return href.replace(/[?&]_cb=\d+/, '').replace(/[?&]$/, '');
   }, [href]);
 

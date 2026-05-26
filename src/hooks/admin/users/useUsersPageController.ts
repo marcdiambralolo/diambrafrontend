@@ -5,8 +5,6 @@ import { getErrorMessage } from '@/lib/utils/errorHelpers';
 import { Variants } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-
-
 export type UserStatus = 'all' | 'active' | 'inactive';
 export type UserRole = 'all' | 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 
@@ -23,7 +21,7 @@ export function useUsersPageController() {
     status: statusFilter,
     role: roleFilter,
     page: currentPage,
-    limit: 6,
+    limit: 20,
   });
 
   const mapUserToUserData = (user: Partial<User>): User => ({

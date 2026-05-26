@@ -344,7 +344,7 @@ export default function WalletPageContent() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full max-w-xl px-4 py-8 sm:px-6 sm:py-12">
       <WalletTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "transactions" ? (
@@ -356,12 +356,12 @@ export default function WalletPageContent() {
         >
           <div className="flex gap-4">
             <StatsCard
-              label="Total transactions"
+              label="transactions"
               value={stats.totalTransactions}
               icon={ShoppingBag}
             />
             <StatsCard
-              label="Total dépensé"
+              label="dépense"
               value={`${stats.totalSpent.toLocaleString()} F`}
               icon={TrendingUp}
             />

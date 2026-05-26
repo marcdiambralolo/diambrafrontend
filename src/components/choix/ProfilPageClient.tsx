@@ -8,8 +8,8 @@ import { ActiveBanner, ActiveGame, EndedBanner, ErrorToast, GameHeader, OfferSel
 
 export default function ProfilPageClient() {
   const {
-    handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
-    setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate, handleEndMatch,
+    handleGoToMarket, handleEndMatch, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
+    setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate,
     currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity, afficheselection,
     gamehasStarted, slots, selected, dragOverSlot, isDragging, error, mode, used, isComplete,
     loading, stats, startDate, endDate, gameConfig, lastEndedGame, showEnded, affichebanner,

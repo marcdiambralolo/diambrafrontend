@@ -95,11 +95,11 @@ export default function AboutPageClient() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
+      <div className="mx-auto max-w-5xl px-4 py-4 sm:py-8">
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-          <h1 className="text-balance text-4xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent sm:text-6xl">
+          <h3 className="text-balance text-2xl font-black tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent sm:text-6xl">
             DIAMBRA WIN
-          </h1>
+          </h3>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <CacheLink href="/star/profil" className={btnPrimary}>
               Jouez maintenant! <ChevronRight className="h-4 w-4" />

@@ -346,21 +346,15 @@ const RegisterForm: React.FC = () => {
                 </CacheLink>
               </p>
             </div>
-
-            <div className="flex items-center justify-center gap-2 text-xs text-blue-400">
-              <Shield className="w-3 h-3" />
-              <span>Données sécurisées et cryptées.</span>
-            </div>
           </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <CacheLink
-            href="/terms"
-            className="text-xs text-blue-700 hover:underline transition-colors"
-          >
-            Conditions générales d'utilisation
-          </CacheLink>
+          <div className="mt-6 text-center">
+            <CacheLink
+              href="/terms"
+              className="text-xl text-blue-700 font-semibold hover:underline transition-colors"
+            >
+              Conditions générales d'utilisation
+            </CacheLink>
+          </div>
         </div>
         <WelcomePageClient />
         <p className="mt-2 text-center text-xs mb-16 text-gray-400">

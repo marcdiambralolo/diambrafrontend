@@ -94,11 +94,6 @@ const PeriodCard = memo(({
     </div>
     <p className="text-2xl font-black">{data.revenue.toLocaleString()} F</p>
     <p className="text-xs opacity-90 mt-1">{data.quantitySold} vente{data.quantitySold > 1 ? 's' : ''}</p>
-    {data.quantitySold > 0 && (
-      <p className="text-xs opacity-75 mt-2">
-        Moyenne: {Math.round(data.revenue / data.quantitySold).toLocaleString()} F/vente
-      </p>
-    )}
   </motion.div>
 ));
 
@@ -115,25 +110,8 @@ const OffrandesStats: React.FC<OffrandesStatsProps> = ({ statsData }) => {
 
   return (
     <div className="w-full py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 mb-4">
-            <BarChart3 className="w-4 h-4" />
-            <span className="text-xs font-bold">ANALYSE DES VENTES</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Statistiques des jetons
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
-            Vue d'ensemble des performances et tendances
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="max-w-8xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           <StatCard
             title="Chiffre d'affaires total"
             value={`${totalRevenue.toLocaleString()} F`}

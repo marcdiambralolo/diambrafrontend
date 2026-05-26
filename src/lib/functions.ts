@@ -268,3 +268,12 @@ export const formatDateTime = (date: Date) =>
     hour: '2-digit',
     minute: '2-digit'
   });
+
+  export const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const tenths = Math.floor((seconds % 1) * 10);
+    return mins > 0
+        ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
+        : `${secs}.${tenths}s`;
+};

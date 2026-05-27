@@ -5,7 +5,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
     Award, Calendar, Clock, Crown, FileText,
     Gift, History, Hourglass, Zap,
-    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, TrendingUp, Trophy, Users,   
+    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, TrendingUp, Trophy, Users,
+    ArrowRight,
+    Flame,
 } from "lucide-react";
 import React, { memo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
@@ -658,7 +660,7 @@ export const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | 
     </motion.div>
 );
 
-export const CountdownTimerLight = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
+export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', onFinish }: {monjeuid:string, targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
     const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [hasFinished, setHasFinished] = React.useState(false);
 
@@ -696,48 +698,111 @@ export const CountdownTimerLight = ({ targetDate, variant = 'light', onFinish }:
 
     return (
         <div className="relative">
-            {/* Bannière principale */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-0.5 mb-4">
-                {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M10,10 L20,10 L15,20 Z M30,30 L40,30 L35,40 Z M50,50 L60,50 L55,60 Z M70,70 L80,70 L75,80 Z"/%3E%3C/svg%3E')] opacity-20" /> */}
+             <CacheLink   href={`/star/choix/${monjeuid || ''}`} className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">
+           
+            {/* Bannière principale avec effet néon */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-[3px] mb-6 shadow-2xl shadow-orange-500/50">
+                {/* Effet de brillance animé */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
 
-                <div className="relative bg-gradient-to-br from-amber-600 to-red-600 p-4 rounded-2xl">
+                {/* Effet de particules */}
+                <div className="absolute inset-0 opacity-30">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full blur-2xl animate-pulse" />
+                    <div className="absolute bottom-0 right-0 w-40 h-40 bg-red-300 rounded-full blur-2xl animate-pulse delay-1000" />
+                </div>
 
+                {/* Contenu principal */}
+                <div className="relative bg-gradient-to-br from-amber-600/95 to-red-600/95 backdrop-blur-sm rounded-2xl p-6 overflow-hidden">
 
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                        {timeUnits.map((unit, idx) => (
-                            <motion.div
-                                key={unit.label}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1 }}
-                                className="text-center"
-                            >
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-white/20 rounded-xl blur-xl" />
-                                    <div className="relative bg-black/30 backdrop-blur-md rounded-xl p-3 border border-white/30 shadow-2xl">
-                                        <div className="flex justify-center gap-0.5 mb-1">
-                                            {unit.value.toString().padStart(2, '0').split('').map((digit, i) => (
-                                                <motion.div
-                                                    key={i}
-                                                    initial={{ scale: 0 }}
-                                                    animate={{ scale: 1 }}
-                                                    transition={{ delay: idx * 0.1 + i * 0.05, type: "spring" }}
-                                                    className="w-6 h-8 bg-gradient-to-b from-white to-gray-200 rounded-md flex items-center justify-center shadow-inner"
-                                                >
-                                                    <span className="text-xl font-black text-gray-900">{digit}</span>
-                                                </motion.div>
-                                            ))}
-                                        </div>
-                                        <div className="flex items-center justify-center gap-1 mt-1">
-                                            <span className="text-[9px] font-bold text-white/80 tracking-wider">{unit.label}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                    {/* Pattern décoratif */}
+                    <div className="absolute inset-0 opacity-10">
+                        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="stars" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <circle cx="2" cy="2" r="1.5" fill="white" opacity="0.8" />
+                                    <circle cx="20" cy="15" r="1" fill="white" opacity="0.5" />
+                                    <circle cx="35" cy="30" r="2" fill="white" opacity="0.6" />
+                                    <circle cx="10" cy="35" r="0.8" fill="white" opacity="0.4" />
+                                    <circle cx="30" cy="8" r="1.2" fill="white" opacity="0.7" />
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#stars)" />
+                        </svg>
+                    </div>
+
+                    {/* Icônes flottantes */}
+                    <motion.div
+                        animate={{ y: [0, -10, 0], rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="absolute top-2 left-2 text-yellow-300/30"
+                    >
+                        <Sparkles className="w-8 h-8" />
+                    </motion.div>
+                    <motion.div
+                        animate={{ y: [0, 10, 0], rotate: [0, -5, 5, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                        className="absolute bottom-2 right-2 text-yellow-300/30"
+                    >
+                        <Trophy className="w-8 h-8" />
+                    </motion.div>
+
+                    {/* Message principal */}
+                    <div className="relative text-center space-y-4">
+
+                        {/* Titre principal avec effet 3D */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="relative"
+                        >
+                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">
+                                <span className="bg-gradient-to-r from-yellow-200 via-orange-200 to-red-200 bg-clip-text text-transparent">
+                                    C'EST LE MOMENT
+                                </span>
+                            </h2>
+                            <h3 className="text-5xl md:text-7xl font-black mt-2">
+                                <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent animate-pulse">
+                                    DE GAGNER!
+                                </span>
+                            </h3>
+                        </motion.div>
+
+                        {/* Sous-titre */}
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                            className="text-white/80 text-sm font-medium flex items-center justify-center gap-2"
+                        >
+                            <Zap className="w-4 h-4 text-yellow-300" />
+                            ⚡ AVEC DIAMBRA ⚡
+                            <Sparkles className="w-4 h-4 text-yellow-300" />
+                        </motion.p>
+
+                        {/* Barre de progression animée */}
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "100%" }}
+                            transition={{ delay: 0.6, duration: 1 }}
+                            className="h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-full mt-6"
+                        />
+
                     </div>
                 </div>
             </div>
+          </CacheLink>
+
+
+            <style jsx>{`
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+            animation: shimmer 2s infinite;
+        }
+    `}</style>
         </div>
     );
 };
@@ -827,7 +892,7 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                 </div>
 
                 {/* Countdown Timer */}
-                <CountdownTimerLight targetDate={endDate} variant="light" onFinish={handleEndMatch} />
+                <CountdownTimerLight monjeuid={gameConfig?.id || ''} targetDate={endDate} variant="light" onFinish={handleEndMatch} />
 
                 {/* Call to Action */}
                 <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>

@@ -1,23 +1,17 @@
 "use client";
+import Loader from "@/app/loading";
 import CacheLink from "@/components/commons/CacheLink";
 import { filterOptions, useNotificationsPage } from "@/hooks/notifications/useNotificationsPage";
+import { staggerContainer } from "@/lib/animations";
 import { cx, formatDateFRNew } from "@/lib/functions";
 import type { Notification } from "@/lib/types/notification.types";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { memo, useMemo } from "react";
 import { ArrowLeft, Bell, CheckCheck, Clock, Settings, Trash2 } from "lucide-react";
+import { memo, useMemo } from "react";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
-  }
 };
 
 const scaleOnHover: Variants = {
@@ -30,17 +24,6 @@ const notificationIcons: Record<string, { icon: string; bg: string }> = {
   PAYMENT_CONFIRMED: { icon: "💰", bg: "bg-emerald-100" },
   SYSTEM_ANNOUNCEMENT: { icon: "🔔", bg: "bg-amber-100" }
 };
-
-export const LoadingState = memo(function LoadingState() {
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="flex flex-col items-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
-        <p className="mt-3 text-sm text-gray-500">Chargement des notifications...</p>
-      </div>
-    </div>
-  );
-});
 
 export const EmptyState = memo(function EmptyState({ filter }: { filter: string }) {
   return (
@@ -161,7 +144,7 @@ const NotificationList = memo(function NotificationList({
 }: NotificationListProps) {
   const items = useMemo(() => notifications ?? [], [notifications]);
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <Loader />;
   if (items.length === 0) return <EmptyState filter={filter} />;
 
   return (
@@ -358,7 +341,6 @@ export default function NotificationsPageClient() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50/50">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-        
         <NotificationHeader
           unreadCount={unreadCount}
           markAllAsRead={markAllAsRead}

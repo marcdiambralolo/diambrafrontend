@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 
-import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import SecuredHeader from "@/components/layout/ProtectedLayout/SecuredHeader";
-import { SecuredHeaderSuspense } from "@/components/layout/ProtectedLayout/SecuredHeaderSuspense";
 import SecuredMain from "@/components/layout/ProtectedLayout/SecuredMain";
+import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
+import { SecuredHeaderSuspense } from "@/components/layout/ProtectedLayout/SecuredHeaderSuspense";
 import { SecuredMainSuspense } from "@/components/layout/ProtectedLayout/SecuredMainSuspense";
 
 interface ProtectedLayoutProps {

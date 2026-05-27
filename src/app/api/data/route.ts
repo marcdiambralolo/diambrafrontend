@@ -1,143 +1,260 @@
-// import { NextResponse } from "next/server";
-// import { Case, MatchInfo } from "@/libs/interface";
+const LINEAR_CONGRUENTIAL_GENERATOR = {
+  MODULUS: 2147483647,
+  MULTIPLIER: 16807,
+  OFFSET: 2147483646,
+} as const;
 
-// class Random {
-//     private seed: number;
+const CASE_COUNTS_BY_TYPE: Readonly<Record<number, number>> = {
+  0: 199,  // Nombre
+  1: 101,  // Couleur
+  2: 0,    // Image (calculé dynamiquement)
+  3: 650,  // Lettre
+} as const;
 
-//     constructor(seed: number) {
-//         this.seed = seed % 2147483647;
-//         if (this.seed <= 0) this.seed += 2147483646;
-//     }
+const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
+const MAX_PIECES_SIZE = 10000;
+const MAX_NIVEAU = 10;
 
-//     next(): number {
-//         this.seed = (this.seed * 16807) % 2147483647;
-//         return (this.seed - 1) / 2147483646;
-//     }
-// }
+export class SeededRandom {
+  private seed: number;
 
-// const malisteca = (numeromat: string, wl: string[]): string[] => {
-//     const seed = parseInt(numeromat, 10);
-//     const use = new Array(wl.length).fill(false);
-//     const lcases: string[] = [];
-//     const random = new Random(seed);
+  constructor(seed: number) {
+    this.seed = seed % LINEAR_CONGRUENTIAL_GENERATOR.MODULUS;
+    if (this.seed <= 0) {
+      this.seed += LINEAR_CONGRUENTIAL_GENERATOR.OFFSET;
+    }
+  }
 
-//     while (lcases.length < wl.length) {
-//         while (true) {
+  next(): number {
+    this.seed = (this.seed * LINEAR_CONGRUENTIAL_GENERATOR.MULTIPLIER) % LINEAR_CONGRUENTIAL_GENERATOR.MODULUS;
+    return (this.seed - 1) / LINEAR_CONGRUENTIAL_GENERATOR.OFFSET;
+  }
 
-//             const compteur = Math.round(random.next() * wl.length);
+  nextInt(max: number): number {
+    return Math.floor(this.next() * max);
+  }
+}
 
-//             if (compteur !== wl.length && !use[compteur]) {
-//                 use[compteur] = true;
-//                 lcases.push(wl[compteur]);
-//                 break;
-//             }
-//         }
-//     }
+export function shuffleArray<T>(items: T[], seed: number): T[] {
+  const shuffled = [...items];
+  const random = new SeededRandom(seed);
 
-//     return lcases;
-// }
+  // Fisher-Yates shuffle: O(n)
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = random.nextInt(i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
 
-// const generateMatchList = (tpsglobal: number): MatchInfo[] => {
-//     const matchs: MatchInfo[] = [];
-//     const addMatch = (numeroordre: number, tpsglobal1: number) => {
-//         const nume = Math.floor(Math.random() * 1000000000).toString().padEnd(9, '0').slice(0, 9);
-//         matchs.push({
-//             numordrep: numeroordre + 1,
-//             isgameover: false,
-//             numeromatch: nume,
-//             entite: parseInt(nume) % 9 || 0,
-//             tpsglobal: tpsglobal1,
-//         });
-//     };
+  return shuffled;
+}
 
-//     if (tpsglobal === 4) {
-//         [0, 3, 1, 2].forEach((ordre, index) => addMatch(ordre, index));
-//     } else {
-//         addMatch(0, tpsglobal);
-//     }
+/**
+ * @deprecated Ancienne fonction - conservée pour compatibilité
+ * Utilisez shuffleArray à la place
+ */
+export function malisteca(seedString: string, items: string[]): string[] {
+  const seed = parseInt(seedString, 10);
+  if (isNaN(seed)) {
+    throw new Error(`Seed invalide: ${seedString}`);
+  }
+  return shuffleArray(items, seed);
+}
 
-//     return matchs;
-// };
+// ==================== GÉNÉRATION DE MATCHES ====================
+/**
+ * Génère un identifiant unique de match (9 chiffres)
+ * Utilise crypto.getRandomValues pour une vraie entropie
+ */
+function generateMatchId(): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return (array[0] % 1000000000).toString().padStart(9, '0');
+  }
+  // Fallback pour environnements sans crypto
+  return Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+}
 
-// const caseinit = (lrcase1: string[], match: MatchInfo): Case[] => {
-//     return lrcase1.map((txt, index) => ({
-//         id: index + 1,
-//         index: index,
-//         txt: txt,
-//         itxt: txt,
-//         numordrep: match.numordrep,
-//         tpsglobal: match.tpsglobal,
-//         place: false,
-//         isLocked: true,
-//         mode: false,
-//     }));
-// }
+/**
+ * Crée un objet MatchInfo
+ */
+function createMatch(ordre: number, tpsglobal: number): MatchInfo {
+  const matchId = generateMatchId();
 
-// const chargematch = async (match: MatchInfo, niveau: number, pieces: string[]) => {
-//     const caseCounts: Record<number, number> = { 0: 199, 1: 101, 2: niveau * niveau, 3: 650 };
+  return {
+    numordrep: ordre + 1,
+    isgameover: false,
+    numeromatch: matchId,
+    entite: parseInt(matchId) % 9 || 0,
+    tpsglobal,
+  };
+}
 
-//     if (match.tpsglobal === undefined) {
-//         throw new Error("match.tpsglobal est undefined");
-//     }
+/**
+ * Génère la liste des matches selon le type de jeu
+ * @param tpsglobal - Type de jeu (0-4)
+ * @returns Liste des matches à jouer
+ */
+export function generateMatchList(tpsglobal: number): MatchInfo[] {
+  if (tpsglobal === 4) {
+    // Mode global : tous les types de jeu
+    return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index));
+  }
 
-//     const totalCases = caseCounts[match.tpsglobal] || 0;
+  // Mode simple : un seul type de jeu
+  return [createMatch(0, tpsglobal)];
+}
 
-//     if (match.numeromatch === undefined) {
-//         throw new Error("match.numeromatch est undefined");
-//     }
+// ==================== GÉNÉRATION DE CASES ====================
+/**
+ * Crée les cases initiales (verrouillées)
+ */
+function createInitialCases(items: string[], match: MatchInfo): Case[] {
+  return items.map((txt, index) => ({
+    id: index + 1,
+    index,
+    txt,
+    itxt: txt,
+    numordrep: match.numordrep,
+    tpsglobal: match.tpsglobal,
+    place: false,
+    isLocked: true,
+    mode: false,
+  }));
+}
 
-//     const n = (parseInt(match.numeromatch) + 7).toString();
+/**
+ * Crée les cases jouables (mélangées)
+ */
+function createPlayableCases(
+  shuffledItems: string[],
+  originalItems: string[],
+  match: MatchInfo
+): Case[] {
+  return shuffledItems.map((txt, index) => ({
+    id: index + 1,
+    index,
+    txt,
+    itxt: originalItems[index],
+    numordrep: match.numordrep,
+    tpsglobal: match.tpsglobal,
+    place: false,
+    isLocked: false,
+    mode: true,
+  }));
+}
 
-//     let listecases = Array.from({ length: totalCases }, (_, i) => i.toString());
-//     if (match.tpsglobal !== 2) listecases = malisteca(n, listecases);
+/**
+ * Calcule le nombre total de cases selon le type de jeu
+ */
+function getTotalCases(tpsglobal: number, niveau: number): number {
+  if (tpsglobal === 2) {
+    // Type Image : dépend du niveau
+    return niveau * niveau;
+  }
 
-//     const lrcase1 = listecases.slice(0, niveau * niveau);
-//     const lcases = malisteca(n, lrcase1);
+  const count = CASE_COUNTS_BY_TYPE[tpsglobal];
+  if (count === undefined) {
+    throw new Error(`Type de jeu invalide: ${tpsglobal}`);
+  }
 
-//     match.listeCaseOpLab = lcases.map((txt, i) => ({
-//         index: i,
-//         id: i + 1,
-//         txt,
-//         itxt: lrcase1[i],
-//         numordrep: match.numordrep,
-//         tpsglobal: match.tpsglobal,
-//         isLocked: false,
-//         mode: true,
-//     }));
+  return count;
+}
 
-//     match.listeCaseOpLabInitiale = caseinit(lrcase1, match);
-//     match.pieces = pieces;
-//     return match;
-// };
+// ==================== CHARGEMENT DE MATCH ====================
+/**
+ * Charge et initialise un match avec ses cases
+ * @param match - Informations du match
+ * @param niveau - Niveau de difficulté (taille de la grille)
+ * @param pieces - Morceaux d'image pour le type Image
+ * @returns Match initialisé avec les cases
+ */
+export async function loadMatch(
+  match: MatchInfo,
+  niveau: number,
+  pieces: string[]
+): Promise<MatchInfo> {
+  // Validation
+  if (match.tpsglobal === undefined || match.numeromatch === undefined) {
+    throw new Error("Match incomplet: tpsglobal ou numeromatch manquant");
+  }
 
-// export async function POST(req: Request) {
-//     try {
-//         const { tpsglobal, niveau, pieces } = await req.json();
-// console.log("Données reçues dans l'API :", { tpsglobal, niveau, pieces });
-//         if (typeof tpsglobal !== "number" || typeof niveau !== "number") {
-//             return NextResponse.json({ message: "Données invalides" }, { status: 400 });
-//         }
+  // Calcul des paramètres
+  const totalCases = getTotalCases(match.tpsglobal, niveau);
+  const gridSize = niveau * niveau;
+  const seed = parseInt(match.numeromatch) + 7;
 
-//         const matchList = generateMatchList(tpsglobal);
-//         const updatedMatches = await Promise.all(matchList.map((match) => chargematch(match, niveau, pieces)));
+  // Génération des cases
+  let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
 
-//         return NextResponse.json({ updatedMatches });
+  // Mélange initial (sauf pour les images)
+  if (match.tpsglobal !== 2) {
+    availableCases = shuffleArray(availableCases, seed);
+  }
 
-//     } catch (error) {
-//         console.error("Erreur serveur :", error);
-//         return NextResponse.json({ message: "Erreur interne du serveur" }, { status: 500 });
-//     }
-// }
+  // Sélection des cases pour la grille
+  const selectedCases = availableCases.slice(0, gridSize);
 
+  // Mélange des cases sélectionnées
+  const shuffledCases = shuffleArray(selectedCases, seed);
 
+  // Création des cases
+  match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
+  match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
+  match.pieces = pieces;
+
+  return match;
+}
+
+// ==================== VALIDATION ====================
+export interface GameRequest {
+  tpsglobal: number;
+  niveau: number;
+  pieces: string[];
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+/**
+ * Valide les données de la requête
+ * @returns Liste des erreurs (vide si valide)
+ */
+export function validateGameRequest(data: any): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Validation tpsglobal
+  if (typeof data.tpsglobal !== "number") {
+    errors.push({ field: "tpsglobal", message: "Le type de jeu doit être un nombre" });
+  } else if (data.tpsglobal < 0 || data.tpsglobal > 4) {
+    errors.push({ field: "tpsglobal", message: "Le type de jeu doit être entre 0 et 4" });
+  }
+
+  // Validation niveau
+  if (typeof data.niveau !== "number") {
+    errors.push({ field: "niveau", message: "Le niveau doit être un nombre" });
+  } else if (data.niveau < 2 || data.niveau > MAX_NIVEAU) {
+    errors.push({ field: "niveau", message: `Le niveau doit être entre 2 et ${MAX_NIVEAU}` });
+  }
+
+  // Validation pieces
+  if (!Array.isArray(data.pieces)) {
+    errors.push({ field: "pieces", message: "Les pièces doivent être un tableau" });
+  } else if (data.pieces.length > MAX_PIECES_SIZE) {
+    errors.push({ field: "pieces", message: `Trop de pièces (max: ${MAX_PIECES_SIZE})` });
+  } else if (!data.pieces.every((p: any) => typeof p === "string")) {
+    errors.push({ field: "pieces", message: "Toutes les pièces doivent être des chaînes" });
+  }
+
+  return errors;
+}
+
+import { Case, MatchInfo } from "@/lib/interfaces";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import { 
-  generateMatchList, 
-  loadMatch, 
-  validateGameRequest,
-  type GameRequest 
-} from "@/lib/learning/services/game.service";
+
 
 /**
  * Délai d'expiration de la requête (10 secondes)
@@ -156,17 +273,17 @@ const CACHE_HEADERS = {
  * Crée une réponse d'erreur standardisée
  */
 function createErrorResponse(
-  message: string, 
-  status: number, 
+  message: string,
+  status: number,
   errors?: any[]
 ): NextResponse {
   return NextResponse.json(
-    { 
+    {
       success: false,
-      message, 
+      message,
       errors,
       timestamp: new Date().toISOString()
-    }, 
+    },
     { status, headers: CACHE_HEADERS }
   );
 }
@@ -176,7 +293,7 @@ function createErrorResponse(
  */
 function createSuccessResponse(data: any): NextResponse {
   return NextResponse.json(
-    { 
+    {
       success: true,
       data,
       timestamp: new Date().toISOString()
@@ -197,7 +314,7 @@ export async function POST(req: Request) {
   try {
     // Parsing du body
     const body = await req.json();
-    
+
     // Validation des données
     const validationErrors = validateGameRequest(body);
     if (validationErrors.length > 0) {

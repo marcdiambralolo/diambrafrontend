@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
   if (backendResponse.ok && refreshedSession) {
     applySessionCookies(request, response, refreshedSession);
   }
-
   if (backendResponse.status === 401) {
     return createUnauthorizedResponse(request);
   }

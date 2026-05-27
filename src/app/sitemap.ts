@@ -7,8 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const publicRoutes = [
     { path: '/', priority: 1.0, changefreq: 'daily' },
-    { path: '/about', priority: 0.5, changefreq: 'yearly' },
     { path: '/a-propos', priority: 0.5, changefreq: 'yearly' },
+    { path: '/about', priority: 0.5, changefreq: 'yearly' },
     { path: '/terms', priority: 0.5, changefreq: 'yearly' },
     { path: '/callback', priority: 0.3, changefreq: 'yearly' },
     { path: '/auth/login', priority: 0.4, changefreq: 'yearly' },

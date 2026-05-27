@@ -1,24 +1,16 @@
 'use client';
 import { ANIMATION_CONFIG, toastVariants } from '@/hooks/choix/useCategoryConsulterClient';
 import { DIGITS } from "@/hooks/game/useNumberGridGame";
+import { staggerContainer } from '@/lib/animations';
 import { formatNumber } from "@/lib/functions";
-import { LastEndedGame } from '@/lib/interfaces';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle, AlertTriangle, ArrowRight, Award, Calendar, CheckCircle2, ChevronRight, Circle, Coins,
+  AlertCircle, AlertTriangle, ArrowRight,  Star, Target, Trash2, Trophy, Zap,
+  Calendar, CheckCircle2, ChevronRight, Circle, Coins,
   Flame, Gift, History, MousePointerClick, Move, Rocket, ShoppingBag, Sparkles,
-  Star, Target, Trash2, Trophy, Zap,
 } from "lucide-react";
 import React, { memo } from 'react';
 import CacheLink from "../commons/CacheLink";
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
-  }
-};
 
 interface ActiveGameProps {
   slots: (number | null)[];
@@ -476,43 +468,6 @@ export const GameStatusBadge = ({ children, variant = 'primary' }: { children: R
     </motion.div>
   );
 };
-
-export const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | null }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 p-5 mb-6 shadow-xl"
-  >
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-3">
-        <div className="rounded-full bg-yellow-500/20 p-3">
-          <Award className="w-8 h-8 text-yellow-400" />
-        </div>
-        <div>
-          <p className="text-white font-bold text-lg">Édition terminée !</p>
-          <p className="text-gray-300 text-xs">
-            {lastEndedGame ? (
-              <>Terminée le {new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR')}</>
-            ) : (
-              'Merci pour votre participation'
-            )}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-        <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2">
-          <Trophy className="w-5 h-5 text-yellow-400" />
-          <div>
-            <p className="text-[10px] text-gray-300">Prochaine édition</p>
-            <p className="font-bold text-white text-sm">Très bientôt</p>
-          </div>
-        </div>
-        <HistoryButton gameId={lastEndedGame?.id} />
-      </div>
-    </div>
-  </motion.div>
-);
 
 export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate }: any) => (
   <motion.div

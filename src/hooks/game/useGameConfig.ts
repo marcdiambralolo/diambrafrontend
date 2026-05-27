@@ -2,7 +2,7 @@ import { api } from "@/lib/api/client";
 import { GameConfiguration } from "@/lib/interfaces";
 import { useEffect, useState } from "react";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 2;
 
 export const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

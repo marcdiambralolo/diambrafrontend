@@ -2,7 +2,7 @@
 import InputField from "@/components/commons/InputField";
 import RegisterSelectField from "@/components/commons/RegisterSelectField";
 import { useSlide4SectionDoors } from "@/hooks/cinqetoiles/useSlide4SectionDoors";
-import { cx } from "@/lib/functions";
+import { buildIsoDate, cx, parseDateParts } from "@/lib/functions";
 import { AlertCircle, KeyRound, Phone, Shield, X, Info, Calendar, } from "lucide-react";
 import { memo, useState, useCallback, useEffect } from "react";
 
@@ -233,51 +233,13 @@ const PhoneInput = memo(function PhoneInput({
   );
 });
 
-function parseDateParts(date: string) {
-  if (!date) return { day: "", month: "", year: "" };
-
-  const parts = date.split("-");
-  if (parts.length !== 3) return { day: "", month: "", year: "" };
-
-  const [year, month, day] = parts;
-
-  return {
-    year,
-    month: String(Number(month)),
-    day: String(Number(day)),
-  };
-}
-
-function buildIsoDate(day: string, month: string, year: string) {
-  if (!day || !month || !year) return "";
-
-  const normalized = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  const testDate = new Date(`${normalized}T00:00:00`);
-
-  const isValid =
-    !Number.isNaN(testDate.getTime()) &&
-    testDate.getFullYear() === Number(year) &&
-    testDate.getMonth() + 1 === Number(month) &&
-    testDate.getDate() === Number(day);
-
-  return isValid ? normalized : "";
-}
-
 export default function ProfilPageClientDoors() {
   const {
-    handleChange,
-    handleSubmit,
-    apiError,
-    errors,
-    form,
-    handleReset,
-    countryOptions,
-    submitClass,
-    cancelClass,
+    handleChange, handleReset, handleSubmit,
+    apiError, errors, form, countryOptions, submitClass, cancelClass,
   } = useSlide4SectionDoors();
 
   const initialParts = parseDateParts(form.dateNaissance);
-
   const [birthDay, setBirthDay] = useState(initialParts.day);
   const [birthMonth, setBirthMonth] = useState(initialParts.month);
   const [birthYear, setBirthYear] = useState(initialParts.year);
@@ -329,7 +291,7 @@ export default function ProfilPageClientDoors() {
               <div className="mb-3 flex items-center gap-2">
                 <Shield className="h-5 w-5 text-purple-600" />
                 <span className="text-sm font-bold text-purple-700 dark:text-purple-400">
-                  Sécurité des gains
+                  Sécurité de vos gains
                 </span>
               </div>
 

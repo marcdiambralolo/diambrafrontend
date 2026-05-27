@@ -1,9 +1,6 @@
 "use client";
 import { cx } from "@/lib/functions";
-import {
-  ArrowLeft, Brain, ChevronRight, Grid, Info, MousePointerClick,
-  Move, Target, Trophy as TrophyIcon
-} from "lucide-react";
+import { ArrowLeft, Brain, ChevronRight, Grid, Info, Trophy as TrophyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import CacheLink from "../commons/CacheLink";
 

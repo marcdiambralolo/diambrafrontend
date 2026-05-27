@@ -8,7 +8,7 @@ import { memo, ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
 import ClientProviders from "../components/layout/ClientProviders/ClientProviders";
 
 const QUERY_PERSIST_CONFIG = {
-    maxAge: 1000 * 60 * 60 * 24, // 24 heures
+    maxAge: 1000 * 60 * 60 * 24,
     throttleTime: 1000,
     excludedQueryKeys: ['auth'] as string[],
 };

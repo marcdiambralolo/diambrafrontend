@@ -135,7 +135,6 @@ const Pill = memo(function Pill({
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.03] via-transparent to-indigo-500/[0.05] dark:from-purple-400/[0.05] dark:to-indigo-400/[0.06]" />
-
       <div className="relative flex items-start gap-3">
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-700 transition-transform duration-300 group-active:scale-95 group-hover:scale-105 dark:from-purple-500/20 dark:to-indigo-500/20 dark:text-purple-300">
           {icon}
@@ -261,6 +260,7 @@ const StatCard = memo(function StatCard({ item }: { item: StatItem }) {
 });
 
 export default function WelcomePageClient() {
+
   return (
     <div className="relative mx-auto w-full max-w-6xl px-4 pb-8 pt-4 sm:px-6">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

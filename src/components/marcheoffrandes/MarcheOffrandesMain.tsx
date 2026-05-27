@@ -215,7 +215,7 @@ export default function MarcheOffrandesMain() {
   }
 
   return (
-    <div className="mx-auto px-3 mt-8 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl  dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="mx-auto px-3 mt-16 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl  dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black text-white flex items-center gap-2">

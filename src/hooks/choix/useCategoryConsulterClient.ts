@@ -393,32 +393,27 @@ export function useCategoryConsulterClient() {
 
     useEffect(() => {
         if (refreshTrigger > 0) {
-            fetchLastEndedGame();
+            router.push(`/star/profil?monjeu=${monidjeu}`);
         }
-    }, [refreshTrigger, fetchLastEndedGame]);
+    }, [refreshTrigger, router, monidjeu]);
 
-    const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null);
-    const afficheselection = !showEnded && !gameStarted;
+    const afficheselection = !(isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null)) && !gameStarted;
     const affichebanner = isGameActive && !isGameEnded && endDate && startDate;
 
     return {
+        handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot,
+        placeSelectedDigitInSlot, handleSubmitAndNavigate, handleEndMatch,
         setDragOverSlot: (value: number | null) => updateGameState({ dragOverSlot: value }),
         setIsDragging: (value: boolean) => updateGameState({ isDragging: value }),
         setSelected: (value: number | null) => updateGameState({ selected: value }),
         setMode: (value: 'drag' | 'click') => updateGameState({ mode: value }),
-        dataLoading: walletState.loading,
-        dataError: walletState.error, showError: walletState.showError,
+        dataLoading: walletState.loading, showError: walletState.showError, selected: gameState.selected,
+        dataError: walletState.error, dragOverSlot: gameState.dragOverSlot, gamehasStarted: gameStarted,
         currentError: walletState.showError ? walletState.error : null,
-        requiredQuantity: POT_CONFIG.quantity,
-        gamehasStarted: gameStarted,
-        slots: gameState.slots, mode: gameState.mode,
-        selected: gameState.selected,
-        dragOverSlot: gameState.dragOverSlot,
+        requiredQuantity: POT_CONFIG.quantity, slots: gameState.slots, mode: gameState.mode,
         isDragging: gameState.isDragging, error: walletState.showError,
         loading: statsLoading || configLoading || loadingLastEnded || walletState.loading,
-        handleGoToMarket, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot,
-        placeSelectedDigitInSlot, handleSubmitAndNavigate, handleEndMatch,
         availableQuantity, cardClasses, isSufficient, afficheselection, used, isComplete,
-        stats, startDate, endDate, gameConfig, lastEndedGame, showEnded, affichebanner,
+        stats, startDate, endDate, gameConfig, affichebanner,
     };
 }

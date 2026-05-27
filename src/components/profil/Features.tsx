@@ -3,11 +3,11 @@ import { formatDateFRJeu, formatDateTime, formatEditionDate, formatNumber } from
 import { LastEndedGame, Winner } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Award, Calendar, Clock, Crown, FileText, Flame, Gift, History, Hourglass,
-    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, TrendingUp, Trophy, Users,
+    Award, Calendar, Clock, Crown, FileText,
+    Gift, History, Hourglass, Zap,
+    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, TrendingUp, Trophy, Users,   
 } from "lucide-react";
-import Link from 'next/link';
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
 import CacheLink from "../commons/CacheLink";
 
@@ -168,7 +168,7 @@ export const EditionCard = memo(({ activeEdition, winningCombination }: EditionC
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
                 <div>
-                    <p className="text-xs text-white font-bold">Édition</p>
+                    <p className="text-xs text-white font-bold">Édition Précédente</p>
                     <p className="text-white text-xs ">
                         Du {formatEditionDate(new Date(activeEdition.startDate))} au {formatEditionDate(new Date(activeEdition.endDate))}
                     </p>
@@ -229,7 +229,7 @@ export const WinnersSection = memo(({
             <Podium winners={winners.exact} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WinnersList
-                    title="🏆 Gagnants - Ordre Exact"
+                    title="🏆 Gagnants - Ordre"
                     winners={winners.exact}
                     icon={<ListOrdered className="w-4 h-4" />}
                     color="from-yellow-500 to-orange-500"
@@ -517,24 +517,6 @@ export const StatCard = memo<StatCardProps>(({ value, label, icon, color, delay 
     </motion.div>
 ));
 
-export const GlowButton = ({ href, children, variant = 'primary' }: { href: string; children: React.ReactNode; variant?: 'primary' | 'secondary' }) => {
-    const gradient = variant === 'primary'
-        ? 'from-purple-600 via-pink-600 to-orange-500'
-        : 'from-blue-600 via-cyan-500 to-teal-600';
-
-    return (
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="relative group w-full sm:w-auto">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition duration-500" />
-            <Link
-                href={href}
-                className={`relative flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r ${gradient} text-white font-bold rounded-2xl shadow-lg transition-all duration-300 text-sm sm:text-base w-full sm:w-auto`}
-            >
-                <span>{children}</span>
-            </Link>
-        </motion.div>
-    );
-};
-
 export const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
     const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [hasFinished, setHasFinished] = React.useState(false);
@@ -582,44 +564,6 @@ export const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: { ta
         </div>
     );
 };
-
-export const CountdownTimerLight = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
-    const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-    const [hasFinished, setHasFinished] = React.useState(false);
-
-    React.useEffect(() => {
-        const timer = setInterval(() => {
-            const now = new Date();
-            const diff = targetDate.getTime() - now.getTime();
-
-            if (diff <= 0) {
-                clearInterval(timer);
-                if (!hasFinished) {
-                    setHasFinished(true);
-                    onFinish?.();
-                }
-                return;
-            }
-
-            setTimeLeft({
-                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
-                minutes: Math.floor((diff % 3600000) / (1000 * 60)),
-                seconds: Math.floor((diff % 60000) / 1000)
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [targetDate, hasFinished, onFinish]);
-
-
-    return (
-        <div className="flex gap-2 justify-center flex-wrap">
-            <p className="text-center bg-black/25 backdrop-blur-lg rounded-xl px-2 py-1.5 min-w-[55px] shadow-lg text-white font-black text-xs sm:text-xl leading-tight">C'EST LE MOMENT DE GAGNER</p>
-        </div>
-    );
-};
-
 
 export const HistoryButton = memo(() => (
     <CacheLink
@@ -714,37 +658,215 @@ export const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | 
     </motion.div>
 );
 
+export const CountdownTimerLight = ({ targetDate, variant = 'light', onFinish }: { targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
+    const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [hasFinished, setHasFinished] = React.useState(false);
+
+    React.useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                clearInterval(timer);
+                if (!hasFinished) {
+                    setHasFinished(true);
+                    onFinish?.();
+                }
+                return;
+            }
+
+            setTimeLeft({
+                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((diff % 86400000) / (1000 * 60 * 60)),
+                minutes: Math.floor((diff % 3600000) / (1000 * 60)),
+                seconds: Math.floor((diff % 60000) / 1000)
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [targetDate, hasFinished, onFinish]);
+
+    const timeUnits = [
+        { label: "J", value: timeLeft.days, icon: <Calendar className="w-4 h-4" /> },
+        { label: "H", value: timeLeft.hours, icon: <Timer className="w-4 h-4" /> },
+        { label: "Mn", value: timeLeft.minutes, icon: <Zap className="w-4 h-4" /> },
+        { label: "S", value: timeLeft.seconds, icon: <Sparkles className="w-4 h-4" /> }
+    ];
+
+    return (
+        <div className="relative">
+            {/* Bannière principale */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-0.5 mb-4">
+                {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M10,10 L20,10 L15,20 Z M30,30 L40,30 L35,40 Z M50,50 L60,50 L55,60 Z M70,70 L80,70 L75,80 Z"/%3E%3C/svg%3E')] opacity-20" /> */}
+
+                <div className="relative bg-gradient-to-br from-amber-600 to-red-600 p-4 rounded-2xl">
+
+
+                    <div className="grid grid-cols-4 gap-2 mb-4">
+                        {timeUnits.map((unit, idx) => (
+                            <motion.div
+                                key={unit.label}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="text-center"
+                            >
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-white/20 rounded-xl blur-xl" />
+                                    <div className="relative bg-black/30 backdrop-blur-md rounded-xl p-3 border border-white/30 shadow-2xl">
+                                        <div className="flex justify-center gap-0.5 mb-1">
+                                            {unit.value.toString().padStart(2, '0').split('').map((digit, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ delay: idx * 0.1 + i * 0.05, type: "spring" }}
+                                                    className="w-6 h-8 bg-gradient-to-b from-white to-gray-200 rounded-md flex items-center justify-center shadow-inner"
+                                                >
+                                                    <span className="text-xl font-black text-gray-900">{digit}</span>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center justify-center gap-1 mt-1">
+                                            <span className="text-[9px] font-bold text-white/80 tracking-wider">{unit.label}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const GlowButton = ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <motion.a
+        href={href}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="group relative block w-full"
+    >
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 via-green-500 to-green-800 rounded-xl text-white font-bold text-lg shadow-2xl overflow-hidden">
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+                <Star className="w-5 h-5" />
+            </motion.div>
+            <span className="relative z-10">{children}</span>
+            <motion.div
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+            >
+                <Zap className="w-5 h-5" />
+            </motion.div>
+        </div>
+    </motion.a>
+);
+
 export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig }: any) => (
     <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-5 mb-6 shadow-xl"
+        initial={{ opacity: 0, scale: 0.95, rotateX: -15 }}
+        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+        exit={{ opacity: 0, scale: 0.95, rotateX: 15 }}
+        transition={{ duration: 0.5, type: "spring" }}
+        className="relative mb-8"
     >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="relative flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-                <div className="rounded-full bg-white/20 p-3">
-                    <Flame className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                    <p className="text-white text-xs">Edition en cours</p>
-                </div>
+        {/* Fond avec effet 3D */}
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-3xl blur-2xl opacity-75 animate-pulse" />
+
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-600 via-orange-600 to-red-600 p-0.5 shadow-2xl">
+            {/* Effet de brillance */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
+
+            {/* Pattern de fond */}
+            <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl" />
+                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="stars" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1" fill="white" opacity="0.5" />
+                            <circle cx="20" cy="15" r="0.5" fill="white" opacity="0.3" />
+                            <circle cx="35" cy="30" r="1.5" fill="white" opacity="0.4" />
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#stars)" />
+                </svg>
             </div>
 
-            <CountdownTimerLight targetDate={endDate} variant="light" onFinish={handleEndMatch} />
-
-            <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
-                <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-white" />
-                    <span className="text-white text-xs">Du {formatDate(startDate)}</span>
+            <div className="relative bg-gradient-to-br from-amber-600/90 to-red-600/90 backdrop-blur-sm p-6 rounded-3xl">
+                {/* Header avec animation */}
+                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        className="flex items-center gap-3"
+                    >
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md animate-ping" />
+                            <div className="relative rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 p-3 shadow-xl">
+                                <Crown className="w-6 h-6 text-white" />
+                            </div>
+                        </div>
+                        <div>
+                            <motion.div
+                                animate={{ scale: [1, 1.05, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="text-sm font-bold text-white/90 uppercase tracking-wider"
+                            >
+                                🎯 ÉDITION SPÉCIALE 🎯
+                            </motion.div>
+                        </div>
+                    </motion.div>
                 </div>
-                <div className="text-white text-xs">Au {formatDate(endDate)}</div>
-            </div>
 
-            <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
-                Jouer Maintenant
-            </GlowButton>
+                {/* Countdown Timer */}
+                <CountdownTimerLight targetDate={endDate} variant="light" onFinish={handleEndMatch} />
+
+                {/* Call to Action */}
+                <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
+                    🎮 JOUER MAINTENANT
+                </GlowButton>
+
+                {/* Dates */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="grid grid-cols-2 gap-3 mb-6 mt-4"
+                >
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                        <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>DÉBUT</span>
+                        </div>
+                        <div className="text-white font-bold text-xs">{formatDate(startDate)}</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                        <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
+                            <Timer className="w-3 h-3" />
+                            <span>FIN</span>
+                        </div>
+                        <div className="text-white font-bold text-xs">{formatDate(endDate)}</div>
+                    </div>
+                </motion.div>
+            </div>
         </div>
+
+        <style jsx>{`
+            @keyframes shimmer {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+            .animate-shimmer {
+                animation: shimmer 2s infinite;
+            }
+        `}</style>
     </motion.div>
 );

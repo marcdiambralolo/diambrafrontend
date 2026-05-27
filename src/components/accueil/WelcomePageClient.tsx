@@ -9,6 +9,7 @@ import { Suspense, useEffect, useState } from 'react';
 import CacheLink from '../commons/CacheLink';
 
 const useScrollReveal = () => {
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -22,6 +23,7 @@ const useScrollReveal = () => {
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
     document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
+
     return () => observer.disconnect();
   }, []);
 };
@@ -73,9 +75,8 @@ export default function WelcomePageClient() {
 export function WelcomePageClientContent() {
   const router = useRouter();
   const { user, } = useAuthStore();
-  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  useScrollReveal();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     if (user && user.secretCode) {
@@ -86,9 +87,10 @@ export function WelcomePageClientContent() {
 
   if (isRedirecting) { return (<Loader />); }
 
+  useScrollReveal();
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 overflow-x-hidden">
-
       <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
         <section className="text-center reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700">
           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">

@@ -10,12 +10,12 @@ const SITE_CONFIG = {
   name: "Diambra",
   url: "https://www.diambra.net",
   description: "🎯 Diambra ",
-  twitterHandle: "@DiambraNet",
+  twitterHandle: "@DiambraCorporation",
   ogImage: "/logo.png",
-  ogImageAlt: "Diambra - Jeu de Logique",
+  ogImageAlt: "Diambra Win",
   ogImageWidth: 512,
   ogImageHeight: 512,
-} as const; 
+} as const;
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -69,7 +69,7 @@ const RootHeadMeta = memo(function RootHeadMeta() {
       <meta name="twitter:image:alt" content={SITE_CONFIG.ogImageAlt} />
 
       {/* Additional SEO */}
-      <meta name="keywords" content="jeu de logique, puzzle, chiffres, casse-tête, réflexion, défi cérébral, gratuit, en ligne" />
+      <meta name="keywords" content="jeu,  chiffres, réflexion, en ligne" />
       <meta name="author" content="Diambra" />
       <meta name="robots" content="index, follow" />
     </>
@@ -115,7 +115,7 @@ const SchemaScript = memo(function SchemaScript() {
         "@id": `${SITE_CONFIG.url}/#website`,
         name: SITE_CONFIG.name,
         url: SITE_CONFIG.url,
-        description: "Jeu de logique en ligne - Remplissez quatre cases avec des chiffres sans répétition",
+        description: "Jeu en ligne - Remplissez quatre cases avec des chiffres sans répétition",
         inLanguage: "fr-FR",
         potentialAction: {
           "@type": "SearchAction",
@@ -131,7 +131,7 @@ const SchemaScript = memo(function SchemaScript() {
         "@id": `${SITE_CONFIG.url}/#webapplication`,
         name: SITE_CONFIG.name,
         url: SITE_CONFIG.url,
-        description: "Jeu de logique Quatre Cases - Entraînez votre cerveau avec ce puzzle de chiffres addictif",
+        description: "Jeu  - Entraînez votre cerveau avec ce puzzle de chiffres addictif",
         applicationCategory: "Game",
         operatingSystem: "All",
         offers: {

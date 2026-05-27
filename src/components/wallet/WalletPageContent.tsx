@@ -1,6 +1,8 @@
 "use client";
+import Loader from "@/app/loading";
 import CacheLink from "@/components/commons/CacheLink";
 import { useWalletPageWithCache } from "@/hooks/cache/useWalletPageWithCache";
+import { staggerContainer } from "@/lib/animations";
 import { cx } from "@/lib/functions";
 import { Transaction, TransactionItem } from "@/lib/interfaces";
 import { motion, Variants } from "framer-motion";
@@ -10,14 +12,6 @@ import { memo, useMemo, type ElementType } from "react";
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
-  }
 };
 
 function normalizeItem(item: TransactionItem) {
@@ -325,15 +319,6 @@ function BottomCtas({ href, label }: { href: string; label: string }) {
   );
 }
 
-const LoadingScreen = () => (
-  <div className="flex min-h-[60vh] flex-col items-center justify-center">
-    <div className="relative">
-      <div className="h-12 w-12 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
-    </div>
-    <p className="mt-4 text-sm text-gray-500">Chargement de vos transactions</p>
-  </div>
-);
-
 export default function WalletPageContent() {
   const {
     setSortOrder, onRefresh, setActiveTab,
@@ -341,7 +326,7 @@ export default function WalletPageContent() {
     backLink: { href, label }, activeTab, isRefreshing,
   } = useWalletPageWithCache();
 
-  if (isLoading) return <LoadingScreen />;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-8 sm:px-6 sm:py-12">

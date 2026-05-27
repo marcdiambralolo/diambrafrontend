@@ -6,18 +6,11 @@ import {
 } from 'lucide-react';
 import React, { memo } from 'react';
 import CacheLink from '../commons/CacheLink';
+import { staggerContainer } from '@/lib/animations';
 
 const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.05, delayChildren: 0.1 }
-    }
 };
 
 const scaleOnHover: Variants = {
@@ -113,7 +106,7 @@ const ContactCard = memo(() => (
                         En ligne
                     </div>
                     <div className="text-sm font-medium text-purple-700">
-                        Disponible partout dans le monde
+                        Disponible partout dans le monde entier
                     </div>
                 </div>
             </div>
@@ -165,7 +158,7 @@ export default function TermsPageClient() {
                         transition={{ delay: 0.2 }}
                         className="text-purple-500 text-sm"
                     >
-                        Dernière mise à jour : <span className="font-semibold text-purple-700">24 mai 2026</span>
+                        Dernière mise à jour : <span className="font-semibold text-purple-700">27 mai 2026</span>
                     </motion.p>
                 </div>
             </div>
@@ -231,7 +224,6 @@ export default function TermsPageClient() {
                                 Commencer à jouer
                             </CacheLink>
                         </motion.div>
-
                         <motion.div {...scaleOnHover} className="flex-1">
                             <CacheLink
                                 href="/about"

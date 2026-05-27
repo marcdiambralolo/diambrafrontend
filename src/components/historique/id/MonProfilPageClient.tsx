@@ -1,5 +1,6 @@
 "use client";
 import Loader from "@/app/loading";
+import { staggerContainer } from "@/lib/animations";
 import { api } from "@/lib/api/client";
 import { cx, formatEditionDate } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
@@ -11,14 +12,6 @@ import { memo, useCallback, useEffect, useState } from "react";
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
-  }
 };
 
 interface StatsCardProps {
@@ -57,7 +50,7 @@ interface ConsultationCardProps {
 
 export function ConsultationCard({ consultation, index, isDuplicate = false, duplicateCount = 0 }: ConsultationCardProps) {
   const nomJoueur = consultation.clientId?.username || 'Diambra';
-   const country = consultation.clientId?.country || 'Côte d\'Ivoire';
+  const country = consultation.clientId?.country || 'Côte d\'Ivoire';
   const combinaison = consultation.combinaison || '????';
   const timeSpent = consultation.timeSpent;
   const relativeDate = formatEditionDate(new Date(consultation.createdAt || ''));
@@ -96,7 +89,7 @@ export function ConsultationCard({ consultation, index, isDuplicate = false, dup
         </div>
 
         <div className="flex justify-center gap-0.5 py-2">
-            {combinaison.split('').map((digit, i) => (
+          {combinaison.split('').map((digit, i) => (
             <motion.span
               key={i}
               initial={{ scale: 0 }}
@@ -120,7 +113,7 @@ export function ConsultationCard({ consultation, index, isDuplicate = false, dup
                 {duplicateCount > 1 ? `x${duplicateCount}` : 'Doublon'}
               </div>
             </div>
-          )}        
+          )}
         </div>
       </div>
     </motion.article>

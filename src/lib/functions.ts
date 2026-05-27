@@ -281,3 +281,45 @@ export const formatDateTime = (date: Date) =>
 export function toNumber(value: string | number | undefined): number {
   return typeof value === 'number' ? value : Number.parseFloat(value ?? '0');
 }
+
+export function coerceIsoDate(v: unknown): string {
+  if (!v) return "";
+  if (typeof v === "string") return v;
+  if (v instanceof Date) return v.toISOString();
+
+  try {
+    return String(v);
+  } catch {
+    return "";
+  }
+}
+
+export function parseDateParts(date: string) {
+  if (!date) return { day: "", month: "", year: "" };
+
+  const parts = date.split("-");
+  if (parts.length !== 3) return { day: "", month: "", year: "" };
+
+  const [year, month, day] = parts;
+
+  return {
+    year,
+    month: String(Number(month)),
+    day: String(Number(day)),
+  };
+}
+
+export function buildIsoDate(day: string, month: string, year: string) {
+  if (!day || !month || !year) return "";
+
+  const normalized = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  const testDate = new Date(`${normalized}T00:00:00`);
+
+  const isValid =
+    !Number.isNaN(testDate.getTime()) &&
+    testDate.getFullYear() === Number(year) &&
+    testDate.getMonth() + 1 === Number(month) &&
+    testDate.getDate() === Number(day);
+
+  return isValid ? normalized : "";
+}

@@ -215,10 +215,9 @@ function MonProfilPageClientImpl() {
               {consultations.map((consultation, index) => {
                 const formattedConsultation = {
                   ...consultation,
-                  timeSpent: consultation.timeSpent
-                    ? typeof consultation.timeSpent === 'number'
-                      ? `${consultation.timeSpent}s`
-                      : consultation.timeSpent
+                  timeSpent: consultation.timeSpent ? typeof consultation.timeSpent === 'number'
+                    ? `${consultation.timeSpent}s`
+                    : consultation.timeSpent
                     : '0s',
                 };
 

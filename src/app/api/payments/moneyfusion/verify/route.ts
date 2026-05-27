@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
         });
 
         const data = await response.json().catch(() => null) as Record<string, unknown> | null;
+        
         if (!data) {
             return NextResponse.json(
                 {

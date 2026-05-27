@@ -7,9 +7,8 @@ import {
 export default function ProfilPageClient() {
   const {
     handleOpenGame, handleEndMatch, handleRefresh,
-    stats, startDate, endDate, gameConfig, lastEndedGame,
-    showEnded, consultations, activeEdition, winners, error,
-    hasWinners, winningCombination, hasNotStartedEdition, gameStarted,
+    stats, startDate, endDate, gameConfig, lastEndedGame, winningCombination, gameStarted,
+    showEnded, consultations, activeEdition, winners, error, hasNotStartedEdition, hasWinners,
   } = useAdminConsultationsPageFinished();
 
   if (error) {

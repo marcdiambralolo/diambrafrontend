@@ -1,7 +1,7 @@
 "use client";
 import Loader from "@/app/loading";
-import { useMonProfil } from "@/hooks/carteduciel/useMonProfil";
 import { useConsultationsListPage } from "@/hooks/consultations/useConsultationsListPage";
+import { staggerContainer } from "@/lib/animations";
 import { cx, formatEditionDate } from "@/lib/functions";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { AlertCircle, CalendarDays, ChevronRight, Crown, Flame, Gamepad2, History, Plus, Trophy, UserRound } from "lucide-react";
@@ -12,14 +12,6 @@ import ConsultationCard from "../commons/ConsultationCard";
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-  }
 };
 
 interface TabButtonProps {
@@ -295,10 +287,9 @@ const IdentityPill = memo(function IdentityPill({
 });
 
 function MonProfilPageClientImpl() {
-  const { processedData, fullName, dateNaissanceLabel } = useMonProfil();
   const {
-    consultations, editions, loading, activeTab,
-    setActiveTab, getGamesCountByEdition,
+    setActiveTab, getGamesCountByEdition, consultations, editions, loading, activeTab,
+    processedData, fullName, dateNaissanceLabel,
   } = useConsultationsListPage();
 
   if (loading) return <Loader />;

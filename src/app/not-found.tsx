@@ -1,5 +1,5 @@
 "use client";
-import { motion,Variants  } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { ArrowLeft, Home, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -8,7 +8,6 @@ export default function NotFoundPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number }>>([]);
 
-  // Génération des étoiles
   useEffect(() => {
     const newStars = Array.from({ length: 100 }, (_, i) => ({
       id: i,
@@ -20,7 +19,6 @@ export default function NotFoundPage() {
     setStars(newStars);
   }, []);
 
-  // Suivi de la souris pour l'effet de parallaxe
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({
       x: (e.clientX / window.innerWidth - 0.5) * 20,
@@ -28,7 +26,6 @@ export default function NotFoundPage() {
     });
   };
 
-  // Animations
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,7 +50,6 @@ export default function NotFoundPage() {
     },
   };
 
-
   const starVariants: Variants = {
     hidden: { opacity: 0, scale: 0 },
     visible: (i: number) => ({
@@ -73,7 +69,6 @@ export default function NotFoundPage() {
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#070B1A] via-[#0F1C3F] to-black px-6 text-center"
       onMouseMove={handleMouseMove}
     >
-      {/* Étoiles de fond */}
       <div className="absolute inset-0 pointer-events-none">
         {stars.map((star) => (
           <motion.div
@@ -93,7 +88,6 @@ export default function NotFoundPage() {
         ))}
       </div>
 
-      {/* Effet de nébuleuse */}
       <motion.div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
@@ -111,7 +105,6 @@ export default function NotFoundPage() {
         }}
       />
 
-      {/* Planète flottante */}
       <motion.div
         className="absolute top-20 right-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1] opacity-20 blur-3xl pointer-events-none"
         animate={{
@@ -131,17 +124,13 @@ export default function NotFoundPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Logo / Badge */}
         <motion.div variants={itemVariants} className="mb-6">
-           
-            <Star className="w-4 h-4 text-[#FFD600] animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-[0.35em] text-[#9BC2FF]">
-              DIAMBRA
-            </span>
-          
+          <Star className="w-4 h-4 text-[#FFD600] animate-pulse" />
+          <span className="text-xs font-semibold uppercase tracking-[0.35em] text-[#9BC2FF]">
+            DIAMBRA
+          </span>
         </motion.div>
 
-        {/* Code 404 avec animation */}
         <motion.div variants={itemVariants} className="relative mb-6">
           <motion.div
             animate={{
@@ -174,7 +163,6 @@ export default function NotFoundPage() {
             </h1>
           </motion.div>
 
-          {/* Effet de glitch */}
           <motion.div
             className="absolute inset-0 text-8xl font-black text-transparent sm:text-9xl md:text-[12rem]"
             style={{
@@ -197,7 +185,6 @@ export default function NotFoundPage() {
           </motion.div>
         </motion.div>
 
-        {/* Message principal */}
         <motion.h2
           variants={itemVariants}
           className="mb-4 text-2xl font-bold text-[#DDE7FA] sm:text-3xl md:text-4xl"
@@ -213,7 +200,6 @@ export default function NotFoundPage() {
           Reviens à l&apos;accueil pour reprendre ta navigation.
         </motion.p>
 
-        {/* Boutons d'action */}
         <motion.div
           variants={itemVariants}
           className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -236,7 +222,6 @@ export default function NotFoundPage() {
         </motion.div>
       </motion.div>
 
-      {/* Effet de vagues cosmiques */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
     </div>
   );

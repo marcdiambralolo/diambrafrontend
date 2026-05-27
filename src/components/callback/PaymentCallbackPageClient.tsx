@@ -108,6 +108,7 @@ const LoadingState: React.FC = () => {
             <h2 className="mt-7 text-2xl font-semibold tracking-tight text-white sm:text-4xl">
               Vérification du paiement
             </h2>
+
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
               Nous confirmons votre transaction et préparons votre accès. Merci de patienter quelques instants.
             </p>

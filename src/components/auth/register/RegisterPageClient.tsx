@@ -253,12 +253,12 @@ const RegisterForm: React.FC = () => {
                 </div>
               </motion.div>
             </CacheLink>
+
             <h1 className="mb-2 text-2xl font-bold text-blue-900 sm:text-3xl">
               Créer un compte
             </h1>
 
-            <p className="mx-auto max-w-md text-xs text-gray-600 sm:text-sm">Diambra
-            </p>
+            <p className="mx-auto max-w-md text-xs text-gray-600 sm:text-sm">Diambra</p>
           </div>
 
           {error && <RegisterErrorMessage error={error} onClose={() => setError(null)} />}

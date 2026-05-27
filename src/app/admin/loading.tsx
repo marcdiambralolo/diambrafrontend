@@ -1,6 +1,6 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
 import { memo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 const Loader = memo(function Loader() {
   const reduce = useReducedMotion();

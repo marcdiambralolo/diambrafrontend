@@ -62,31 +62,44 @@ const calculatePasswordStrength = (password: string): number => {
 
 const validateForm = (formData: FormData): FormErrors => {
   const errors: FormErrors = {};
-
-  if (!formData.username.trim()) {
-    errors.username = "Nom d'utilisateur requis";
-  } else if (formData.username.length < 2) {
-    errors.username = 'Au moins 2 caractères requis';
-  } else if (/\s/.test(formData.username)) {
-    errors.username = "Le nom d'utilisateur ne peut pas contenir d'espaces";
+  const email = formData.username.trim();
+  
+  if (!email) {
+    errors.username = "Email requis";
+  } else if (email.length < 5) {
+    errors.username = "Email trop court";
+  } else if (email.length > 255) {
+    errors.username = "Email trop long (maximum 255 caractères)";
+  } else if (/\s/.test(email)) {
+    errors.username = "L'email ne peut pas contenir d'espaces";
+  } else {
+    // Regex plus complète pour validation email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      errors.username = "Format d'email invalide. Exemple: utilisateur@domaine.com";
+    }
+    
+    // Vérification supplémentaire : double @
+    if ((email.match(/@/g) || []).length !== 1) {
+      errors.username = "L'email doit contenir exactement un @";
+    }
+    
+    // Vérification du point final
+    if (email.endsWith('.')) {
+      errors.username = "L'email ne peut pas se terminer par un point";
+    }
   }
-
-  if (!formData.gender) {
-    errors.gender = 'Genre requis';
-  }
-  if (!formData.country) {
-    errors.country = 'Pays requis';
-  }
-  if (!formData.phone) {
-    errors.phone = 'Téléphone requis';
-  }
-
+  
+  // Validation du mot de passe
   if (!formData.password) {
     errors.password = 'Mot de passe requis';
   } else if (formData.password.length < PASSWORD_MIN_LENGTH) {
     errors.password = `Au moins ${PASSWORD_MIN_LENGTH} caractères`;
+  } else if (formData.password.length > 128) {
+    errors.password = 'Mot de passe trop long (maximum 128 caractères)';
   }
-
+  
+  // Validation de la confirmation
   if (!formData.confirmPassword) {
     errors.confirmPassword = 'Confirmation requise';
   } else if (formData.password !== formData.confirmPassword) {
@@ -109,7 +122,7 @@ export function useRegisterForm() {
     confirmPassword: '',
     gender: 'male',
     country: "Cote d'Ivoire",
-    phone: '+2250758385387',
+    phone: '0758385387',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -178,7 +191,7 @@ export function useRegisterForm() {
 
   useEffect(() => {
     setMounted(true);
-  }, []); 
+  }, []);
 
   return {
     showPassword, showConfirmPassword, isSubmitDisabled, isLoading, isPending,

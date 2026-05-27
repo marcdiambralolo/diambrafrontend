@@ -1,4 +1,6 @@
 import { api } from '@/lib/api/client';
+import { coerceIsoDate, formatDateFR, processUserData, safeTrim } from '@/lib/functions';
+import { useAuth } from '@/lib/hooks';
 import { Consultation } from '@/lib/interfaces';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -17,6 +19,14 @@ export function useConsultationsListPage() {
   const [editions, setEditions] = useState<EditionInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+       const { user } = useAuth();
+    const processedData = useMemo(() => processUserData(user), [user]);
+   
+    const prenoms = safeTrim(user?.prenoms);
+    const nom = safeTrim(user?.nom); 
+    const fullName = prenoms || nom ? `${prenoms}${prenoms && nom ? " " : ""}${nom}` : "Profil";
+    const dateNaissanceLabel = user?.dateNaissance ? formatDateFR(coerceIsoDate(user.dateNaissance)) : "—";
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -85,5 +95,6 @@ export function useConsultationsListPage() {
   return {
     setActiveTab, getGamesCountByEdition,
     editions: sortedEditions, consultations, loading, gamesCount, activeTab, error,
+    processedData, fullName, dateNaissanceLabel,
   };
 }

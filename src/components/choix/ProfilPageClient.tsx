@@ -4,15 +4,15 @@ import { useCategoryConsulterClient } from '@/hooks/choix/useCategoryConsulterCl
 import { formatDateFRJeu } from "@/lib/functions";
 import { AnimatePresence } from 'framer-motion';
 import { Users } from "lucide-react";
-import { ActiveBanner, ActiveGame, EndedBanner, ErrorToast, GameHeader, OfferSelection, StatCard } from './Features';
+import { ActiveBanner, ActiveGame, ErrorToast, GameHeader, OfferSelection, StatCard } from './Features';
 
 export default function ProfilPageClient() {
   const {
-    handleGoToMarket, handleEndMatch, handleNext, clearError, handleDragOver, handleDrop, removeFromSlot, setDragOverSlot,
-    setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate,
+    handleGoToMarket, handleEndMatch, handleNext, clearError, handleDragOver, handleDrop, setDragOverSlot,
+    setIsDragging, setSelected, placeSelectedDigitInSlot, handleSubmitAndNavigate, removeFromSlot,
     currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity, afficheselection,
     gamehasStarted, slots, selected, dragOverSlot, isDragging, error, mode, used, isComplete,
-    loading, stats, startDate, endDate, gameConfig, lastEndedGame, showEnded, affichebanner,
+    loading, stats, startDate, endDate, gameConfig, affichebanner,
   } = useCategoryConsulterClient();
 
   if (loading) return <Loader />;
@@ -25,7 +25,7 @@ export default function ProfilPageClient() {
         <ErrorToast message={currentError!} onClose={clearError} />
       )}
 
-      {!showEnded && gamehasStarted && (
+      {gamehasStarted && (
         <ActiveGame
           slots={slots}
           selected={selected}
@@ -73,10 +73,6 @@ export default function ProfilPageClient() {
               formatDate={formatDateFRJeu}
               gameConfig={gameConfig}
             />
-          )}
-
-          {showEnded && (
-            <EndedBanner key="ended" lastEndedGame={lastEndedGame} />
           )}
         </AnimatePresence>
 

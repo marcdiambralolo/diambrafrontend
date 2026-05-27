@@ -48,7 +48,6 @@ function hasValidWebhookSecret(request: NextRequest): boolean {
     }
 
     const expected = Buffer.from(WEBHOOK_SECRET);
-
     const received = Buffer.from(providedSecret);
 
     if (expected.length !== received.length) {

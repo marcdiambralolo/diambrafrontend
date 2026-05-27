@@ -73,10 +73,12 @@ export default function WelcomePageClient() {
 }
 
 export function WelcomePageClientContent() {
+ useScrollReveal();
   const router = useRouter();
   const { user, } = useAuthStore();
 
   const [isRedirecting, setIsRedirecting] = useState(false);
+
 
   useEffect(() => {
     if (user && user.secretCode) {
@@ -87,7 +89,7 @@ export function WelcomePageClientContent() {
 
   if (isRedirecting) { return (<Loader />); }
 
-  useScrollReveal();
+ 
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 overflow-x-hidden">

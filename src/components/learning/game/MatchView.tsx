@@ -3,8 +3,8 @@ import { caldure, formatDate } from "@/lib/learning/functions";
 import { MatchInfo } from "@/lib/learning/interface";
 import { motion } from "framer-motion";
 import { useState, useMemo, memo } from "react";
-import InfoRow from "./InfoRow";
 import UnecaseFixe from "./UnecaseFixe";
+import InfoRow from "./InfoRow";
 
 interface MatchViewProps {
   matchData: MatchInfo;

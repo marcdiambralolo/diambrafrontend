@@ -2,7 +2,7 @@
 import { Case } from "@/lib/learning/interface";
 import { motion } from "framer-motion";
 import { memo } from "react";
-import Unecase from "./Unecase";
+import Unecase from "./Unecase"; 
 
 interface PloaderProps {
     onAnimationEnd?: () => void;

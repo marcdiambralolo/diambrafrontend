@@ -1,7 +1,7 @@
 'use client';
 import { Case } from "@/lib/learning/interface";
 import { memo, useMemo } from "react";
-import Unecase from "./Unecase";
+import Unecase from "./Unecase"; 
 
 interface PloaderProps {
     niveau: number;

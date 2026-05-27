@@ -1,39 +1,14 @@
 "use client";
 import { useCommon } from "@/hooks/learning/useCommon";
-import { MenuItem } from "@/lib/interfaces";
-import { BgColorsOutlined, FontSizeOutlined, GlobalOutlined, NumberOutlined, PictureOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Home } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
+import MenuDiambra from "./MenuDiambra";
 
 export default function Principale() {
-  const router = useRouter();
   const { randomImage, onlineStatus } = useCommon();
-
-  const menuItems: MenuItem[] = useMemo(
-    () => [
-      { title: "Nombre", icon: <NumberOutlined />, tpsglobal: 0, color: "bg-blue-500" },
-      { title: "Lettre", icon: <FontSizeOutlined />, tpsglobal: 3, color: "bg-green-500" },
-      { title: "Image", icon: <PictureOutlined />, tpsglobal: 2, color: "bg-purple-500" },
-      { title: "Couleur", icon: <BgColorsOutlined />, tpsglobal: 1, color: "bg-red-500" },
-      { title: "Global", icon: <GlobalOutlined />, tpsglobal: 4, color: "bg-orange-500" },
-      { title: "Aide", icon: <QuestionCircleOutlined />, tpsglobal: -1, color: "bg-gray-500" },
-    ],
-    []
-  );
-
   const currentYear = useMemo(() => new Date().getFullYear(), []);
-
-  const handleItemClick = useCallback((item: MenuItem) => {
-    if (item.tpsglobal === -1) {
-      router.push('/aide');
-    } else {
-      router.push(`/star/learning/choix?tpsglobal=${item.tpsglobal}`);
-    }
-  }, [router,]);
 
   const handleClick = () => {
     window.location.href = '/star/learning';
@@ -48,7 +23,7 @@ export default function Principale() {
       transition={{ duration: 0.4, type: "spring" }}
       className=" w-full flex items-center justify-center"
     >
-      <div className="relative w-full mx-auto max-w-md mt-8 bg-white  dark:from-gray-900 dark:to-gray-800 rounded-3xl overflow-hidden">
+      <div className="relative w-full mx-auto max-w-md mt-8 bg-white">
         <div className="flex items-center justify-between">
           <motion.button
             onClick={handleClick}
@@ -69,38 +44,7 @@ export default function Principale() {
           <div className="w-12" />
         </div>
 
-        <div className="p-4">
-          <div className="relative">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key="menu"
-                className="grid grid-cols-2 gap-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
-              >
-                {menuItems.map((item) => (
-                  <motion.button
-                    key={item.title}
-                    onClick={() => handleItemClick(item)}
-                    className={clsx(
-                      "p-6 flex flex-col items-center justify-center rounded-xl shadow-md transition-all duration-300 text-white",
-                      "hover:bg-opacity-80 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white",
-                      item.color
-                    )}
-                    aria-label={`Accéder à ${item.title}`}
-                    whileHover={{ scale: 1.08 }}
-                    whileTap={{ scale: 0.92 }}
-                  >
-                    <div className="text-5xl">{item.icon}</div>
-                    <p className="mt-4 font-semibold">{item.title}</p>
-                  </motion.button>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-          </div >
-        </div>
+        <MenuDiambra />
 
         <div className="relative mt-8 overflow-hidden rounded-2xl shadow-xl group">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
@@ -124,7 +68,7 @@ export default function Principale() {
               <div className="flex items-center gap-2">
                 <span>© {currentYear}</span>
               </div>
-
+              
               <div className=" right-4 z-10">
                 <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
                   <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />

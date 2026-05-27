@@ -1,5 +1,5 @@
 "use client";
-import DiambraWrapper from "@/components/learning/DiambraWrapper";
+import DiambraWrapper from "@/components/learning/aide/DiambraWrapper";
 import { useCommon } from "@/hooks/learning/useCommon";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";

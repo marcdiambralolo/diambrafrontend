@@ -221,7 +221,7 @@ const LoadingFallbackComponent = () => {
               WebkitTextFillColor: 'transparent'
             }}
           >
-            Mon Etoile
+          DIAMBRA
           </motion.h2>
 
           <motion.p
@@ -235,7 +235,7 @@ const LoadingFallbackComponent = () => {
               ease: 'easeInOut'
             }}
           >
-            Consultation des astres en cours...
+            Consultation des jeux en cours...
           </motion.p>
 
           <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6">
@@ -265,9 +265,9 @@ const LoadingFallbackComponent = () => {
           className="mt-8 sm:mt-10 space-y-2"
         >
           {[
-            { icon: '🌙', text: 'Analyse des phases lunaires', delay: 0 },
-            { icon: '⭐', text: 'Calcul des positions planétaires', delay: 0.3 },
-            { icon: '✨', text: 'Préparation de votre guidance', delay: 0.6 }
+            { icon: '🌙', text: 'Analyse des jeux', delay: 0 },
+            { icon: '⭐', text: 'Calcul des positions  ', delay: 0.3 },
+            { icon: '✨', text: 'Préparation de votre espace', delay: 0.6 }
           ].map((step, index) => (
             <motion.div
               key={index}

@@ -1,18 +1,11 @@
 import useTimer from "@/hooks/learning/useTimer";
 import { Case, MatchInfo } from '@/lib/interfaces';
-import { decoupelimage, getChronoTime } from "@/lib/learning/functions";
-import { createInitialCases, createMatch, createPlayableCases, generateMatchId, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
+import { decoupelimage } from "@/lib/learning/functions";
+import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
-const MAX_PIECES_SIZE = 10000;
-const MAX_NIVEAU = 10;
-
-interface ValidationError {
-    field: string;
-    message: string;
-}
 
 export const useGameGenerator = () => {
     const router = useRouter();
@@ -21,7 +14,7 @@ export const useGameGenerator = () => {
     const niveau = Number(searchParams.get('niveau')) || 5;
     const tpsglobal = Number(searchParams.get('tpsglobal') || "0");
 
-
+    const currentYear = useMemo(() => new Date().getFullYear(), []);
 
     const [loading, setLoading] = useState(false);
     const [casesdujeuencours, setCasesdujeuencours] = useState<Case[]>([]);
@@ -30,15 +23,13 @@ export const useGameGenerator = () => {
     const [selectedCase, setSelectedCase] = useState<Case | null>(null);
     const [datedebut, setDatedebut] = useState<string>("");
     const [start, setStart] = useState(false);
-    const [finmatch, setFinmatch] = useState(false);
     const [showPun, setShowPun] = useState(false);
-    const [hasAnimated, setHasAnimated] = useState(true);
-    const [animated, setAnimated] = useState(true);
-    const [option, setOption] = useState(0);
     const [matchEnCours, setMatchEnCours] = useState(-1);
     const [infomatch, setInfomatch] = useState<MatchInfo[]>([]);
 
+    const lancementRef = useRef(false);
     const isLoadingMatch = useRef(false);
+    const timeElapsed = useTimer(start);
 
     const swapCases = useCallback((c1: Case, c2: Case) => {
         if (!c1 || !c2 || casesinitiales.length === 0) return;
@@ -192,109 +183,10 @@ export const useGameGenerator = () => {
         setCasesdujeuencours(casesJeu);
         setCasesinitiales(casesInit);
         setPieces(piecesMatch);
-        setFinmatch(false);
+        // setFinmatch(false);
         setSelectedCase(null);
         setShowPun(false);
     }, []);
-
-    const timeElapsed = useTimer(start);
-
-    useEffect(() => {
-        if (hasAnimated && !start) {
-            setStart(true);
-        }
-    }, [hasAnimated, start]);
-
-    useEffect(() => {
-        if (option === 0 || finmatch) return;
-
-        const delay = showPun ? 5000 : getChronoTime(niveau);
-        const timeout = setTimeout(() => {
-            toggleShowPun();
-        }, delay);
-
-        return () => clearTimeout(timeout);
-    }, [niveau, showPun, toggleShowPun, option, finmatch]);
-
-    useEffect(() => {
-        if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) {
-            return;
-        }
-
-        isLoadingMatch.current = true;
-        chargerMatch(infomatch[matchEnCours]);
-
-        // Reset du flag après un court délai
-        setTimeout(() => {
-            isLoadingMatch.current = false;
-        }, 100);
-
-    }, [matchEnCours, infomatch, chargerMatch]);
-
-    useEffect(() => {
-        if (matchEnCours === -1 || !infomatch.length) return;
-
-        // Tous les matchs sont terminés
-        if (matchEnCours >= infomatch.length) {
-            setFinmatch(true);
-        }
-    }, [matchEnCours, infomatch.length]);
-
-    useEffect(() => {
-        if (casesdujeuencours.length === 0) return;
-
-        const allLocked = casesdujeuencours.every((c) => c.isLocked);
-
-        if (allLocked) {
-            // Match actuel terminé
-            if (infomatch.length === 1 || matchEnCours >= infomatch.length - 1) {
-                // Dernier match
-                setFinmatch(true);
-            } else {
-                // Passer au match suivant
-                setTimeout(() => {
-                    setMatchEnCours((prev) => prev + 1);
-                }, 500); // Petit délai pour l'animation
-            }
-        }
-    }, [casesdujeuencours, infomatch.length, matchEnCours]);
-
-    const lancementRef = useRef(false);
-
-    useEffect(() => {
-        if (lancementRef.current) return;
-
-        const lancerJeu = async () => {
-            lancementRef.current = true;
-            setLoading(true);
-            setStart(false);
-            setFinmatch(false);
-
-            try {
-                const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
-                const matchList = generateMatchList(tpsglobal);
-                const updatedMatches = await Promise.all(
-                    matchList.map((match) => loadMatch(match, niveau!, pieces))
-                );
-
-                setInfomatch(updatedMatches);
-                setDatedebut(new Date().toISOString());
-                setMatchEnCours(0);
-                setAnimated(true);
-
-                if (updatedMatches[0]) {
-                    chargerMatch(updatedMatches[0]);
-                }
-            } catch (error) {
-                console.error("Erreur:", error);
-            } finally {
-                setLoading(false);
-                lancementRef.current = false;
-            }
-        };
-
-        lancerJeu();
-    }, [niveau, chargerMatch]);
 
     const generateMatchList = useCallback((tpsglobal: number): MatchInfo[] => {
         if (tpsglobal === 4) {
@@ -343,95 +235,93 @@ export const useGameGenerator = () => {
         return match;
     }, []);
 
-    const loadAllMatches = useCallback(async (
-        tpsglobal: number,
-        niveau: number,
-        pieces: string[]
-    ): Promise<MatchInfo[]> => {
-        const matchList = generateMatchList(tpsglobal);
-        return await Promise.all(
-            matchList.map((match) => loadMatch(match, niveau, pieces))
-        );
-    }, [generateMatchList, loadMatch]);
+    useEffect(() => {
+        if (!start) {
+            setStart(true);
+        }
+    }, [start]);
 
-    const validateGameRequest = useCallback((data: any): ValidationError[] => {
-        const errors: ValidationError[] = [];
-
-        if (typeof data.tpsglobal !== "number") {
-            errors.push({ field: "tpsglobal", message: "Le type de jeu doit être un nombre" });
-        } else if (data.tpsglobal < 0 || data.tpsglobal > 4) {
-            errors.push({ field: "tpsglobal", message: "Le type de jeu doit être entre 0 et 4" });
+    useEffect(() => {
+        if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) {
+            return;
         }
 
-        if (typeof data.niveau !== "number") {
-            errors.push({ field: "niveau", message: "Le niveau doit être un nombre" });
-        } else if (data.niveau < 2 || data.niveau > MAX_NIVEAU) {
-            errors.push({ field: "niveau", message: `Le niveau doit être entre 2 et ${MAX_NIVEAU}` });
+        isLoadingMatch.current = true;
+        chargerMatch(infomatch[matchEnCours]);
+        setTimeout(() => {
+            isLoadingMatch.current = false;
+        }, 100);
+
+    }, [matchEnCours, infomatch, chargerMatch]);
+
+    useEffect(() => {
+        if (matchEnCours === -1 || !infomatch.length) return;
+
+        // Tous les matchs sont terminés
+        if (matchEnCours >= infomatch.length) {
+            window.location.href = '/star/learning/endgame';
         }
+    }, [matchEnCours, infomatch.length]);
 
-        if (!Array.isArray(data.pieces)) {
-            errors.push({ field: "pieces", message: "Les pièces doivent être un tableau" });
-        } else if (data.pieces.length > MAX_PIECES_SIZE) {
-            errors.push({ field: "pieces", message: `Trop de pièces (max: ${MAX_PIECES_SIZE})` });
-        } else if (!data.pieces.every((p: any) => typeof p === "string")) {
-            errors.push({ field: "pieces", message: "Toutes les pièces doivent être des chaînes" });
+    useEffect(() => {
+        if (casesdujeuencours.length === 0) return;
+
+        const allLocked = casesdujeuencours.every((c) => c.isLocked);
+
+        if (allLocked) {
+            // Match actuel terminé
+            if (infomatch.length === 1 || matchEnCours >= infomatch.length - 1) {
+                // Dernier match
+                // setFinmatch(true);
+                window.location.href = '/star/learning/endgame';
+            } else {
+                // Passer au match suivant
+                setTimeout(() => {
+                    setMatchEnCours((prev) => prev + 1);
+                }, 500); // Petit délai pour l'animation
+            }
         }
+    }, [casesdujeuencours, infomatch.length, matchEnCours]);
 
-        return errors;
-    }, []);
+    useEffect(() => {
+        if (lancementRef.current) return;
 
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
+        const lancerJeu = async () => {
+            lancementRef.current = true;
+            setLoading(true);
+            setStart(false);
+
+            try {
+                const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
+                const matchList = generateMatchList(tpsglobal);
+                const updatedMatches = await Promise.all(
+                    matchList.map((match) => loadMatch(match, niveau!, pieces))
+                );
+
+                setInfomatch(updatedMatches);
+                setDatedebut(new Date().toISOString());
+                setMatchEnCours(0);
+
+                if (updatedMatches[0]) {
+                    chargerMatch(updatedMatches[0]);
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+            } finally {
+                setLoading(false);
+                lancementRef.current = false;
+            }
+        };
+
+        lancerJeu();
+    }, [niveau, chargerMatch]);
 
     const handleClick = () => {
         window.location.href = '/star/learning';
     };
 
-
     return {
-        generateMatchList,
-        loadMatch,
-        loadAllMatches,
-        shuffleArray,
-        generateMatchId,
-        getTotalCases,
-        validateGameRequest,
-        loading,
-        lancementRef,
-        chargerMatch,
-        niveau,
-        tpsglobal,
-        pieces,
-        setPieces,
-        start,
-        setStart,
-        finmatch,
-        setFinmatch,
-        showPun,
-        setShowPun,
-        hasAnimated,
-        setHasAnimated,
-        animated,
-        setAnimated,
-        option,
-        setOption,
-        matchEnCours,
-        setMatchEnCours,
-        infomatch,
-        setInfomatch,
-        casesdujeuencours,
-        setCasesdujeuencours,
-        casesinitiales,
-        setCasesinitiales,
-        selectedCase,
-        setSelectedCase,
-        datedebut,
-        setDatedebut,
-        selectCase,
-        lockSelectedCase,
-        toggleShowPun,
-        timeElapsed,
-        handleBack,
-        currentYear,
-        handleClick,
+        lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, pieces, start, showPun, currentYear, datedebut,
+        loading, niveau, tpsglobal, matchEnCours, infomatch, casesdujeuencours, casesinitiales, selectedCase, timeElapsed,
     };
 };

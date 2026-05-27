@@ -3,7 +3,6 @@ import { useCommon } from "@/hooks/learning/useCommon";
 import { choix, niveauOptions } from "@/lib/learning/functions";
 import { motion } from "framer-motion";
 import { Home } from "lucide-react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, memo, useCallback, useMemo, useState } from "react";
 
@@ -111,7 +110,7 @@ const GameFormView = memo(({
 export default function Principale() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { randomImage, onlineStatus } = useCommon();
+  const { onlineStatus } = useCommon();
 
   const tpsglobal = Number(searchParams.get('tpsglobal') || "0");
 
@@ -185,42 +184,24 @@ export default function Principale() {
             </button>
           </motion.div>
         </div>
+        <footer className="relative bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
+          <div className="relative flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center gap-2">
+              <span>© {currentYear}</span>
+            </div>
 
-        <div className="relative mt-8 overflow-hidden rounded-2xl shadow-xl group">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.4 }}
-            className="relative overflow-hidden"
-          >
-            <Image
-              src={randomImage}
-              width={400}
-              height={500}
-              alt="DIAMBRA"
-              className="w-full h-144 object-cover rounded-2xl transition-transform duration-500 group-hover:scale-110"
-            />
-          </motion.div>
-
-          <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
-            <div className="relative flex items-center justify-between text-xs text-gray-400">
-              <div className="flex items-center gap-2">
-                <span>© {currentYear}</span>
-              </div>
-
-              <div className=" right-4 z-10">
-                <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
-                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  {onlineStatus.text}
-                </div>
+            <div className=" right-4 z-10">
+              <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                {onlineStatus.text}
               </div>
             </div>
-            <p className="relative text-gray-500 text-[10px] mt-2">
-              DIAMBRA CORPORATION • Tous droits réservés
-            </p>
-          </footer>
-        </div>
+          </div>
+          <p className="relative text-gray-500 text-[10px] mt-2">
+            DIAMBRA CORPORATION • Tous droits réservés
+          </p>
+        </footer>
       </div>
 
       <style jsx>{`

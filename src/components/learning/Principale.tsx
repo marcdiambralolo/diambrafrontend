@@ -120,21 +120,17 @@ export default function Principale() {
 
           <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
-            <div className="relative flex items-center justify-between text-xs text-gray-400">
-              <div className="flex items-center gap-2">
-                <span>© {currentYear}</span>
-              </div>
-
+            <div className="flex flex-col items-center justify-between text-xs text-gray-400">
               <div className=" right-4 z-10">
                 <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
                   <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                   {onlineStatus.text}
                 </div>
               </div>
+              <p className="relative text-gray-500 text-[10px] mt-2">
+                DIAMBRA CORPORATION • Tous droits réservés • {currentYear}
+              </p>
             </div>
-            <p className="relative text-gray-500 text-[10px] mt-2">
-              DIAMBRA CORPORATION • Tous droits réservés
-            </p>
           </footer>
         </div>
       </div>

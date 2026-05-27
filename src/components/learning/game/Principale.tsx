@@ -1,18 +1,109 @@
 "use client";
+import Loader from "@/app/loading";
 import { useCommon } from "@/hooks/learning/useCommon";
-import { motion } from "framer-motion";
+import { useGameGenerator } from "@/hooks/learning/useGameGenerator";
+import { AnimatePresence, motion } from "framer-motion";
 import { Home } from "lucide-react";
 import Image from "next/image";
-import { useMemo } from "react";
-import MenuDiambra from "./MenuDiambra";
+import GamePlayView from "./GamePlayView";
+import { caldure, formatDate } from "@/lib/learning/functions";
+import { MatchInfo } from "@/lib/learning/interface";
+import { Space } from "antd";
+import { memo, useMemo } from "react";
+import MatchView from "./MatchView";
+
+const InfoRow = ({ label, value }: { label: string; value: string | number | undefined }) => (
+  <div className="flex justify-between py-2 border-b border-gray-200">
+    <span className="font-semibold text-gray-700">{label}:</span>
+    <span className="text-gray-900">{value ?? 'N/A'}</span>
+  </div>
+);
+
+interface FinMatchViewProps {
+  niveau: number;
+  datedebut: string;
+  tpsglobal: number;
+  infomatch: MatchInfo[];
+}
+
+const FinMatchView = memo(({
+  niveau,
+  datedebut,
+  tpsglobal,
+  infomatch
+}: FinMatchViewProps) => {
+
+  const { sommeScores, sommeTrouves, sommeRates } = useMemo(() => {
+    let scores = 0, trouves = 0, rates = 0;
+    for (const m of infomatch ?? []) {
+      scores += m.score || 0;
+      trouves += m.trouves || 0;
+      rates += m.rates || 0;
+    }
+    return { sommeScores: scores, sommeTrouves: trouves, sommeRates: rates };
+  }, [infomatch]);
+
+  const datedefin = useMemo(() => new Date().toISOString(), []);
+
+  const details = [
+    { label: "Niveau", value: niveau },
+    { label: "Score", value: sommeScores.toFixed(0) },
+    { label: "Trouvés", value: `${sommeTrouves}/${infomatch.length * niveau ** 2}` },
+    { label: "Ratés", value: sommeRates },
+    { label: "Nombre de matchs", value: infomatch.length },
+    { label: "Date de début", value: formatDate(datedebut) },
+    { label: "Date de fin", value: formatDate(datedefin) },
+    { label: "Temps écoulé", value: caldure(datedefin, datedebut || "01/01/1970") },
+  ];
+
+  return (
+    <div className="w-full flex flex-col items-center justify-center px-4">
+      <div className="p-4 text-black max-w-md">
+        {tpsglobal === 4 &&
+          details.map((item) => (
+            <InfoRow key={item.label} label={item.label} value={item.value} />
+          ))}
+      </div>
+      <AnimatePresence mode="wait">
+        {infomatch && infomatch.length > 0 ? (
+          <Space direction="vertical" size="middle" className="w-full flex flex-col items-center">
+            {infomatch.map((match) => (
+              <MatchView
+                key={match.numeromatch || match.numordrep}
+                matchData={match}
+                option={0}
+                niveau={niveau}
+                datedebut={datedebut}
+                datefin={datedefin}
+              />
+            ))}
+          </Space>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="text-center text-gray-600 text-lg font-semibold mt-6 uppercase"
+            role="alert"
+            aria-live="polite"
+          >
+            Aucun jeu disponible
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+});
 
 export default function Principale() {
   const { randomImage, onlineStatus } = useCommon();
-  const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const {
+    setHasAnimated, lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, currentYear,
+    loading, niveau, tpsglobal, pieces, start, finmatch, showPun, hasAnimated, animated, option,
+    matchEnCours, infomatch, casesdujeuencours, casesinitiales, selectedCase, datedebut, timeElapsed,
+  } = useGameGenerator();
 
-  const handleClick = () => {
-    window.location.href = '/star/learning';
-  };
+  if (loading) return <Loader />;
 
   return (
     <motion.div
@@ -44,7 +135,57 @@ export default function Principale() {
           <div className="w-12" />
         </div>
 
-        <MenuDiambra />
+        <div className="p-2">
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="max-w-4xl mx-auto"
+          >
+
+            <AnimatePresence mode="wait">
+              {finmatch ? (
+                <FinMatchView
+                  niveau={niveau}
+                  datedebut={datedebut}
+                  tpsglobal={tpsglobal}
+                  infomatch={infomatch}
+                />
+              ) : (
+                <GamePlayView
+                  cases={casesdujeuencours}
+                  casesun={casesinitiales}
+                  pieces={pieces}
+                  selectedCase={selectedCase}
+                  selectCase={selectCase}
+                  showPun={showPun}
+                  toggleShowPun={toggleShowPun}
+                  lockSelectedCase={lockSelectedCase}
+                  animated={animated}
+                  hasAnimated={hasAnimated}
+                  handleAnimationEnd={() => {
+                    if (!hasAnimated) setHasAnimated(true);
+                  }}
+                  start={start}
+                  timeElapsed={timeElapsed}
+                  niveau={niveau}
+                  option={option}
+                  matchEncours={matchEnCours}
+                  infomatch={infomatch}
+                  tpsglobal={tpsglobal}
+                />
+              )}
+            </AnimatePresence>
+            <button
+              onClick={handleBack}
+              className="mb-4 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm font-medium text-gray-700"
+            >
+              ← Retour au menu
+            </button>
+          </motion.div>
+        </div>
 
         <div className="relative mt-8 overflow-hidden rounded-2xl shadow-xl group">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
@@ -68,7 +209,7 @@ export default function Principale() {
               <div className="flex items-center gap-2">
                 <span>© {currentYear}</span>
               </div>
-              
+
               <div className=" right-4 z-10">
                 <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
                   <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />

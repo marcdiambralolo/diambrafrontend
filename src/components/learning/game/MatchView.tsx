@@ -1,10 +1,31 @@
 'use client';
 import { caldure, formatDate } from "@/lib/learning/functions";
 import { MatchInfo } from "@/lib/learning/interface";
+import { FontSizeOutlined, InfoCircleOutlined, NumberOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import { useState, useMemo, memo } from "react";
+import { memo, useMemo, useState } from "react";
 import UnecaseFixe from "./UnecaseFixe";
-import InfoRow from "./InfoRow";
+
+interface InfoRowProps {
+    label: string;
+    value?: string | number | null;
+}
+
+const InfoRow: React.FC<InfoRowProps> = memo(({ label, value }) => {
+
+    const icon = useMemo(() => {
+        if (typeof value === "number") return <FontSizeOutlined className="text-blue-500" />;
+        if (typeof value === "string") return <NumberOutlined className="text-green-500" />;
+        return <InfoCircleOutlined className="text-gray-400" />;
+    }, [value]);
+
+    return (
+        <div className="flex items-center gap-2 text-gray-800 text-sm md:text-base">
+            {icon}
+            <p><strong className="font-semibold text-gray-900">{label} :</strong> {value ?? "0"}</p>
+        </div>
+    );
+});
 
 interface MatchViewProps {
   matchData: MatchInfo;

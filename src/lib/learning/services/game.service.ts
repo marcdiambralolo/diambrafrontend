@@ -53,28 +53,7 @@ export class SeededRandom {
     return Math.floor(this.next() * max);
   }
 }
-
-// ==================== ALGORITHMES DE MÉLANGE ====================
-/**
- * Mélange un tableau en utilisant l'algorithme Fisher-Yates
- * Optimisé : O(n) au lieu de O(n²) avec l'ancienne approche
- * @param items - Tableau à mélanger
- * @param seed - Graine pour la reproductibilité
- * @returns Nouveau tableau mélangé (non muté)
- */
-export function shuffleArray<T>(items: T[], seed: number): T[] {
-  const shuffled = [...items];
-  const random = new SeededRandom(seed);
-
-  // Fisher-Yates shuffle: O(n)
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = random.nextInt(i + 1);
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  return shuffled;
-}
-
+ 
 /**
  * @deprecated Ancienne fonction - conservée pour compatibilité
  * Utilisez shuffleArray à la place
@@ -92,30 +71,8 @@ export function malisteca(seedString: string, items: string[]): string[] {
  * Génère un identifiant unique de match (9 chiffres)
  * Utilise crypto.getRandomValues pour une vraie entropie
  */
-function generateMatchId(): string {
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const array = new Uint32Array(1);
-    crypto.getRandomValues(array);
-    return (array[0] % 1000000000).toString().padStart(9, '0');
-  }
-  // Fallback pour environnements sans crypto
-  return Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
-}
-
-/**
- * Crée un objet MatchInfo
- */
-function createMatch(ordre: number, tpsglobal: number): MatchInfo {
-  const matchId = generateMatchId();
-  
-  return {
-    numordrep: ordre + 1,
-    isgameover: false,
-    numeromatch: matchId,
-    entite: parseInt(matchId) % 9 || 0,
-    tpsglobal,
-  };
-}
+ 
+ 
 
 /**
  * Génère la liste des matches selon le type de jeu
@@ -131,62 +88,7 @@ export function generateMatchList(tpsglobal: number): MatchInfo[] {
   // Mode simple : un seul type de jeu
   return [createMatch(0, tpsglobal)];
 }
-
-// ==================== GÉNÉRATION DE CASES ====================
-/**
- * Crée les cases initiales (verrouillées)
- */
-function createInitialCases(items: string[], match: MatchInfo): Case[] {
-  return items.map((txt, index) => ({
-    id: index + 1,
-    index,
-    txt,
-    itxt: txt,
-    numordrep: match.numordrep,
-    tpsglobal: match.tpsglobal,
-    place: false,
-    isLocked: true,
-    mode: false,
-  }));
-}
-
-/**
- * Crée les cases jouables (mélangées)
- */
-function createPlayableCases(
-  shuffledItems: string[],
-  originalItems: string[],
-  match: MatchInfo
-): Case[] {
-  return shuffledItems.map((txt, index) => ({
-    id: index + 1,
-    index,
-    txt,
-    itxt: originalItems[index],
-    numordrep: match.numordrep,
-    tpsglobal: match.tpsglobal,
-    place: false,
-    isLocked: false,
-    mode: true,
-  }));
-}
-
-/**
- * Calcule le nombre total de cases selon le type de jeu
- */
-function getTotalCases(tpsglobal: number, niveau: number): number {
-  if (tpsglobal === 2) {
-    // Type Image : dépend du niveau
-    return niveau * niveau;
-  }
-  
-  const count = CASE_COUNTS_BY_TYPE[tpsglobal];
-  if (count === undefined) {
-    throw new Error(`Type de jeu invalide: ${tpsglobal}`);
-  }
-  
-  return count;
-}
+ 
 
 // ==================== CHARGEMENT DE MATCH ====================
 /**
@@ -277,3 +179,89 @@ export function validateGameRequest(data: any): ValidationError[] {
 
   return errors;
 }
+
+
+
+// ============================================================================
+// FONCTIONS DE GÉNÉRATION
+// ============================================================================
+
+export const generateMatchId = (): string => {
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return (array[0] % 1000000000).toString().padStart(9, '0');
+    }
+    // Fallback pour environnements sans crypto
+    return Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+};
+
+export const shuffleArray = <T>(items: T[], seed: number): T[] => {
+      const shuffled = [...items];
+    const random = new SeededRandom(seed);
+
+    // Fisher-Yates shuffle: O(n)
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = random.nextInt(i + 1);
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+};
+
+export const createMatch = (ordre: number, tpsglobal: number): MatchInfo => {
+    const matchId = generateMatchId();
+
+    return {
+        numordrep: ordre + 1,
+        isgameover: false,
+        numeromatch: matchId,
+        entite: parseInt(matchId) % 9 || 0,
+        tpsglobal,
+    };
+};
+
+export const createInitialCases = (items: string[], match: MatchInfo): Case[] => 
+    items.map((txt, index) => ({
+        id: index + 1,
+        index,
+        txt,
+        itxt: txt,
+        numordrep: match.numordrep,
+        tpsglobal: match.tpsglobal,
+        place: false,
+        isLocked: true,
+        mode: false,
+    }));
+
+export const createPlayableCases = (
+    shuffledItems: string[],
+    originalItems: string[],
+    match: MatchInfo
+): Case[] => 
+    shuffledItems.map((txt, index) => ({
+        id: index + 1,
+        index,
+        txt,
+        itxt: originalItems[index],
+        numordrep: match.numordrep,
+        tpsglobal: match.tpsglobal,
+        place: false,
+        isLocked: false,
+        mode: true,
+    }));
+
+export  const getTotalCases = (tpsglobal: number, niveau: number): number => {
+   if (tpsglobal === 2) {
+        // Type Image : dépend du niveau
+        return niveau * niveau;
+    }
+
+    const count = CASE_COUNTS_BY_TYPE[tpsglobal];
+    if (count === undefined) {
+        throw new Error(`Type de jeu invalide: ${tpsglobal}`);
+    }
+
+    return count;
+};
+

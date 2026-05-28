@@ -23,6 +23,7 @@ export interface MatchInfo {
   score?: number;
   rates?: number;
   tpsglobal?: number;
+  niveau?: number;
   entite?: number;
   numeromatch?: string;
   isgameover?: boolean;

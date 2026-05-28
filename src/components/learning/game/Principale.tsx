@@ -2,18 +2,155 @@
 import Loader from "@/app/loading";
 import { useCommon } from "@/hooks/learning/useCommon";
 import { useGameGenerator } from "@/hooks/learning/useGameGenerator";
+import { choix, formatTime } from "@/lib/learning/functions";
+import { Case, MatchInfo } from "@/lib/learning/interface";
+import { BarChartOutlined, TrophyOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import { Home } from "lucide-react";
-import GamePlayView from "./GamePlayView";
+import { memo, useMemo } from "react";
+import {
+  ActionButton, BackButton, FooterSection, HeaderButton,
+  InfoRowGame, ObjectiveCard, Ploader, PloaderFixe, TitleSection
+} from "./Features";
 
-export default function Principale() {
+interface GamePlayViewProps {
+  cases: Case[];
+  casesun: Case[];
+  pieces: string[];
+  selectedCase: Case | null;
+  selectCase: (c: Case | null) => void;
+  showPun: boolean;
+  toggleShowPun: () => void;
+  lockSelectedCase: () => void;
+  timeElapsed: number;
+  niveau: number;
+  matchEncours: number;
+  infomatch: MatchInfo[];
+  tpsglobal: number;
+}
+
+const GamePlayView = memo(({
+  tpsglobal,
+  cases,
+  casesun,
+  pieces,
+  selectedCase,
+  selectCase,
+  showPun,
+  toggleShowPun,
+  lockSelectedCase,
+  timeElapsed,
+  niveau,
+  matchEncours,
+  infomatch
+}: GamePlayViewProps) => {
+
+  const currentGameType = useMemo(() => {
+    if (!infomatch?.length || matchEncours === undefined || !infomatch[matchEncours]) {
+      return "Aucun match en cours";
+    }
+    return choix(infomatch[matchEncours].tpsglobal || 0);
+  }, [infomatch, matchEncours]);
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full py-4 mb-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md text-center px-4"
+      >
+        <div className="mb-4">
+          {showPun ? (
+            <PloaderFixe niveau={niveau} casesun={casesun} pieces={pieces} />
+          ) : (
+            <Ploader
+              niveau={niveau}
+              cases={cases}
+              selectedCase={selectedCase}
+              selectCase={selectCase}
+              pieces={pieces}
+              tpsglobal={tpsglobal}
+            />
+          )}
+        </div>
+
+        <div className="flex flex-col items-center justify-center w-full mt-4">
+          <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
+            {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
+          </h2>
+
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            {!showPun && (
+              <ActionButton
+                onClick={lockSelectedCase}
+                variant="primary"
+                ariaLabel="Ajuster la sélection"
+              >
+                Ajuster
+              </ActionButton>
+            )}
+
+            <ActionButton
+              onClick={toggleShowPun}
+              variant="secondary"
+              ariaLabel={showPun ? "Jouer" : "Voir P1"}
+            >
+              {showPun ? "Jouer" : "Voir P1"}
+            </ActionButton>
+
+            <div className="font-bold text-blue-600 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+              <span className="text-sm">⏱</span>
+              <span>{formatTime(timeElapsed)}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 w-full space-y-3">
+            {cases && cases.length > 0 && (
+              <div className="mt-2">
+                <div className="flex justify-between text-xs text-gray-500 mb-4">
+                  <span>Progression</span>
+                  <span>{cases.filter(c => c.isLocked).length}/{cases.length}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(cases.filter(c => c.isLocked).length / cases.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <ObjectiveCard />
+
+            <InfoRowGame
+              icon={<TrophyOutlined />}
+              iconBg="bg-yellow-100 dark:bg-yellow-900/30"
+              iconColor="text-yellow-600 dark:text-yellow-400"
+              label="JEU EN COURS"
+              value={currentGameType}
+            />
+
+            <InfoRowGame
+              icon={<BarChartOutlined />}
+              iconBg="bg-green-100 dark:bg-green-900/30"
+              iconColor="text-green-600 dark:text-green-400"
+              label="NIVEAU DU JEU"
+              value={niveau ?? "N/A"}
+            />
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+});
+
+GamePlayView.displayName = "GamePlayView";
+
+const Principale = memo(() => {
   const { onlineStatus } = useCommon();
-  const {
-    lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, pieces, start, showPun, currentYear,
-    loading, niveau, tpsglobal, matchEnCours, infomatch, casesdujeuencours, casesinitiales, selectedCase, timeElapsed,
-  } = useGameGenerator();
+  const { handleBack, handleClick, currentYear, loading, gamePlayProps } = useGameGenerator();
 
-  if (loading) return <Loader />;
+  if (loading) { return <Loader />; }
 
   return (
     <motion.div
@@ -22,107 +159,34 @@ export default function Principale() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.4, type: "spring" }}
-      className=" w-full flex items-center justify-center"
+      className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4"
     >
-      <div className="relative w-full mx-auto max-w-md mt-8 bg-white">
-        <div className="flex items-center justify-between">
-          <motion.button
-            onClick={handleClick}
-            className="group relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300"
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            aria-label="Retour à l'accueil"
-          >
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Home className="relative w-5 h-5 text-white" />
-          </motion.button>
-
-          <div className="flex items-center gap-3">
-            <span className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-              DIAMBRA LEARNING
-            </span>
-          </div>
+      <div className="relative w-full mx-auto max-w-md">
+        <div className="flex items-center justify-between mb-6">
+          <HeaderButton onClick={handleClick} />
+          <TitleSection />
           <div className="w-12" />
         </div>
-
-        <div className="p-2">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <motion.div
             key="content"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="max-w-4xl mx-auto"
+            className="flex flex-col items-center justify-center"
           >
-            <GamePlayView
-              cases={casesdujeuencours}
-              casesun={casesinitiales}
-              pieces={pieces}
-              selectedCase={selectedCase}
-              selectCase={selectCase}
-              showPun={showPun}
-              toggleShowPun={toggleShowPun}
-              lockSelectedCase={lockSelectedCase}
-              start={start}
-              timeElapsed={timeElapsed}
-              niveau={niveau}
-              matchEncours={matchEnCours}
-              infomatch={infomatch}
-              tpsglobal={tpsglobal}
-            />
-            <button
-              onClick={handleBack}
-              className="mb-4 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm font-medium text-gray-700"
-            >
-              ← Retour au menu
-            </button>
+            <GamePlayView {...gamePlayProps} />
+            <BackButton onClick={handleBack} />
           </motion.div>
-
-          <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
-            <div className="relative flex items-center justify-between text-xs text-gray-400">
-              <div className="flex items-center gap-2">
-                <span>© {currentYear}</span>
-              </div>
-
-              <div className=" right-4 z-10">
-                <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${onlineStatus.color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
-                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  {onlineStatus.text}
-                </div>
-              </div>
-            </div>
-            <p className="relative text-gray-500 text-[10px] mt-2">
-              DIAMBRA CORPORATION • Tous droits réservés
-            </p>
-          </footer>
         </div>
-      </div>
 
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
-        }
-      `}</style>
+        <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />
+      </div>
     </motion.div>
   );
-}
+});
+
+Principale.displayName = "Principale";
+
+export default Principale;

@@ -367,6 +367,7 @@ export interface MatchInfo {
   rates?: number;
   tpsglobal?: number;
   entite?: number;
+  niveau?: number;
   numeromatch?: string;
   isgameover?: boolean;
   datedebut?: string | null;
@@ -381,4 +382,3 @@ export interface MenuItem {
   tpsglobal?: number;
   color: string;
 }
- 

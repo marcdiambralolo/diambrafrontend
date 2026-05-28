@@ -1,5 +1,3 @@
- 
-
 export const dst = (date: Date): string => {
   return date.toISOString();
 };
@@ -34,8 +32,6 @@ export const generateLetterPairs = (): string[] => {
   return cachedLetterPairs;
 };
 
-
-// Fonction helper pour obtenir le contenu textuel
 export const getCaseTextContent = (
   tpsglobal: number,
   txt: string,
@@ -52,8 +48,6 @@ export const getCaseTextContent = (
 };
 
 export const formatDate = (isoString: string): string => {
-
-
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return "00/00/0000 à 00h:00mn:00s";
 

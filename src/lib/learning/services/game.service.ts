@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Case, MatchInfo } from "@/lib/learning/interface";
 
-// ==================== CONSTANTES ====================
 const LINEAR_CONGRUENTIAL_GENERATOR = {
   MODULUS: 2147483647,
   MULTIPLIER: 16807,
@@ -16,7 +14,6 @@ const CASE_COUNTS_BY_TYPE: Readonly<Record<number, number>> = {
 } as const;
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
-
 const MAX_PIECES_SIZE = 10000;
 const MAX_NIVEAU = 10;
 
@@ -65,14 +62,6 @@ export function malisteca(seedString: string, items: string[]): string[] {
   }
   return shuffleArray(items, seed);
 }
-
-// ==================== GÉNÉRATION DE MATCHES ====================
-/**
- * Génère un identifiant unique de match (9 chiffres)
- * Utilise crypto.getRandomValues pour une vraie entropie
- */
- 
- 
 
 /**
  * Génère la liste des matches selon le type de jeu
@@ -264,4 +253,3 @@ export  const getTotalCases = (tpsglobal: number, niveau: number): number => {
 
     return count;
 };
-

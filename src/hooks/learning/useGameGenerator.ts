@@ -2,6 +2,7 @@ import useTimer from "@/hooks/learning/useTimer";
 import { Case, MatchInfo } from '@/lib/interfaces';
 import { decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
+import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -10,6 +11,8 @@ const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 export const useGameGenerator = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    // Store actions
+    const { saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
 
     const niveau = Number(searchParams.get('niveau')) || 5;
     const tpsglobal = Number(searchParams.get('tpsglobal') || "0");
@@ -271,6 +274,25 @@ export const useGameGenerator = () => {
         if (allLocked) {
             // Match actuel terminé
             if (infomatch.length === 1 || matchEnCours >= infomatch.length - 1) {
+                const datefin = new Date().toISOString();
+                
+                // Mettre à jour les scores finaux
+                const updatedMatches = infomatch.map((match, index) => {
+                    if (index === matchEnCours) {
+                        return {
+                            ...match,
+                            isgameover: true,
+                            datefin,
+                            niveau,
+                            tpsglobal,
+                            trouves: (match.trouves || 0) + casesdujeuencours.filter(c => c.isLocked).length,
+                        };
+                    }
+                    return match;
+                });
+                
+                // Sauvegarder dans le store
+                saveFinalResults(updatedMatches, datedebut, datefin);
                 // Dernier match
                 // setFinmatch(true);
                 window.location.href = '/star/learning/endgame';
@@ -290,6 +312,8 @@ export const useGameGenerator = () => {
             lancementRef.current = true;
             setLoading(true);
             setStart(false);
+
+             clearCompletedMatches();
 
             try {
                 const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
@@ -320,8 +344,19 @@ export const useGameGenerator = () => {
         window.location.href = '/star/learning';
     };
 
+     const gamePlayProps = useMemo(() => ({
+    cases: casesdujeuencours, casesun: casesinitiales, pieces, selectedCase,
+    selectCase, showPun, toggleShowPun, lockSelectedCase,
+    timeElapsed, niveau, matchEncours: matchEnCours, infomatch, tpsglobal,
+  }), [
+    casesdujeuencours, casesinitiales, pieces, selectedCase,
+    selectCase, showPun, toggleShowPun, lockSelectedCase,
+    timeElapsed, niveau, matchEnCours, infomatch, tpsglobal,
+  ]);
+
     return {
-        lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, pieces, start, showPun, currentYear, datedebut,
+        gamePlayProps,
+        lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, pieces, showPun, currentYear, datedebut,
         loading, niveau, tpsglobal, matchEnCours, infomatch, casesdujeuencours, casesinitiales, selectedCase, timeElapsed,
     };
 };

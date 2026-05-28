@@ -22,13 +22,6 @@ export const Theme = {
   couleurTexte: "#ffffff",
 };
 
-export const pageMapping: Record<number, { titre: string; bouton: boolean }> = {
-  0: { titre: "Diambra", bouton: false },
-  1: { titre: "Aides", bouton: true },
-  2: { titre: "Nouveaux", bouton: true },
-  3: { titre: "Diambra", bouton: true },
-};
-
 export const imagesPub = [
   "/splashone.jpg",
   "/splashtwo.jpg",

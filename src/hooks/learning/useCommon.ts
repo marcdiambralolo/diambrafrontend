@@ -1,7 +1,6 @@
 import { imagesPub } from "@/lib/learning/data";
 import { useEffect, useState } from "react";
 import { useOnlineStatus } from "./useOnlineStatus";
- 
 
 export function useCommon() {
   const onlineStatus = useOnlineStatus();
@@ -13,8 +12,5 @@ export function useCommon() {
     }
   }, []);
 
-  return {
-    randomImage,
-    onlineStatus
-  };
+  return { randomImage, onlineStatus };
 }

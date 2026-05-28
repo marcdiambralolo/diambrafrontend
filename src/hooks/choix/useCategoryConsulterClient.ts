@@ -10,13 +10,13 @@ import { useStatsDataWithCache } from '../cache/useStatsDataWithCache';
 import { useGameConfig } from '../profil/useGameConfig';
 import { formatTime } from '@/lib/functions';
 
-export const SLOT_COUNT = 4;
+export const SLOT_COUNT = 3;
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
     quantity: 1,
-    name: 'Partie Quatre Cases',
+    name: 'JETON DIAMBRA',
     price: 200,
     createdAt: '',
     updatedAt: '',

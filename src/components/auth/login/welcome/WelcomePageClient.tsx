@@ -23,16 +23,16 @@ const RULES: PillItem[] = [
   {
     id: 'cases',
     icon: <Grid className="h-5 w-5" />,
-    title: '4 cases à remplir',
-    desc: 'Chaque partie comporte 4 cases vides à compléter.',
-    tooltip: 'Les cases sont numérotées de 1 à 4.',
+    title: '3 cases à remplir',
+    desc: 'Chaque partie comporte 3 cases vides à compléter.',
+    tooltip: 'Les cases sont numérotées de 1 à 3.',
   },
   {
     id: 'digits',
     icon: <Brain className="h-5 w-5" />,
     title: 'Chiffres 0 à 9',
-    desc: '10 chiffres sont proposés, mais seulement 4 sont utilisés.',
-    tooltip: 'Il faut choisir les  4 chiffres.',
+    desc: '10 chiffres sont proposés, mais seulement 3 sont utilisés.',
+    tooltip: 'Il faut choisir les  3 chiffres.',
   },
   {
     id: 'unique',
@@ -54,7 +54,7 @@ const STATS: StatItem[] = [
   },
   {
     id: 'slots',
-    value: '4',
+    value: '3',
     label: 'cases à remplir',
     gradient: 'from-indigo-500/15 via-blue-500/10 to-cyan-500/15',
     textColor: 'text-indigo-700 dark:text-indigo-300',
@@ -62,7 +62,7 @@ const STATS: StatItem[] = [
   },
   {
     id: 'combinations',
-    value: '5 040',
+    value: '720',
     label: 'combinaisons possibles',
     gradient: 'from-fuchsia-500/15 via-violet-500/10 to-purple-500/15',
     textColor: 'text-fuchsia-700 dark:text-fuchsia-300',
@@ -274,7 +274,7 @@ export default function WelcomePageClient() {
           <SectionHeader
             badge="Règles du jeu"
             title="📜 Comprendre le jeu maintenant"
-            subtitle="4 cases, 10 chiffres, 1 seule bonne combinaison.  "
+            subtitle="3 cases, 10 chiffres, 1 seule bonne combinaison.  "
           />
 
           <div className="grid gap-3 sm:gap-4 md:grid-cols-1 lg:grid-cols-1">

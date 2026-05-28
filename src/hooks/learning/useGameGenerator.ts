@@ -275,7 +275,7 @@ export const useGameGenerator = () => {
             // Match actuel terminé
             if (infomatch.length === 1 || matchEnCours >= infomatch.length - 1) {
                 const datefin = new Date().toISOString();
-                
+
                 // Mettre à jour les scores finaux
                 const updatedMatches = infomatch.map((match, index) => {
                     if (index === matchEnCours) {
@@ -290,7 +290,7 @@ export const useGameGenerator = () => {
                     }
                     return match;
                 });
-                
+
                 // Sauvegarder dans le store
                 saveFinalResults(updatedMatches, datedebut, datefin);
                 // Dernier match
@@ -313,7 +313,7 @@ export const useGameGenerator = () => {
             setLoading(true);
             setStart(false);
 
-             clearCompletedMatches();
+            clearCompletedMatches();
 
             try {
                 const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
@@ -344,15 +344,15 @@ export const useGameGenerator = () => {
         window.location.href = '/star/learning';
     };
 
-     const gamePlayProps = useMemo(() => ({
-    cases: casesdujeuencours, casesun: casesinitiales, pieces, selectedCase,
-    selectCase, showPun, toggleShowPun, lockSelectedCase,
-    timeElapsed, niveau, matchEncours: matchEnCours, infomatch, tpsglobal,
-  }), [
-    casesdujeuencours, casesinitiales, pieces, selectedCase,
-    selectCase, showPun, toggleShowPun, lockSelectedCase,
-    timeElapsed, niveau, matchEnCours, infomatch, tpsglobal,
-  ]);
+    const gamePlayProps = useMemo(() => ({
+        cases: casesdujeuencours, casesun: casesinitiales, pieces, selectedCase,
+        selectCase, showPun, toggleShowPun, lockSelectedCase,
+        timeElapsed, niveau, matchEncours: matchEnCours, infomatch, tpsglobal,
+    }), [
+        casesdujeuencours, casesinitiales, pieces, selectedCase,
+        selectCase, showPun, toggleShowPun, lockSelectedCase,
+        timeElapsed, niveau, matchEnCours, infomatch, tpsglobal,
+    ]);
 
     return {
         gamePlayProps,

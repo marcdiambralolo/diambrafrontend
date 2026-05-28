@@ -115,7 +115,7 @@ const SchemaScript = memo(function SchemaScript() {
         "@id": `${SITE_CONFIG.url}/#website`,
         name: SITE_CONFIG.name,
         url: SITE_CONFIG.url,
-        description: "Jeu en ligne - Remplissez quatre cases avec des chiffres sans répétition",
+        description: "Jeu en ligne - Remplissez trois cases avec des chiffres sans répétition",
         inLanguage: "fr-FR",
         potentialAction: {
           "@type": "SearchAction",

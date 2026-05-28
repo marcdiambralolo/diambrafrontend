@@ -112,11 +112,11 @@ export function WelcomePageClientContent() {
         <section id="regles" className="mt-16 reveal-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-black text-gray-800">📜 Règles du jeu</h2>
-            <p className="text-gray-500 mt-2">4 cases, 10 chiffres, 1 combinaison gagnante</p>
+            <p className="text-gray-500 mt-2">3 cases, 10 chiffres, 1 combinaison gagnante</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Pill icon={<Grid className="h-5 w-5" />} title="4 cases à remplir" desc="Chaque partie comporte 4 cases vides." tooltip="Les cases sont numérotées de 1 à 4" delay={0} />
-            <Pill icon={<Brain className="h-5 w-5" />} title="Chiffres 0 à 9" desc="10 chiffres disponibles, 4 utilisés." tooltip="Utilisez votre logique" delay={50} />
+            <Pill icon={<Grid className="h-5 w-5" />} title="3 cases à remplir" desc="Chaque partie comporte 3 cases vides." tooltip="Les cases sont numérotées de 1 à 3" delay={0} />
+            <Pill icon={<Brain className="h-5 w-5" />} title="Chiffres 0 à 9" desc="10 chiffres disponibles, 3 utilisés." tooltip="Utilisez votre logique" delay={50} />
             <Pill icon={<TrophyIcon className="h-5 w-5" />} title="Pas de répétition" desc="Un chiffre = une seule utilisation." tooltip="Chaque chiffre est unique" delay={100} />
           </div>
         </section>
@@ -153,11 +153,11 @@ export function WelcomePageClientContent() {
               <div className="font-semibold text-purple-700 mt-2">chiffres disponibles</div>
             </div>
             <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 hover:scale-105 transition-transform">
-              <div className="text-5xl font-black text-indigo-600">4</div>
+              <div className="text-5xl font-black text-indigo-600">3</div>
               <div className="font-semibold text-indigo-700 mt-2">cases à remplir</div>
             </div>
             <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-100 hover:scale-105 transition-transform">
-              <div className="text-5xl font-black text-purple-600">5 040</div>
+              <div className="text-5xl font-black text-purple-600">720</div>
               <div className="font-semibold text-purple-700 mt-2">combinaisons possibles</div>
             </div>
           </div>

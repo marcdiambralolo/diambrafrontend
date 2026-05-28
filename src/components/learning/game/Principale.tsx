@@ -80,15 +80,7 @@ const GamePlayView = memo(({
           </h2>
 
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            {!showPun && (
-              <ActionButton
-                onClick={lockSelectedCase}
-                variant="primary"
-                ariaLabel="Ajuster la sélection"
-              >
-                Ajuster
-              </ActionButton>
-            )}
+
 
             <ActionButton
               onClick={toggleShowPun}
@@ -98,6 +90,16 @@ const GamePlayView = memo(({
               {showPun ? "Jouer" : "Voir P1"}
             </ActionButton>
 
+            {!showPun && (
+              <ActionButton
+                onClick={lockSelectedCase}
+                variant="primary"
+                ariaLabel="Ajuster la sélection"
+              >
+                Ajuster
+              </ActionButton>
+            )}
+            
             <div className="font-bold text-blue-600 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
               <span className="text-sm">⏱</span>
               <span>{formatTime(timeElapsed)}</span>

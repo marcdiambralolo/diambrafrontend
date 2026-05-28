@@ -107,27 +107,27 @@ export default function AboutPageClient() {
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-black text-purple-900">📜 Règles du jeu</h2>
             <p className="mx-auto mt-2 max-w-2xl text-sm text-purple-600">
-              4 cases, 10 chiffres, 1 combinaison gagnante
+              3 cases, 10 chiffres, 1 combinaison gagnante
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <Pill
               icon={<Grid className="h-5 w-5" />}
-              title="4 cases à remplir"
-              desc="Chaque partie comporte 4 cases vides à compléter."
-              tooltip="Les cases sont numérotées de 1 à 4"
+              title="3 cases à remplir"
+              desc="Chaque partie comporte 3 cases vides à compléter."
+              tooltip="Les cases sont numérotées de 1 à 3"
             />
             <Pill
               icon={<Brain className="h-5 w-5" />}
               title="Chiffres de 0 à 9"
-              desc="10 chiffres disponibles, mais seulement 4 seront utilisés."
-              tooltip="10 chiffres disponibles, mais seulement 4 seront utilisés."
+              desc="10 chiffres disponibles, mais seulement 3 seront utilisés."
+              tooltip="10 chiffres disponibles, mais seulement 3 seront utilisés."
             />
             <Pill
               icon={<TrophyIcon className="h-5 w-5" />}
               title="Pas de répétition"
               desc="Un même chiffre ne peut être utilisé qu'une seule fois."
-              tooltip="10 chiffres disponibles, mais seulement 4 seront utilisés."
+              tooltip="10 chiffres disponibles, mais seulement 3 seront utilisés."
             />
           </div>
         </section>
@@ -136,7 +136,7 @@ export default function AboutPageClient() {
           <ConicPanel>
             <h2 className="text-2xl font-black text-purple-900">🎯 Comment jouer ?</h2>
             <p className="mt-3 text-sm leading-relaxed text-purple-700">
-              Remplissez les quatre cases avec des chiffres de 0 à 9 sans jamais les répéter.
+              Remplissez les trois cases avec des chiffres de 0 à 9 sans jamais les répéter.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-1">
               <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
@@ -155,11 +155,11 @@ export default function AboutPageClient() {
                 <div className="text-sm font-semibold text-purple-700 mt-1">chiffres disponibles</div>
               </div>
               <div className="text-center p-4 rounded-2xl bg-indigo-50">
-                <div className="text-4xl font-black text-indigo-600">4</div>
+                <div className="text-4xl font-black text-indigo-600">3</div>
                 <div className="text-sm font-semibold text-indigo-700 mt-1">cases à remplir</div>
               </div>
               <div className="text-center p-4 rounded-2xl bg-purple-50">
-                <div className="text-4xl font-black text-purple-600">5 040</div>
+                <div className="text-4xl font-black text-purple-600">720</div>
                 <div className="text-sm font-semibold text-purple-700 mt-1">combinaisons possibles</div>
               </div>
             </div>

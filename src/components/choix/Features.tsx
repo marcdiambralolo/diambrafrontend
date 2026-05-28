@@ -1,6 +1,6 @@
 'use client';
-import { ANIMATION_CONFIG, toastVariants } from '@/hooks/choix/useCategoryConsulterClient';
-import { DIGITS } from "@/hooks/game/useNumberGridGame";
+import { ANIMATION_CONFIG, DIGITS, toastVariants } from '@/hooks/choix/useCategoryConsulterClient';
+ 
 import { staggerContainer } from '@/lib/animations';
 import { formatNumber } from "@/lib/functions";
 import { AnimatePresence, motion } from 'framer-motion';

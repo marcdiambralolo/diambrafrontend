@@ -45,7 +45,7 @@ export function useTermsSections(): TermsSection[] {
         <>
           <p>Diambra est un jeu où vous devez : </p>
           <List items={[
-            'Remplir 4 cases avec des chiffres de 0 à 9',
+            'Remplir 3 cases avec des chiffres de 0 à 9',
             'Ne jamais répéter le même chiffre',
           ]} />
         </>

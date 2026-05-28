@@ -184,6 +184,26 @@ export interface GameConfiguration {
   isActive: boolean;
   status: 'pending' | 'active' | 'ended' | 'cancelled';
 }
+ 
+
+export interface LearningConfiguration {
+    id?: string;
+    _id?: string;
+    startgameDate: Date;
+    endgameDate: Date;
+    sequence?: string;
+    niveau?: number;
+    numeromatch?: string;
+    tpsglobal?: number;
+    pieces?: string[];
+    isActive: boolean;
+    status: 'pending' | 'active' | 'ended' | 'cancelled';
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export type LearningConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
+export type ToastType = 'success' | 'error' | 'info';
 
 export interface LastEndedGame {
   id: string;
@@ -381,4 +401,5 @@ export interface MenuItem {
   icon: React.ReactNode;
   tpsglobal?: number;
   color: string;
+  gradient?: string;
 }

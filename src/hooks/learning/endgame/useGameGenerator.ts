@@ -8,9 +8,9 @@ const GAME_ROUTES = {
     GAME_BASE: '/star/learning/game',
 } as const;
 
-export const useGameGenerator = () => {
+export const useEndGameGenerator = () => {
     const router = useRouter();
-    const { completedMatches } = useMonEtoileStore();
+   
     const currentYear = useMemo(() => new Date().getFullYear(), []);
 
     const handleBack = useCallback(() => {
@@ -28,11 +28,11 @@ export const useGameGenerator = () => {
     const navigateToResults = useCallback(() => {
         router.push(GAME_ROUTES.ENDGAME);
     }, [router]);
-
-      const displayMatches = useMemo(() =>
-    completedMatches?.length ? completedMatches : [],
-    [completedMatches]
-  );
+ const { completedMatches } = useMonEtoileStore();
+    const displayMatches = useMemo(() =>
+        completedMatches?.length ? completedMatches : [],
+        [completedMatches]
+    );
 
     return {
         handleBack,

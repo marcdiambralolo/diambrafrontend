@@ -1,5 +1,5 @@
-import Principale from "@/components/learning/Principale";
+import ProfilPageLearning from "@/components/learning/ProfilPageLearning";
 
 export default function PagePrincipale() {
-  return (<Principale />);
+  return (<ProfilPageLearning />);
 }

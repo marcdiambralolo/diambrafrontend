@@ -1,24 +1,16 @@
 import useTimer from "@/hooks/learning/useTimer";
 import { Case, MatchInfo } from '@/lib/interfaces';
 import { decoupelimage } from "@/lib/learning/functions";
-import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
+import { createInitialCases, createMatch, createPlayableCases, generateMatchId, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useGameConfig } from "./useGame";
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 
-export const useGameGenerator = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    // Store actions
+export const useGameGenerator = (niveau: number, tpsglobal: number) => {
     const { saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
-
-    const niveau = Number(searchParams.get('niveau')) || 5;
-    const tpsglobal = Number(searchParams.get('tpsglobal') || "0");
-
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
-
+    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
     const [loading, setLoading] = useState(false);
     const [casesdujeuencours, setCasesdujeuencours] = useState<Case[]>([]);
     const [casesinitiales, setCasesinitiales] = useState<Case[]>([]);
@@ -27,6 +19,7 @@ export const useGameGenerator = () => {
     const [datedebut, setDatedebut] = useState<string>("");
     const [start, setStart] = useState(false);
     const [showPun, setShowPun] = useState(false);
+    const [jeuestfinie, setJeuestfinie] = useState(false);
     const [matchEnCours, setMatchEnCours] = useState(-1);
     const [infomatch, setInfomatch] = useState<MatchInfo[]>([]);
 
@@ -42,7 +35,6 @@ export const useGameGenerator = () => {
 
         if (index1 === -1 || index2 === -1) return;
 
-        // Validation des indices
         if (index1 >= casesinitiales.length || index2 >= casesinitiales.length) {
             console.warn("Indices hors limites pour casesinitiales");
             return;
@@ -50,7 +42,6 @@ export const useGameGenerator = () => {
 
         setCasesdujeuencours((prevCases) =>
             prevCases.map((c, index) => {
-                // Case à index1 reçoit le texte de c2
                 if (index === index1) {
                     const newTxt = c2.txt;
                     // ✅ Compare avec casesinitiales à l'index correspondant
@@ -172,10 +163,6 @@ export const useGameGenerator = () => {
         setSelectedCase(null);
     }, [showPun, shuffleUnlockedCases]);
 
-    const handleBack = useCallback(() => {
-        router.push('/star/learning');
-    }, []);
-
     const chargerMatch = useCallback((matchData: MatchInfo) => {
         if (!matchData) return;
 
@@ -186,19 +173,20 @@ export const useGameGenerator = () => {
         setCasesdujeuencours(casesJeu);
         setCasesinitiales(casesInit);
         setPieces(piecesMatch);
-        // setFinmatch(false);
         setSelectedCase(null);
         setShowPun(false);
     }, []);
 
     const generateMatchList = useCallback((tpsglobal: number): MatchInfo[] => {
+
+        const matchId = gameConfig?.numeromatch || "123456789";
+        console.log(matchId);
         if (tpsglobal === 4) {
             // Mode global : tous les types de jeu
-            return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index));
+            return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
         }
-
         // Mode simple : un seul type de jeu
-        return [createMatch(0, tpsglobal)];
+        return [createMatch(0, tpsglobal, matchId)];
     }, []);
 
     const loadMatch = useCallback(async (
@@ -210,7 +198,6 @@ export const useGameGenerator = () => {
         if (match.tpsglobal === undefined || match.numeromatch === undefined) {
             throw new Error("Match incomplet: tpsglobal ou numeromatch manquant");
         }
-
         // Calcul des paramètres
         const totalCases = getTotalCases(match.tpsglobal, niveau);
         const gridSize = niveau * niveau;
@@ -262,7 +249,7 @@ export const useGameGenerator = () => {
 
         // Tous les matchs sont terminés
         if (matchEnCours >= infomatch.length) {
-            window.location.href = '/star/learning/endgame';
+            setJeuestfinie(true);
         }
     }, [matchEnCours, infomatch.length]);
 
@@ -295,7 +282,7 @@ export const useGameGenerator = () => {
                 saveFinalResults(updatedMatches, datedebut, datefin);
                 // Dernier match
                 // setFinmatch(true);
-                window.location.href = '/star/learning/endgame';
+                setJeuestfinie(true);
             } else {
                 // Passer au match suivant
                 setTimeout(() => {
@@ -340,10 +327,6 @@ export const useGameGenerator = () => {
         lancerJeu();
     }, [niveau, chargerMatch]);
 
-    const handleClick = () => {
-        window.location.href = '/star/learning';
-    };
-
     const gamePlayProps = useMemo(() => ({
         cases: casesdujeuencours, casesun: casesinitiales, pieces, selectedCase,
         selectCase, showPun, toggleShowPun, lockSelectedCase,
@@ -354,9 +337,5 @@ export const useGameGenerator = () => {
         timeElapsed, niveau, matchEnCours, infomatch, tpsglobal,
     ]);
 
-    return {
-        gamePlayProps,
-        lockSelectedCase, selectCase, handleBack, toggleShowPun, handleClick, pieces, showPun, currentYear, datedebut,
-        loading, niveau, tpsglobal, matchEnCours, infomatch, casesdujeuencours, casesinitiales, selectedCase, timeElapsed,
-    };
+    return { gamePlayProps, jeuestfinie, };
 };

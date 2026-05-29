@@ -3,12 +3,8 @@ import { formatDateFRJeu, formatDateTime, formatEditionDate, formatNumber } from
 import { LastEndedGame, Winner } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Award, Calendar, Clock, Crown, FileText,
-    Gift, History, Hourglass, Zap,
-    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, TrendingUp, Trophy, Users,
-    ArrowRight,
-    Flame,
-    Users2,
+    Award, Calendar, Clock, Crown, FileText, Gift, History, Hourglass,
+    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, Trophy, Users, Zap
 } from "lucide-react";
 import React, { memo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
@@ -36,9 +32,6 @@ export const ErrorState = memo(({ onRefresh }: { onRefresh: () => void }) => (
     </div>
 ));
 
-ErrorState.displayName = 'ErrorState';
-
-
 export const TitleSection = memo(({ showEnded }: { showEnded: boolean }) => (
     <motion.div
         initial={{ opacity: 0, y: -30 }}
@@ -61,8 +54,6 @@ export const TitleSection = memo(({ showEnded }: { showEnded: boolean }) => (
     </motion.div>
 ));
 
-TitleSection.displayName = 'TitleSection';
-
 interface BannersSectionProps {
     showNotStarted: boolean;
     showActive: boolean;
@@ -74,6 +65,7 @@ interface BannersSectionProps {
     stats: any;
     onOpenGame: () => void;
     onEndMatch: () => void;
+    demarrerJeu: () => void;
 }
 
 export const BannersSection = memo(({
@@ -87,9 +79,8 @@ export const BannersSection = memo(({
     stats,
     onOpenGame,
     onEndMatch,
+    demarrerJeu
 }: BannersSectionProps) => {
-
-
     const getActiveBanner = () => {
         // Priorité 1: Édition terminée
         if (showEnded) {
@@ -106,6 +97,7 @@ export const BannersSection = memo(({
                     startDate={startDate}
                     formatDate={formatDateFRJeu}
                     gameConfig={gameConfig}
+                    demarrerlejeu={demarrerJeu}
                 />
             );
         }
@@ -142,21 +134,18 @@ export const BannersSection = memo(({
     );
 });
 
-BannersSection.displayName = 'BannersSection';
-
 interface EditionCardProps {
     activeEdition: {
         id: string;
         startDate: string;
         endDate: string;
     };
-    winningCombination: string | null;
 }
 
-export const EditionCard = memo(({ activeEdition, winningCombination }: EditionCardProps) => (
+export const EditionCard = memo(({ activeEdition }: EditionCardProps) => (
     <motion.div
         variants={fadeInUp}
-        className="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-600 to-gray-600 p-5 shadow-xl"
+        className="mb-8 mt-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-600 to-gray-600 p-5 shadow-xl"
     >
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -167,19 +156,9 @@ export const EditionCard = memo(({ activeEdition, winningCombination }: EditionC
                     </p>
                 </div>
             </div>
-            {winningCombination && (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Award className="w-4 h-4 text-white" />
-                    <span className="text-xs font-semibold text-white">
-                        Combinaison Gagnante : {winningCombination}
-                    </span>
-                </div>
-            )}
         </div>
     </motion.div>
 ));
-
-EditionCard.displayName = 'EditionCard';
 
 interface WinnersSectionProps {
     hasWinners: boolean;
@@ -205,9 +184,7 @@ export const WinnersSection = memo(({
             >
                 <Gift className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Aucun gagnant</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                    Personne n'a trouvé la bonne combinaison dans cette édition.
-                </p>
+
             </motion.div>
         );
     }
@@ -237,8 +214,6 @@ export const WinnersSection = memo(({
         </motion.div>
     );
 });
-
-WinnersSection.displayName = 'WinnersSection';
 
 interface ParticipationsSectionProps {
     consultations: any[];
@@ -281,45 +256,6 @@ export const ParticipationsSection = memo(({ consultations, activeEditionId }: P
         )}
     </motion.div>
 ));
-
-ParticipationsSection.displayName = 'ParticipationsSection';
-
-interface StatCard2Props {
-    icon: React.ReactNode;
-    label: string;
-    value: string | number;
-    subValue?: string;
-    color: string;
-    delay?: number;
-    trend?: number;
-}
-
-export const StatCard2 = ({ icon, label, value, subValue, color, delay = 0, trend }: StatCard2Props) => (
-    <motion.div
-        variants={fadeInUp}
-        custom={delay}
-        whileHover={{ y: -5, scale: 1.02 }}
-        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-5 text-white shadow-xl group cursor-pointer`}
-    >
-        <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
-        <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-                <div className="p-2 rounded-xl bg-white/20 backdrop-blur-sm">
-                    {icon}
-                </div>
-                {trend !== undefined && (
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${trend >= 0 ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
-                        <TrendingUp className={`w-3 h-3 ${trend < 0 && 'rotate-180'}`} />
-                        <span>{Math.abs(trend)}%</span>
-                    </div>
-                )}
-            </div>
-            <div className="text-3xl font-black tracking-tight">{value}</div>
-            <div className="text-xs font-medium opacity-90 mt-1">{label}</div>
-            {subValue && <div className="text-[10px] opacity-75 mt-2">{subValue}</div>}
-        </div>
-    </motion.div>
-);
 
 export const WinningCombinationCard = ({ combination }: { combination: string }) => (
     <motion.div
@@ -684,12 +620,13 @@ export const CountdownTimerLight = ({ monjeuid, targetDate, onFinish }: { monjeu
     return (<div className="relative"></div>);
 };
 
-const GlowButton = ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <motion.a
-        href={href}
+const GlowButton = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
+    <motion.button
+        onClick={onClick}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className="group relative block w-full"
+        type="button"
     >
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
         <div className="relative flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 via-green-500 to-green-800 rounded-xl text-white font-bold text-lg shadow-2xl overflow-hidden">
@@ -708,10 +645,10 @@ const GlowButton = ({ children, href }: { children: React.ReactNode; href: strin
                 <Zap className="w-5 h-5" />
             </motion.div>
         </div>
-    </motion.a>
+    </motion.button>
 );
 
-export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig }: any) => (
+export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig, demarrerlejeu }: any) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.95, rotateX: -15 }}
         animate={{ opacity: 1, scale: 1, rotateX: 0 }}
@@ -719,73 +656,10 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
         transition={{ duration: 0.5, type: "spring" }}
         className="relative mb-8"
     >
-        {/* Fond avec effet 3D amélioré */}
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-3xl blur-2xl opacity-75 animate-pulse" />
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-2xl opacity-50 animate-pulse animation-delay-1000" />
 
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-600 via-orange-600 to-red-600 p-0.5 shadow-2xl">
-            {/* Effet de brillance */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
-
-            {/* Pattern de fond avec étincelles */}
-            <div className="absolute inset-0 opacity-15">
-                <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl animate-pulse animation-delay-2000" />
-                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern id="stars" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <circle cx="2" cy="2" r="1" fill="white" opacity="0.8" />
-                            <circle cx="20" cy="15" r="0.8" fill="white" opacity="0.5" />
-                            <circle cx="35" cy="30" r="1.2" fill="white" opacity="0.6" />
-                            <circle cx="10" cy="35" r="0.5" fill="white" opacity="0.4" />
-                            <circle cx="30" cy="8" r="0.7" fill="white" opacity="0.7" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#stars)" />
-                </svg>
-            </div>
-
             <div className="relative bg-gradient-to-br from-amber-600/90 to-red-600/90 backdrop-blur-sm p-6 rounded-3xl">
-                {/* Header avec animation - BADGES */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                    <motion.div
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        className="flex items-center gap-3"
-                    >
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md animate-ping" />
-                            <div className="relative rounded-full bg-gradient-to-br from-green-400 to-green-800 p-3 shadow-xl">
-                                <Users2 className="w-6 h-6 text-white" />
-                            </div>
-                        </div>
-                        <div>
-                            <motion.div
-                                animate={{ scale: [1, 1.05, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                                className="text-sm font-bold text-white/90 uppercase tracking-wider"
-                            >
-                                DIAMBRA LEARNING
-                            </motion.div>
-                        </div>
-                    </motion.div>
 
-                    {/* Badge Numéro de match */}
-                    {gameConfig?.numeromatch && (
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", delay: 0.2 }}
-                            className="bg-white/20 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/30"
-                        >
-                            <span className="text-xs font-mono font-bold text-white">
-                                🆔Numero du Match : {gameConfig.numeromatch}
-                            </span>
-                        </motion.div>
-                    )}
-                </div>
-
-                {/* Informations principales - CARTES BRILLANTES */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -795,12 +669,9 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     >
                         <div className="text-center">
                             <div className="text-3xl mb-1">🎮</div>
-                            <div className="text-[10px] text-white/70 uppercase tracking-wider">Type de jeu</div>
+                            <div className="text-[10px] text-white/70 uppercase tracking-wider">N° Match</div>
                             <div className="text-sm font-bold text-white">
-                                {gameConfig?.tpsglobal === 0 ? 'Nombre' :
-                                    gameConfig?.tpsglobal === 1 ? 'Couleur' :
-                                        gameConfig?.tpsglobal === 2 ? 'Image' :
-                                            gameConfig?.tpsglobal === 3 ? 'Lettre' : 'Global'}
+                                {gameConfig.numeromatch}
                             </div>
                         </div>
                     </motion.div>
@@ -819,9 +690,6 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     </motion.div>
                 </div>
 
-
-
-                {/* Countdown Timer */}
                 <CountdownTimerLight
                     monjeuid={gameConfig?.id || ''}
                     targetDate={endDate}
@@ -829,34 +697,16 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     onFinish={handleEndMatch}
                 />
 
-                {/* Call to Action - BOUTON WAOUH */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, type: "spring" }}
                 >
-                    <GlowButton href="/star/learning/bonchoix">
+                    <GlowButton onClick={demarrerlejeu}>
                         🚀 PARTICIPEZ MAINTENANT
                     </GlowButton>
                 </motion.div>
 
-                {/* Durée - Carte spéciale */}
-                {gameConfig?.duration && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring" }}
-                        className="bg-gradient-to-r mt-4 from-white/20 to-white/10 backdrop-blur-md rounded-2xl p-3 mb-6 text-center border border-white/30"
-                    >
-                        <div className="flex items-center justify-center gap-2">
-                            <span className="text-yellow-300 animate-pulse">⏰</span>
-                            <span className="text-xs text-white/80">Durée de la competition : </span>
-                            <span className="text-sm font-black text-yellow-300">{gameConfig.duration}</span>
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Dates avec icônes animées */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

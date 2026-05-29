@@ -3,7 +3,7 @@
 // - Fallback offline, gestion fine de l'expiration, éviction LRU, sécurité headers
 // - Incrémentez CACHE_VERSION pour forcer la mise à jour
 
-const CACHE_VERSION = 'v93';
+const CACHE_VERSION = 'v100';
 const CACHE_STATIC = `diambra-${CACHE_VERSION}-static`;
 const CACHE_IMAGES = `diambra-${CACHE_VERSION}-images`;
 

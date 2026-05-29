@@ -122,7 +122,6 @@ export function useLearningConfig() {
         try {
            setLoading(true);
             const response = await api.get('learning-configurations');
-            console.log('API Response:', response.data);
             
             // Extraction correcte des données
             let configurations: LearningConfiguration[] = [];
@@ -141,7 +140,6 @@ export function useLearningConfig() {
                 normalizeConfigDates(config) as LearningConfiguration
             );
             
-            console.log('Configurations normalisées:', normalized);
             setConfigs(normalized);
         } catch {
             showToast('Impossible de charger les configurations', 'error');
@@ -151,7 +149,6 @@ export function useLearningConfig() {
     };
 
     const handleCreate = async (data: Partial<LearningConfiguration>) => {
-        console.log(data);
         try {
             const submitData = {
                 ...data,

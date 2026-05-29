@@ -4,20 +4,19 @@ import { api } from '@/lib/api/client';
 import { ActiveEdition, Consultation, EndedGameResponse, LastEndedGame, LastEndedResponse, StatisticsData, WinnersData } from '@/lib/interfaces';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameConfig } from './useGame';
- 
- 
 
 export const ITEMS_PER_PAGE = 10000;
 
 export function useAdminConsultationsPageFinished() {
-  const { stats, isLoading: statsLoading } = useStatsDataWithCache();
-  const { data: gameConfig, isLoading: configLoading, error: configError } = useGameConfig();
-console.log(gameConfig);
+  const { stats } = useStatsDataWithCache();
+  const { data: gameConfig, error: configError } = useGameConfig();
+
   const isMountedRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const endGameCalledRef = useRef(false);
 
   const [gameStarted, setGameStarted] = useState(false);
+  const [jeuAcommencer, setJeuAcommencer] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [activeEdition, setActiveEdition] = useState<ActiveEdition | null>(null);
@@ -30,7 +29,6 @@ console.log(gameConfig);
   const [isEndingGame, setIsEndingGame] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Mettre à jour l'heure actuelle toutes les secondes
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentTime(new Date());
@@ -101,7 +99,6 @@ console.log(gameConfig);
     [showNotStarted, startDate]
   );
 
-  // 🔥 Fonction unique pour rafraîchir toutes les données
   const refreshAllData = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -139,7 +136,6 @@ console.log(gameConfig);
     }
   }, [isRefreshing]);
 
-  // 🔥 Fonction pour terminer l'édition dans le backend
   const endGameInBackend = useCallback(async () => {
     if (!gameConfig?._id || isEndingGame || endGameCalledRef.current) return;
 
@@ -150,7 +146,6 @@ console.log(gameConfig);
       const data = response.data as any;
 
       if (data?.success) {
-        console.log('Édition terminée avec succès');
         endGameCalledRef.current = true;
         setMatchFinished(true);
         // 🔥 Recharger les données immédiatement
@@ -158,7 +153,6 @@ console.log(gameConfig);
       }
     } catch (err: any) {
       if (err?.response?.status === 409) {
-        console.log('L\'édition était déjà terminée');
         endGameCalledRef.current = true;
         setMatchFinished(true);
         await refreshAllData();
@@ -183,12 +177,6 @@ console.log(gameConfig);
     }
   }, [matchFinished, isEndingGame, endGameInBackend]);
 
-  const handleRefresh = useCallback(() => {
-    refreshAllData();
-    endGameCalledRef.current = false;
-  }, [refreshAllData]);
-
-  // 🔥 Détection de fin d'édition
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
       !matchFinished &&
@@ -196,12 +184,10 @@ console.log(gameConfig);
       gameConfig?._id;
 
     if (shouldEnd) {
-      console.log('Détection de fin d\'édition');
       endGameInBackend();
     }
   }, [isGameEnded, currentTime, endDate, matchFinished, endGameInBackend, gameConfig?._id]);
 
-  // 🔥 Rechargement périodique pour les mises à jour (toutes les 5 secondes)
   useEffect(() => {
     const reloadInterval = setInterval(() => {
       if (!isRefreshing && !isEndingGame) {
@@ -212,7 +198,6 @@ console.log(gameConfig);
     return () => clearInterval(reloadInterval);
   }, [isRefreshing, isEndingGame, refreshAllData]);
 
-  // Chargement initial
   useEffect(() => {
     isMountedRef.current = true;
     refreshAllData();
@@ -222,34 +207,19 @@ console.log(gameConfig);
     };
   }, [refreshAllData]);
 
-  // Démarrage automatique quand l'édition devient active
   useEffect(() => {
     if (showActive && !gameStarted && !hasNotStartedEdition) {
       setGameStarted(true);
     }
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
+  const demarrerJeu = useCallback(() => {
+    setJeuAcommencer(true);
+  }, []);
+
   return {
-    handleOpenGame,
-    handleEndMatch,
-    handleRefresh,
-    isLoading: loading || statsLoading || configLoading,
-    startDate,
-    endDate,
-    error: error || configError,
-    hasWinners,
-    winningCombination,
-    hasNotStartedEdition,
-    showEnded,
-    showNotStarted,
-    stats,
-    gameConfig,
-    consultations,
-    activeEdition,
-    winners,
-    statistics,
-    lastEndedGame,
-    gameStarted,
-    currentTime,
+    error: error || configError, handleOpenGame, handleEndMatch, demarrerJeu, jeuAcommencer,
+    stats, startDate, endDate, gameConfig, lastEndedGame, winningCombination, gameStarted,
+    showEnded, consultations, activeEdition, winners, hasNotStartedEdition, hasWinners,
   };
 }

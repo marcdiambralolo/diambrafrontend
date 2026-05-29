@@ -4,7 +4,6 @@ import { generateLetterPairs } from "@/lib/learning/functions";
 import { Case, MatchInfo } from "@/lib/learning/interface";
 import { TrophyOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import { Home } from "lucide-react";
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -88,8 +87,6 @@ export const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, mode, pieces 
     );
 });
 
-UnecaseFixe.displayName = "UnecaseFixe";
-
 export const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
     const caseRef = useRef<HTMLDivElement>(null);
     const letterPairs = generateLetterPairs();
@@ -170,8 +167,6 @@ export const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, si
     );
 });
 
-Unecase.displayName = "Unecase";
-
 interface PloaderFixeProps {
     niveau: number;
     casesun: Case[];
@@ -208,8 +203,6 @@ export const PloaderFixe = memo(({ niveau, casesun, pieces }: PloaderFixeProps) 
         </div>
     );
 });
-
-PloaderFixe.displayName = "PloaderFixe";
 
 interface PloaderProps {
     niveau: number;
@@ -252,13 +245,9 @@ export const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCas
     );
 });
 
-Ploader.displayName = "Ploader";
-
 const EmptyState = memo(({ message }: { message: string }) => (
     <div className="text-center text-gray-600 py-8">{message}</div>
 ));
-
-EmptyState.displayName = "EmptyState";
 
 export const ObjectiveCard = memo(() => (
     <div className="relative group">
@@ -277,8 +266,6 @@ export const ObjectiveCard = memo(() => (
         </div>
     </div>
 ));
-
-ObjectiveCard.displayName = "ObjectiveCard";
 
 export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
     icon: React.ReactNode;
@@ -301,8 +288,6 @@ export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
         </div>
     </motion.div>
 ));
-
-InfoRowGame.displayName = "InfoRow";
 
 interface ActionButtonProps {
     onClick: () => void;
@@ -330,34 +315,7 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
             {children}
         </motion.button>
     );
-});
-
-ActionButton.displayName = "ActionButton";
-
-export const HeaderButton = memo(({ onClick }: { onClick: () => void }) => (
-    <motion.button
-        onClick={onClick}
-        className="group relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300"
-        whileHover={{ scale: 1.05, rotate: 5 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label="Retour à l'accueil"
-    >
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <Home className="relative w-5 h-5 text-white" />
-    </motion.button>
-));
-
-HeaderButton.displayName = "HeaderButton";
-
-export const TitleSection = memo(() => (
-    <div className="flex items-center gap-3">
-        <span className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-            DIAMBRA LEARNING
-        </span>
-    </div>
-));
-
-TitleSection.displayName = "TitleSection";
+}); 
 
 export const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
     <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
@@ -365,21 +323,6 @@ export const StatusBadge = memo(({ text, color }: { text: string; color: string 
         {text}
     </div>
 ));
-
-StatusBadge.displayName = "StatusBadge";
-
-export const BackButton = memo(({ onClick }: { onClick: () => void }) => (
-    <motion.button
-        onClick={onClick}
-        className="mt-4 mb-4 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm font-medium text-gray-700"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-    >
-        ← Retour au menu
-    </motion.button>
-));
-
-BackButton.displayName = "BackButton";
 
 export const FooterSection = memo(({ currentYear, onlineStatus }: { currentYear: number; onlineStatus: { text: string; color: string } }) => (
     <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
@@ -395,32 +338,6 @@ export const FooterSection = memo(({ currentYear, onlineStatus }: { currentYear:
         </p>
     </footer>
 ));
-
-FooterSection.displayName = "FooterSection";
-
-export const InfoRowEndgame = memo(({ label, value }: { label: string; value: string | number | undefined }) => (
-    <div className="flex justify-between py-2 border-b border-gray-200 last:border-0">
-        <span className="font-semibold text-gray-700">{label}:</span>
-        <span className="text-gray-900 font-medium">{value ?? 'N/A'}</span>
-    </div>
-));
-
-InfoRowEndgame.displayName = "InfoRowEndgame";
-
-export const EmptyStateEndGame = memo(() => (
-    <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="text-center text-gray-600 text-lg font-semibold mt-6 uppercase py-12 bg-gray-50 rounded-xl"
-        role="alert"
-        aria-live="polite"
-    >
-        🎮 Aucun jeu disponible
-    </motion.div>
-));
-
-EmptyStateEndGame.displayName = "EmptyState";
 
 interface MatchViewProps {
     matchData: MatchInfo;
@@ -494,8 +411,6 @@ export const MatchView = memo(({ matchData, index }: MatchViewProps) => {
     );
 });
 
-MatchView.displayName = "MatchView";
-
 interface PloaderEndGameProps {
     match: MatchInfo;
     initiale?: boolean;
@@ -537,5 +452,3 @@ export const PloaderEndGame = memo(({ match, initiale = false }: PloaderEndGameP
         </div>
     );
 });
-
-PloaderEndGame.displayName = "Ploader"; 

@@ -148,7 +148,6 @@ export function useAdminConsultationsPageFinished() {
       const data = response.data as any;
 
       if (data?.success) {
-        console.log('Édition terminée avec succès');
         endGameCalledRef.current = true;
         setMatchFinished(true);
         // 🔥 Recharger les données immédiatement
@@ -156,7 +155,6 @@ export function useAdminConsultationsPageFinished() {
       }
     } catch (err: any) {
       if (err?.response?.status === 409) {
-        console.log('L\'édition était déjà terminée');
         endGameCalledRef.current = true;
         setMatchFinished(true);
         await refreshAllData();
@@ -194,7 +192,6 @@ export function useAdminConsultationsPageFinished() {
       gameConfig?._id;
 
     if (shouldEnd) {
-      console.log('Détection de fin d\'édition');
       endGameInBackend();
     }
   }, [isGameEnded, currentTime, endDate, matchFinished, endGameInBackend, gameConfig?._id]);

@@ -2,16 +2,13 @@ import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
 import { api } from '@/lib/api/client';
 import { walletService } from '@/lib/api/services/wallet.service';
-import type { MenuItem, OfferingAlternative, WalletOffering } from '@/lib/interfaces';
+import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
 import { LastEndedGame } from "@/lib/interfaces";
+import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCommon } from '../useCommon';
 import { useGameConfig } from '../useGame';
-
-// ============================================================================
-// CONSTANTES EXTERNES (ne changent jamais)
-// ============================================================================
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -38,10 +35,6 @@ export const toastVariants = {
     exit: { opacity: 0, x: 100, scale: 0.95, transition: { duration: ANIMATION_CONFIG.duration.fast } }
 } as const;
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface WalletState {
     loading: boolean;
     error: string | null;
@@ -64,37 +57,34 @@ const initialState: WalletState = {
     walletOfferings: [],
 };
 
-// ============================================================================
-// HOOK PRINCIPAL OPTIMISÉ
-// ============================================================================
-
 export function useCategoryConsulterClient() {
     const router = useRouter();
-    const { stats, isLoading: statsLoading } = useStatsDataWithCache();
+    const { isLoading: statsLoading } = useStatsDataWithCache();
     const { data: gameConfig, isLoading: configLoading } = useGameConfig();
     const { randomImage, onlineStatus } = useCommon();
 
-    // Refs pour éviter les re-rendus
+    const {
+        tpsglobal: storeTpsglobal,
+        niveau: storeNiveau,
+        setTpsglobal: setStoreTpsglobal,
+        setGameParams,
+    } = useMonEtoileStore();
+
     const isMountedRef = useRef(true);
     const timerRef = useRef<NodeJS.Timeout>();
 
-    // États groupés par domaine
     const [walletState, setWalletState] = useState<WalletState>(initialState);
     const [gameStarted, setGameStarted] = useState(false);
-    const [matchFinished, setMatchFinished] = useState(false);
     const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
     const [loadingLastEnded, setLoadingLastEnded] = useState(true);
-     const [jouer, setJouer] = useState(false);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const [tpsglobal, setTpsglobal] = useState(0);
- 
-
-    // ==========================================================================
-    // VALEURS DÉRIVÉES AVEC useMemo OPTIMISÉ
-    // ==========================================================================
+    const [afficheaide, setAfficheaide] = useState(false);
+    const [jouer, setJouer] = useState(false);
+    const [localTpsglobal, setLocalTpsglobal] = useState(storeTpsglobal);
 
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
-     const niveau = useMemo(() => gameConfig?.niveau  || 2, [gameConfig]);
+    const niveau = useMemo(() => gameConfig?.niveau || storeNiveau || 2, [gameConfig?.niveau, storeNiveau]);
+    const tpsglobal = useMemo(() => localTpsglobal || storeTpsglobal || 0, [localTpsglobal, storeTpsglobal]);
+    const currentYear = useMemo(() => new Date().getFullYear(), []);
 
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
@@ -102,31 +92,31 @@ export function useCategoryConsulterClient() {
         return map;
     }, [walletState.walletOfferings]);
 
-    const availableQuantity = useMemo(() => 
+    const availableQuantity = useMemo(() =>
         walletMap.get(getOfferingId(POT_CONFIG)) || 0,
         [walletMap]
     );
 
-    const isSufficient = useMemo(() => 
+    const isSufficient = useMemo(() =>
         availableQuantity >= POT_CONFIG.quantity,
         [availableQuantity]
     );
 
-    const cardClasses = useMemo(() => 
+    const cardClasses = useMemo(() =>
         `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`,
         [isSufficient]
     );
 
-    const startDate = useMemo(() => 
-        gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null, 
+    const startDate = useMemo(() =>
+        gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
         [gameConfig?.startgameDate]
     );
-    
-    const endDate = useMemo(() => 
-        gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null, 
+
+    const endDate = useMemo(() =>
+        gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
         [gameConfig?.endgameDate]
     );
-    
+
     const now = useMemo(() => new Date(), []);
 
     const isGameActive = useMemo(() =>
@@ -149,35 +139,25 @@ export function useCategoryConsulterClient() {
         [gameConfig?.status, startDate, now]
     );
 
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
-
-    // ==========================================================================
-    // ÉTATS DÉRIVÉS (calculés une seule fois)
-    // ==========================================================================
-
-    const afficheselection = useMemo(() => 
+    const afficheselection = useMemo(() =>
         !(isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null)) && !gameStarted,
         [isGameEnded, isGameActive, isGameNotStarted, lastEndedGame, gameStarted]
     );
 
-    const affichebanner = useMemo(() => 
+    const affichebanner = useMemo(() =>
         isGameActive && !isGameEnded && endDate && startDate,
         [isGameActive, isGameEnded, endDate, startDate]
     );
 
-    const loading = useMemo(() => 
+    const loading = useMemo(() =>
         statsLoading || configLoading || loadingLastEnded || walletState.loading,
         [statsLoading, configLoading, loadingLastEnded, walletState.loading]
     );
 
-    const currentError = useMemo(() => 
+    const currentError = useMemo(() =>
         walletState.showError ? walletState.error : null,
         [walletState.showError, walletState.error]
     );
-
-    // ==========================================================================
-    // CALLBACKS STABILISÉS
-    // ==========================================================================
 
     const clearError = useCallback(() => {
         setWalletState(prev => ({ ...prev, showError: false, error: null }));
@@ -185,6 +165,18 @@ export function useCategoryConsulterClient() {
 
     const handleValidation = useCallback(() => {
         setGameStarted(true);
+        setLocalTpsglobal(4);
+        setStoreTpsglobal(4);
+        setJouer(true);
+        setGameParams(4, niveau);
+    }, []);
+
+    const afficherAide = useCallback(() => {
+        setAfficheaide(true);
+    }, []);
+
+    const afficherJeu = useCallback(() => {
+        setAfficheaide(false);
     }, []);
 
     const handleNext = useCallback(() => {
@@ -209,31 +201,6 @@ export function useCategoryConsulterClient() {
             setLoadingLastEnded(false);
         }
     }, []);
-
-    const handleEndMatch = useCallback(() => {
-        if (!matchFinished) {
-            setMatchFinished(true);
-            setRefreshTrigger(prev => prev + 1);
-        }
-    }, [matchFinished]);
-
-    const handleItemClick = useCallback((item: MenuItem) => {
-        setTpsglobal(item.tpsglobal!);
-        if (item.tpsglobal === -1) {
-            setJouer(false);
-             router.push('/aide');
-        } else {
-            setJouer(true);
-        }
-    }, [router, gameConfig?.niveau]);
-
-    const handleClick = useCallback(() => {
-        window.location.href = '/star/learning';
-    }, []);
-
-    // ==========================================================================
-    // EFFETS OPTIMISÉS
-    // ==========================================================================
 
     useEffect(() => {
         isMountedRef.current = true;
@@ -266,47 +233,12 @@ export function useCategoryConsulterClient() {
         };
     }, [fetchLastEndedGame]);
 
-    useEffect(() => {
-        if (refreshTrigger > 0) {
-            router.push(`/star/profil?monjeu=${monidjeu}`);
-        }
-    }, [refreshTrigger, router, monidjeu]);
-
-    // ==========================================================================
-    // RETOUR (props stables)
-    // ==========================================================================
-
     return {
-        // États booléens
-        gamehasStarted: gameStarted,
-        afficheselection,
-        affichebanner,
-        isSufficient,
-        error: walletState.showError ? walletState.error : null,
-        
-        // Données
-        currentError,
+        gamehasStarted: gameStarted, error: walletState.showError ? walletState.error : null,
         requiredQuantity: POT_CONFIG.quantity,
-        availableQuantity,
-        cardClasses,
-        stats,
-        startDate,
-        endDate,
-        gameConfig,
-        onlineStatus,
-        randomImage,
-        currentYear,
-        
-        // État de chargement
-        loading,
-        
-        // Actions
-        handleGoToMarket,
-        handleEndMatch,
-        handleNext,
-        clearError,
-        handleItemClick,
-        handleClick,
-        jouer,tpsglobal,niveau
+        handleGoToMarket, handleNext, clearError, afficherAide, afficherJeu,
+        onlineStatus, randomImage, currentYear, affichebanner, jouer, afficheaide,
+        currentError, availableQuantity, tpsglobal, niveau, cardClasses,
+        isSufficient, afficheselection, loading,
     };
 }

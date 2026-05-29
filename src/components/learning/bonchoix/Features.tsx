@@ -1,103 +1,109 @@
 'use client';
 import { ANIMATION_CONFIG, toastVariants } from '@/hooks/choix/useCategoryConsulterClient';
-import { formatNumber } from "@/lib/functions";
+import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { choix, formatTime } from "@/lib/learning/functions";
 import { Case, MatchInfo } from "@/lib/learning/interface";
 import { BarChartOutlined, TrophyOutlined } from "@ant-design/icons";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, Calendar, CheckCircle2, ChevronRight, Circle, Coins,
-  Flame, Gift, ShoppingBag, Trophy, Zap
+  Flame, Gift, HelpCircle, ShoppingBag, Trophy, Users, Zap,
 } from "lucide-react";
+import Image from "next/image";
 import React, { memo, useMemo } from 'react';
-import { caldure, formatDate } from "@/lib/learning/functions";
-import {
-  ActionButton, InfoRowGame, ObjectiveCard, Ploader, PloaderFixe, EmptyStateEndGame,
-  InfoRowEndgame, MatchView
-} from "../game/Features";
+import { ActionButton, FooterSection, InfoRowGame, ObjectiveCard, Ploader, PloaderFixe } from "../game/Features";
 
-interface FinMatchViewProps {
-  infomatch: MatchInfo[];
-}
-
-export const FinMatchView = memo(({ infomatch }: FinMatchViewProps) => {
-  const datefin = useMemo(() => new Date().toISOString(), []);
-  const monniveau = useMemo(() => infomatch?.[0]?.niveau ?? 0, [infomatch]);
-  const montpsglobal = useMemo(() => infomatch?.[0]?.tpsglobal ?? 0, [infomatch]);
-  const madatedebut = useMemo(() => infomatch?.[0]?.datedebut, [infomatch]);
-
-  const stats = useMemo(() => {
-    let scores = 0, trouves = 0, rates = 0;
-    for (const match of infomatch ?? []) {
-      scores += match.score || 0;
-      trouves += match.trouves || 0;
-      rates += match.rates || 0;
-    }
-    return { scores, trouves, rates };
-  }, [infomatch]);
-
-  const summaryDetails = useMemo(() => [
-    { label: "🎮 Niveau", value: monniveau },
-    { label: "🏆 Score total", value: stats.scores.toFixed(0) },
-    { label: "✓ Trouvés", value: stats.trouves },
-    { label: "✗ Ratés", value: stats.rates },
-    { label: "📊 Nombre de matchs", value: infomatch.length },
-    { label: "📅 Date de début", value: formatDate(madatedebut || new Date().toISOString()) },
-    { label: "📅 Date de fin", value: formatDate(datefin) },
-    { label: "⏱️ Temps écoulé", value: caldure(datefin, madatedebut || datefin) },
-  ], [monniveau, stats, infomatch.length, madatedebut, datefin]);
-
-  const hasMatches = infomatch && infomatch.length > 0;
-
-  if (!hasMatches) {
-    return <EmptyStateEndGame />;
-  }
-
-  return (
-    <div className="w-full w-max-md mt-4 flex flex-col items-center justify-center px-2">
+export const FooterImage = memo(({ randomImage, currentYear, onlineStatus }: any) => (
+  <div className="w-full max-w-md mx-auto mt-2">
+    <div className="relative overflow-hidden rounded-3xl shadow-2xl group">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.5 }}
-        className="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 mb-6 shadow-md"
+        className="relative overflow-hidden"
       >
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <div className="w-12 h-0.5 bg-gradient-to-r from-purple-400 to-transparent" />
-          <h3 className="text-lg font-bold text-center text-purple-700">
-            {montpsglobal === 4 ? "📊 RÉSUMÉ DE LA PARTIE" : "🏆 RÉSULTATS FINAUX"}
-          </h3>
-          <div className="w-12 h-0.5 bg-gradient-to-l from-purple-400 to-transparent" />
-        </div>
-
-        <div className={montpsglobal === 4 ? "grid grid-cols-2 gap-2" : "space-y-1"}>
-          {summaryDetails.map((item) => (
-            <InfoRowEndgame key={item.label} label={item.label} value={item.value} />
-          ))}
-        </div>
+        <Image
+          src={randomImage}
+          width={400}
+          height={300}
+          alt="DIAMBRA"
+          className="w-full h-144 object-cover rounded-3xl transition-transform duration-700 group-hover:scale-110"
+          priority
+        />
       </motion.div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="w-full space-y-4"
-        >
-          {infomatch.map((match, index) => (
-            <MatchView
-              key={match.numeromatch || index}
-              matchData={match}
-              index={index}
-            />
-          ))}
-        </motion.div>
-      </AnimatePresence>
+      <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />
     </div>
-  );
-});
+  </div>
+));
 
-FinMatchView.displayName = "FinMatchView";
+export const BannerSection = memo(({ affichebanner, endDate, handleEndMatch, startDate, gameConfig, stats, loading }: any) => (
+  <div className="w-full max-w-md mx-auto mt-8">
+    <AnimatePresence mode="wait">
+      {affichebanner && (
+        <ActiveBanner
+          key="active"
+          endDate={endDate}
+          handleEndMatch={handleEndMatch}
+          startDate={startDate}
+          formatDate={formatDateFRJeu}
+          gameConfig={gameConfig}
+        />
+      )}
+    </AnimatePresence>
+
+    <StatCard
+      value={stats?.subscribers ?? null}
+      label="Participants"
+      icon={<Users className="w-4 h-4" />}
+      loading={loading}
+      color="from-purple-600 to-indigo-600"
+      delay={0.2}
+    />
+  </div>
+));
+
+export const HeaderSection = memo(() => (
+  <div className="relative flex flex-col items-center justify-center mb-8">
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring" }}
+      className="relative flex flex-col items-center justify-center gap-2"
+    >
+      <div className="relative">
+        <h1 className="text-xl sm:text-2xl font-black text-center bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+          DIAMBRA LEARNING
+        </h1>
+        <div className="absolute -top-2 -right-6 w-8 h-8">
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-2 h-2 bg-yellow-400 rounded-full absolute top-0 right-0"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-2 mt-2">
+        <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+        <div className="w-8 h-px bg-gradient-to-r from-transparent via-pink-500 to-transparent" />
+      </div>
+    </motion.div>
+  </div>
+));
+
+export const HelpButton = memo(({ onClick }: { onClick: () => void }) => (
+  <motion.button
+    initial={{ scale: 0 }}
+    animate={{ scale: 1 }}
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={onClick}
+    className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
+    aria-label="Aide"
+  >
+    <HelpCircle className="w-6 h-6" />
+  </motion.button>
+));
 
 interface GamePlayViewProps {
   cases: Case[];
@@ -130,6 +136,8 @@ export const GamePlayView = memo(({
   matchEncours,
   infomatch
 }: GamePlayViewProps) => {
+
+
 
   const currentGameType = useMemo(() => {
     if (!infomatch?.length || matchEncours === undefined || !infomatch[matchEncours]) {
@@ -232,8 +240,6 @@ export const GamePlayView = memo(({
     </div>
   );
 });
-
-GamePlayView.displayName = "GamePlayView";
 
 interface OfferSelectionProps {
   isSufficient: boolean;

@@ -1,16 +1,16 @@
 import useTimer from "@/hooks/learning/useTimer";
 import { Case, MatchInfo } from '@/lib/interfaces';
 import { decoupelimage } from "@/lib/learning/functions";
-import { createInitialCases, createMatch, createPlayableCases, generateMatchId, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
+import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameConfig } from "./useGame";
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 
-export const useGameGenerator = (niveau: number, tpsglobal: number) => {
-    const { saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
-    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
+export const useGameGenerator = () => {
+    const { niveau, tpsglobal, saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
+    const { data: gameConfig } = useGameConfig();
     const [loading, setLoading] = useState(false);
     const [casesdujeuencours, setCasesdujeuencours] = useState<Case[]>([]);
     const [casesinitiales, setCasesinitiales] = useState<Case[]>([]);
@@ -177,16 +177,9 @@ export const useGameGenerator = (niveau: number, tpsglobal: number) => {
         setShowPun(false);
     }, []);
 
-    const generateMatchList = useCallback((tpsglobal: number): MatchInfo[] => {
-
+    const generateMatchList = useCallback((): MatchInfo[] => {
         const matchId = gameConfig?.numeromatch || "123456789";
-        console.log(matchId);
-        if (tpsglobal === 4) {
-            // Mode global : tous les types de jeu
-            return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
-        }
-        // Mode simple : un seul type de jeu
-        return [createMatch(0, tpsglobal, matchId)];
+        return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
     }, []);
 
     const loadMatch = useCallback(async (
@@ -303,8 +296,8 @@ export const useGameGenerator = (niveau: number, tpsglobal: number) => {
             clearCompletedMatches();
 
             try {
+                const matchList = generateMatchList();
                 const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
-                const matchList = generateMatchList(tpsglobal);
                 const updatedMatches = await Promise.all(
                     matchList.map((match) => loadMatch(match, niveau!, pieces))
                 );
@@ -327,15 +320,9 @@ export const useGameGenerator = (niveau: number, tpsglobal: number) => {
         lancerJeu();
     }, [niveau, chargerMatch]);
 
-    const gamePlayProps = useMemo(() => ({
-        cases: casesdujeuencours, casesun: casesinitiales, pieces, selectedCase,
-        selectCase, showPun, toggleShowPun, lockSelectedCase,
-        timeElapsed, niveau, matchEncours: matchEnCours, infomatch, tpsglobal,
-    }), [
-        casesdujeuencours, casesinitiales, pieces, selectedCase,
-        selectCase, showPun, toggleShowPun, lockSelectedCase,
-        timeElapsed, niveau, matchEnCours, infomatch, tpsglobal,
-    ]);
 
-    return { gamePlayProps, jeuestfinie, };
+    return {
+        toggleShowPun, lockSelectedCase, selectCase, showPun, timeElapsed, matchEnCours, infomatch,
+        jeuestfinie, casesdujeuencours, casesinitiales, pieces, selectedCase,
+    };
 };

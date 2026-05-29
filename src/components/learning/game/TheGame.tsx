@@ -254,9 +254,9 @@ export default function TheGame() {
         casesdujeuencours,
         casesinitiales,
         pieces,
-        selectedCase, jeuestfinie,currentGameType, progression,
+        selectedCase, jeuestfinie,currentGameType, progression, tpsglobal,
     } = useGameGenerator();
-    const { tpsglobal, niveau } = useMonEtoileStore();
+    const {   niveau } = useMonEtoileStore();
 
 
     return (

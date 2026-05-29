@@ -9,9 +9,10 @@ import { useGameConfig } from "./useGame";
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 
 export const useGameGenerator = () => {
-    const { tpsglobal, saveFinalResults, clearCompletedMatches, } = useMonEtoileStore();
+    const { saveFinalResults, clearCompletedMatches, } = useMonEtoileStore();
     const { data: gameConfig } = useGameConfig();
 
+    const [tpsglobal, setTpsglobal] = useState(0);
     const [casesdujeuencours, setCasesdujeuencours] = useState<Case[]>([]);
     const [casesinitiales, setCasesinitiales] = useState<Case[]>([]);
     const [pieces, setPieces] = useState<string[]>([]);
@@ -20,7 +21,6 @@ export const useGameGenerator = () => {
     const [start, setStart] = useState(false);
     const [showPun, setShowPun] = useState(false);
     const [jeuestfinie, setJeuestfinie] = useState(false);
-
     const [matchEnCours, setMatchEnCours] = useState(-1);
     const [infomatch, setInfomatch] = useState<MatchInfo[]>([]);
 
@@ -170,7 +170,7 @@ export const useGameGenerator = () => {
         const casesJeu = matchData.listeCaseOpLab ?? [];
         const casesInit = matchData.listeCaseOpLabInitiale ?? [];
         const piecesMatch = matchData.pieces ?? [];
-
+setTpsglobal(matchData.tpsglobal ?? 0);
         setCasesdujeuencours(casesJeu);
         setCasesinitiales(casesInit);
         setPieces(piecesMatch);
@@ -331,7 +331,7 @@ export const useGameGenerator = () => {
         : 0;
 
     return {
-        toggleShowPun, lockSelectedCase, selectCase, showPun, timeElapsed, matchEnCours, infomatch,
+        toggleShowPun, lockSelectedCase, selectCase, showPun, timeElapsed, matchEnCours, infomatch, tpsglobal,
         casesdujeuencours, casesinitiales, pieces, selectedCase, jeuestfinie, currentGameType, progression,
     };
 };

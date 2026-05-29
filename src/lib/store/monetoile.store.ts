@@ -19,10 +19,15 @@ interface MonEtoileStore {
   setNiveau: (niveau: number) => void;
   setGameParams: (tpsglobal: number, niveau: number) => void;
   
+  // État de fin de jeu
+  jeuestfinie: boolean;
+  setJeuestfinie: (jeuestfinie: boolean) => void;
+  
   // Méthodes
   saveFinalResults: (matches: MatchInfo[], datedebut: string, datefin: string) => void;
   clearCompletedMatches: () => void;
   clearGameParams: () => void;
+  resetGameState: () => void;
 }
 
 const DEFAULT_TPSGLOBAL = 0;
@@ -36,6 +41,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
       completedMatches: null,
       tpsglobal: DEFAULT_TPSGLOBAL,
       niveau: DEFAULT_NIVEAU,
+      jeuestfinie: false,
       
       // Actions Consultation
       setChoixConsultationEnCours: (choix) => set({ choixConsultationEnCours: choix }),
@@ -48,6 +54,9 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
       setNiveau: (niveau) => set({ niveau }),
       setGameParams: (tpsglobal, niveau) => set({ tpsglobal, niveau }),
       
+      // Action pour l'état de fin de jeu
+      setJeuestfinie: (jeuestfinie) => set({ jeuestfinie }),
+      
       // Sauvegarde des résultats
       saveFinalResults: (matches, datedebut, datefin) => {
         const matchesWithDates = matches.map(match => ({
@@ -56,14 +65,25 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
           datefin,
           isgameover: true,
         }));
-        set({ completedMatches: matchesWithDates });
+        set({ 
+          completedMatches: matchesWithDates,
+          jeuestfinie: true 
+        });
       },
       
       // Nettoyages
-      clearCompletedMatches: () => set({ completedMatches: null }),
+      clearCompletedMatches: () => set({ completedMatches: null, jeuestfinie: false }),
       clearGameParams: () => set({ 
         tpsglobal: DEFAULT_TPSGLOBAL, 
         niveau: DEFAULT_NIVEAU 
+      }),
+      
+      // Réinitialisation complète
+      resetGameState: () => set({
+        completedMatches: null,
+        jeuestfinie: false,
+        tpsglobal: DEFAULT_TPSGLOBAL,
+        niveau: DEFAULT_NIVEAU,
       }),
     }),
     {
@@ -73,6 +93,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
         completedMatches: state.completedMatches,
         tpsglobal: state.tpsglobal,
         niveau: state.niveau,
+        jeuestfinie: state.jeuestfinie,
       }),
     }
   )

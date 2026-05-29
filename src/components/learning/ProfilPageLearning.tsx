@@ -2,10 +2,9 @@
 import Loader from "@/app/loading";
 import { useCategoryConsulterClient } from '@/hooks/learning/choix/useCategoryConsulterClient';
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/useAdminConsultationsPageFinished";
-import { useGameGenerator } from '@/hooks/learning/useGameGenerator';
 import { BannersSection, EditionCard, ParticipationsSection, TitleSection, WinnersSection } from "./Features";
-import { BannerSection, ErrorToast, FooterImage, GamePlayView, HeaderSection, HelpButton, OfferSelection } from "./bonchoix/Features";
-import ResultatsPage from "./endgame/ResultatsPage";
+import { BannerSection, ErrorToast, FooterImage, HeaderSection, HelpButton, OfferSelection } from "./bonchoix/Features";
+import TheGame from "./game/TheGame";
 import HelpPanel from "./help/HelpPanel";
 
 export default function ProfilPageLearning() {
@@ -16,16 +15,10 @@ export default function ProfilPageLearning() {
   } = useAdminConsultationsPageFinished();
 
   const {
-    handleGoToMarket, handleNext, clearError, afficherAide, afficherJeu,
+    handleGoToMarket, handleNext, clearError, afficherAide, afficherJeu, afficheselection, gamehasStarted, loading,
     onlineStatus, randomImage, currentYear, affichebanner, jouer, afficheaide,
-    currentError, availableQuantity, tpsglobal, niveau, cardClasses,
-    isSufficient, requiredQuantity, afficheselection, gamehasStarted, loading,
+    currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity,
   } = useCategoryConsulterClient();
-
-  const {
-    toggleShowPun, lockSelectedCase, selectCase, showPun, timeElapsed, matchEnCours, infomatch,
-    jeuestfinie, casesdujeuencours, casesinitiales, pieces, selectedCase,
-  } = useGameGenerator();
 
   const showHelp = afficheaide;
   const showGameContent = gamehasStarted && jouer && !showHelp;
@@ -42,25 +35,7 @@ export default function ProfilPageLearning() {
 
       {jeuAcommencer ? (
         <>
-          {showGameContent && (
-            jeuestfinie ? <ResultatsPage /> : (
-              <GamePlayView
-                cases={casesdujeuencours}
-                casesun={casesinitiales}
-                pieces={pieces}
-                selectedCase={selectedCase}
-                selectCase={selectCase}
-                showPun={showPun}
-                toggleShowPun={toggleShowPun}
-                lockSelectedCase={lockSelectedCase}
-                timeElapsed={timeElapsed}
-                niveau={niveau}
-                matchEncours={matchEnCours}
-                infomatch={infomatch}
-                tpsglobal={tpsglobal}
-              />
-            )
-          )}
+          {showGameContent && (<TheGame />)}
 
           {showSelection && (
             <OfferSelection

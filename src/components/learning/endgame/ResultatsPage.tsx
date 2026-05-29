@@ -1,25 +1,214 @@
 'use client';
 import { useEndGameGenerator } from "@/hooks/learning/endgame/useGameGenerator";
 import { formatDate } from "@/lib/functions";
-import { caldure } from "@/lib/learning/functions";
-import { motion, AnimatePresence } from "framer-motion";
-import { memo, useMemo } from "react";
-import { MatchView } from "../game/Features";
+import { colorReference, Theme } from "@/lib/learning/data";
+import { caldure, generateLetterPairs } from "@/lib/learning/functions";
+import { Case, MatchInfo } from "@/lib/learning/interface";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
+import { AnimatePresence, motion } from "framer-motion";
 import { RotateCcw, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
- 
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export const InfoRowEndgame = memo(({ label, value }: { label: string; value: string | number | undefined }) => (
+const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
+    const letterPairs = generateLetterPairs();
+    const caseRef = useRef<HTMLDivElement>(null);
+
+    const updateFontSize = useCallback(() => {
+        if (caseRef.current) {
+            const newFontSize = `${caseRef.current.clientWidth * 0.5}px`;
+            caseRef.current.style.fontSize = newFontSize;
+            return newFontSize;
+        }
+        return "45px";
+    }, []);
+
+    const fontSize = useMemo(() => updateFontSize(), [updateFontSize]);
+    const txtIndex = useMemo(() => parseInt(txt || "0", 10), [txt]);
+
+    const couleurdefond = useMemo(() => {
+        if (tpsglobal === 1) return colorReference[txtIndex] || "black";
+        if (isLocked) return Theme.coulfondcaseverouille;
+        return "black";
+    }, [isLocked, tpsglobal, txtIndex]);
+
+    const imagedefond = useMemo(() => {
+        if (tpsglobal !== 2 || !pieces[txtIndex]) return "none";
+        return `url(${pieces[txtIndex]})`;
+    }, [pieces, tpsglobal, txtIndex]);
+
+    const content = useMemo(() => {
+        if (tpsglobal === 0) return txt;
+        if (tpsglobal === 3) return letterPairs[txtIndex];
+
+        const size = parseInt(fontSize, 10) || 100;
+
+        const iconProps = {
+            priority: true,
+            alt: "icon",
+            width: size,
+            height: size,
+            style: { textShadow: "2px 2px 5px rgba(0, 0, 0, 0.8)" },
+        };
+
+        switch (tpsglobal) {
+            case 1:
+                if (mode && isLocked) return <Image src="/momok.png" {...iconProps} alt="OK" />;
+                break;
+            case 2:
+                if (mode && isLocked) return <Image src="/momok.png" {...iconProps} alt="OK" />;
+                break;
+            default:
+                return txt;
+        }
+    }, [fontSize, isLocked, letterPairs, mode, tpsglobal, txt, txtIndex]);
+
+
+    useEffect(() => {
+        if (!caseRef.current) return;
+        const observer = new ResizeObserver(updateFontSize);
+        observer.observe(caseRef.current);
+        return () => observer.disconnect();
+    }, [updateFontSize]);
+
+    return (
+        <div ref={caseRef}
+            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square"
+            style={{
+                width: size,
+                height: size,
+                backgroundColor: couleurdefond,
+                backgroundImage: imagedefond,
+            }}
+        >
+            <span className="overflow-hidden min-w-0">{content}</span>
+        </div>
+    );
+});
+
+interface MatchViewProps {
+    matchData: MatchInfo;
+    index: number;
+}
+
+const MatchView = memo(({ matchData, index }: MatchViewProps) => {
+    const [showFirstBoard, setShowFirstBoard] = useState(false);
+
+    const toggleBoard = useCallback(() => {
+        setShowFirstBoard(prev => !prev);
+    }, []);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className="w-full shadow-lg rounded-xl bg-white hover:shadow-2xl transition-all duration-300 overflow-hidden"
+        >
+            <div className="p-4">
+                <div className="mb-3 pb-2 border-b border-gray-100">
+                    <h4 className="text-lg font-bold text-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                        Match {index + 1}
+                    </h4>
+                    {matchData.tpsglobal !== undefined && (
+                        <p className="text-xs text-center text-gray-500 mt-1">
+                            Type: {matchData.tpsglobal === 0 ? "Nombre" :
+                                matchData.tpsglobal === 1 ? "Couleur" :
+                                    matchData.tpsglobal === 2 ? "Image" :
+                                        matchData.tpsglobal === 3 ? "Lettre" : "Global"}
+                        </p>
+                    )}
+                </div>
+
+                <div className="mt-2 text-center">
+                    {showFirstBoard ? (
+                        <PloaderEndGame match={matchData} initiale />
+                    ) : (
+                        <PloaderEndGame match={matchData} />
+                    )}
+                </div>
+
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={toggleBoard}
+                    className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl transition-all duration-300 hover:from-blue-600 hover:to-purple-600 font-medium shadow-md"
+                    aria-label={showFirstBoard ? "Voir P2" : "Voir P1"}
+                >
+                    {showFirstBoard ? "🎯 Voir P1" : "👀 Voir P2"}
+                </motion.button>
+
+                <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="bg-green-50 rounded-lg p-2">
+                        <span className="text-green-600 font-bold">{matchData.score?.toFixed(0) || 0}%</span>
+                        <span className="text-gray-500 block">Score</span>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-2">
+                        <span className="text-blue-600 font-bold">{matchData.trouves || 0}</span>
+                        <span className="text-gray-500 block">Trouvés</span>
+                    </div>
+                    <div className="bg-orange-50 rounded-lg p-2">
+                        <span className="text-orange-600 font-bold">{matchData.rates || 0}</span>
+                        <span className="text-gray-500 block">Ratés</span>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+});
+
+interface PloaderEndGameProps {
+    match: MatchInfo;
+    initiale?: boolean;
+}
+
+const PloaderEndGame = memo(({ match, initiale = false }: PloaderEndGameProps) => {
+    const cases = useMemo(() =>
+        initiale ? match?.listeCaseOpLabInitiale || [] : match?.listeCaseOpLab || [],
+        [initiale, match?.listeCaseOpLab, match?.listeCaseOpLabInitiale]
+    );
+
+    const gridStyles = useMemo(() => {
+        const size = match?.niveau || Math.sqrt(cases.length) || 3;
+        return {
+            gridTemplateColumns: `repeat(${size}, 1fr)`,
+            gridTemplateRows: `repeat(${size}, 1fr)`,
+        };
+    }, [match?.niveau, cases.length]);
+
+    if (!cases.length) {
+        return (
+            <div className="text-center text-gray-500 py-8">
+                Aucune case disponible
+            </div>
+        );
+    }
+
+    return (
+        <div className={"w-full grid"} style={gridStyles}>
+            {cases.map((c) => (
+                <UnecaseFixe
+                    key={c.id}
+                    {...c}
+                    isLocked={!initiale}
+                    size="100%"
+                    pieces={match?.pieces || []}
+                />
+            ))}
+        </div>
+    );
+});
+
+const InfoRowEndgame = memo(({ label, value }: { label: string; value: string | number | undefined }) => (
     <div className="flex justify-between py-2 border-b border-gray-200 last:border-0">
         <span className="font-semibold text-gray-700">{label}:</span>
         <span className="text-gray-900 font-medium">{value ?? 'N/A'}</span>
     </div>
 ));
 
-InfoRowEndgame.displayName = "InfoRowEndgame";
-
-export const EmptyStateEndGame = memo(() => (
+const EmptyStateEndGame = memo(() => (
     <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -32,9 +221,7 @@ export const EmptyStateEndGame = memo(() => (
     </motion.div>
 ));
 
-EmptyStateEndGame.displayName = "EmptyState";
-
-export const FinMatchView = memo(() => {
+const FinMatchView = memo(() => {
     const { displayMatches: infomatch } = useEndGameGenerator();
     const datefin = useMemo(() => new Date().toISOString(), []);
     const monniveau = useMemo(() => infomatch?.[0]?.niveau ?? 0, [infomatch]);
@@ -101,7 +288,7 @@ export const FinMatchView = memo(() => {
                 >
                     {infomatch.map((match, index) => (
                         <MatchView
-                            key={ index}
+                            key={index}
                             matchData={match}
                             index={index}
                         />
@@ -112,20 +299,17 @@ export const FinMatchView = memo(() => {
     );
 });
 
-FinMatchView.displayName = "FinMatchView";
-
 export default function ResultatsPage() {
     const router = useRouter();
     const { clearCompletedMatches } = useMonEtoileStore();
 
     const handleRecommencer = () => {
         clearCompletedMatches();
-         router.push('/star/learning');
+        router.push('/star/learning');
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8 px-4">
-            {/* Bouton Recommencer stylisé */}
             <div className="max-w-2xl mx-auto mb-6 flex items-center gap-2">
                 <motion.button
                     initial={{ opacity: 0, x: 20 }}
@@ -135,7 +319,6 @@ export default function ResultatsPage() {
                     onClick={handleRecommencer}
                     className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden ml-auto"
                 >
-                    {/* Effet de brillance */}
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
                     <RotateCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
@@ -144,10 +327,8 @@ export default function ResultatsPage() {
                 </motion.button>
             </div>
 
-            {/* Composant FinMatchView */}
             <FinMatchView />
 
-            {/* Bouton Recommencer supplémentaire en bas */}
             <div className="max-w-2xl mx-auto mt-8 text-center">
                 <motion.button
                     initial={{ opacity: 0, y: 20 }}

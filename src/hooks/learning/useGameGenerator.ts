@@ -1,17 +1,17 @@
 import useTimer from "@/hooks/learning/useTimer";
 import { Case, MatchInfo } from '@/lib/interfaces';
-import { decoupelimage } from "@/lib/learning/functions";
+import { choix, decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameConfig } from "./useGame";
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 
 export const useGameGenerator = () => {
-    const { niveau, tpsglobal, saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
+    const { tpsglobal, saveFinalResults, clearCompletedMatches, } = useMonEtoileStore();
     const { data: gameConfig } = useGameConfig();
-    const [loading, setLoading] = useState(false);
+
     const [casesdujeuencours, setCasesdujeuencours] = useState<Case[]>([]);
     const [casesinitiales, setCasesinitiales] = useState<Case[]>([]);
     const [pieces, setPieces] = useState<string[]>([]);
@@ -20,6 +20,7 @@ export const useGameGenerator = () => {
     const [start, setStart] = useState(false);
     const [showPun, setShowPun] = useState(false);
     const [jeuestfinie, setJeuestfinie] = useState(false);
+
     const [matchEnCours, setMatchEnCours] = useState(-1);
     const [infomatch, setInfomatch] = useState<MatchInfo[]>([]);
 
@@ -263,7 +264,7 @@ export const useGameGenerator = () => {
                             ...match,
                             isgameover: true,
                             datefin,
-                            niveau,
+                            niveau: gameConfig?.niveau!,
                             tpsglobal,
                             trouves: (match.trouves || 0) + casesdujeuencours.filter(c => c.isLocked).length,
                         };
@@ -290,16 +291,15 @@ export const useGameGenerator = () => {
 
         const lancerJeu = async () => {
             lancementRef.current = true;
-            setLoading(true);
             setStart(false);
 
             clearCompletedMatches();
 
             try {
                 const matchList = generateMatchList();
-                const pieces = await decoupelimage("/ephotoquatorze.jpg", niveau!);
+                const pieces = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
                 const updatedMatches = await Promise.all(
-                    matchList.map((match) => loadMatch(match, niveau!, pieces))
+                    matchList.map((match) => loadMatch(match, gameConfig?.niveau!, pieces))
                 );
 
                 setInfomatch(updatedMatches);
@@ -312,17 +312,26 @@ export const useGameGenerator = () => {
             } catch (error) {
                 console.error("Erreur:", error);
             } finally {
-                setLoading(false);
                 lancementRef.current = false;
             }
         };
 
         lancerJeu();
-    }, [niveau, chargerMatch]);
+    }, [gameConfig?.niveau, chargerMatch]);
 
+    const currentGameType = useMemo(() => {
+        if (!infomatch?.length || matchEnCours === undefined || !infomatch[matchEnCours]) {
+            return "Aucun match en cours";
+        }
+        return choix(infomatch[matchEnCours].tpsglobal || 0);
+    }, [infomatch, matchEnCours]);
+
+    const progression = casesdujeuencours.length > 0
+        ? (casesdujeuencours.filter(c => c.isLocked).length / casesdujeuencours.length) * 100
+        : 0;
 
     return {
         toggleShowPun, lockSelectedCase, selectCase, showPun, timeElapsed, matchEnCours, infomatch,
-        jeuestfinie, casesdujeuencours, casesinitiales, pieces, selectedCase,
+        casesdujeuencours, casesinitiales, pieces, selectedCase, jeuestfinie, currentGameType, progression,
     };
 };

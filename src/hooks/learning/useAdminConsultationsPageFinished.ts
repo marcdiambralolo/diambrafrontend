@@ -217,8 +217,8 @@ export function useAdminConsultationsPageFinished() {
     setJeuAcommencer(true);
   }, []);
 
-  return {
-    error: error || configError, handleOpenGame, handleEndMatch, demarrerJeu, jeuAcommencer,
+  return {   
+    handleOpenGame, handleEndMatch, demarrerJeu, jeuAcommencer, error: error || configError,
     stats, startDate, endDate, gameConfig, lastEndedGame, winningCombination, gameStarted,
     showEnded, consultations, activeEdition, winners, hasNotStartedEdition, hasWinners,
   };

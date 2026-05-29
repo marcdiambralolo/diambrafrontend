@@ -13,7 +13,6 @@ const CASE_COUNTS_BY_TYPE: Readonly<Record<number, number>> = {
   3: 650,  // Lettre
 } as const;
 
-const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const MAX_PIECES_SIZE = 10000;
 const MAX_NIVEAU = 10;
 
@@ -196,7 +195,7 @@ export const shuffleArray = <T>(items: T[], seed: number): T[] => {
   return shuffled;
 };
 
-export const createMatch = (ordre: number, tpsglobal: number,matchId: string): MatchInfo => { 
+export const createMatch = (ordre: number, tpsglobal: number, matchId: string): MatchInfo => {
   return {
     numordrep: ordre + 1,
     isgameover: false,

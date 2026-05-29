@@ -3,34 +3,12 @@ import { formatDateFRJeu, formatDateTime, formatEditionDate, formatNumber } from
 import { LastEndedGame, Winner } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Award, Calendar, Clock, Crown, FileText, Gift, History, Hourglass,
-    ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, Trophy, Users, Zap
+    Award, Calendar, Clock, Crown, Gift, History, Hourglass, ListOrdered, Medal,
+    Shuffle, Sparkles, Star, Timer, Trophy, Users, Zap
 } from "lucide-react";
 import React, { memo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";
 import CacheLink from "../commons/CacheLink";
-
-export const ErrorState = memo(({ onRefresh }: { onRefresh: () => void }) => (
-    <div className="flex items-center justify-center min-h-[60vh] p-6">
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 border border-red-100 dark:border-red-900/30"
-        >
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <FileText className="w-10 h-10 text-red-500" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Erreur de chargement</h3>
-            <button
-                onClick={onRefresh}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
-            >
-                <RefreshCw className="w-4 h-4 inline mr-2" />
-                Réessayer
-            </button>
-        </motion.div>
-    </div>
-));
 
 export const TitleSection = memo(({ showEnded }: { showEnded: boolean }) => (
     <motion.div

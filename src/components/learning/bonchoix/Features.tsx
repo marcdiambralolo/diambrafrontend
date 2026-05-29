@@ -1,17 +1,35 @@
 'use client';
 import { ANIMATION_CONFIG, toastVariants } from '@/hooks/choix/useCategoryConsulterClient';
 import { formatDateFRJeu, formatNumber } from "@/lib/functions";
-import { choix, formatTime } from "@/lib/learning/functions";
-import { Case, MatchInfo } from "@/lib/learning/interface";
-import { BarChartOutlined, TrophyOutlined } from "@ant-design/icons";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, Calendar, CheckCircle2, ChevronRight, Circle, Coins,
-  Flame, Gift, HelpCircle, ShoppingBag, Trophy, Users, Zap,
+  Flame, Gift, HelpCircle, ShoppingBag, Users, Zap
 } from "lucide-react";
 import Image from "next/image";
-import React, { memo, useMemo } from 'react';
-import { ActionButton, FooterSection, InfoRowGame, ObjectiveCard, Ploader, PloaderFixe } from "../game/Features";
+import React, { memo } from 'react';
+ 
+export const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
+    <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${color === 'red' ? 'bg-red-500' : 'bg-green-500'} text-white flex items-center gap-1`}>
+        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+        {text}
+    </div>
+));
+
+export const FooterSection = memo(({ currentYear, onlineStatus }: { currentYear: number; onlineStatus: { text: string; color: string } }) => (
+    <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
+        <div className="relative flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center gap-2">
+                <span>© {currentYear}</span>
+            </div>
+            <StatusBadge text={onlineStatus.text} color={onlineStatus.color} />
+        </div>
+        <p className="relative text-gray-500 text-[10px] mt-2">
+            DIAMBRA CORPORATION • Tous droits réservés
+        </p>
+    </footer>
+));
 
 export const FooterImage = memo(({ randomImage, currentYear, onlineStatus }: any) => (
   <div className="w-full max-w-md mx-auto mt-2">
@@ -104,142 +122,6 @@ export const HelpButton = memo(({ onClick }: { onClick: () => void }) => (
     <HelpCircle className="w-6 h-6" />
   </motion.button>
 ));
-
-interface GamePlayViewProps {
-  cases: Case[];
-  casesun: Case[];
-  pieces: string[];
-  selectedCase: Case | null;
-  selectCase: (c: Case | null) => void;
-  showPun: boolean;
-  toggleShowPun: () => void;
-  lockSelectedCase: () => void;
-  timeElapsed: number;
-  niveau: number;
-  matchEncours: number;
-  infomatch: MatchInfo[];
-  tpsglobal: number;
-}
-
-export const GamePlayView = memo(({
-  tpsglobal,
-  cases,
-  casesun,
-  pieces,
-  selectedCase,
-  selectCase,
-  showPun,
-  toggleShowPun,
-  lockSelectedCase,
-  timeElapsed,
-  niveau,
-  matchEncours,
-  infomatch
-}: GamePlayViewProps) => {
-
-
-
-  const currentGameType = useMemo(() => {
-    if (!infomatch?.length || matchEncours === undefined || !infomatch[matchEncours]) {
-      return "Aucun match en cours";
-    }
-    return choix(infomatch[matchEncours].tpsglobal || 0);
-  }, [infomatch, matchEncours]);
-
-  return (
-    <div className="flex flex-col items-center justify-center w-full py-4 mb-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md text-center px-4"
-      >
-        <div className="mb-4">
-          {showPun ? (
-            <PloaderFixe niveau={niveau} casesun={casesun} pieces={pieces} />
-          ) : (
-            <Ploader
-              niveau={niveau}
-              cases={cases}
-              selectedCase={selectedCase}
-              selectCase={selectCase}
-              pieces={pieces}
-              tpsglobal={tpsglobal}
-            />
-          )}
-        </div>
-
-        <div className="flex flex-col items-center justify-center w-full mt-4">
-          <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
-            {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
-          </h2>
-
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-
-
-            <ActionButton
-              onClick={toggleShowPun}
-              variant="secondary"
-              ariaLabel={showPun ? "Jouer" : "Voir P1"}
-            >
-              {showPun ? "Jouer" : "Voir P1"}
-            </ActionButton>
-
-            {!showPun && (
-              <ActionButton
-                onClick={lockSelectedCase}
-                variant="primary"
-                ariaLabel="Ajuster la sélection"
-              >
-                Ajuster
-              </ActionButton>
-            )}
-
-            <div className="font-bold text-blue-600 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
-              <span className="text-sm">⏱</span>
-              <span>{formatTime(timeElapsed)}</span>
-            </div>
-          </div>
-
-          <div className="mt-4 w-full space-y-3">
-            {cases && cases.length > 0 && (
-              <div className="mt-2">
-                <div className="flex justify-between text-xs text-gray-500 mb-4">
-                  <span>Progression</span>
-                  <span>{cases.filter(c => c.isLocked).length}/{cases.length}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(cases.filter(c => c.isLocked).length / cases.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <ObjectiveCard />
-
-            <InfoRowGame
-              icon={<TrophyOutlined />}
-              iconBg="bg-yellow-100 dark:bg-yellow-900/30"
-              iconColor="text-yellow-600 dark:text-yellow-400"
-              label="JEU EN COURS"
-              value={currentGameType}
-            />
-
-            <InfoRowGame
-              icon={<BarChartOutlined />}
-              iconBg="bg-green-100 dark:bg-green-900/30"
-              iconColor="text-green-600 dark:text-green-400"
-              label="NIVEAU DU JEU"
-              value={niveau ?? "N/A"}
-            />
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-});
 
 interface OfferSelectionProps {
   isSufficient: boolean;
@@ -574,19 +456,4 @@ export const StatusBanner = memo<StatusBannerProps>(({
       </div>
     </motion.div>
   );
-});
-
-interface GameHeaderProps {
-  title: string;
-  icon?: React.ReactNode;
-}
-
-export const GameHeader = ({ title, icon }: GameHeaderProps) => (
-  <div className="text-center">
-    <GameStatusBadge>
-      <Trophy className="w-4 h-4 text-yellow-400" />
-      <span className="text-xs font-black uppercase tracking-wide text-white">{title}</span>
-    </GameStatusBadge>
-    {icon && <div className="mt-2">{icon}</div>}
-  </div>
-);
+}); 

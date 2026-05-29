@@ -220,9 +220,11 @@ export const HelpHeader = memo(() => (
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 mb-3">
             Guide d&apos;utilisation
         </h1>
+
         <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
             Découvrez comment jouer à DIAMBRA et devenir un expert des puzzles de mémoire
         </p>
+
         <div className="flex items-center justify-center gap-2 mt-6">
             <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full" />
             <div className="w-2 h-2 bg-blue-500 rounded-full" />
@@ -272,7 +274,7 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => (
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-md mx-auto mt-4"
+        className="w-full max-w-md mx-auto mt-4 mb-8"
     >
         <div className="relative bg-white rounded-3xl shadow-xl overflow-hidden">
             <div className="h-32 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 relative overflow-hidden">

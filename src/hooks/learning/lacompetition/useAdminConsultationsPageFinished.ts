@@ -11,7 +11,7 @@ export const ITEMS_PER_PAGE = 10000;
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
   const { data: gameConfig } = useGameConfig();
-  const { setJeuAcommencer } = useMonEtoileStore();
+  const { setJeuAcommencer,resetGameState } = useMonEtoileStore();
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -200,7 +200,7 @@ export function useAdminConsultationsPageFinished() {
   }, [isRefreshing, isEndingGame, refreshAllData]);
 
   useEffect(() => {
-    isMountedRef.current = true;
+    isMountedRef.current = true;  
     refreshAllData();
 
     return () => {
@@ -215,6 +215,7 @@ export function useAdminConsultationsPageFinished() {
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
   const demarrerJeu = useCallback(() => {
+      resetGameState();
     setJeuAcommencer(true);
   }, []);
 

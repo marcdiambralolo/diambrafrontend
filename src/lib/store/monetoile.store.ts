@@ -19,18 +19,26 @@ interface MonEtoileStore {
   // État de jeu en cours
   jouer: boolean;
   setJouer: (jouer: boolean) => void;
-  
+
   gameStarted: boolean;
   setGameStarted: (gameStarted: boolean) => void;
-  
-  // 🔥 NOUVEAU : Mode compétition vs jeu
+
+  // Mode compétition vs jeu
   jeuAcommencer: boolean;
   setJeuAcommencer: (jeuAcommencer: boolean) => void;
-  
+
+  // État d'affichage de l'aide
+  afficheaide: boolean;
+  setAfficheaide: (afficheaide: boolean) => void;
+
   startGame: () => void;
   stopGame: () => void;
   startCompetition: () => void;
   stopCompetition: () => void;
+
+  // Actions pour l'aide
+  afficherAide: () => void;
+  afficherJeu: () => void;
 
   // Méthodes
   saveFinalResults: (matches: MatchInfo[], datedebut: string, datefin: string) => void;
@@ -47,7 +55,8 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
       jeuestfinie: false,
       jouer: false,
       gameStarted: false,
-      jeuAcommencer: false, // 🔥 false = mode compétition, true = mode jeu
+      jeuAcommencer: false,
+      afficheaide: false,
 
       // Actions Consultation
       setChoixConsultationEnCours: (choix) => set({ choixConsultationEnCours: choix }),
@@ -61,29 +70,38 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
       // Actions pour l'état de jeu
       setJouer: (jouer) => set({ jouer }),
       setGameStarted: (gameStarted) => set({ gameStarted }),
-      
-      // 🔥 Actions pour le mode
+
+      // Actions pour le mode
       setJeuAcommencer: (jeuAcommencer) => set({ jeuAcommencer }),
-      
-      startGame: () => set({ 
-        jouer: true, 
+
+      // Actions pour l'aide
+      setAfficheaide: (afficheaide) => set({ afficheaide }),
+
+      afficherAide: () => set({ afficheaide: true }),
+
+      afficherJeu: () => set({ afficheaide: false }),
+
+      startGame: () => set({
+        jouer: true,
         jeuestfinie: false,
-        jeuAcommencer: true // 🔥 Passage en mode jeu
+        jeuAcommencer: true,
+        afficheaide: false
       }),
-      
-      stopGame: () => set({ 
+
+      stopGame: () => set({
         jouer: false,
-        jeuAcommencer: false // 🔥 Retour en mode compétition
+        jeuAcommencer: false
       }),
-      
-      startCompetition: () => set({ 
+
+      startCompetition: () => set({
         jeuAcommencer: false,
         jouer: false,
-        jeuestfinie: false 
+        jeuestfinie: false,
+        afficheaide: false
       }),
-      
-      stopCompetition: () => set({ 
-        jeuAcommencer: false 
+
+      stopCompetition: () => set({
+        jeuAcommencer: false
       }),
 
       // Sauvegarde des résultats
@@ -98,14 +116,15 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
           completedMatches: matchesWithDates,
           jeuestfinie: true,
           jouer: false,
-          jeuAcommencer: false, // 🔥 Retour en mode compétition après fin du jeu
+          jeuAcommencer: false,
+          afficheaide: false
         });
       },
 
       // Nettoyages
-      clearCompletedMatches: () => set({ 
-        completedMatches: null, 
-        jeuestfinie: false 
+      clearCompletedMatches: () => set({
+        completedMatches: null,
+        jeuestfinie: false
       }),
 
       // Réinitialisation complète
@@ -115,13 +134,13 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
         jouer: false,
         gameStarted: false,
         jeuAcommencer: false,
+        afficheaide: false,
       }),
     }),
     {
       name: 'monetoile-store',
       partialize: (state) => ({
         choixConsultationEnCours: state.choixConsultationEnCours,
-        completedMatches: state.completedMatches,
       }),
     }
   )

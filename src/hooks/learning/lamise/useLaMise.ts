@@ -20,17 +20,6 @@ const BASE_CLASSES = "w-full flex items-center gap-4 p-5 rounded-2xl border-2 tr
 const INSUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed";
 const SUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#9BC2FF] hover:shadow-xl hover:shadow-[#4F83D1]/10 active:scale-[0.98] cursor-pointer";
 
-export const ANIMATION_CONFIG = {
-    spring: { type: 'spring' as const, stiffness: 280, damping: 22 },
-    duration: { fast: 0.2, normal: 0.3 }
-} as const;
-
-export const toastVariants = {
-    hidden: { opacity: 0, x: 100, scale: 0.9 },
-    visible: { opacity: 1, x: 0, scale: 1, transition: ANIMATION_CONFIG.spring },
-    exit: { opacity: 0, x: 100, scale: 0.95, transition: { duration: ANIMATION_CONFIG.duration.fast } }
-} as const;
-
 interface WalletState {
     loading: boolean;
     error: string | null;
@@ -55,8 +44,9 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { data: gameConfig, isLoading: loading } = useGameConfig();
+    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
     const { setJouer, setGameStarted } = useMonEtoileStore();
+
     const isMountedRef = useRef(true);
     const timerRef = useRef<NodeJS.Timeout>();
 
@@ -84,16 +74,18 @@ export function useLaMise() {
         [isSufficient]
     );
 
+    const isLoading = configLoading || walletState.loading;
+
     const handleValidation = useCallback(() => {
         setGameStarted(true);
         setJouer(true);
-    }, []);
+    }, [setGameStarted, setJouer]);
 
     const handleNext = useCallback(() => {
-        if (isSufficient) {
+        if (isSufficient && !isLoading) {
             handleValidation();
         }
-    }, [isSufficient, handleValidation]);
+    }, [isSufficient, isLoading, handleValidation]);
 
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?monjeu=${monidjeu}`);
@@ -130,7 +122,7 @@ export function useLaMise() {
     }, []);
 
     return {
-        requiredQuantity: POT_CONFIG.quantity, loading,
+        requiredQuantity: POT_CONFIG.quantity, loading: isLoading,
         handleGoToMarket, handleNext, availableQuantity, cardClasses, isSufficient,
     };
 }

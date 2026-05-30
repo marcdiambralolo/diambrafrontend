@@ -139,7 +139,7 @@ const getTotalCases = (tpsglobal: number, niveau: number): number => {
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 
 export const useGameGenerator = () => {
-    const { saveFinalResults, clearCompletedMatches, setJeuestfinie, setJouer } = useMonEtoileStore();
+    const { saveFinalResults, clearCompletedMatches,   setJouer } = useMonEtoileStore();
     const { data: gameConfig } = useGameConfig();
 
     const [tpsglobal, setTpsglobal] = useState(0);
@@ -150,7 +150,7 @@ export const useGameGenerator = () => {
     const [datedebut, setDatedebut] = useState<string>("");
     const [start, setStart] = useState(false);
     const [showPun, setShowPun] = useState(false);
-    const [jeuestfinie,] = useState(false);
+    const [gameisover,setGameisover] = useState(false);
     const [matchEnCours, setMatchEnCours] = useState(-1);
     const [infomatch, setInfomatch] = useState<MatchInfo[]>([]);
 
@@ -376,8 +376,8 @@ export const useGameGenerator = () => {
 
         // Tous les matchs sont terminés
         if (matchEnCours >= infomatch.length) {
-            setJeuestfinie(true);
-            setJouer(true);
+            setGameisover(true);
+           // setJouer(true);
         }
     }, [matchEnCours, infomatch.length]);
 
@@ -427,8 +427,8 @@ export const useGameGenerator = () => {
                     return match;
                 });
                 saveFinalResults(updatedMatches, datedebut, datefin);
-                setJeuestfinie(true);
-                setJouer(true);
+                setGameisover(true);
+               // setJouer(true);
             } else {
                 // 🔥 Passer au match suivant
                 console.log(`🔄 Passage au match ${matchEnCours + 2}/${infomatch.length}`);
@@ -488,6 +488,6 @@ export const useGameGenerator = () => {
     return {
         toggleShowPun, lockSelectedCase, selectCase, niveau: gameConfig?.niveau, showPun, timeElapsed,
         matchEnCours, infomatch, tpsglobal, casesdujeuencours, casesinitiales, pieces, selectedCase,
-        jeuestfinie, currentGameType, progression,
+        gameisover, currentGameType, progression,
     };
 };

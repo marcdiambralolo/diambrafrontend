@@ -13,7 +13,6 @@ export const useGameGenerator = () => {
     const { saveFinalResults, clearCompletedMatches } = useMonEtoileStore();
     const { data: gameConfig } = useGameConfig();
 
-    // États
     const [state, setState] = useState({
         tpsglobal: 0,
         casesdujeuencours: [] as Case[],
@@ -33,7 +32,6 @@ export const useGameGenerator = () => {
     const isLoadingMatch = useRef(false);
     const timeElapsed = useTimer(state.start);
 
-    // Mise à jour partielle de l'état
     const updateState = useCallback((updates: Partial<typeof state>) => {
         setState(prev => ({ ...prev, ...updates }));
     }, []);
@@ -42,7 +40,6 @@ export const useGameGenerator = () => {
         state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true),
         [state.infomatch]);
 
-    // Swap des cases
     const swapCases = useCallback((c1: Case, c2: Case) => {
         const { casesdujeuencours, casesinitiales } = state;
         if (!c1 || !c2 || casesinitiales.length === 0) return;
@@ -51,29 +48,22 @@ export const useGameGenerator = () => {
         const index2 = casesdujeuencours.findIndex(c => c.id === c2.id);
         if (index1 === -1 || index2 === -1 || index1 >= casesinitiales.length || index2 >= casesinitiales.length) return;
 
-        // Mise à jour des cases
         setState(prev => ({
             ...prev,
             casesdujeuencours: prev.casesdujeuencours.map((c, idx) => {
                 if (idx === index1) {
                     const newTxt = c2.txt;
-                    return { ...c, txt: newTxt, isLocked: prev.casesinitiales[idx]?.txt === newTxt, isSelected: false };
+                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
+                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
                 }
                 if (idx === index2) {
                     const newTxt = c1.txt;
-                    return { ...c, txt: newTxt, isLocked: prev.casesinitiales[idx]?.txt === newTxt, isSelected: false };
+                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
+                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
                 }
                 return c;
             }),
         }));
-
-        // Échange des pièces
-        setState(prev => {
-            if (index1 >= prev.pieces.length || index2 >= prev.pieces.length) return prev;
-            const newPieces = [...prev.pieces];
-            [newPieces[index1], newPieces[index2]] = [newPieces[index2], newPieces[index1]];
-            return { ...prev, pieces: newPieces };
-        });
     }, [state]);
 
     const selectCase = useCallback((c: Case | null) => {
@@ -140,24 +130,28 @@ export const useGameGenerator = () => {
         return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
     }, [gameConfig?.numeromatch]);
 
-    const loadMatch = useCallback(async (match: MatchInfo, niveau: number, pieces: string[]): Promise<MatchInfo> => {
+
+    const loadMatch = useCallback(async (match: MatchInfo, niveau: number, piecesImages: string[]): Promise<MatchInfo> => {
         const totalCases = getTotalCases(match.tpsglobal!, niveau);
         const gridSize = niveau * niveau;
         const seed = parseInt(match.numeromatch!) + 7;
 
         let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
-        if (match.tpsglobal !== 2) availableCases = shuffleArray(availableCases, seed);
+
+        if (match.tpsglobal !== 2) {
+            availableCases = shuffleArray(availableCases, seed);
+        }
 
         const selectedCases = availableCases.slice(0, gridSize);
-        const shuffledCases = shuffleArray(selectedCases, seed);
+        let shuffledCases = shuffleArray([...selectedCases], seed);
 
         match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
         match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
-        match.pieces = pieces;
+        match.pieces = piecesImages;
+
         return match;
     }, []);
 
-    // Effets
     useEffect(() => { if (!state.start) updateState({ start: true }); }, [state.start, updateState]);
 
     useEffect(() => {
@@ -175,8 +169,6 @@ export const useGameGenerator = () => {
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
         updateState({ isTransitioning: true });
-
-        // Marquer le match comme terminé
         setState(prev => ({
             ...prev,
             infomatch: prev.infomatch.map((m, idx) =>
@@ -206,7 +198,14 @@ export const useGameGenerator = () => {
 
             try {
                 const matchList = generateMatchList();
-                const piecesImages = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
+                let piecesImages: string[] = [];
+
+                const hasImageMode = matchList.some(m => m.tpsglobal === 2);
+
+                if (hasImageMode) {
+                    piecesImages = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
+                }
+
                 const updatedMatches = await Promise.all(
                     matchList.map(match => loadMatch(match, gameConfig?.niveau!, piecesImages))
                 );

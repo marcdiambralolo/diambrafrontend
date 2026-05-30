@@ -258,8 +258,8 @@ const GlowButton = ({ children, onClick }: { children: React.ReactNode; onClick:
 const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConfig, demarrerlejeu }: any) => (
     <div className="relative mb-8 transition-all duration-500">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-600 via-orange-600 to-red-600 p-0.5 shadow-2xl">
-            <div className="relative bg-gradient-to-br from-amber-600/90 to-red-600/90 backdrop-blur-sm p-6 rounded-3xl">
-                <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="relative bg-gradient-to-br from-amber-600/90 to-red-600/90 backdrop-blur-sm p-2 rounded-3xl">
+                <div className="grid grid-cols-2 gap-2 mb-6">
                     {[
                         { icon: "🎮", label: "N° Match", value: gameConfig?.numeromatch },
                         { icon: "📊", label: "Niveau", value: gameConfig?.niveau || 2 }
@@ -275,7 +275,7 @@ const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, gameConf
                 </div>
 
                 <CountdownTimerLight targetDate={endDate} variant="light" onFinish={handleEndMatch} />
-                <GlowButton onClick={demarrerlejeu}>🚀 PARTICIPEZ MAINTENANT</GlowButton>
+                <GlowButton onClick={demarrerlejeu}>🚀 JOUER</GlowButton>
 
                 <div className="grid grid-cols-2 gap-3 mt-4">
                     {[
@@ -358,7 +358,7 @@ function LaCompetition() {
     if (data.loading) return <Loader />;
 
     return (
-        <div className="w-full mx-auto max-w-2xl px-4 py-4">
+        <div className="w-full mx-auto max-w-2xl px-1 py-1 m-1 p-1">
             <ResultatsPage />
             <BannersSection
                 showNotStarted={data.hasNotStartedEdition}

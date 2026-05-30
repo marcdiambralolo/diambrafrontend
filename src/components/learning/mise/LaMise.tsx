@@ -27,9 +27,9 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
     }
 
     return (
-        <div className="relative overflow-hidden flex items-start gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+        <div className="relative overflow-hidden flex items-start gap-3 p-1 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-transparent" />
-            <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-2">
+            <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-1">
                 <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <div>
@@ -48,7 +48,7 @@ export default function LaMise() {
     if (loading) return <Loader />;
 
     return (
-        <div className="w-full max-w-xl mx-auto flex flex-col items-center justify-center w-full py-4">
+        <div className="w-full max-w-xl mx-auto flex flex-col items-center justify-center w-full py-1">
             <div className="mb-2">
                 <StatusBanner
                     isSufficient={isSufficient}

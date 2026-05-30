@@ -13,10 +13,6 @@ const GRID_STYLES = "w-full grid";
 const BUTTON_STYLES = "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors";
 const CARD_STYLES = "w-full shadow-lg rounded-xl bg-white overflow-hidden";
 
-// ============================================================================
-// COMPOSANT UNECASE FIXE
-// ============================================================================
-
 const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, pieces }: Case & { pieces: string[] }) => {
     const letterPairs = generateLetterPairs();
     const caseRef = useRef<HTMLDivElement>(null);
@@ -62,10 +58,6 @@ const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, pieces }: Case & { p
     );
 });
 
-// ============================================================================
-// COMPOSANT PLOADER
-// ============================================================================
-
 const PloaderEndGame = memo(({ match, initiale = false }: { match: MatchInfo; initiale?: boolean }) => {
     const cases = initiale ? match?.listeCaseOpLabInitiale || [] : match?.listeCaseOpLab || [];
     const size = match?.niveau || Math.sqrt(cases.length) || 3;
@@ -81,10 +73,6 @@ const PloaderEndGame = memo(({ match, initiale = false }: { match: MatchInfo; in
     );
 });
 
-// ============================================================================
-// COMPOSANT MATCH VIEW
-// ============================================================================
-
 const MatchView = memo(({ matchData, index }: { matchData: MatchInfo; index: number }) => {
     const [showFirstBoard, setShowFirstBoard] = useState(false);
 
@@ -97,15 +85,12 @@ const MatchView = memo(({ matchData, index }: { matchData: MatchInfo; index: num
                     <h4 className="text-lg font-bold text-center text-purple-600">Match {index + 1}</h4>
                     <p className="text-xs text-center text-gray-500">Type: {gameType}</p>
                 </div>
-
                 <div className="mt-2">
                     {showFirstBoard ? <PloaderEndGame match={matchData} initiale /> : <PloaderEndGame match={matchData} />}
                 </div>
-
                 <button onClick={() => setShowFirstBoard(prev => !prev)} className={`${BUTTON_STYLES} w-full mt-4`}>
                     {showFirstBoard ? "🎯 Voir P1" : "👀 Voir P2"}
                 </button>
-
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
                     <div className="bg-green-50 rounded-lg p-2"><span className="text-green-600 font-bold">{matchData.score?.toFixed(0) || 0}%</span><span className="text-gray-500 block">Score</span></div>
                     <div className="bg-blue-50 rounded-lg p-2"><span className="text-blue-600 font-bold">{matchData.trouves || 0}</span><span className="text-gray-500 block">Trouvés</span></div>
@@ -115,10 +100,6 @@ const MatchView = memo(({ matchData, index }: { matchData: MatchInfo; index: num
         </div>
     );
 });
-
-// ============================================================================
-// COMPOSANT RÉSULTATS
-// ============================================================================
 
 const InfoRow = ({ label, value }: { label: string; value: string | number | undefined }) => (
     <div className="flex justify-between py-2 border-b border-gray-200 last:border-0">
@@ -131,7 +112,6 @@ const FinMatchView = memo(() => {
     const { displayMatches: infomatch } = useEndGameGenerator();
     const datefin = useMemo(() => new Date().toISOString(), []);
     const monniveau = useMemo(() => infomatch?.[0]?.niveau ?? 0, [infomatch]);
-    const montpsglobal = useMemo(() => infomatch?.[0]?.tpsglobal ?? 0, [infomatch]);
     const madatedebut = useMemo(() => infomatch?.[0]?.datedebut, [infomatch]);
 
     const stats = useMemo(() => {
@@ -156,30 +136,26 @@ const FinMatchView = memo(() => {
     ], [monniveau, stats, infomatch.length, madatedebut, datefin]);
 
     return (
-        <div className="w-full w-max-md mt-4 flex flex-col items-center justify-center px-2">
+        <div className="w-full w-max-md mt-4 flex flex-col items-center justify-center px-1">
             <div
-                className="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 mb-6 shadow-md"
+                className="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-1 mb-6 shadow-md"
             >
                 <div className="flex items-center justify-center gap-2 mb-3">
                     <div className="w-12 h-0.5 bg-gradient-to-r from-purple-400 to-transparent" />
                     <h3 className="text-lg font-bold text-center text-purple-700">
-                        {montpsglobal === 4 ? "📊 RÉSUMÉ DE LA PARTIE" : "🏆 RÉSULTATS FINAUX"}
+                        📊 FEUILLE DE MATCHS
                     </h3>
                     <div className="w-12 h-0.5 bg-gradient-to-l from-purple-400 to-transparent" />
                 </div>
 
-                <div className={montpsglobal === 4 ? "grid grid-cols-2 gap-2" : "space-y-1"}>
+                <div className="grid grid-cols-1 gap-2" >
                     {summaryDetails.map((item) => (
                         <InfoRow key={item.label} label={item.label} value={item.value} />
                     ))}
                 </div>
             </div>
 
-
-            <div
-
-                className="w-full space-y-4"
-            >
+            <div className="w-full space-y-4">
                 {infomatch.map((match, index) => (
                     <MatchView
                         key={index}
@@ -188,14 +164,9 @@ const FinMatchView = memo(() => {
                     />
                 ))}
             </div>
-
         </div>
     );
 });
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
 
 export default function ResultatsPage() {
     const { clearCompletedMatches } = useMonEtoileStore();
@@ -209,17 +180,16 @@ export default function ResultatsPage() {
     if (!infomatch || infomatch.length === 0) return null;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8 px-4">
-            <div className="max-w-2xl mx-auto mb-4 flex justify-end">
-                <button onClick={handleRecommencer} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 transition-colors">
+        <div className="max-w-2xl py-1 px-1 mx-auto">
+            <div className="flex justify-center mb-4">
+                <button onClick={handleRecommencer} className="flex items-center gap-2 px-2 py-2 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 transition-colors">
                     <RotateCcw className="w-4 h-4" />
                     Recommencer
                 </button>
             </div>
-
             <FinMatchView />
 
-            <div className="max-w-2xl mx-auto mt-8 text-center">
+            <div className="flex justify-center mt-4 mb-8">
                 <button onClick={handleRecommencer} className="inline-flex items-center gap-2 px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-colors">
                     <RotateCcw className="w-5 h-5" />
                     Recommencer une partie

@@ -88,7 +88,7 @@ export function useLaMise() {
     }, [isSufficient, isLoading, handleValidation]);
 
     const handleGoToMarket = useCallback(() => {
-        router.push(`/star/marcheoffrandes?monjeu=${monidjeu}`);
+        router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
     }, [router, monidjeu]);
 
     useEffect(() => {

@@ -52,7 +52,7 @@ export function useMarcheOffrandesMain() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const monjeu = searchParams?.get("monjeu");
- const { user } = useAuth();
+  const { user } = useAuth();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [simulationStep, setSimulationStep] = useState<SimulationStep>("idle");
@@ -106,6 +106,12 @@ export function useMarcheOffrandesMain() {
         .filter(Boolean) as CartItem[]
     );
   }, []);
+
+  const getRedirectUrl = (monjeu: string | undefined, retour: string | null): string => {
+    if (retour === 'learning') return '/star/learning';
+    if (monjeu) return `/star/choix/${monjeu}`;
+    return '/star/profil';
+  };
 
   const handleSimulatedPayment = useCallback(async () => {
     if (isSubmittingRef.current) {
@@ -188,13 +194,19 @@ export function useMarcheOffrandesMain() {
       const query = qs.toString();
       let walletUrl = `/star/profil${query ? `?${query}` : ""}`;
       if (monjeu) {
-        walletUrl= `/star/choix/${monjeu}`;
+        walletUrl = `/star/choix/${monjeu}`;
       }
 
+      //  const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const retour = searchParams.get('retour');
+
+      let redirectUrl = getRedirectUrl(monjeu as string | undefined, retour);
       const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
-      const redirectUrl = walletUrl.includes('?')
-        ? `${walletUrl}&${transactionIdParam}&monjeu=${monjeu}`
-        : `${walletUrl}?${transactionIdParam}&monjeu=${monjeu}`;
+      redirectUrl = redirectUrl.includes('?')
+        ? `${redirectUrl}&${transactionIdParam}&monjeu=${monjeu}`
+        : `${redirectUrl}?${transactionIdParam}&monjeu=${monjeu}`;
 
       if (user && user.secretCode) {
         router.push(redirectUrl);

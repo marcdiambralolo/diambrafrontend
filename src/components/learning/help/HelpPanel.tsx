@@ -135,7 +135,7 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
                     
                     <div className="absolute bottom-3 left-4">
                         <h2 className="text-lg font-bold text-white">Centre d'aide</h2>
-                        <p className="text-[11px] text-white/80">Tout ce que vous devez savoir</p>
+                        <p className="text-[11px] text-white/80">Tout ce que vous devez savoir.</p>
                     </div>
                 </div>
 

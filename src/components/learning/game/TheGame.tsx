@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import ResultatsPage from '../endgame/ResultatsPage';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 
 const GRID_BASE_STYLES = "w-full grid";
 const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";
@@ -250,8 +249,6 @@ export default function TheGame() {
         showPun, timeElapsed, casesdujeuencours, casesinitiales,
         pieces, selectedCase, currentGameType, progression, tpsglobal, niveau,
     } = useGameGenerator();
-
-
 
     if (gameisover) {
         return <ResultatsPage />;

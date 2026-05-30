@@ -1,14 +1,10 @@
-import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
-import { api } from '@/lib/api/client';
 import { walletService } from '@/lib/api/services/wallet.service';
 import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
-import { LastEndedGame } from "@/lib/interfaces";
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useCommon } from '../useCommon';
 import { useGameConfig } from '../useGame';
+import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -57,24 +53,15 @@ const initialState: WalletState = {
     walletOfferings: [],
 };
 
-export function useCategoryConsulterClient() {
+export function useLaMise() {
     const router = useRouter();
-    const { isLoading: statsLoading } = useStatsDataWithCache();
-    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
-    const { randomImage, onlineStatus } = useCommon();
-
+    const { data: gameConfig, isLoading: loading } = useGameConfig();
+    const { setJouer, setGameStarted } = useMonEtoileStore();
     const isMountedRef = useRef(true);
     const timerRef = useRef<NodeJS.Timeout>();
 
     const [walletState, setWalletState] = useState<WalletState>(initialState);
-    const [gameStarted, setGameStarted] = useState(false);
-    const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-    const [loadingLastEnded, setLoadingLastEnded] = useState(true);
-    const [afficheaide, setAfficheaide] = useState(false);
-    const [jouer, setJouer] = useState(false);
-
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
 
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
@@ -97,73 +84,9 @@ export function useCategoryConsulterClient() {
         [isSufficient]
     );
 
-    const startDate = useMemo(() =>
-        gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
-        [gameConfig?.startgameDate]
-    );
-
-    const endDate = useMemo(() =>
-        gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
-        [gameConfig?.endgameDate]
-    );
-
-    const now = useMemo(() => new Date(), []);
-
-    const isGameActive = useMemo(() =>
-        gameConfig?.isActive === true &&
-        gameConfig?.status === 'active' &&
-        startDate !== null &&
-        endDate !== null &&
-        now >= startDate &&
-        now <= endDate,
-        [gameConfig?.isActive, gameConfig?.status, startDate, endDate, now]
-    );
-
-    const isGameEnded = useMemo(() =>
-        gameConfig?.status === 'ended' || (endDate !== null && now > endDate),
-        [gameConfig?.status, endDate, now]
-    );
-
-    const isGameNotStarted = useMemo(() =>
-        gameConfig?.status === 'pending' || (startDate !== null && now < startDate),
-        [gameConfig?.status, startDate, now]
-    );
-
-    const afficheselection = useMemo(() =>
-        !(isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null)) && !gameStarted,
-        [isGameEnded, isGameActive, isGameNotStarted, lastEndedGame, gameStarted]
-    );
-
-    const affichebanner = useMemo(() =>
-        isGameActive && !isGameEnded && endDate && startDate,
-        [isGameActive, isGameEnded, endDate, startDate]
-    );
-
-    const loading = useMemo(() =>
-        statsLoading || configLoading || loadingLastEnded || walletState.loading,
-        [statsLoading, configLoading, loadingLastEnded, walletState.loading]
-    );
-
-    const currentError = useMemo(() =>
-        walletState.showError ? walletState.error : null,
-        [walletState.showError, walletState.error]
-    );
-
-    const clearError = useCallback(() => {
-        setWalletState(prev => ({ ...prev, showError: false, error: null }));
-    }, []);
-
     const handleValidation = useCallback(() => {
         setGameStarted(true);
         setJouer(true);
-    }, []);
-
-    const afficherAide = useCallback(() => {
-        setAfficheaide(true);
-    }, []);
-
-    const afficherJeu = useCallback(() => {
-        setAfficheaide(false);
     }, []);
 
     const handleNext = useCallback(() => {
@@ -175,19 +98,6 @@ export function useCategoryConsulterClient() {
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?monjeu=${monidjeu}`);
     }, [router, monidjeu]);
-
-    const fetchLastEndedGame = useCallback(async () => {
-        try {
-            const response = await api.get('/game-configurations/last-ended');
-            const data = response.data as { success: boolean; hasEndedEdition: boolean; configuration: LastEndedGame };
-            setLastEndedGame(data?.hasEndedEdition ? data.configuration : null);
-        } catch (error) {
-            console.error('Erreur lors de la récupération du dernier jeu terminé:', error);
-            setLastEndedGame(null);
-        } finally {
-            setLoadingLastEnded(false);
-        }
-    }, []);
 
     useEffect(() => {
         isMountedRef.current = true;
@@ -212,18 +122,15 @@ export function useCategoryConsulterClient() {
         };
 
         loadWalletOfferings();
-        fetchLastEndedGame();
 
         return () => {
             isMountedRef.current = false;
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [fetchLastEndedGame]);
+    }, []);
 
     return {
-        gamehasStarted: gameStarted, requiredQuantity: POT_CONFIG.quantity,
-        handleGoToMarket, handleNext, clearError, afficherAide, afficherJeu, afficheselection, loading,
-        onlineStatus, randomImage, currentYear, affichebanner, jouer, afficheaide,
-        currentError, availableQuantity, cardClasses, isSufficient,
+        requiredQuantity: POT_CONFIG.quantity, loading,
+        handleGoToMarket, handleNext, availableQuantity, cardClasses, isSufficient,
     };
 }

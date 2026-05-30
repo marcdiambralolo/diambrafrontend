@@ -1,7 +1,5 @@
 'use client';
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
-import { api } from '@/lib/api/client';
-import { ActiveEdition, Consultation, EndedGameResponse, LastEndedGame, LastEndedResponse, StatisticsData, WinnersData } from '@/lib/interfaces';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameConfig } from './useGame';
 
@@ -9,35 +7,13 @@ export const ITEMS_PER_PAGE = 10000;
 
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
-  const { data: gameConfig, error: configError } = useGameConfig();
-
-  const isMountedRef = useRef(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const endGameCalledRef = useRef(false);
+  const { data: gameConfig } = useGameConfig();
 
   const [gameStarted, setGameStarted] = useState(false);
-  const [jeuAcommencer, setJeuAcommencer] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [activeEdition, setActiveEdition] = useState<ActiveEdition | null>(null);
-  const [winners, setWinners] = useState<WinnersData | null>(null);
-  const [statistics, setStatistics] = useState<StatisticsData | null>(null);
-  const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEndingGame, setIsEndingGame] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -79,133 +55,16 @@ export function useAdminConsultationsPageFinished() {
     [isGameActive, isGameEnded]
   );
 
-  const showEnded = useMemo(() =>
-    isGameEnded || (!isGameActive && !isGameNotStarted && lastEndedGame !== null),
-    [isGameEnded, isGameActive, isGameNotStarted, lastEndedGame]
-  );
-
-  const hasWinners = useMemo(() =>
-    winners?.totalWinners ? winners.totalWinners > 0 : false,
-    [winners?.totalWinners]
-  );
-
-  const winningCombination = useMemo(() =>
-    statistics?.winningCombination || activeEdition?.winningCombination || null,
-    [statistics?.winningCombination, activeEdition?.winningCombination]
-  );
-
   const hasNotStartedEdition = useMemo(() =>
     showNotStarted && startDate,
     [showNotStarted, startDate]
   );
 
-  const refreshAllData = useCallback(async () => {
-    if (isRefreshing) return;
-    setIsRefreshing(true);
-
-    try {
-      // Récupérer les données des consultations terminées
-      const [consultationsResponse, lastEndedResponse] = await Promise.all([
-        api.get('/consultations/ended-game', {
-          params: { page: 1, limit: ITEMS_PER_PAGE },
-        }),
-        api.get('/game-configurations/last-ended'),
-      ]);
-
-      const consultationsData = consultationsResponse.data as EndedGameResponse;
-      const lastEndedData = lastEndedResponse.data as LastEndedResponse;
-
-      if (isMountedRef.current) {
-        setConsultations(consultationsData?.consultations || []);
-        setActiveEdition(consultationsData?.activeEdition || null);
-        setWinners(consultationsData?.winners || null);
-        setStatistics(consultationsData?.statistics || null);
-        setLastEndedGame(lastEndedData?.hasEndedEdition ? lastEndedData.configuration : null);
-        setError(null);
-      }
-    } catch (err: any) {
-      if (isMountedRef.current) {
-        console.error('Erreur:', err);
-        setError(err?.message || 'Erreur lors du chargement');
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-        setIsRefreshing(false);
-      }
-    }
-  }, [isRefreshing]);
-
-  const endGameInBackend = useCallback(async () => {
-    if (!gameConfig?._id || isEndingGame || endGameCalledRef.current) return;
-
-    setIsEndingGame(true);
-
-    try {
-      const response = await api.post(`/game-configurations/${gameConfig._id}/end`);
-      const data = response.data as any;
-
-      if (data?.success) {
-        endGameCalledRef.current = true;
-        setMatchFinished(true);
-        // 🔥 Recharger les données immédiatement
-        await refreshAllData();
-      }
-    } catch (err: any) {
-      if (err?.response?.status === 409) {
-        endGameCalledRef.current = true;
-        setMatchFinished(true);
-        await refreshAllData();
-      } else {
-        console.error('Erreur:', err);
-      }
-    } finally {
-      setIsEndingGame(false);
-    }
-  }, [gameConfig?._id, isEndingGame, refreshAllData]);
-
-  const handleOpenGame = useCallback(() => {
-    if (!gameStarted) {
-      setGameStarted(true);
-    }
-  }, [gameStarted]);
-
-  const handleEndMatch = useCallback(async () => {
+  const handleEndMatch = useCallback(() => {
     if (!matchFinished && !isEndingGame) {
       setMatchFinished(true);
-      await endGameInBackend();
     }
-  }, [matchFinished, isEndingGame, endGameInBackend]);
-
-  useEffect(() => {
-    const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
-      !matchFinished &&
-      !endGameCalledRef.current &&
-      gameConfig?._id;
-
-    if (shouldEnd) {
-      endGameInBackend();
-    }
-  }, [isGameEnded, currentTime, endDate, matchFinished, endGameInBackend, gameConfig?._id]);
-
-  useEffect(() => {
-    const reloadInterval = setInterval(() => {
-      if (!isRefreshing && !isEndingGame) {
-        refreshAllData();
-      }
-    }, 5000);
-
-    return () => clearInterval(reloadInterval);
-  }, [isRefreshing, isEndingGame, refreshAllData]);
-
-  useEffect(() => {
-    isMountedRef.current = true;
-    refreshAllData();
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [refreshAllData]);
+  }, [matchFinished, isEndingGame,]);
 
   useEffect(() => {
     if (showActive && !gameStarted && !hasNotStartedEdition) {
@@ -213,13 +72,5 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
-  const demarrerJeu = useCallback(() => {
-    setJeuAcommencer(true);
-  }, []);
-
-  return {   
-    handleOpenGame, handleEndMatch, demarrerJeu, jeuAcommencer, error: error || configError,
-    stats, startDate, endDate, gameConfig, lastEndedGame, winningCombination, gameStarted,
-    showEnded, consultations, activeEdition, winners, hasNotStartedEdition, hasWinners,
-  };
+  return { handleEndMatch, error, stats, startDate, endDate, gameConfig, };
 }

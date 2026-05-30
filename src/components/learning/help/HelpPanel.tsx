@@ -200,8 +200,6 @@ export const HelpSectionCard = memo(({ section }: { section: HelpSection }) => (
     </motion.section>
 ));
 
-HelpSectionCard.displayName = "HelpSectionCard";
-
 export const HelpHeader = memo(() => (
     <motion.header
         initial={{ opacity: 0, y: -20 }}
@@ -233,8 +231,6 @@ export const HelpHeader = memo(() => (
     </motion.header>
 ));
 
-HelpHeader.displayName = "HelpHeader";
-
 export const QuickTips = memo(() => (
     <motion.aside
         variants={ANIMATIONS.section}
@@ -265,8 +261,6 @@ export const QuickTips = memo(() => (
         </div>
     </motion.aside>
 ));
-
-QuickTips.displayName = "QuickTips";
 
 const HelpPanel = memo(({ onClose }: { onClose: () => void }) => (
     <motion.div
@@ -337,7 +331,5 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => (
     `}</style>
     </motion.div>
 ));
-
-HelpPanel.displayName = "HelpPanel";
 
 export default HelpPanel;

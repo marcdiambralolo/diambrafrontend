@@ -2,27 +2,40 @@
 import Loader from "@/app/loading";
 import { useCategoryConsulterClient } from '@/hooks/learning/choix/useCategoryConsulterClient';
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/useAdminConsultationsPageFinished";
-import { BannersSection, EditionCard, ParticipationsSection, TitleSection, WinnersSection } from "./Features";
-import { BannerSection, ErrorToast, FooterImage, HeaderSection, HelpButton, OfferSelection } from "./bonchoix/Features";
+import { useMonEtoileStore } from "@/lib/store/monetoile.store";
+import { memo, useCallback, useMemo } from 'react';
+import { BannerSection, ErrorToast, FooterImage, HeaderSection, HelpButton } from "./bonchoix/Features";
 import TheGame from "./game/TheGame";
 import HelpPanel from "./help/HelpPanel";
+import LaCompetion from "./lacompetition/LaCompetion";
+import LaMise from "./mise/LaMise";
 
-export default function ProfilPageLearning() {
+function ProfilPageLearningInner() {
   const {
-    handleOpenGame, handleEndMatch, demarrerJeu, jeuAcommencer,
-    stats, startDate, endDate, gameConfig, lastEndedGame, winningCombination, gameStarted,
-    showEnded, consultations, activeEdition, winners, error, hasNotStartedEdition, hasWinners,
+    handleEndMatch, error, stats, startDate, endDate, gameConfig,
   } = useAdminConsultationsPageFinished();
 
   const {
-    handleGoToMarket, handleNext, clearError, afficherAide, afficherJeu, afficheselection, gamehasStarted, loading,
-    onlineStatus, randomImage, currentYear, affichebanner, jouer, afficheaide,
-    currentError, availableQuantity, cardClasses, isSufficient, requiredQuantity,
+    clearError, afficherAide, afficherJeu, afficheselection, loading, currentError, onlineStatus,
+    randomImage, currentYear, affichebanner, afficheaide,
   } = useCategoryConsulterClient();
 
-  const showHelp = afficheaide;
-  const showGameContent = gamehasStarted && jouer && !showHelp;
-  const showSelection = afficheselection && !showHelp;
+  const { jouer, gameStarted, jeuAcommencer } = useMonEtoileStore();
+
+  const showHelp = useMemo(() => afficheaide, [afficheaide]);
+  const showGameContent = useMemo(
+    () => gameStarted && jouer && !showHelp,
+    [gameStarted, jouer, showHelp]
+  );
+
+  const showSelection = useMemo(
+    () => afficheselection && !gameStarted && !showHelp,
+    [afficheselection, showHelp]
+  );
+
+  const handleCloseHelp = useCallback(() => afficherJeu(), [afficherJeu]);
+  const handleClickHelp = useCallback(() => afficherAide(), [afficherAide]);
+  const handleCloseError = useCallback(() => clearError(), [clearError]);
 
   if (loading) return <Loader />;
 
@@ -30,24 +43,16 @@ export default function ProfilPageLearning() {
     <div className="w-full mx-auto max-w-2xl px-4 py-4">
       <HeaderSection />
 
-      {error && <ErrorToast message={currentError!} onClose={clearError} />}
-      {showHelp && <HelpPanel onClose={afficherJeu} />}
+      {error && (
+        <ErrorToast message={currentError!} onClose={handleCloseError} />
+      )}
+
+      {showHelp && <HelpPanel onClose={handleCloseHelp} />}
 
       {jeuAcommencer ? (
         <>
-          {showGameContent && (<TheGame />)}
-
-          {showSelection && (
-            <OfferSelection
-              isSufficient={isSufficient}
-              requiredQuantity={requiredQuantity}
-              availableQuantity={availableQuantity}
-              cardClasses={cardClasses}
-              onNext={handleNext}
-              onGoToMarket={handleGoToMarket}
-            />
-          )}
-
+          {showGameContent && <TheGame />}
+          {showSelection && <LaMise />}
           <BannerSection
             affichebanner={affichebanner}
             endDate={endDate}
@@ -59,37 +64,7 @@ export default function ProfilPageLearning() {
           />
         </>
       ) : (
-        <>
-          <BannersSection
-            showNotStarted={hasNotStartedEdition as boolean}
-            showActive={gameStarted}
-            showEnded={showEnded}
-            startDate={startDate}
-            endDate={endDate}
-            gameConfig={gameConfig}
-            lastEndedGame={lastEndedGame}
-            stats={stats}
-            onOpenGame={handleOpenGame}
-            onEndMatch={handleEndMatch}
-            demarrerJeu={demarrerJeu}
-          />
-
-          {activeEdition && <EditionCard activeEdition={activeEdition} />}
-
-          <TitleSection showEnded={showEnded} />
-
-          <WinnersSection
-            hasWinners={hasWinners!}
-            winningCombination={winningCombination}
-            winners={winners}
-            consultations={consultations}
-          />
-
-          <ParticipationsSection
-            consultations={consultations}
-            activeEditionId={activeEdition?.id}
-          />
-        </>
+        <LaCompetion />
       )}
 
       <FooterImage
@@ -97,8 +72,9 @@ export default function ProfilPageLearning() {
         currentYear={currentYear}
         onlineStatus={onlineStatus}
       />
-
-      {!showHelp && <HelpButton onClick={afficherAide} />}
+      {!showHelp && <HelpButton onClick={handleClickHelp} />}
     </div>
   );
 }
+
+export default memo(ProfilPageLearningInner);

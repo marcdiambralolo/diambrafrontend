@@ -8,7 +8,6 @@ import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { AnimatePresence, motion } from "framer-motion";
 import { RotateCcw, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
@@ -300,12 +299,13 @@ const FinMatchView = memo(() => {
 });
 
 export default function ResultatsPage() {
-    const router = useRouter();
     const { clearCompletedMatches } = useMonEtoileStore();
 
-    const handleRecommencer = () => {
+    const handleRecommencer = async () => {
         clearCompletedMatches();
-        router.push('/star/learning');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        window.location.href = '/star/learning';
+        window.location.reload();
     };
 
     return (

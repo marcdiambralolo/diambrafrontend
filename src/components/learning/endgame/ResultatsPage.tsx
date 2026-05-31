@@ -41,10 +41,10 @@ const UnecaseFixe = memo(({ tpsglobal, txt, isLocked, size, pieces }: Case & { p
     const content = (() => {
         if (tpsglobal === 0) return txt;
         if (tpsglobal === 3) return letterPairs[txtIndex];
-        if (isLocked && (tpsglobal === 1 || tpsglobal === 2)) {
-            return <Image src="/momok.png" alt="OK" width={100} height={100} priority />;
-        }
-        return txt;
+        // if (isLocked && (tpsglobal === 1 || tpsglobal === 2)) {
+        //     return <Image src="/momok.png" alt="OK" width={100} height={100} priority />;
+        // }
+        return " ";
     })();
 
     return (

@@ -51,7 +51,7 @@ const CountdownTimer = ({ targetDate, variant = 'light', onFinish }: any) => {
 };
 
 const HistoryButton = memo(() => (
-    <CacheLink href="/star/historique/1779760200000" className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-sm w-full sm:w-auto">
+    <CacheLink href="/star/learning/historique/1779760200000" className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-sm w-full sm:w-auto">
         <History className="w-4 h-4" /><span>Historique</span>
     </CacheLink>
 ));

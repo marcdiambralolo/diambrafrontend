@@ -19,9 +19,10 @@ export function useAdminConsultationsPageFinished() {
 
   const fetchData = useCallback(async () => {
     try {
-      const { data } = await api.get<EndedGameResponse>('/consultations/ended-game', {
+      const { data } = await api.get<any>('/consultations/ended-learning', {
         params: { page: 1, limit: ITEMS_PER_PAGE },
       });
+      console.log(data);
 
       if (isMountedRef.current) {
         setConsultations(data?.consultations || []);
@@ -46,5 +47,14 @@ export function useAdminConsultationsPageFinished() {
     return () => { isMountedRef.current = false; };
   }, [fetchData]);
 
-  return { loading, error, activeEdition, consultations, winners, hasWinners, winningCombination, };
+  return {
+    loading,
+    error,
+    activeEdition,
+    consultations,
+    winners,
+    statistics,  // 🔥 AJOUTER CETTE LIGNE
+    hasWinners,
+    winningCombination,
+  };
 }

@@ -5,6 +5,7 @@ export const navItems = [
   { href: '/admin/game', label: 'Editions', icon: Settings, color: 'gray' },
   { href: '/admin/learning', label: 'Learning', icon: FileText, color: 'green' },
   { href: '/admin/consultations', label: 'Jeux', icon: FileText, color: 'green' },
+  { href: '/admin/competitions', label: 'Competitions', icon: FileText, color: 'green' },
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, color: 'blue' },
   { href: '/admin/payments', label: 'Paiements', icon: CreditCard, color: 'ocean' },
   { href: '/admin/offrandes', label: 'Jetons', icon: Shield, color: 'cyan' },

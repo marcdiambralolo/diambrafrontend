@@ -4,10 +4,9 @@ import { LastEndedGame, Winner } from "@/lib/interfaces";
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Award, Calendar, Clock, Crown, FileText,
-    Gift, History, Hourglass, Zap,
+    Gift, History, Hourglass,  Zap,
     ListOrdered, Medal, RefreshCw, Shuffle, Sparkles, Star, Timer, TrendingUp, Trophy, Users,
-    ArrowRight,
-    Flame,
+  
 } from "lucide-react";
 import React, { memo } from 'react';
 import { fadeInUp, staggerContainer } from "../admin/consultations/ConsultationsPageClientEnded";

@@ -334,8 +334,8 @@ export default function LearningConfigurationManager() {
           <div className="overflow-hidden bg-white p-6 md:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
-                <h1 className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-4xl font-black tracking-tight text-transparent md:text-6xl">
-                  Editions
+                <h1 className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-2xl font-black tracking-tight text-transparent md:text-6xl">
+                  COMPETITIONS
                 </h1>
               </div>
               {!isCreating && (

@@ -132,7 +132,7 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
                     >
                         <X className="w-4 h-4 text-white" />
                     </button>
-                    
+
                     <div className="absolute bottom-3 left-4">
                         <h2 className="text-lg font-bold text-white">Centre d'aide</h2>
                         <p className="text-[11px] text-white/80">Tout ce que vous devez savoir.</p>
@@ -147,9 +147,7 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
                         <ArrowLeft className="w-4 h-4" />
                         Reprendre le jeu
                     </button>
-
                     <HelpHeader />
-
                     <div className="space-y-3 mb-5">
                         {HELP_SECTIONS.map((section) => (
                             <HelpSectionCard key={section.id} section={section} />

@@ -48,7 +48,7 @@ export default function LaMise() {
     if (loading) return <Loader />;
 
     return (
-        <div className="w-full max-w-xl mx-auto flex flex-col items-center justify-center w-full py-1">
+        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center w-full py-0 px-0 m-0 p-0">
             <div className="mb-2">
                 <StatusBanner
                     isSufficient={isSufficient}

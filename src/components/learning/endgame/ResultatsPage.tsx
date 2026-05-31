@@ -136,7 +136,7 @@ const FinMatchView = memo(() => {
     ], [monniveau, stats, infomatch.length, madatedebut, datefin]);
 
     return (
-        <div className="w-full w-max-md mt-4 flex flex-col items-center justify-center px-1">
+        <div className="w-full w-max-md mt-4 flex flex-col items-center justify-center px-0 py-0 m-0 p-0">
             <div
                 className="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-1 mb-6 shadow-md"
             >
@@ -180,7 +180,7 @@ export default function ResultatsPage() {
     if (!infomatch || infomatch.length === 0) return null;
 
     return (
-        <div className="max-w-2xl py-1 px-1 mx-auto">
+        <div className="w-full max-w-md px-0 py-0 m-0 p-0 mx-auto">
             <div className="flex justify-center mb-4">
                 <button onClick={handleRecommencer} className="flex items-center gap-2 px-2 py-2 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 transition-colors">
                     <RotateCcw className="w-4 h-4" />

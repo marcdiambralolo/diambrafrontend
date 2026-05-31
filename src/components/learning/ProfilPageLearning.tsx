@@ -55,7 +55,7 @@ export const BannerSection = memo(() => {
 });
 
 export const HeaderSection = memo(() => (
-  <div className="relative flex flex-col items-center justify-center mt-2 mb-8">
+  <div className="relative flex flex-col items-center justify-center mt-2 mb-2">
     <div className="relative flex flex-col items-center justify-center gap-2">
       <div className="relative">
         <h1 className="text-xl sm:text-2xl font-black text-center bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">DIAMBRA LEARNING</h1>
@@ -145,7 +145,7 @@ const ProfilPageLearning = memo(() => {
   const { gameStarted, jeuAcommencer, afficheaide, afficherAide, afficherJeu } = useMonEtoileStore();
 
   return (
-    <div className="w-full mx-auto max-w-2xl px-1 py-1 m-1 p-1">
+    <div className="w-full mx-auto max-w-md px-0 py-0 m-0 p-0">
       <HeaderSection />
       {afficheaide && <HelpPanel onClose={afficherJeu} />}
       {!afficheaide && (

@@ -96,7 +96,6 @@ const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mod
     );
 });
 
-
 interface PloaderFixeProps {
     niveau: number;
     casesun: Case[];
@@ -253,12 +252,10 @@ export default function TheGame() {
         pieces, selectedCase, currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed,
     } = useGameGenerator();
 
-    if (gameisover) {
-        return <ResultatsPage />;
-    }
+    if (gameisover) { return <ResultatsPage />; }
 
     return (
-        <div className="flex flex-col items-center justify-center w-full m-0 p-0 py-0 px-0 mb-4">
+        <div className="flex flex-col items-center justify-center w-full max-w-md px-0 py-0 m-0 p-0 mb-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -335,6 +332,7 @@ export default function TheGame() {
                             label="JEU EN COURS"
                             value={currentGameType}
                         />
+
                         <InfoRowGame
                             icon={<BarChartOutlined />}
                             iconBg="bg-green-100 dark:bg-green-900/30"

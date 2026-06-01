@@ -59,7 +59,7 @@ export const useGameGenerator = () => {
                 if (idx === index2) {
                     const newTxt = c1.txt;
                     const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
-                    toggleShowPun();
+                    setState(prev => ({ ...prev, showPun: true}));
                     return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
                 }
                 return c;
@@ -81,7 +81,7 @@ export const useGameGenerator = () => {
         const index = casesdujeuencours.findIndex(c => c.id === selectedCase.id);
         if (index === -1 || index >= casesinitiales.length) return updateState({ selectedCase: null });
         if (selectedCase.txt !== casesinitiales[index]?.txt) return updateState({ selectedCase: null });
-
+  setState(prev => ({ ...prev, showPun: true}));
         updateState({
             casesdujeuencours: casesdujeuencours.map(c =>
                 c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c

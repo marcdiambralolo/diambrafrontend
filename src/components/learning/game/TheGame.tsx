@@ -4,14 +4,21 @@ import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
 import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, Variant, Variants } from 'framer-motion';
 import Image from "next/image";
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ResultatsPage from '../endgame/ResultatsPage';
 
 const GRID_BASE_STYLES = "w-full grid";
 const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300";
 const INFO_CARD_STYLES = "flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-200";
+
+// Animation variants pour la transition douce
+const boardVariants: Variants = {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2, ease: "easeInOut" } }
+};
 
 const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
     const caseRef = useRef<HTMLDivElement>(null);
@@ -81,7 +88,7 @@ const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mod
         <div
             ref={caseRef}
             onClick={onClick}
-            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square"
+            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square transition-all duration-200"
             style={{
                 width: size,
                 height: size,
@@ -127,9 +134,17 @@ const PloaderFixe = memo(({ niveau, casesun, pieces }: PloaderFixeProps) => {
     );
 
     return (
-        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P1">
+        <motion.div
+            variants={boardVariants!}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={GRID_BASE_STYLES}
+            style={gridStyles}
+            aria-label="Grille de cases P1"
+        >
             {renderedCases}
-        </div>
+        </motion.div>
     );
 });
 
@@ -168,9 +183,17 @@ const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCase, piec
     );
 
     return (
-        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P2">
+        <motion.div
+            variants={boardVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={GRID_BASE_STYLES}
+            style={gridStyles}
+            aria-label="Grille de cases P2"
+        >
             {renderedCases}
-        </div>
+        </motion.div>
     );
 });
 
@@ -203,7 +226,7 @@ const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
     label: string;
     value: string | number;
 }) => (
-    <motion.div whileHover={{ x: 5 }} className={INFO_CARD_STYLES}>
+    <div className={INFO_CARD_STYLES}>
         <div className={`p-1 ${iconBg} rounded-lg`}>
             <div className={iconColor}>{icon}</div>
         </div>
@@ -215,7 +238,7 @@ const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
                 {value}
             </p>
         </div>
-    </motion.div>
+    </div>
 ));
 
 interface ActionButtonProps {
@@ -232,9 +255,7 @@ const ActionButton = memo(({ onClick, children, variant, ariaLabel }: ActionButt
     };
 
     return (
-        <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
+        <button
             onClick={onClick}
             className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
             aria-label={ariaLabel}
@@ -242,7 +263,7 @@ const ActionButton = memo(({ onClick, children, variant, ariaLabel }: ActionButt
             tabIndex={0}
         >
             {children}
-        </motion.button>
+        </button>
     );
 });
 
@@ -251,31 +272,33 @@ export default function TheGame() {
         toggleShowPun, lockSelectedCase, selectCase, gameisover, casesdujeuencours, casesinitiales,
         pieces, selectedCase, currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed,
     } = useGameGenerator();
+    
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    const handleToggleShowPun = useCallback(() => {
+        setIsTransitioning(true);
+        setTimeout(() => {
+            toggleShowPun();
+            setTimeout(() => setIsTransitioning(false), 300);
+        }, 300);
+    }, [toggleShowPun]);
 
     if (gameisover) { return <ResultatsPage />; }
 
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-md px-0 py-0 m-0 p-0 mb-4">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-md text-center px-0 py-0 mb-4"
-            >
+            <div className="w-full max-w-md text-center px-0 py-0 mb-4">
+                {/* Grille avec animation de transition */}
                 <div className="mb-4">
-                    {showPun ? (
-                        <PloaderFixe niveau={niveau!} casesun={casesinitiales} pieces={pieces} />
-                    ) : (
-                        <Ploader
-                            niveau={niveau!}
-                            cases={casesdujeuencours}
-                            selectedCase={selectedCase}
-                            selectCase={selectCase}
-                            pieces={pieces}
-                            tpsglobal={tpsglobal}
-                        />
-                    )}
+                    <AnimatePresence mode="wait">
+                        {showPun ? (
+                            <PloaderFixe key="p1" niveau={niveau!} casesun={casesinitiales} pieces={pieces} />
+                        ) : (
+                            <Ploader key="p2" niveau={niveau!} cases={casesdujeuencours} selectedCase={selectedCase} selectCase={selectCase} pieces={pieces} tpsglobal={tpsglobal} />
+                        )}
+                    </AnimatePresence>
                 </div>
+                
                 <div className="flex flex-col items-center justify-center w-full mt-4">
                     <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
                         {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
@@ -283,7 +306,7 @@ export default function TheGame() {
 
                     <div className="flex items-center justify-center gap-3 flex-wrap">
                         <ActionButton
-                            onClick={toggleShowPun}
+                            onClick={handleToggleShowPun}
                             variant="secondary"
                             ariaLabel={showPun ? "Jouer" : "Voir P1"}
                         >
@@ -300,10 +323,12 @@ export default function TheGame() {
                             </ActionButton>
                         )}
                     </div>
+                    
                     <div className="font-bold text-blue-600 mt-4 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
                         <span className="text-sm">⏱</span>
                         <span>{formatTime(timeElapsed)}</span>
                     </div>
+                    
                     <div className="mt-4 w-full space-y-3">
                         {casesdujeuencours.length > 0 && (
                             <div className="mt-2">
@@ -340,7 +365,7 @@ export default function TheGame() {
                         />
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 }

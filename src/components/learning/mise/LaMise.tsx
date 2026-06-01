@@ -4,10 +4,6 @@ import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag, Zap } from "lucide-react";
 import { memo } from 'react';
 
-// ============================================================================
-// COMPOSANT STATUS BANNER
-// ============================================================================
-
 const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }: {
     isSufficient: boolean;
     requiredQuantity: number;
@@ -30,10 +26,11 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
     }
 
     return (
-        <div className="relative overflow-hidden flex items-start gap-3 p-3 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+        <div className="relative overflow-hidden flex items-start gap-3 mb-4 p-3 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
             <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-1.5">
                 <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
+
             <div>
                 <p className="text-sm font-semibold text-green-800 dark:text-green-300">Prêt à valider !</p>
                 <p className="text-xs text-green-700 dark:text-green-400/80">
@@ -43,10 +40,6 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
         </div>
     );
 });
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
 
 export default function LaMise() {
     const { handleGoToMarket, handleNext, availableQuantity, cardClasses, isSufficient, requiredQuantity, loading } = useLaMise();
@@ -78,7 +71,7 @@ export default function LaMise() {
                     )}
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 mt-4">
                     <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                         <Coins className="w-3.5 h-3.5" />
                         <span>Jetons requis : <strong className="text-gray-800 dark:text-gray-200">{requiredQuantity}</strong></span>
@@ -115,6 +108,7 @@ export default function LaMise() {
                     Vous ne disposez pas d'assez de jetons.
                 </p>
             )}
+
             <button
                 onClick={handleGoToMarket}
                 className="group w-full h-10 mt-4 mb-4 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] transition-all duration-300 hover:bg-[#DDE7FA] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] dark:hover:bg-[#162A56]/45"

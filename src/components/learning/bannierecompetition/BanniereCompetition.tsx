@@ -4,8 +4,8 @@ import { useAdminConsultationsPageFinished } from "@/hooks/learning/lacompetitio
 import { formatDateFRJeu, formatDateTime, formatNumber } from "@/lib/functions";
 import { LastEndedGame } from "@/lib/interfaces";
 import { Award, Calendar, Clock, History, Hourglass, Timer, Trophy, Users } from "lucide-react";
-import { memo, useEffect, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
+import { memo, useEffect, useState } from 'react';
 
 const CountdownTimer = ({ targetDate, onFinish }: any) => {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });

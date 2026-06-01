@@ -6,20 +6,16 @@ import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameConfig } from '../useGame';
 
-export const ITEMS_PER_PAGE = 10000;
-
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
   const { data: gameConfig } = useGameConfig();
-
-  const { setJeuAcommencer,setGameStarted, resetGameState,startGame,gameStarted } = useMonEtoileStore();
+  const { setJeuAcommencer, resetGameState, setGameStarted, gameStarted } = useMonEtoileStore();
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const endGameCalledRef = useRef(false);
   const isFetchingRef = useRef(false);
 
- // const [gameStarted,  ] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,13 +24,8 @@ export function useAdminConsultationsPageFinished() {
   const [isEndingGame, setIsEndingGame] = useState(false);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    intervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
   const startDate = useMemo(() =>
@@ -65,7 +56,6 @@ export function useAdminConsultationsPageFinished() {
     [gameConfig?.status, startDate, currentTime]
   );
 
-  // 🔥 Valeurs calculées
   const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
   const showActive = isGameActive && !isGameEnded;
   const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
@@ -76,8 +66,7 @@ export function useAdminConsultationsPageFinished() {
     isFetchingRef.current = true;
 
     try {
-      const { data } = await api.get<LastEndedResponse>('/game-configurations/last-ended');
-
+      const { data } = await api.get<LastEndedResponse>('/learning-configurations/last-ended');
       if (isMountedRef.current) {
         setLastEndedGame(data?.hasEndedEdition ? data.configuration : null);
         setError(null);
@@ -100,8 +89,7 @@ export function useAdminConsultationsPageFinished() {
     setIsEndingGame(true);
 
     try {
-      const { data } = await api.post(`/game-configurations/${gameConfig._id}/end`);
-
+      const { data } = await api.post(`/learning-configurations/${gameConfig._id}/end`);
       if ((data as any)?.success) {
         endGameCalledRef.current = true;
         setMatchFinished(true);
@@ -122,7 +110,7 @@ export function useAdminConsultationsPageFinished() {
 
   const handleOpenGame = useCallback(() => {
     if (!gameStarted) setGameStarted(true);
-  }, [gameStarted]);
+  }, [gameStarted, setGameStarted]);
 
   const handleEndMatch = useCallback(async () => {
     if (!matchFinished && !isEndingGame) {
@@ -133,8 +121,8 @@ export function useAdminConsultationsPageFinished() {
 
   const demarrerJeu = useCallback(() => {
     resetGameState();
-    setJeuAcommencer(true);  
-  }, [resetGameState, setJeuAcommencer,]);
+    setJeuAcommencer(true);
+  }, [resetGameState, setJeuAcommencer]);
 
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
@@ -159,12 +147,10 @@ export function useAdminConsultationsPageFinished() {
     if (showActive && !gameStarted && !hasNotStartedEdition) {
       setGameStarted(true);
     }
-  }, [showActive, gameStarted, hasNotStartedEdition]);
+  }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
 
-  // 🔥 Retour avec toutes les valeurs nécessaires
   return {
-     demarrerJeu, handleOpenGame, handleEndMatch,
-        showEnded, loading, showActive, showNotStarted, lastEndedGame,
-        endDate, startDate, gameConfig, stats,
+    demarrerJeu, handleOpenGame, handleEndMatch, startDate, gameConfig, stats, error,
+    showEnded, loading, showActive, showNotStarted, lastEndedGame, endDate,
   };
 }

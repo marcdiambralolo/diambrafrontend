@@ -2,7 +2,6 @@
 import { useCommon } from '@/hooks/learning/useCommon';
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { HelpCircle } from "lucide-react";
-import Image from "next/image";
 import { memo } from 'react';
 import BanniereCompetition from './bannierecompetition/BanniereCompetition';
 import ResultatsPage from './endgame/ResultatsPage';
@@ -20,23 +19,24 @@ const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
 ));
 
 const FooterSection = memo(({ currentYear, onlineStatus }: { currentYear: number; onlineStatus: { text: string; color: string } }) => (
-  <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-center shadow-lg overflow-hidden">
+  <footer className="relative mt-4 bg-gradient-to-r from-gray-900 to-gray-900 rounded-xl p-4 text-center shadow-lg overflow-hidden">
     <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10" />
-    <div className="relative flex items-center justify-between text-xs text-gray-400">
+    <div className="relative flex items-center justify-between text-xs text-white">
       <span>© {currentYear}</span>
       <StatusBadge text={onlineStatus.text} color={onlineStatus.color} />
     </div>
-    <p className="text-gray-500 text-[10px] mt-2">DIAMBRA CORPORATION • Tous droits réservés.</p>
+
+    <p className="text-white mt-2">DIAMBRA CORPORATION • Tous droits réservés.</p>
   </footer>
 ));
 
 const FooterImage = memo(() => {
-  const { randomImage, onlineStatus } = useCommon();
+  const { onlineStatus } = useCommon();
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="w-full max-w-md mx-auto mt-2">
-      <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />      
+      <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />
     </div>
   );
 });

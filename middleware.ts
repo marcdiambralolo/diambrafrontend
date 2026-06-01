@@ -26,11 +26,23 @@ function isTokenExpired(token: string): boolean {
   return decoded.exp < Math.floor(Date.now() / 1000);
 }
 
+// ─── Générer un cache buster aléatoire ─────────────────────────────────────
+function generateCacheBuster(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz';
+  let result = '';
+  for (let i = 0; i < 15; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// ─── Vérifier si une URL a un paramètre cb ──────────────────────────────────
+function hasCacheBuster(url: URL): boolean {
+  return url.searchParams.has('cb');
+}
 
 // ─── Route sets (computed once at module level) ─────────────────────────────
-const AUTH_PAGES = new Set(['/auth/login', '/auth/register']);
 const AUTH_ACTIONS = new Set(['/auth/logout']);
-const PROTECTED_PREFIXES = ['/admin'] as const;
 
 // ─── Security headers applied to every response ────────────────────────────
 const SECURITY_HEADERS: Record<string, string> = {
@@ -58,6 +70,14 @@ export function middleware(request: NextRequest) {
   const isAuthAction = AUTH_ACTIONS.has(pathname);
   const isProtected = (pathname.startsWith('/admin')) || (pathname.startsWith('/star'));
 
+  // 🔥 Ajouter le cache buster pour /star/learning
+  if (pathname === '/star/learning' && !hasCacheBuster(request.nextUrl)) {
+    const url = request.nextUrl.clone();
+    const cbValue = generateCacheBuster();
+    url.searchParams.set('cb', cbValue);
+    return withSecurityHeaders(NextResponse.redirect(url));
+  }
+
   if (token && isTokenExpired(token)) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
     if (isProtected) {
@@ -83,7 +103,7 @@ export function middleware(request: NextRequest) {
 // ─── Matcher: only run on routes that need auth logic ───────────────────────
 export const config = {
   matcher: [
-   '/star/:path*',
+    '/star/:path*',
     '/admin/:path*',
     '/auth/:path*',
     '/callback',

@@ -58,7 +58,7 @@ const CountdownTimer = ({ targetDate, onFinish }: any) => {
 };
 
 const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate }: any) => (
-  <div className="relative overflow-hidden rounded-2xl mb-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 mb-2 shadow-xl">
+  <div className="relative overflow-hidden rounded-2xl mb-4 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 mb-2 shadow-xl">
     <div className="relative flex flex-col gap-2">
       <div className="flex items-center justify-center gap-2">
         <div className="rounded-full bg-white/20 p-1.5">
@@ -84,7 +84,7 @@ const LaBanniere = memo(() => {
   if (!startDate || !endDate) return null;
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-4">
+    <div className="w-full max-w-md mx-auto">
       <ActiveBanner
         endDate={endDate}
         handleEndMatch={handleEndMatch}

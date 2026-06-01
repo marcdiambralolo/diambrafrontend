@@ -379,6 +379,7 @@ export interface Case {
 }
 
 export interface MatchInfo {
+  competitionId?: string;
   listeCaseOpLab?: Case[];
   listeCaseOpLabInitiale?: Case[];
   pieces?: string[];

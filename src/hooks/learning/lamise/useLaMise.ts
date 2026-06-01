@@ -52,27 +52,22 @@ export function useLaMise() {
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
-    const timerRef = useRef<NodeJS.Timeout>();
 
     const [walletState, setWalletState] = useState<WalletState>(initialState);
-    const [combinaison, setCombinaison] = useState("");
-    const [formattedTime, setFormattedTime] = useState("0s");
 
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
-
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
         walletState.walletOfferings.forEach(w => map.set(w.offeringId, w.quantity));
         return map;
     }, [walletState.walletOfferings]);
-
     const availableQuantity = useMemo(() =>
         walletMap.get(getOfferingId(POT_CONFIG)) || 0,
         [walletMap]
     );
-
     const isSufficient = useMemo(() => availableQuantity >= POT_CONFIG.quantity, [availableQuantity]);
     const cardClasses = useMemo(() => `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`, [isSufficient]);
+
     const isLoading = configLoading || walletState.loading;
 
     const handleSubmitAndNavigate = useCallback(async () => {
@@ -84,7 +79,9 @@ export function useLaMise() {
         try {
             const consultationId = await createCategoryConsultation(monidjeu || '');
             if (!consultationId) throw new Error('Impossible de créer la consultation');
+
             setCurrentConsultationId(consultationId);
+
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: getOfferingId(POT_CONFIG),
                 quantity: POT_CONFIG.quantity,
@@ -98,11 +95,7 @@ export function useLaMise() {
             queryClient.removeQueries({ queryKey: QUERY_KEYS.WALLET_UNUSED_OFFERINGS, exact: true });
 
             const { data } = await api.get(`/consultations/${consultationId}`);
-            const payload = {
-                ...(data as Consultation),
-                combinaison,
-                timeSpent: formattedTime,
-            };
+            const payload = { ...(data as Consultation) };
 
             await api.put(`/consultations/${consultationId}`, payload);
             setGameStarted(true);
@@ -120,13 +113,13 @@ export function useLaMise() {
                 setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu, combinaison, formattedTime, setGameStarted, setJouer]);
-
-    const handleValidation = useCallback(() => handleSubmitAndNavigate(), [handleSubmitAndNavigate]);
+    }, [monidjeu, setGameStarted, setJouer, setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
-        if (isSufficient && !isLoading) handleValidation();
-    }, [isSufficient, isLoading, handleValidation]);
+        if (isSufficient && !isLoading) {
+            handleSubmitAndNavigate();
+        }
+    }, [isSufficient, isLoading, handleSubmitAndNavigate]);
 
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
@@ -158,20 +151,12 @@ export function useLaMise() {
 
         return () => {
             isMountedRef.current = false;
-            if (timerRef.current) clearInterval(timerRef.current);
         };
     }, []);
 
     return {
-        requiredQuantity: POT_CONFIG.quantity,
-        loading: isLoading,
-        handleGoToMarket,
-        handleNext,
-        handleSubmitAndNavigate,
-        availableQuantity,
-        cardClasses,
-        isSufficient,
-        setCombinaison,
-        setFormattedTime,
+        requiredQuantity: POT_CONFIG.quantity, loading: isLoading,
+        handleGoToMarket, handleNext,
+        availableQuantity, cardClasses, isSufficient,
     };
 }

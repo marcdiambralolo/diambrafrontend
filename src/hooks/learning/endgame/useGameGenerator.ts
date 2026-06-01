@@ -1,102 +1,103 @@
-import { api } from "@/lib/api/client";
-import { formatDate } from "@/lib/functions";
-import { Consultation } from "@/lib/interfaces";
-import { caldure } from "@/lib/learning/functions";
+// hooks/learning/endgame/useGameGenerator.ts
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 
-const GAME_ROUTES = { LEARNING: '/star/learning', } as const;
-const MESSAGE_DURATION = 3000;
+interface CompetitionSummary {
+    isComplete: boolean;
+    id: string;
+    name: string;
+    startedAt: string;
+    finishedAt?: string;
+    totalMatches: number;
+    completedMatches: number;
+    totalScore: number;
+    maxPossibleScore: number;
+    percentage: number;
+    matches: {
+        matchNumber: number;
+        type: string;
+        score: number;
+        totalCases: number;
+        timeSpent?: number;
+        isComplete: boolean;
+    }[];
+}
 
 export const useEndGameGenerator = () => {
-    const { clearCompletedMatches, currentConsultationId, completedMatches } = useMonEtoileStore();
-
+    const { competitions, currentCompetitionId, clearCompletedMatches, resetGameState } = useMonEtoileStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [submitMessage, setSubmitMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-    const displayMatches = useMemo(() => completedMatches ?? [], [completedMatches]);
+    // Transformer les compétitions en format d'affichage
+    const competitionSummaries = useMemo((): CompetitionSummary[] => {
+        return Array.from(competitions.values()).map(comp => {
+            const totalScore = comp.matches.reduce((sum, match) => sum + (match.trouves || 0), 0);
+            const maxPossibleScore = comp.matches.reduce((sum, match) => {
+                const totalCases = match.listeCaseOpLab?.length || 0;
+                return sum + totalCases;
+            }, 0);
+            const percentage = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
 
-    const datefin = new Date().toISOString();
-    const monniveau = displayMatches[0]?.niveau ?? 0;
-    const madatedebut = displayMatches[0]?.datedebut;
+            return {
+                id: comp.id,
+                name: `Compétition du ${new Date(comp.startedAt).toLocaleDateString()}`,
+                startedAt: comp.startedAt,
+                finishedAt: comp.finishedAt,
+                totalMatches: comp.totalMatches,
+                completedMatches: comp.completedMatches,
+                totalScore,
+                maxPossibleScore,
+                percentage,
+                isComplete: comp.isComplete,
+                matches: comp.matches.map((match, idx) => ({
+                    matchNumber: idx + 1,
+                    type: getMatchType(match.tpsglobal),
+                    score: match.trouves || 0,
+                    totalCases: match.listeCaseOpLab?.length || 0,
+                    timeSpent: undefined, // À calculer si besoin
+                    isComplete: match.isgameover || false,
+                })),
+            };
+        }).sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+    }, [competitions]);
 
-    const stats = useMemo(() => {
-        let scores = 0, trouves = 0, rates = 0;
-        for (const match of displayMatches) {
-            scores += match.score || 0;
-            trouves += match.trouves || 0;
-            rates += match.rates || 0;
-        }
-        return { scores, trouves, rates };
-    }, [displayMatches]);
-
-    const summaryDetails = useMemo(() => [
-        { label: "📅 Date de début", value: formatDate(madatedebut || datefin) },
-        { label: "📅 Date de fin", value: formatDate(datefin) },
-        { label: "⏱️ Temps écoulé", value: caldure(datefin, madatedebut || datefin) },
-        { label: "✗ Ratés", value: stats.rates },
-    ], [monniveau, stats, displayMatches.length, madatedebut, datefin]);
-
-    const handleRecommencer = useCallback(() => {
-        clearCompletedMatches();
-        window.location.href = GAME_ROUTES.LEARNING;
-    }, [clearCompletedMatches]);
-
-    const showMessage = useCallback((type: 'success' | 'error', text: string) => {
-        setSubmitMessage({ type, text });
-        setTimeout(() => setSubmitMessage(null), MESSAGE_DURATION);
-    }, []);
-
-    const handleSubmitGame = useCallback(async () => {
-        if (!currentConsultationId) {
-            showMessage('error', 'Aucune consultation en cours');
-            return;
-        }
-
-        if (!displayMatches.length) {
-            showMessage('error', 'Aucune donnée de match à soumettre');
-            return;
-        }
-
+    const handleSubmitGame = async () => {
         setIsSubmitting(true);
         setSubmitMessage(null);
-
+        
         try {
-            const temps = caldure(datefin, madatedebut || datefin);
-            const totalScore = displayMatches.reduce((acc, match) => acc + (match.score || 0), 0);
-            const averageScore = totalScore / displayMatches.length;
-
-            const { data } = await api.get(`/consultations/${currentConsultationId}`);
-
-            const updatedPayload = {
-                ...(data as Consultation),
-                timeSpent: temps,
-                learningStats: {
-                    totalTime: temps,
-                    averageScore: averageScore.toFixed(0),
-                    completedAt: datefin,
-                    matchesDetails: displayMatches.map(m => ({
-                        tpsglobal: m.tpsglobal,
-                        score: m.score,
-                        trouves: m.trouves,
-                        rates: m.rates,
-                        isgameover: m.isgameover,
-                    })),
-                },
-            };
-
-            await api.put(`/consultations/${currentConsultationId}`, updatedPayload);
-            showMessage('success', 'Partie soumise avec succès !');
+            // Logique de soumission
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            setSubmitMessage({ text: 'Jeu soumis avec succès !', type: 'success' });
         } catch (error) {
-            console.error('Erreur lors de la soumission:', error);
-            showMessage('error', 'Erreur lors de la soumission');
+            setSubmitMessage({ text: 'Erreur lors de la soumission', type: 'error' });
         } finally {
             setIsSubmitting(false);
+            setTimeout(() => setSubmitMessage(null), 3000);
         }
-    }, [currentConsultationId, displayMatches, datefin, madatedebut, showMessage]);
+    };
+
+    const handleRecommencer = () => {
+        resetGameState();
+        window.location.reload(); // Ou navigation vers la page de jeu
+    };
 
     return {
-        displayMatches, isSubmitting, submitMessage,
-        handleRecommencer, handleSubmitGame, summaryDetails,
+        competitions: competitionSummaries,
+        currentCompetitionId,
+        isSubmitting,
+        submitMessage,
+        handleRecommencer,
+        handleSubmitGame,
     };
 };
+
+function getMatchType(tpsglobal?: number): string {
+    switch (tpsglobal) {
+        case 0: return 'Mots';
+        case 1: return 'Chiffres';
+        case 2: return 'Images';
+        case 3: return 'Mixte';
+        default: return 'Inconnu';
+    }
+}

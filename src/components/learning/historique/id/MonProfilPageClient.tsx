@@ -103,6 +103,18 @@ export function ConsultationCard({ consultation, index, isDuplicate = false, dup
   );
 }
 
+
+const isValidTimeSpent = (consultation: Consultation): boolean => {
+  const timeSpent = consultation?.timeSpent;
+  if (!timeSpent) return false;
+
+  const numericMatch = timeSpent.match(/(\d+(?:\.\d+)?)/);
+  if (!numericMatch) return false;
+
+  const numericValue = parseFloat(numericMatch[1]);
+  return !isNaN(numericValue) && numericValue > 0;
+};
+
 function HistoriquePageClientImpl() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -125,7 +137,7 @@ function HistoriquePageClientImpl() {
         const valueB = parseInt(b.combinaison || '0', 10);
         return valueA - valueB;
       });
-      setSortedConsultations(sorted);
+      setSortedConsultations(sorted.filter(isValidTimeSpent));
 
       const combinaisonCount = new Map<string, number>();
       sorted.forEach((consultation) => {

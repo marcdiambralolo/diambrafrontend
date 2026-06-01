@@ -1,46 +1,106 @@
+import { api } from "@/lib/api/client";
+import { formatDate } from "@/lib/functions";
+import { Consultation } from "@/lib/interfaces";
+import { caldure } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useRouter } from "next/navigation";
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-const GAME_ROUTES = {
-    LEARNING: '/star/learning',
-    ENDGAME: '/star/learning/endgame',
-    GAME_BASE: '/star/learning/game',
-} as const;
+const GAME_ROUTES = { LEARNING: '/star/learning', } as const;
+const MESSAGE_DURATION = 3000;
 
 export const useEndGameGenerator = () => {
-    const router = useRouter();
-   
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
+    const { clearCompletedMatches, currentConsultationId, completedMatches } = useMonEtoileStore();
 
-    const handleBack = useCallback(() => {
-        router.push(GAME_ROUTES.LEARNING);
-    }, [router]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    const handleClick = useCallback(() => {
+    const displayMatches = useMemo(() => completedMatches ?? [], [completedMatches]);
+
+    const datefin = new Date().toISOString();
+    const monniveau = displayMatches[0]?.niveau ?? 0;
+    const madatedebut = displayMatches[0]?.datedebut;
+
+    const stats = useMemo(() => {
+        let scores = 0, trouves = 0, rates = 0;
+        for (const match of displayMatches) {
+            scores += match.score || 0;
+            trouves += match.trouves || 0;
+            rates += match.rates || 0;
+        }
+        return { scores, trouves, rates };
+    }, [displayMatches]);
+
+    const summaryDetails = useMemo(() => [
+        { label: "🎮 Niveau", value: monniveau },
+        { label: "🏆 Score total", value: stats.scores.toFixed(0) },
+        { label: "✓ Trouvés", value: stats.trouves },
+        { label: "✗ Ratés", value: stats.rates },
+        { label: "📊 Nombre de matchs", value: displayMatches.length },
+        { label: "📅 Date de début", value: formatDate(madatedebut || datefin) },
+        { label: "📅 Date de fin", value: formatDate(datefin) },
+        { label: "⏱️ Temps écoulé", value: caldure(datefin, madatedebut || datefin) },
+    ], [monniveau, stats, displayMatches.length, madatedebut, datefin]);
+
+    const handleRecommencer = useCallback(() => {
+        clearCompletedMatches();
         window.location.href = GAME_ROUTES.LEARNING;
+    }, [clearCompletedMatches]);
+
+    const showMessage = useCallback((type: 'success' | 'error', text: string) => {
+        setSubmitMessage({ type, text });
+        setTimeout(() => setSubmitMessage(null), MESSAGE_DURATION);
     }, []);
 
-    const navigateToGame = useCallback((gameId: string) => {
-        router.push(`${GAME_ROUTES.GAME_BASE}/${gameId}`);
-    }, [router]);
+    const handleSubmitGame = useCallback(async () => {
+        if (!currentConsultationId) {
+            showMessage('error', 'Aucune consultation en cours');
+            return;
+        }
 
-    const navigateToResults = useCallback(() => {
-        router.push(GAME_ROUTES.ENDGAME);
-    }, [router]);
- const { completedMatches } = useMonEtoileStore();
-    const displayMatches = useMemo(() =>
-        completedMatches?.length ? completedMatches : [],
-        [completedMatches]
-    );
+        if (!displayMatches.length) {
+            showMessage('error', 'Aucune donnée de match à soumettre');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitMessage(null);
+
+        try {
+            const temps = caldure(datefin, madatedebut || datefin);
+            const totalScore = displayMatches.reduce((acc, match) => acc + (match.score || 0), 0);
+            const averageScore = totalScore / displayMatches.length;
+
+            const { data } = await api.get(`/consultations/${currentConsultationId}`);
+
+            const updatedPayload = {
+                ...(data as Consultation),
+                timeSpent: temps,
+                learningStats: {
+                    totalTime: temps,
+                    averageScore: averageScore.toFixed(0),
+                    completedAt: datefin,
+                    matchesDetails: displayMatches.map(m => ({
+                        tpsglobal: m.tpsglobal,
+                        score: m.score,
+                        trouves: m.trouves,
+                        rates: m.rates,
+                        isgameover: m.isgameover,
+                    })),
+                },
+            };
+
+            await api.put(`/consultations/${currentConsultationId}`, updatedPayload);
+            showMessage('success', 'Partie soumise avec succès !');
+        } catch (error) {
+            console.error('Erreur lors de la soumission:', error);
+            showMessage('error', 'Erreur lors de la soumission');
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [currentConsultationId, displayMatches, datefin, madatedebut, showMessage]);
 
     return {
-        handleBack,
-        handleClick,
-        currentYear,
-        navigateToGame,
-        navigateToResults,
-        completedMatches,
-        displayMatches
+        displayMatches, isSubmitting, submitMessage,
+        handleRecommencer, handleSubmitGame, summaryDetails,
     };
 };

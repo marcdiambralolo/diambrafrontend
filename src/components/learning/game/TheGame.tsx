@@ -276,7 +276,6 @@ export default function TheGame() {
                         />
                     )}
                 </div>
-
                 <div className="flex flex-col items-center justify-center w-full mt-4">
                     <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
                         {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
@@ -314,6 +313,7 @@ export default function TheGame() {
                                     <span>Progression</span>
                                     <span>{casesdujeuencours.filter(c => c.isLocked).length}/{casesdujeuencours.length}</span>
                                 </div>
+
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
                                         className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"

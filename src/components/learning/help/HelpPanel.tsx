@@ -1,6 +1,6 @@
 'use client';
-import { X, ArrowLeft } from "lucide-react";
 import { memo, useState, useEffect } from "react";
+import { X, ArrowLeft } from "lucide-react";
 
 const HELP_SECTIONS = [
     {

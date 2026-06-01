@@ -13,6 +13,7 @@ export interface Case {
   place?: boolean;
   index?: number;
   mode?: boolean;
+  force?: boolean;
 }
 
 export interface MatchInfo {

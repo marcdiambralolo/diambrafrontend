@@ -1,9 +1,20 @@
 'use client';
 import { api } from '@/lib/api/client';
-import { ActiveEdition, Consultation, EndedGameResponse, StatisticsData, WinnersData } from '@/lib/interfaces';
+import { ActiveEdition, Consultation, StatisticsData, WinnersData } from '@/lib/interfaces';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const ITEMS_PER_PAGE = 10000;
+
+const isValidTimeSpent = (consultation: Consultation): boolean => {
+  const timeSpent = consultation?.timeSpent;
+  if (!timeSpent) return false;
+
+  const numericMatch = timeSpent.match(/(\d+(?:\.\d+)?)/);
+  if (!numericMatch) return false;
+
+  const numericValue = parseFloat(numericMatch[1]);
+  return !isNaN(numericValue) && numericValue > 0;
+};
 
 export function useAdminConsultationsPageFinished() {
   const isMountedRef = useRef(true);
@@ -22,10 +33,10 @@ export function useAdminConsultationsPageFinished() {
       const { data } = await api.get<any>('/consultations/ended-learning', {
         params: { page: 1, limit: ITEMS_PER_PAGE },
       });
-      console.log(data);
 
       if (isMountedRef.current) {
-        setConsultations(data?.consultations || []);
+        const validConsultations = (data?.consultations || []).filter(isValidTimeSpent);
+        setConsultations(validConsultations);
         setActiveEdition(data?.activeEdition || null);
         setWinners(data?.winners || null);
         setStatistics(data?.statistics || null);
@@ -47,14 +58,5 @@ export function useAdminConsultationsPageFinished() {
     return () => { isMountedRef.current = false; };
   }, [fetchData]);
 
-  return {
-    loading,
-    error,
-    activeEdition,
-    consultations,
-    winners,
-    statistics,  // 🔥 AJOUTER CETTE LIGNE
-    hasWinners,
-    winningCombination,
-  };
+  return { loading, error, activeEdition, consultations, winners, statistics, hasWinners, winningCombination, };
 }

@@ -12,14 +12,14 @@ export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
   const { data: gameConfig } = useGameConfig();
 
-  const { setJeuAcommencer, resetGameState } = useMonEtoileStore();
+  const { setJeuAcommencer,setGameStarted, resetGameState,startGame,gameStarted } = useMonEtoileStore();
 
   const isMountedRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const endGameCalledRef = useRef(false);
   const isFetchingRef = useRef(false);
 
-  const [gameStarted, setGameStarted] = useState(false);
+ // const [gameStarted,  ] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,6 +65,7 @@ export function useAdminConsultationsPageFinished() {
     [gameConfig?.status, startDate, currentTime]
   );
 
+  // 🔥 Valeurs calculées
   const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
   const showActive = isGameActive && !isGameEnded;
   const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
@@ -132,8 +133,8 @@ export function useAdminConsultationsPageFinished() {
 
   const demarrerJeu = useCallback(() => {
     resetGameState();
-    setJeuAcommencer(true);
-  }, [resetGameState, setJeuAcommencer]);
+    setJeuAcommencer(true);  
+  }, [resetGameState, setJeuAcommencer,]);
 
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
@@ -160,9 +161,10 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
+  // 🔥 Retour avec toutes les valeurs nécessaires
   return {
-    hasNotStartedEdition, loading, showEnded, startDate,
-    endDate, gameConfig, lastEndedGame, stats, error,
-    handleOpenGame, handleEndMatch, demarrerJeu,
+     demarrerJeu, handleOpenGame, handleEndMatch,
+        showEnded, loading, showActive, showNotStarted, lastEndedGame,
+        endDate, startDate, gameConfig, stats,
   };
 }

@@ -48,7 +48,7 @@ const initialState: WalletState = {
 export function useLaMise() {
     const router = useRouter();
     const { data: gameConfig, isLoading: configLoading } = useGameConfig();
-    const { setJouer, setGameStarted } = useMonEtoileStore();
+    const { setJouer, setGameStarted, setCurrentConsultationId } = useMonEtoileStore();
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -84,7 +84,7 @@ export function useLaMise() {
         try {
             const consultationId = await createCategoryConsultation(monidjeu || '');
             if (!consultationId) throw new Error('Impossible de créer la consultation');
-
+            setCurrentConsultationId(consultationId);
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: getOfferingId(POT_CONFIG),
                 quantity: POT_CONFIG.quantity,
@@ -123,6 +123,7 @@ export function useLaMise() {
     }, [monidjeu, combinaison, formattedTime, setGameStarted, setJouer]);
 
     const handleValidation = useCallback(() => handleSubmitAndNavigate(), [handleSubmitAndNavigate]);
+
     const handleNext = useCallback(() => {
         if (isSufficient && !isLoading) handleValidation();
     }, [isSufficient, isLoading, handleValidation]);

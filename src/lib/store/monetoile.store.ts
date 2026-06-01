@@ -8,6 +8,10 @@ interface MonEtoileStore {
   choixConsultationEnCours: Consultation | null;
   setChoixConsultationEnCours: (choix: Consultation | null) => void;
 
+  // 🔥 ID de la consultation en cours
+  currentConsultationId: string | null;
+  setCurrentConsultationId: (id: string | null) => void;
+
   // Matchs terminés
   completedMatches: MatchInfo[] | null;
   setCompletedMatches: (matches: MatchInfo[] | null) => void;
@@ -51,6 +55,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
     (set) => ({
       // État initial
       choixConsultationEnCours: null,
+      currentConsultationId: null,  // 🔥 Ajouté
       completedMatches: null,
       jeuestfinie: false,
       jouer: false,
@@ -60,6 +65,9 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
 
       // Actions Consultation
       setChoixConsultationEnCours: (choix) => set({ choixConsultationEnCours: choix }),
+      
+      // 🔥 Action pour l'ID de consultation
+      setCurrentConsultationId: (id) => set({ currentConsultationId: id }),
 
       // Actions Matchs
       setCompletedMatches: (matches) => set({ completedMatches: matches }),
@@ -83,6 +91,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
 
       startGame: () => set({
         jouer: true,
+        gameStarted: true,
         jeuestfinie: false,
         jeuAcommencer: true,
         afficheaide: false
@@ -90,6 +99,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
 
       stopGame: () => set({
         jouer: false,
+        gameStarted: false,
         jeuAcommencer: false
       }),
 
@@ -97,6 +107,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
         jeuAcommencer: false,
         jouer: false,
         jeuestfinie: false,
+        gameStarted: false,
         afficheaide: false
       }),
 
@@ -117,7 +128,8 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
           jeuestfinie: true,
           jouer: false,
           jeuAcommencer: false,
-          afficheaide: false
+          gameStarted: false,
+          afficheaide: false, 
         });
       },
 
@@ -134,13 +146,14 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
         jouer: false,
         gameStarted: false,
         jeuAcommencer: false,
-        afficheaide: false,
+        afficheaide: false,  
       }),
     }),
     {
       name: 'monetoile-store',
       partialize: (state) => ({
         choixConsultationEnCours: state.choixConsultationEnCours,
+        currentConsultationId: state.currentConsultationId,  // 🔥 Persister l'ID
       }),
     }
   )

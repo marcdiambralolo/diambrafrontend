@@ -308,7 +308,7 @@ export default function TheGame() {
                         {casesdujeuencours.length > 0 && (
                             <div className="mt-2">
                                 <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>Progression</span>
+                                    <span>Progression</span> 
                                     <span>{casesdujeuencours.filter(c => c.isLocked).length}/{casesdujeuencours.length}</span>
                                 </div>
 

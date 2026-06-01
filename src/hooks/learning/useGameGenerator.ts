@@ -59,6 +59,7 @@ export const useGameGenerator = () => {
                 if (idx === index2) {
                     const newTxt = c1.txt;
                     const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
+                    updateState({ showPun: shouldLock });
                     return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
                 }
                 return c;

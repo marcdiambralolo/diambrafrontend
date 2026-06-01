@@ -31,14 +31,10 @@ export const useEndGameGenerator = () => {
     }, [displayMatches]);
 
     const summaryDetails = useMemo(() => [
-        { label: "🎮 Niveau", value: monniveau },
-        { label: "🏆 Score total", value: stats.scores.toFixed(0) },
-        { label: "✓ Trouvés", value: stats.trouves },
-        { label: "✗ Ratés", value: stats.rates },
-        { label: "📊 Nombre de matchs", value: displayMatches.length },
         { label: "📅 Date de début", value: formatDate(madatedebut || datefin) },
         { label: "📅 Date de fin", value: formatDate(datefin) },
         { label: "⏱️ Temps écoulé", value: caldure(datefin, madatedebut || datefin) },
+        { label: "✗ Ratés", value: stats.rates },
     ], [monniveau, stats, displayMatches.length, madatedebut, datefin]);
 
     const handleRecommencer = useCallback(() => {

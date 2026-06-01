@@ -36,17 +36,7 @@ const FooterImage = memo(() => {
 
   return (
     <div className="w-full max-w-md mx-auto mt-2">
-      <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
-        <Image
-          src={randomImage}
-          width={400}
-          height={300}
-          alt="DIAMBRA"
-          className="w-full h-64 object-cover rounded-3xl transition-transform duration-700 group-hover:scale-110"
-          priority
-        />
-        <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />
-      </div>
+      <FooterSection currentYear={currentYear} onlineStatus={onlineStatus} />      
     </div>
   );
 });

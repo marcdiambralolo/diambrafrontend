@@ -10,7 +10,7 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import ResultatsPage from '../endgame/ResultatsPage';
 
 const GRID_BASE_STYLES = "w-full grid";
-const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";
+const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300";
 const INFO_CARD_STYLES = "flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-200";
 
 const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
@@ -299,13 +299,11 @@ export default function TheGame() {
                                 Ajuster
                             </ActionButton>
                         )}
-
-                        <div className="font-bold text-blue-600 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
-                            <span className="text-sm">⏱</span>
-                            <span>{formatTime(timeElapsed)}</span>
-                        </div>
                     </div>
-
+                    <div className="font-bold text-blue-600 mt-4 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                        <span className="text-sm">⏱</span>
+                        <span>{formatTime(timeElapsed)}</span>
+                    </div>
                     <div className="mt-4 w-full space-y-3">
                         {casesdujeuencours.length > 0 && (
                             <div className="mt-2">

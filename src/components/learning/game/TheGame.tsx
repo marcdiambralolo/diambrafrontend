@@ -1,116 +1,100 @@
 'use client';
 import { useGameGenerator } from '@/hooks/learning/useGameGenerator';
 import { Case } from '@/lib/interfaces';
-import { formatTime } from '@/lib/learning/functions';
+import { colorReference, Theme } from "@/lib/learning/data";
+import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
 import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { AnimatePresence, motion, Variants } from 'framer-motion';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import Image from "next/image";
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import ResultatsPage from '../endgame/ResultatsPage';
-import { ActionButton, EmptyState, InfoRowGame, ObjectiveCard, Unecase } from './Features';
-import Loader from '@/app/loading';
 
 const GRID_BASE_STYLES = "w-full grid";
+const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300";
+const INFO_CARD_STYLES = "flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-200";
 
-// ============================================================================
-// ANIMATIONS POUR P1 (FLIP 3D) - UNIQUEMENT À L'ENTRÉE
-// ============================================================================
+const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
+    const caseRef = useRef<HTMLDivElement>(null);
+    const letterPairs = generateLetterPairs();
 
-// Animation de flip 3D pour chaque case de P1
-const flipCardVariants: Variants = {
-    hidden: {
-        opacity: 0,
-        rotateY: 90,
-        scale: 0.8,
-        transition: { duration: 0.1 }
-    },
-    visible: (delay: number) => ({
-        opacity: 1,
-        rotateY: 0,
-        scale: 1,
-        transition: {
-            type: "spring",
-            stiffness: 300,
-            damping: 25,
-            delay: delay * 0.01
+    const updateFontSize = useCallback(() => {
+        if (caseRef.current) {
+            const newFontSize = `${caseRef.current.clientWidth * 0.5}px`;
+            caseRef.current.style.fontSize = newFontSize;
+            return newFontSize;
         }
-    }),
-    // Pas d'animation de sortie pour P1
-    exit: {
-        opacity: 0,
-        scale: 0.95,
-        transition: { duration: 0.1 }
-    }
-};
+        return "45px";
+    }, []);
 
-// Animation du plateau P1 en cascade
-const boardStaggerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.04,
-            delayChildren: 0.1,
+    const fontSize = useMemo(() => updateFontSize(), [updateFontSize]);
+    const txtIndex = useMemo(() => parseInt(txt || "", 10), [txt]);
+
+    const couleurdefond = useMemo(() => {
+        if (tpsglobal === 1) return colorReference[txtIndex] || "black";
+        if (isLocked) return Theme.coulfondcaseverouille;
+        if (isSelected) return "blue";
+        return "black";
+    }, [isLocked, isSelected, tpsglobal, txtIndex]);
+
+    const imagedefond = useMemo(() => {
+        if (tpsglobal !== 2 || !pieces[txtIndex]) return "none";
+        return `url(${pieces[txtIndex]})`;
+    }, [pieces, tpsglobal, txtIndex]);
+
+    const content = useMemo(() => {
+        if (tpsglobal === 0) return txt;
+        if (tpsglobal === 3) return letterPairs[txtIndex];
+
+        const size = parseInt(fontSize, 10) || 100;
+
+        const iconProps = {
+            priority: true,
+            alt: "icon",
+            width: size,
+            height: size,
+            style: { textShadow: "2px 2px 5px rgba(0, 0, 0, 0.8)" },
+        };
+
+        switch (tpsglobal) {
+            case 1:
+                if (mode && isSelected) return <Image src="/mamain.png" {...iconProps} alt="Main" />;
+                if (mode && isLocked) return <Image src="/momok.png" {...iconProps} alt="OK" />;
+                break;
+            case 2:
+                if (mode && isSelected) return <Image src="/mamain.png" {...iconProps} alt="Main" />;
+                if (mode && isLocked) return <Image src="/momok.png" {...iconProps} alt="OK" />;
+                break;
+            default:
+                return txt;
         }
-    },
-    exit: {
-        opacity: 0,
-        transition: { duration: 0.1 }
-    }
-};
+    }, [fontSize, isLocked, isSelected, letterPairs, mode, tpsglobal, txt, txtIndex]);
 
-// ============================================================================
-// ANIMATIONS POUR P2 (TRÈS SIMPLE, PAS DE FLIP)
-// ============================================================================
 
-// Animation simple pour P2
-const simpleCardVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.98 },
-    visible: (delay: number) => ({
-        opacity: 1,
-        scale: 1,
-        transition: { duration: 0.15, delay: delay * 0.01 }
-    }),
-    exit: { opacity: 0, scale: 0.98, transition: { duration: 0.1 } }
-};
+    useEffect(() => {
+        if (!caseRef.current) return;
+        const observer = new ResizeObserver(updateFontSize);
+        observer.observe(caseRef.current);
+        return () => observer.disconnect();
+    }, [updateFontSize]);
 
-const simpleBoardVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.01 }
-    },
-    exit: {
-        opacity: 0,
-        transition: { duration: 0.1 }
-    }
-};
-
-// ============================================================================
-// AUTRES ANIMATIONS
-// ============================================================================
-
-const buttonGlowVariants: Variants = {
-    idle: { scale: 1, boxShadow: "0px 0px 0px rgba(168, 85, 247, 0)" },
-    hover: {
-        scale: 1.05,
-        boxShadow: "0px 0px 20px rgba(168, 85, 247, 0.5)",
-        transition: { type: "spring", stiffness: 400 }
-    },
-    tap: { scale: 0.95 }
-};
-
-const titleVariants: Variants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { type: "spring", stiffness: 200, damping: 15 }
-    }
-};
-
-// ============================================================================
-// COMPOSANTS
-// ============================================================================
+    return (
+        <div
+            ref={caseRef}
+            onClick={onClick}
+            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square"
+            style={{
+                width: size,
+                height: size,
+                backgroundColor: couleurdefond,
+                backgroundImage: imagedefond,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+            }}
+        ><span className="overflow-hidden min-w-0">{content}</span>
+        </div>
+    );
+});
 
 interface PloaderFixeProps {
     niveau: number;
@@ -118,7 +102,6 @@ interface PloaderFixeProps {
     pieces: string[];
 }
 
-// P1 - Animation Flip 3D uniquement à l'entrée
 const PloaderFixe = memo(({ niveau, casesun, pieces }: PloaderFixeProps) => {
     if (!casesun?.length || !pieces?.length || niveau <= 0) {
         return <EmptyState message="Aucune case disponible" />;
@@ -130,40 +113,23 @@ const PloaderFixe = memo(({ niveau, casesun, pieces }: PloaderFixeProps) => {
     }), [niveau]);
 
     const renderedCases = useMemo(() =>
-        casesun.map((c, index) => (
-            <motion.div
+        casesun.map((c) => (
+            <Unecase
                 key={c.id}
-                custom={index}
-                variants={flipCardVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="transform-gpu preserve-3d"
-            >
-                <Unecase
-                    {...c}
-                    pieces={pieces}
-                    mode={false}
-                    size="100%"
-                    aria-label={`Case ${c.id}`}
-                />
-            </motion.div>
+                {...c}
+                pieces={pieces}
+                mode={false}
+                size="100%"
+                aria-label={`Case ${c.id}`}
+            />
         )),
         [casesun, pieces]
     );
 
     return (
-        <motion.div
-            variants={boardStaggerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={GRID_BASE_STYLES}
-            style={gridStyles}
-            aria-label="Grille de cases P1"
-        >
+        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P1">
             {renderedCases}
-        </motion.div>
+        </div>
     );
 });
 
@@ -176,7 +142,6 @@ interface PloaderProps {
     pieces: string[];
 }
 
-// P2 - Animation simple
 const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCase, pieces }: PloaderProps) => {
     if (!cases?.length) {
         return <EmptyState message="Aucune case disponible" />;
@@ -188,198 +153,171 @@ const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCase, piec
     }), [niveau]);
 
     const renderedCases = useMemo(() =>
-        cases.map((c, index) => (
-            <motion.div
+        cases.map((c) => (
+            <Unecase
                 key={c.id}
-                custom={index}
-                variants={simpleCardVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-            >
-                <Unecase
-                    {...c}
-                    tpsglobal={tpsglobal}
-                    size="100%"
-                    pieces={pieces}
-                    isSelected={selectedCase?.id === c.id}
-                    onClick={() => selectCase(c)}
-                />
-            </motion.div>
+                {...c}
+                tpsglobal={tpsglobal}
+                size="100%"
+                pieces={pieces}
+                isSelected={selectedCase?.id === c.id}
+                onClick={() => selectCase(c)}
+            />
         )),
         [cases, tpsglobal, pieces, selectedCase, selectCase]
     );
 
     return (
-        <motion.div
-            variants={simpleBoardVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={GRID_BASE_STYLES}
-            style={gridStyles}
-            aria-label="Grille de cases P2"
-        >
+        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P2">
             {renderedCases}
-        </motion.div>
+        </div>
     );
 });
 
-const AnimatedProgressBar = ({ progression }: { progression: number }) => (
-    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-        <motion.div
-            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progression}%` }}
-            transition={{ duration: 0.5, ease: "easeOut", type: "spring", stiffness: 100 }}
-        />
-    </div>
-);
+const EmptyState = memo(({ message }: { message: string }) => (
+    <div className="text-center text-gray-600 py-8">{message}</div>
+));
 
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
+const ObjectiveCard = memo(() => (
+    <div className="relative group">
+        <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400" />
+            <div className="p-2">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 rounded-xl p-1">
+                    <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md">
+                        <TrophyOutlined className="text-xxs text-white" />
+                    </div>
+                    <p className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">
+                        Objectif : Réorganisez P2 pour qu'il corresponde à P1 !
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+));
+
+const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
+    icon: React.ReactNode;
+    iconBg: string;
+    iconColor: string;
+    label: string;
+    value: string | number;
+}) => (
+    <motion.div whileHover={{ x: 5 }} className={INFO_CARD_STYLES}>
+        <div className={`p-1 ${iconBg} rounded-lg`}>
+            <div className={iconColor}>{icon}</div>
+        </div>
+        <div className="flex-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                {label}
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-200">
+                {value}
+            </p>
+        </div>
+    </motion.div>
+));
+
+interface ActionButtonProps {
+    onClick: () => void;
+    children: React.ReactNode;
+    variant: 'primary' | 'secondary';
+    ariaLabel: string;
+}
+
+const ActionButton = memo(({ onClick, children, variant, ariaLabel }: ActionButtonProps) => {
+    const variantStyles = {
+        primary: "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white",
+        secondary: "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+    };
+
+    return (
+        <motion.button
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.05 }}
+            onClick={onClick}
+            className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
+            aria-label={ariaLabel}
+            role="button"
+            tabIndex={0}
+        >
+            {children}
+        </motion.button>
+    );
+});
 
 export default function TheGame() {
     const {
         toggleShowPun, lockSelectedCase, selectCase, gameisover, casesdujeuencours, casesinitiales,
-        pieces, selectedCase, currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed, isLoading
+        pieces, selectedCase, currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed,
     } = useGameGenerator();
-
-    const [boardKey, setBoardKey] = useState(0);
-
-    const handleToggleShowPun = useCallback(() => {
-        toggleShowPun();
-        setBoardKey(prev => prev + 1);
-    }, [toggleShowPun]);
-
-    if (isLoading) return <Loader />
 
     if (gameisover) { return <ResultatsPage />; }
 
     return (
-        <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto mb-4">
-            <div className="w-full text-center">
-                {/* Plateau de jeu */}
-                <div className="mb-4 perspective-1000">
-                    <AnimatePresence mode="wait">
-                        {showPun ? (
-                            <motion.div
-                                key={`p1-${boardKey}`}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.1 }}
-
-                            >
-                                {/* P1 - Animation Flip 3D WAOUH à l'entrée */}
-                                <PloaderFixe niveau={niveau!} casesun={casesinitiales} pieces={pieces} />
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key={`p2-${boardKey}`}
-                                initial={{ opacity: 0, rotateX: 5, scale: 0.98 }}
-                                animate={{ opacity: 1, rotateX: 0, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.98 }}
-                                transition={{ duration: 0.2, type: "spring", stiffness: 300 }
-                                }
-                            >
-                                {/* P2 - Pas d'animation, transition instantanée */}
-                                <Ploader
-                                    niveau={niveau!}
-                                    cases={casesdujeuencours}
-                                    selectedCase={selectedCase}
-                                    selectCase={selectCase}
-                                    pieces={pieces}
-                                    tpsglobal={tpsglobal}
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+        <div className="flex flex-col items-center justify-center w-full max-w-md px-0 py-0 m-0 p-0 mb-4">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-md text-center px-0 py-0 mb-4"
+            >
+                <div className="mb-4">
+                    {showPun ? (
+                        <PloaderFixe niveau={niveau!} casesun={casesinitiales} pieces={pieces} />
+                    ) : (
+                        <Ploader
+                            niveau={niveau!}
+                            cases={casesdujeuencours}
+                            selectedCase={selectedCase}
+                            selectCase={selectCase}
+                            pieces={pieces}
+                            tpsglobal={tpsglobal}
+                        />
+                    )}
                 </div>
-
-                {/* Contrôles et informations */}
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={titleVariants}
-                    className="flex flex-col items-center justify-center w-full mt-4"
-                >
-                    <motion.h2
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="text-xs font-bold text-blue-700 mb-3 tracking-wide"
-                    >
+                <div className="flex flex-col items-center justify-center w-full mt-4">
+                    <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
                         {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
-                    </motion.h2>
+                    </h2>
 
                     <div className="flex items-center justify-center gap-3 flex-wrap">
-                        <motion.button
-                            variants={buttonGlowVariants}
-                            initial="idle"
-                            whileHover="hover"
-                            whileTap="tap"
-                            onClick={handleToggleShowPun}
-                            className={`px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300 ${showPun
-                                ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-                                : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-                                }`}
+                        <ActionButton
+                            onClick={toggleShowPun}
+                            variant="secondary"
+                            ariaLabel={showPun ? "Jouer" : "Voir P1"}
                         >
-                            <motion.span
-                                animate={{ rotate: showPun ? [0, 5, -5, 0] : [0, -5, 5, 0] }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {showPun ? "✨ Jouer" : "👀 Voir P1"}
-                            </motion.span>
-                        </motion.button>
+                            {showPun ? "Jouer" : "Voir P1"}
+                        </ActionButton>
 
                         {!showPun && (
-                            <motion.button
-                                variants={buttonGlowVariants}
-                                initial="idle"
-                                whileHover="hover"
-                                whileTap="tap"
+                            <ActionButton
                                 onClick={lockSelectedCase}
-                                className="px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
+                                variant="primary"
+                                ariaLabel="Ajuster la sélection"
                             >
-                                🔒 Ajuster
-                            </motion.button>
+                                Ajuster
+                            </ActionButton>
                         )}
                     </div>
-
-                    {/* Chronomètre */}
-                    <motion.div
-                        animate={{ scale: [1, 1.02, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                        className="font-bold text-blue-600 mt-4 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm"
-                    >
-                        <motion.span
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="text-sm inline-block"
-                        >
-                            ⏱
-                        </motion.span>
+                    <div className="font-bold text-blue-600 mt-4 flex items-center gap-2 text-lg bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                        <span className="text-sm">⏱</span>
                         <span>{formatTime(timeElapsed)}</span>
-                    </motion.div>
-
-                    {/* Progression */}
-                    <div className="mt-4 w-full space-y-3 mb-4">
+                    </div>
+                    <div className="mt-4 w-full space-y-3">
                         {casesdujeuencours.length > 0 && (
                             <div className="mt-2">
                                 <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>🎯 Progression</span>
-                                    <motion.span
-                                        key={casesdujeuencours.filter(c => c.isLocked).length}
-                                        initial={{ scale: 0.5, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ type: "spring", stiffness: 500 }}
-                                        className="font-bold text-purple-600"
-                                    >
-                                        {casesdujeuencours.filter(c => c.isLocked).length}/{casesdujeuencours.length}
-                                    </motion.span>
+                                    <span>Progression</span> 
+                                    <span>{casesdujeuencours.filter(c => c.isLocked).length}/{casesdujeuencours.length}</span>
                                 </div>
-                                <AnimatedProgressBar progression={progression} />
+
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${progression}%` }}
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -401,18 +339,8 @@ export default function TheGame() {
                             value={niveau ?? "N/A"}
                         />
                     </div>
-                </motion.div>
-            </div>
-
-            <style jsx>{`
-                .preserve-3d {
-                    transform-style: preserve-3d;
-                    backface-visibility: hidden;
-                }
-                .perspective-1000 {
-                    perspective: 1000px;
-                }
-            `}</style>
+                </div>
+            </motion.div>
         </div>
     );
 }

@@ -379,6 +379,8 @@ export interface Case {
 }
 
 export interface MatchInfo {
+ 
+ 
   competitionId?: string;
   listeCaseOpLab?: Case[];
   listeCaseOpLabInitiale?: Case[];
@@ -403,4 +405,11 @@ export interface MenuItem {
   tpsglobal?: number;
   color: string;
   gradient?: string;
+}
+
+export interface TimeLeft {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
 }

@@ -30,7 +30,6 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
             <div className="rounded-full bg-green-100 dark:bg-green-900/40 p-1.5">
                 <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
-
             <div>
                 <p className="text-sm font-semibold text-green-800 dark:text-green-300">Prêt à valider !</p>
                 <p className="text-xs text-green-700 dark:text-green-400/80">
@@ -61,30 +60,28 @@ export default function LaMise() {
             >
                 <div className="flex-shrink-0">
                     {isSufficient ? (
-                        <div className="rounded-full bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1] p-1.5">
+                        <div className="rounded-full bg-gradient-to-br from-[#2E5AA6] to-[#4F83D1]">
                             <CheckCircle2 className="h-5 w-5 text-white" />
                         </div>
                     ) : (
-                        <div className="rounded-full border-2 border-gray-300 dark:border-gray-600 p-1.5">
+                        <div className="rounded-full border-2 border-gray-300 dark:border-gray-600">
                             <Circle className="w-5 h-5 text-gray-300 dark:text-gray-600" />
                         </div>
                     )}
                 </div>
 
-                <div className="flex-1 min-w-0 mt-4">
+                <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                         <Coins className="w-3.5 h-3.5" />
                         <span>Jetons requis : <strong className="text-gray-800 dark:text-gray-200">{requiredQuantity}</strong></span>
                     </div>
-                    <div className={`flex items-center gap-2 text-xs ${isSufficient ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    <div className={`flex items-center mt-2 gap-2 text-xs ${isSufficient ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                         <Gift className="w-3.5 h-3.5" />
                         <span><strong>{availableQuantity}</strong> disponible(s)</span>
                     </div>
                 </div>
 
-                {isSufficient ? (
-                    <Zap className="w-5 h-5 text-[#2E5AA6] dark:text-[#9BC2FF] flex-shrink-0" />
-                ) : (
+                {!isSufficient && (
                     <div className="px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-xs font-semibold flex-shrink-0">
                         {availableQuantity}/{requiredQuantity}
                     </div>

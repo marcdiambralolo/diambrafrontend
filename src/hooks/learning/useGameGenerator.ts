@@ -10,7 +10,15 @@ const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const TRANSITION_DELAY = 100;
 
 export const useGameGenerator = () => {
-    const { saveFinalResults, clearCompletedMatches, updateCompetitionMatches } = useMonEtoileStore();
+    const { saveFinalResults, clearCompletedMatches, mesComp,
+        addMatchToSet,
+        getMatchFromSet,
+        hasMatchInSet,
+        removeMatchFromSet,
+        getAllMatchesFromSet,
+        clearMatchSet,
+        addMultipleMatchesToSet
+    } = useMonEtoileStore();
     const { data: gameConfig } = useGameConfig();
 
     const [state, setState] = useState({
@@ -26,8 +34,7 @@ export const useGameGenerator = () => {
         infomatch: [] as MatchInfo[],
         isGameover: false,
         isTransitioning: false,
-        isLoading: true,
-        competitionId: null as string | null,
+        isLoading: true, // 🟢 Nouvelle variable pour le loader
     });
 
     const lancementRef = useRef(false);
@@ -60,7 +67,7 @@ export const useGameGenerator = () => {
                 if (idx === index2) {
                     const newTxt = c1.txt;
                     const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
-                    setState(prev => ({ ...prev, showPun: true }));
+                    //setState(prev => ({ ...prev, showPun: true }));
                     return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
                 }
                 return c;
@@ -82,7 +89,7 @@ export const useGameGenerator = () => {
         const index = casesdujeuencours.findIndex(c => c.id === selectedCase.id);
         if (index === -1 || index >= casesinitiales.length) return updateState({ selectedCase: null });
         if (selectedCase.txt !== casesinitiales[index]?.txt) return updateState({ selectedCase: null });
-        setState(prev => ({ ...prev, showPun: true }));
+        //setState(prev => ({ ...prev, showPun: true }));
         updateState({
             casesdujeuencours: casesdujeuencours.map(c =>
                 c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c
@@ -129,14 +136,7 @@ export const useGameGenerator = () => {
 
     const generateMatchList = useCallback((): MatchInfo[] => {
         const matchId = gameConfig?.numeromatch || "123456789";
-        const competitionId = `${matchId}_${Date.now()}`; // 🔥 Générer un ID unique pour la compétition
-        
-        return GLOBAL_GAME_ORDER.map((type, index) => ({
-            ...createMatch(type, index, matchId),
-            competitionId, // 🔥 Ajouter l'ID de compétition à chaque match
-            matchNumber: index + 1,
-            totalMatches: GLOBAL_GAME_ORDER.length,
-        }));
+        return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
     }, [gameConfig?.numeromatch]);
 
     const loadMatch = useCallback(async (match: MatchInfo, niveau: number, piecesImages: string[]): Promise<MatchInfo> => {
@@ -167,11 +167,11 @@ export const useGameGenerator = () => {
         if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) return;
 
         isLoadingMatch.current = true;
-        updateState({ isLoading: true });
+        updateState({ isLoading: true }); // 🟢 Activer loader au chargement d'un match
         chargerMatch(infomatch[matchEnCours]);
-        setTimeout(() => { 
-            isLoadingMatch.current = false; 
-            updateState({ isTransitioning: false, isLoading: false });
+        setTimeout(() => {
+            isLoadingMatch.current = false;
+            updateState({ isTransitioning: false, isLoading: false }); // 🟢 Désactiver loader
         }, TRANSITION_DELAY);
     }, [state.matchEnCours, state.infomatch, chargerMatch, updateState]);
 
@@ -180,57 +180,43 @@ export const useGameGenerator = () => {
         if (casesdujeuencours.length === 0 || isTransitioning) return;
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
-        updateState({ isTransitioning: true, isLoading: true });
-        
-        const completedMatch = {
-            ...infomatch[matchEnCours],
-            isgameover: true,
-            trouves: (infomatch[matchEnCours].trouves || 0) + casesdujeuencours.filter(c => c.isLocked).length,
-            completedAt: new Date().toISOString(),
-        };
-        
+        updateState({ isTransitioning: true, isLoading: true }); // 🟢 Loader pendant transition
         setState(prev => ({
             ...prev,
             infomatch: prev.infomatch.map((m, idx) =>
-                idx === matchEnCours ? completedMatch : m
+                idx === matchEnCours ? { ...m, isgameover: true, trouves: (m.trouves || 0) + prev.casesdujeuencours.filter(c => c.isLocked).length } : m
             ),
         }));
 
-        // 🔥 Mettre à jour la compétition dans le store
-        if (state.competitionId) {
-            updateCompetitionMatches(state.competitionId, matchEnCours, completedMatch);
-        }
-
         if (matchEnCours + 1 < infomatch.length) {
             setTimeout(() => {
-                updateState({ 
-                    matchEnCours: matchEnCours + 1, 
-                    showPun: false, 
-                    selectedCase: null, 
-                    isLoading: false 
-                });
+                updateState({ matchEnCours: matchEnCours + 1, showPun: false, selectedCase: null, isLoading: false });
             }, TRANSITION_DELAY);
         } else {
             setTimeout(() => {
                 updateState({ isLoading: false });
             }, TRANSITION_DELAY);
         }
-    }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, state.competitionId, updateCompetitionMatches, updateState]);
+    }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
 
     useEffect(() => {
         if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
-            saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString(), state.competitionId);
+            const competitionId = `comp_${Date.now()}`;
+            addMatchToSet(competitionId, state.infomatch);
+
+
+            saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString());
             updateState({ isGameover: true, isLoading: false });
         }
-    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover, state.competitionId, saveFinalResults, updateState]);
+    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover, saveFinalResults, updateState]);
 
     useEffect(() => {
         if (lancementRef.current) return;
         lancementRef.current = true;
 
         const lancerJeu = async () => {
-            updateState({ start: false, isTransitioning: false, isLoading: true });
-            
+            updateState({ start: false, isTransitioning: false, isLoading: true }); // 🟢 Activer loader au lancement
+
             clearCompletedMatches();
 
             try {
@@ -247,20 +233,16 @@ export const useGameGenerator = () => {
                     matchList.map(match => loadMatch(match, gameConfig?.niveau!, piecesImages))
                 );
 
-                const competitionId = updatedMatches[0]?.competitionId || null;
-                
                 updateState({
                     infomatch: updatedMatches,
                     datedebut: new Date().toISOString(),
                     matchEnCours: 0,
-                    isLoading: false,
-                    competitionId: competitionId,
+                    isLoading: false, // 🟢 Désactiver loader après chargement
                 });
-                
                 if (updatedMatches[0]) chargerMatch(updatedMatches[0]);
             } catch (error) {
                 console.error("Erreur:", error);
-                updateState({ isLoading: false });
+                updateState({ isLoading: false }); // 🟢 Désactiver loader en cas d'erreur
             } finally {
                 lancementRef.current = false;
             }
@@ -279,35 +261,24 @@ export const useGameGenerator = () => {
         ? (state.casesdujeuencours.filter(c => c.isLocked).length / state.casesdujeuencours.length) * 100
         : 0;
 
-    const currentMatchInfo = useMemo(() => {
-        if (state.matchEnCours === -1 || !state.infomatch[state.matchEnCours]) return null;
-        return {
-            current: state.matchEnCours + 1,
-            total: state.infomatch.length,
-            match: state.infomatch[state.matchEnCours],
-        };
-    }, [state.matchEnCours, state.infomatch]);
-
     return {
-        toggleShowPun, 
-        lockSelectedCase, 
-        selectCase, 
+        toggleShowPun,
+        lockSelectedCase,
+        selectCase,
         niveau: gameConfig?.niveau,
-        showPun: state.showPun, 
-        timeElapsed, 
+        showPun: state.showPun,
+        timeElapsed,
         matchEnCours: state.matchEnCours,
-        infomatch: state.infomatch, 
-        tpsglobal: state.tpsglobal, 
+        infomatch: state.infomatch,
+        tpsglobal: state.tpsglobal,
         casesdujeuencours: state.casesdujeuencours,
-        casesinitiales: state.casesinitiales, 
-        pieces: state.pieces, 
+        casesinitiales: state.casesinitiales,
+        pieces: state.pieces,
         selectedCase: state.selectedCase,
-        allMatchesFinished, 
-        currentGameType, 
-        progression, 
+        allMatchesFinished,
+        currentGameType,
+        progression,
         gameisover: state.isGameover,
-        isLoading: state.isLoading,
-        currentMatchInfo, // 🔥 Info sur le match en cours
-        competitionId: state.competitionId, // 🔥 ID de la compétition
+        isLoading: state.isLoading, // 🟢 Exporter isLoading
     };
 };

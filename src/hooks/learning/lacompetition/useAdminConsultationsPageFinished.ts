@@ -6,6 +6,9 @@ import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameConfig } from '../useGame';
 
+const REFRESH_INTERVAL = 5000;
+const TIME_UPDATE_INTERVAL = 1000; 
+
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
   const { data: gameConfig } = useGameConfig();
@@ -24,8 +27,10 @@ export function useAdminConsultationsPageFinished() {
   const [isEndingGame, setIsEndingGame] = useState(false);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    intervalRef.current = setInterval(() => setCurrentTime(new Date()), TIME_UPDATE_INTERVAL);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
 
   const startDate = useMemo(() =>
@@ -112,13 +117,6 @@ export function useAdminConsultationsPageFinished() {
     if (!gameStarted) setGameStarted(true);
   }, [gameStarted, setGameStarted]);
 
-  const handleEndMatch = useCallback(async () => {
-    if (!matchFinished && !isEndingGame) {
-      setMatchFinished(true);
-      await endGameInBackend();
-    }
-  }, [matchFinished, isEndingGame, endGameInBackend]);
-
   const demarrerJeu = useCallback(() => {
     resetGameState();
     setJeuAcommencer(true);
@@ -133,14 +131,16 @@ export function useAdminConsultationsPageFinished() {
   useEffect(() => {
     const reloadInterval = setInterval(() => {
       if (!isFetchingRef.current && !isEndingGame) refreshAllData();
-    }, 5000);
+    }, REFRESH_INTERVAL);
     return () => clearInterval(reloadInterval);
   }, [isEndingGame, refreshAllData]);
 
   useEffect(() => {
     isMountedRef.current = true;
     refreshAllData();
-    return () => { isMountedRef.current = false; };
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [refreshAllData]);
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export function useAdminConsultationsPageFinished() {
   }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
 
   return {
-    demarrerJeu, handleOpenGame, handleEndMatch, startDate, gameConfig, stats, error,
-    showEnded, loading, showActive, showNotStarted, lastEndedGame, endDate,
+    demarrerJeu, handleOpenGame, showActive: showActive!, showNotStarted: showNotStarted!,
+    showEnded, loading, lastEndedGame, endDate, startDate, gameConfig, stats,
   };
 }

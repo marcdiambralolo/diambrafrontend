@@ -1,71 +1,97 @@
-import type { Consultation, MatchInfo } from '@/lib/interfaces';
+import { MatchInfo } from '@/lib/interfaces';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// 🔥 Interface pour une compétition complète
-export interface Competition {
-    id: string;
-    startedAt: string;
-    finishedAt?: string;
-    matches: MatchInfo[];
-    totalMatches: number;
-    completedMatches: number;
-    isComplete: boolean;
+class MatchInfoSet {
+    private map: Map<string, MatchInfo[]>;
+
+    constructor() {
+        this.map = new Map();
+    }
+
+    add(key: string, match: MatchInfo[]): void {
+        this.map.set(key, match);
+    }
+
+    get(key: string): MatchInfo[] | undefined {
+        return this.map.get(key);
+    }
+
+    has(key: string): boolean {
+        return this.map.has(key);
+    }
+
+    delete(key: string): boolean {
+        return this.map.delete(key);
+    }
+
+    getAll(): MatchInfo[][] {
+        return Array.from(this.map.values());
+    }
+
+    getKeys(): string[] {
+        return Array.from(this.map.keys());
+    }
+
+    size(): number {
+        return this.map.size;
+    }
+
+    clear(): void {
+        this.map.clear();
+    }
+
+    forEach(callback: (match: MatchInfo[], key: string) => void): void {
+        this.map.forEach((value, key) => callback(value, key));
+    }
+
+    toMap(): Map<string, MatchInfo[]> {
+        return new Map(this.map);
+    }
+
+    static fromMap(map: Map<string, MatchInfo[]>): MatchInfoSet {
+        const instance = new MatchInfoSet();
+        instance.map = new Map(map);
+        return instance;
+    }
 }
 
 interface MonEtoileStore {
-    // Consultation
-    choixConsultationEnCours: Consultation | null;
-    setChoixConsultationEnCours: (choix: Consultation | null) => void;
-
-    // 🔥 ID de la consultation en cours
     currentConsultationId: string | null;
     setCurrentConsultationId: (id: string | null) => void;
 
-    // 🔥 Gestion des compétitions multiples
-    competitions: Map<string, Competition>;
-    currentCompetitionId: string | null;
-    
-    // 🔥 Matchs terminés (pour compatibilité)
     completedMatches: MatchInfo[] | null;
     setCompletedMatches: (matches: MatchInfo[] | null) => void;
 
+    mesComp: MatchInfoSet;
+    addMatchToSet: (key: string, match: MatchInfo[]) => void;
+    getMatchFromSet: (key: string) => MatchInfo[] | undefined;
+    hasMatchInSet: (key: string) => boolean;
+    removeMatchFromSet: (key: string) => boolean;
+    getAllMatchesFromSet: () => MatchInfo[][];
+    clearMatchSet: () => void;
+    addMultipleMatchesToSet: (matches: Map<string, MatchInfo[]> | Record<string, MatchInfo[]>) => void;
     // État de fin de jeu
     jeuestfinie: boolean;
     setJeuestfinie: (jeuestfinie: boolean) => void;
-
     // État de jeu en cours
     jouer: boolean;
     setJouer: (jouer: boolean) => void;
-
     gameStarted: boolean;
     setGameStarted: (gameStarted: boolean) => void;
-
     // Mode compétition vs jeu
     jeuAcommencer: boolean;
     setJeuAcommencer: (jeuAcommencer: boolean) => void;
-
     // État d'affichage de l'aide
     afficheaide: boolean;
     setAfficheaide: (afficheaide: boolean) => void;
-
     startGame: () => void;
     stopGame: () => void;
     startCompetition: () => void;
     stopCompetition: () => void;
-
     // Actions pour l'aide
     afficherAide: () => void;
     afficherJeu: () => void;
-
-    // 🔥 Nouvelles méthodes pour les compétitions
-    createCompetition: (matches: MatchInfo[]) => string;
-    getCompetition: (competitionId: string) => Competition | undefined;
-    updateCompetitionMatches: (competitionId: string, matchIndex: number, updatedMatch: MatchInfo) => void;
-    completeCompetition: (competitionId: string) => void;
-    getAllCompetitions: () => Competition[];
-    getCurrentCompetition: () => Competition | undefined;
-    
     // Méthodes existantes modifiées
     saveFinalResults: (matches: MatchInfo[], datedebut: string, datefin: string, competitionId?: string | null) => void;
     clearCompletedMatches: () => void;
@@ -77,111 +103,82 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
         (set, get) => ({
             // État initial
             choixConsultationEnCours: null,
-            currentConsultationId: null, // 🔥 Réintégré
+            currentConsultationId: null,
             competitions: new Map(),
             currentCompetitionId: null,
             completedMatches: null,
+            mesComp: new MatchInfoSet(), // 🔥 Initialisation de mesComp
             jeuestfinie: false,
             jouer: false,
             gameStarted: false,
             jeuAcommencer: false,
             afficheaide: false,
-
-            // Actions Consultation
-            setChoixConsultationEnCours: (choix) => set({ choixConsultationEnCours: choix }),
-            
-            // 🔥 Action pour l'ID de consultation
             setCurrentConsultationId: (id) => set({ currentConsultationId: id }),
-
-            // 🔥 Actions pour les compétitions
-            createCompetition: (matches: MatchInfo[]) => {
-                const competitionId = matches[0]?.competitionId || `comp_${Date.now()}`;
-                const competition: Competition = {
-                    id: competitionId,
-                    startedAt: new Date().toISOString(),
-                    matches: matches,
-                    totalMatches: matches.length,
-                    completedMatches: 0,
-                    isComplete: false,
-                };
-                
-                set(state => ({
-                    competitions: new Map(state.competitions).set(competitionId, competition),
-                    currentCompetitionId: competitionId,
-                }));
-                
-                return competitionId;
+            addMatchToSet: (key: string, match: MatchInfo[]) => {
+                set(state => {
+                    const newSet = new MatchInfoSet();
+                    // Copier les éléments existants
+                    state.mesComp.forEach((m, k) => newSet.add(k, m));
+                    // Ajouter le nouveau
+                    newSet.add(key, match);
+                    return { mesComp: newSet };
+                });
             },
 
-            getCompetition: (competitionId: string) => {
-                return get().competitions.get(competitionId);
+            getMatchFromSet: (key: string) => {
+                return get().mesComp.get(key);
             },
 
-            updateCompetitionMatches: (competitionId: string, matchIndex: number, updatedMatch: MatchInfo) => {
-                const competition = get().competitions.get(competitionId);
-                if (!competition) return;
-
-                const updatedMatches = [...competition.matches];
-                updatedMatches[matchIndex] = updatedMatch;
-                
-                const completedCount = updatedMatches.filter(m => m.isgameover === true).length;
-                const isComplete = completedCount === competition.totalMatches;
-                
-                const updatedCompetition: Competition = {
-                    ...competition,
-                    matches: updatedMatches,
-                    completedMatches: completedCount,
-                    isComplete: isComplete,
-                    finishedAt: isComplete ? new Date().toISOString() : competition.finishedAt,
-                };
-                
-                set(state => ({
-                    competitions: new Map(state.competitions).set(competitionId, updatedCompetition),
-                }));
+            hasMatchInSet: (key: string) => {
+                return get().mesComp.has(key);
             },
 
-            completeCompetition: (competitionId: string) => {
-                const competition = get().competitions.get(competitionId);
-                if (!competition) return;
-                
-                const updatedCompetition: Competition = {
-                    ...competition,
-                    isComplete: true,
-                    finishedAt: new Date().toISOString(),
-                };
-                
-                set(state => ({
-                    competitions: new Map(state.competitions).set(competitionId, updatedCompetition),
-                    jeuestfinie: true,
-                    jouer: false,
-                    jeuAcommencer: false,
-                    gameStarted: false,
-                }));
+            removeMatchFromSet: (key: string) => {
+                let removed = false;
+                set(state => {
+                    const newSet = new MatchInfoSet();
+                    state.mesComp.forEach((m, k) => {
+                        if (k !== key) {
+                            newSet.add(k, m);
+                        } else {
+                            removed = true;
+                        }
+                    });
+                    return { mesComp: newSet };
+                });
+                return removed;
             },
 
-            getAllCompetitions: () => {
-                return Array.from(get().competitions.values());
+            getAllMatchesFromSet: () => {
+                return get().mesComp.getAll();
             },
 
-            getCurrentCompetition: () => {
-                const { currentCompetitionId, competitions } = get();
-                return currentCompetitionId ? competitions.get(currentCompetitionId) : undefined;
+            clearMatchSet: () => {
+                set({ mesComp: new MatchInfoSet() });
             },
 
-            // Actions Matchs
+            addMultipleMatchesToSet: (matches: Map<string, MatchInfo[]> | Record<string, MatchInfo[]>) => {
+                set(state => {
+                    const newSet = new MatchInfoSet();
+                    // Copier les éléments existants
+                    state.mesComp.forEach((m, k) => newSet.add(k, m));
+                    // Ajouter les nouveaux
+                    if (matches instanceof Map) {
+                        matches.forEach((value, key) => newSet.add(key, value));
+                    } else {
+                        Object.entries(matches).forEach(([key, value]) => newSet.add(key, value));
+                    }
+                    return { mesComp: newSet };
+                });
+            },
+
             setCompletedMatches: (matches) => set({ completedMatches: matches }),
-
             setJeuestfinie: (jeuestfinie) => set({ jeuestfinie }),
-
             setJouer: (jouer) => set({ jouer }),
             setGameStarted: (gameStarted) => set({ gameStarted }),
-
             setJeuAcommencer: (jeuAcommencer) => set({ jeuAcommencer }),
-
             setAfficheaide: (afficheaide) => set({ afficheaide }),
-
             afficherAide: () => set({ afficheaide: true }),
-
             afficherJeu: () => set({ afficheaide: false }),
 
             startGame: () => set({
@@ -208,11 +205,10 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
 
             stopCompetition: () => set({
                 jeuAcommencer: false,
-                currentCompetitionId: null,
             }),
 
             // 🔥 Sauvegarde des résultats modifiée
-            saveFinalResults: (matches, datedebut, datefin, competitionId) => {
+            saveFinalResults: (matches, datedebut, datefin) => {
                 const matchesWithDates = matches.map(match => ({
                     ...match,
                     datedebut,
@@ -220,32 +216,6 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                     isgameover: true,
                     completedAt: datefin,
                 }));
-                
-                // Sauvegarder dans la compétition si un ID est fourni
-                if (competitionId) {
-                    const competition = get().competitions.get(competitionId);
-                    if (competition) {
-                        const updatedCompetition: Competition = {
-                            ...competition,
-                            matches: matchesWithDates,
-                            isComplete: true,
-                            finishedAt: datefin,
-                            completedMatches: matchesWithDates.length,
-                        };
-                        set(state => ({
-                            competitions: new Map(state.competitions).set(competitionId, updatedCompetition),
-                            completedMatches: matchesWithDates,
-                            jeuestfinie: true,
-                            jouer: false,
-                            jeuAcommencer: false,
-                            gameStarted: false,
-                            afficheaide: false,
-                        }));
-                        return;
-                    }
-                }
-                
-                // Compatibilité avec l'ancien système
                 set({
                     completedMatches: matchesWithDates,
                     jeuestfinie: true,
@@ -267,25 +237,16 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 gameStarted: false,
                 jeuAcommencer: false,
                 afficheaide: false,
-                currentCompetitionId: null,
-                // 🔥 On ne reset pas currentConsultationId pour garder le contexte
+                // 🔥 Optionnel: vider ou garder mesComp?
+                // mesComp: new MatchInfoSet(), // Décommentez pour vider aussi mesComp
             }),
         }),
         {
             name: 'monetoile-store',
+            
             partialize: (state) => ({
-                choixConsultationEnCours: state.choixConsultationEnCours,
-                currentConsultationId: state.currentConsultationId, // 🔥 Persister l'ID de consultation
-                // 🔥 Persister les compétitions (convertir Map en objet pour la persistance)
-                competitions: Array.from(state.competitions.entries()),
-                currentCompetitionId: state.currentCompetitionId,
+                currentConsultationId: state.currentConsultationId,
             }),
-            // 🔥 Hydrater la Map après persistence
-            onRehydrateStorage: () => (state) => {
-                if (state && Array.isArray(state.competitions)) {
-                    state.competitions = new Map(state.competitions);
-                }
-            },
         }
     )
 );

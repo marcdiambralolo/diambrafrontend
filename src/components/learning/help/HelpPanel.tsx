@@ -1,6 +1,6 @@
 'use client';
-import { memo, useState, useEffect, useCallback, useMemo } from "react";
-import { X, ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
+import { memo, useCallback, useMemo } from "react";
 
 const HELP_SECTIONS = [
     {
@@ -103,7 +103,7 @@ const HelpSectionCard = memo(({ section }: { section: HelpSection }) => {
     const contentText = !isList ? section.content as string : '';
 
     return (
-        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-purple-200">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
             <div className="flex items-start gap-3 mb-2">
                 <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
                     <span className="text-lg" aria-hidden="true">{section.icon}</span>
@@ -155,21 +155,10 @@ const QuickTipsCard = memo(() => (
     </div>
 ));
 
-const CloseButton = memo(({ onClick }: { onClick: () => void }) => (
-    <button
-        onClick={onClick}
-        className="absolute top-2 right-2 w-7 h-7 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-        aria-label="Fermer"
-        type="button"
-    >
-        <X className="w-3.5 h-3.5 text-white" aria-hidden="true" />
-    </button>
-));
-
 const BackButton = memo(({ onClick }: { onClick: () => void }) => (
     <button
         onClick={onClick}
-        className="w-full mb-3 py-2 bg-purple-50 rounded-xl text-purple-700 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-purple-100 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-300"
+        className="w-full mb-3 py-2 bg-purple-50 rounded-xl text-purple-700 text-xl font-semibold flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
         type="button"
     >
         <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
@@ -187,13 +176,6 @@ const HelpHeaderGradient = memo(() => (
 ));
 
 const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setIsVisible(true), 50);
-        return () => clearTimeout(timer);
-    }, []);
-
     const handleClose = useCallback(() => {
         onClose();
     }, [onClose]);
@@ -206,11 +188,9 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
     );
 
     return (
-        <div className={`w-full max-w-md mx-auto mt-2 mb-4 transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>
+        <div className="w-full max-w-md mx-auto mt-2 mb-4">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                 <HelpHeaderGradient />
-                <CloseButton onClick={handleClose} />
 
                 <div className="p-2 overflow-y-auto">
                     <BackButton onClick={handleClose} />

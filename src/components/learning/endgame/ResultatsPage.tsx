@@ -1,12 +1,9 @@
 'use client';
-import { CompetitionSummary, NO_DATA_PLACEHOLDER, useEndGameGenerator } from "@/hooks/learning/endgame/useGameGenerator";
+import { CompetitionSummary, useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
 import { MatchInfo } from "@/lib/interfaces";
+import { NO_DATA_PLACEHOLDER } from "@/lib/learning/constantes";
 import { Loader2, Medal, RotateCcw, Send, Trophy } from "lucide-react";
-import { memo, useCallback, useMemo, useState } from 'react';
-
-// ============================================================================
-// TYPES
-// ============================================================================
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 interface InfoRowProps {
     label: string;
@@ -40,15 +37,7 @@ interface ValidationMessage {
     type: 'success' | 'error';
 }
 
-// ============================================================================
-// CONSTANTES
-// ============================================================================
-
 const MESSAGE_DURATION = 3000;
-
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
 
 const formatDuration = (seconds?: number): string => {
     if (!seconds) return '0s';
@@ -58,12 +47,8 @@ const formatDuration = (seconds?: number): string => {
     return `${minutes}m ${remainingSeconds}s`;
 };
 
-// ============================================================================
-// SOUS-COMPOSANTS
-// ============================================================================
-
 const InfoRow = memo(({ label, value, highlight = false }: InfoRowProps) => (
-    <div className="flex justify-between py-2 border-b border-gray-200 last:border-0">
+    <div className="flex justify-between py-1 border-b border-gray-200 last:border-0">
         <span className="font-semibold text-gray-700">{label}:</span>
         <span className={`${highlight ? 'text-purple-600 font-bold text-lg' : 'text-gray-900'}`}>
             {value ?? NO_DATA_PLACEHOLDER}
@@ -71,52 +56,63 @@ const InfoRow = memo(({ label, value, highlight = false }: InfoRowProps) => (
     </div>
 ));
 
-InfoRow.displayName = 'InfoRow';
-
 const MatchCard = memo(({ match, index }: MatchCardProps) => {
-    const timeDisplay = useMemo(() => 
-        formatDuration(match.timeSpent || match.score),
-        [match.timeSpent, match.score]
-    );
+    const timeDisplay = useMemo(() => formatDuration(match.timeSpent), [match.timeSpent]);
 
     return (
-        <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-center">
+        <div className="bg-white border-b border-purple-100">
+            <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-700">
-                        Match {index + 1}
-                    </span>
+                    <span className="font-semibold text-gray-700"> {index + 1}</span>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-gray-500">{match.type}</span>
                 </div>
-                <span className="text-sm text-gray-500">{match.type}</span>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                <div className="text-gray-600">Temps écoulé:</div>
-                <div className="font-semibold text-purple-600 text-right">
-                    {timeDisplay}
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-500">⏱️</span>
+                    <span className="font-medium text-purple-600">{timeDisplay}</span>
                 </div>
             </div>
         </div>
     );
 });
 
-MatchCard.displayName = 'MatchCard';
+const MessageToast = memo(({ message, onClose }: { message: ValidationMessage | null; onClose: () => void }) => {
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(onClose, MESSAGE_DURATION);
+            return () => clearTimeout(timer);
+        }
+    }, [message, onClose]);
+
+    if (!message) return null;
+
+    return (
+        <div
+            className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300 ${message.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`}
+            role="alert"
+        >
+            {message.text}
+        </div>
+    );
+});
 
 const CompetitionDetails = memo(({ competition, onValidate, isValidating = false }: CompetitionDetailsProps) => {
     const [isLocalValidating, setIsLocalValidating] = useState(false);
     const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
 
-    const formattedStartDate = useMemo(() => 
+    const formattedStartDate = useMemo(() =>
         new Date(competition.startedAt).toLocaleString(),
         [competition.startedAt]
     );
 
-    const formattedFinishedDate = useMemo(() => 
+    const formattedFinishedDate = useMemo(() =>
         competition.finishedAt ? new Date(competition.finishedAt).toLocaleString() : null,
         [competition.finishedAt]
     );
 
     const totalTimeSpent = useMemo(() => {
-        const total = competition.matches.reduce((sum, match) => 
+        const total = competition.matches.reduce((sum, match) =>
             sum + (match.timeSpent || 0), 0
         );
         return formatDuration(total);
@@ -127,34 +123,24 @@ const CompetitionDetails = memo(({ competition, onValidate, isValidating = false
 
         setIsLocalValidating(true);
         setValidationMessage(null);
-        
+
         const success = await onValidate(competition.rawMatches);
-        
+
         setValidationMessage({
             text: success ? 'Compétition validée avec succès !' : 'Erreur lors de la validation',
             type: success ? 'success' : 'error'
         });
-        
+
         setIsLocalValidating(false);
-        
-        setTimeout(() => setValidationMessage(null), MESSAGE_DURATION);
     }, [competition, onValidate, isValidating, isLocalValidating]);
+
+    const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
 
     const isLoading = isLocalValidating || isValidating;
 
     return (
-        <div className="space-y-4 mb-6 p-4 bg-white rounded-xl shadow-md">
-            {/* Message de validation local */}
-            {validationMessage && (
-                <div
-                    className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300 ${
-                        validationMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    role="alert"
-                >
-                    {validationMessage.text}
-                </div>
-            )}
+        <div className="space-y-4 mb-6 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+            <MessageToast message={validationMessage} onClose={handleCloseMessage} />
 
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h3 className="text-xl font-bold text-purple-700 flex items-center gap-2">
@@ -178,13 +164,12 @@ const CompetitionDetails = memo(({ competition, onValidate, isValidating = false
             </div>
 
             <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                <InfoRow label="ID Compétition" value={competition.id.slice(0, 8)} />
                 <InfoRow label="Date de début" value={formattedStartDate} />
                 {formattedFinishedDate && (
                     <InfoRow label="Date de fin" value={formattedFinishedDate} />
                 )}
                 <InfoRow label="Temps total" value={totalTimeSpent} highlight />
-                <InfoRow label="Nombre de ratés" value={`${competition.matches.length}`} />
+                <InfoRow label="Nombre de matchs" value={competition.matches.length} />
             </div>
 
             <div>
@@ -192,7 +177,7 @@ const CompetitionDetails = memo(({ competition, onValidate, isValidating = false
                     <Medal className="w-4 h-4" aria-hidden="true" />
                     Résultats par match
                 </h4>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                     {competition.matches.map((match, idx) => (
                         <MatchCard key={idx} match={match} index={idx} />
                     ))}
@@ -202,13 +187,43 @@ const CompetitionDetails = memo(({ competition, onValidate, isValidating = false
     );
 });
 
-CompetitionDetails.displayName = 'CompetitionDetails';
 
-const ActionButtons = memo(({ onRestart, disabled = false }: ActionButtonsProps) => (
-    <div className="flex justify-center gap-3 mb-6">
+export default function ResultatsPage() {
+    const {
+        handleValidateCompetition, handleRestart,
+        isValidating, competitions, validateMessage,
+    } = useEndGameGenerator();
+
+    const hasCompetitions = competitions.length > 0;
+
+    const [globalMessage, setGlobalMessage] = useState<ValidationMessage | null>(null);
+
+    useEffect(() => {
+        setGlobalMessage(validateMessage);
+    }, [validateMessage]);
+
+    const handleCloseGlobalMessage = useCallback(() => setGlobalMessage(null), []);
+
+    const competitionList = useMemo(() =>
+        competitions.map((competition) => (
+            <CompetitionDetails
+                key={competition.id}
+                competition={competition}
+                onValidate={handleValidateCompetition}
+                isValidating={isValidating}
+            />
+        )),
+        [competitions, handleValidateCompetition, isValidating]
+    );
+
+    return (
+        <div className="w-full max-w-md mx-auto py-4">
+            <MessageToast message={globalMessage} onClose={handleCloseGlobalMessage} />
+            {hasCompetitions && (
+                  <div className="flex justify-center gap-3 mb-6">
         <button
-            onClick={onRestart}
-            disabled={disabled}
+            onClick={handleRestart}
+            disabled={false}
             className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 disabled:opacity-50 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
             type="button"
         >
@@ -216,85 +231,9 @@ const ActionButtons = memo(({ onRestart, disabled = false }: ActionButtonsProps)
             Recommencer
         </button>
     </div>
-));
-
-ActionButtons.displayName = 'ActionButtons';
-
-const GlobalMessage = memo(({ message }: { message: ValidationMessage | null }) => {
-    if (!message) return null;
-
-    return (
-        <div
-            className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300 ${
-                message.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`}
-            role="alert"
-        >
-            {message.text}
-        </div>
-    );
-});
-
-GlobalMessage.displayName = 'GlobalMessage';
-
-const EmptyState = memo(({ onRestart }: { onRestart: () => void }) => (
-    <div className="text-center py-12 bg-gray-50 rounded-xl">
-        <Trophy className="w-16 h-16 text-gray-300 mx-auto mb-4" aria-hidden="true" />
-        <p className="text-gray-500 mb-4">Aucune compétition à afficher</p>
-        <button
-            onClick={onRestart}
-            className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400"
-            type="button"
-        >
-            Commencer une compétition
-        </button>
-    </div>
-));
-
-EmptyState.displayName = 'EmptyState';
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
-
-export default function ResultatsPage() {
-    const {
-        isSubmitting,
-        isValidating,
-        handleRestart,
-        competitions,
-        validateMessage,
-        handleValidateCompetition
-    } = useEndGameGenerator();
-
-    const hasCompetitions = competitions.length > 0;
-
-    return (
-        <div className="w-full max-w-md mx-auto py-4">
-            {/* Message global */}
-            <GlobalMessage message={validateMessage} />
-
-            {/* Actions */}
-            {hasCompetitions && (
-                <ActionButtons
-                    onRestart={handleRestart}
-                    disabled={isSubmitting || isValidating}
-                />
             )}
 
-            {/* Liste des compétitions */}
-            {hasCompetitions ? (
-                competitions.map((competition) => (
-                    <CompetitionDetails
-                        key={competition.id}
-                        competition={competition}
-                        onValidate={handleValidateCompetition}
-                        isValidating={isValidating}
-                    />
-                ))
-            ) : (
-                <EmptyState onRestart={handleRestart} />
-            )}
+            {hasCompetitions && competitionList}
         </div>
     );
 }

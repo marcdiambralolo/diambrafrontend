@@ -3,6 +3,7 @@ import Loader from "@/app/loading";
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/lacompetition/useAdminConsultationsPageFinished";
 import { formatDateFRJeu, formatDateTime, formatNumber } from "@/lib/functions";
 import { LastEndedGame, TimeLeft } from "@/lib/interfaces";
+import { COLORS, TIME_UNITS } from "@/lib/learning/constantes";
 import { Award, Calendar, Clock, History, Hourglass, Timer, Trophy, Users } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
@@ -36,16 +37,11 @@ interface StatCardProps {
     color: string;
 }
 
-const TIME_UNITS = [
-    { key: 'days', label: 'j' },
-    { key: 'hours', label: 'h' },
-    { key: 'minutes', label: 'm' },
-    { key: 'seconds', label: 's' }
-] as const;
-
-const STAT_CARD_COLORS = {
-    subscribers: "from-purple-600 to-indigo-600"
-} as const;
+interface ViewState {
+    isEnded: boolean;
+    isActive: boolean;
+    isNotStarted: boolean;
+}
 
 const CountdownTimer = memo(({ targetDate, onFinish }: CountdownTimerProps) => {
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -98,7 +94,7 @@ const CountdownTimer = memo(({ targetDate, onFinish }: CountdownTimerProps) => {
 const HistoryButton = memo(() => (
     <CacheLink
         href="/star/learning/historique/1779760200000"
-        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
     >
         <History className="w-4 h-4" aria-hidden="true" />
         <span>Historique</span>
@@ -164,7 +160,7 @@ const EndedBanner = memo(({ lastEndedGame }: EndedBannerProps) => {
 const GlowButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
     <button
         onClick={onClick}
-        className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-all focus:outline-none focus:ring-2 focus:ring-green-400"
+        className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
         type="button"
     >
         {children}
@@ -181,7 +177,7 @@ const ActiveBanner = memo(({ endDate, startDate, formatDate, gameConfig, demarre
                 <div className="bg-white/15 rounded-2xl p-3 text-center">
                     <div className="text-3xl" aria-hidden="true">🎮</div>
                     <div className="text-[10px] text-white/70">N° Match</div>
-                    <div className="text-sm font-bold text-white">{gameConfig?.numeromatch}</div>
+                    <div className="text-sm font-bold text-white">{gameConfig?.numeromatch || 'N/A'}</div>
                 </div>
                 <div className="bg-white/15 rounded-2xl p-3 text-center">
                     <div className="text-3xl" aria-hidden="true">📊</div>
@@ -226,7 +222,6 @@ const StatCard = memo(({ value, label, icon, color }: StatCardProps) => {
                     {icon}
                 </div>
             </div>
-
             <p className="text-3xl text-center font-bold">{formattedValue}</p>
         </div>
     );
@@ -234,17 +229,27 @@ const StatCard = memo(({ value, label, icon, color }: StatCardProps) => {
 
 function BanniereCompetition() {
     const {
-        demarrerJeu, handleOpenGame, showEnded, loading, showActive, showNotStarted,
-        lastEndedGame, endDate, startDate, gameConfig, stats,
+        demarrerJeu, handleOpenGame, startDate, gameConfig, stats,
+        showEnded, loading, showActive, showNotStarted, lastEndedGame, endDate,
     } = useAdminConsultationsPageFinished();
 
-    const viewState = useMemo(() => ({
-        isEnded: showEnded,
-        isActive: !showEnded && showActive,
-        isNotStarted: !showEnded && !showActive && showNotStarted,
-    }), [showEnded, showActive, showNotStarted]);
+    const viewState = useMemo((): ViewState => {
+        if (!gameConfig) {
+            return {
+                isEnded: true,
+                isActive: false,
+                isNotStarted: false,
+            };
+        }
 
-    if (loading) return <Loader />;
+        return {
+            isEnded: showEnded,
+            isActive: !showEnded && showActive,
+            isNotStarted: !showEnded && !showActive && showNotStarted,
+        };
+    }, [gameConfig, showEnded, showActive, showNotStarted]);
+
+    if (loading) { return <Loader />; }
 
     return (
         <div className="max-w-md mx-auto">
@@ -259,7 +264,6 @@ function BanniereCompetition() {
                     demarrerJeu={demarrerJeu}
                 />
             )}
-
             {viewState.isNotStarted && (
                 <NotStartedBanner
                     startDate={startDate!}
@@ -271,7 +275,7 @@ function BanniereCompetition() {
                 value={stats?.subscribers ?? null}
                 label="Inscrits"
                 icon={<Users className="w-3.5 h-3.5" aria-hidden="true" />}
-                color={STAT_CARD_COLORS.subscribers}
+                color={COLORS.subscribers}
             />
         </div>
     );

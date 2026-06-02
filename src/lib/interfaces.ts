@@ -380,6 +380,13 @@ export interface Case {
 
 export interface MatchInfo {
  
+    id?: string;
+  
+    timeSpent?: number;
+   
+    matchNumber?: number;
+   
+ 
  
   competitionId?: string;
   listeCaseOpLab?: Case[];
@@ -412,4 +419,11 @@ export interface TimeLeft {
     hours: number;
     minutes: number;
     seconds: number;
+}
+
+export interface CompetitionInfo {
+    id: string;
+    datedebut: string;
+    datefin: string;
+    matchInfo: MatchInfo[];
 }

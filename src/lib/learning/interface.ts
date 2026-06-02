@@ -16,24 +16,6 @@ export interface Case {
   force?: boolean;
 }
 
-export interface MatchInfo {
-  listeCaseOpLab?: Case[];
-  listeCaseOpLabInitiale?: Case[];
-  pieces?: string[];
-  numordrep?: number;
-  score?: number;
-  rates?: number;
-  tpsglobal?: number;
-  niveau?: number;
-  entite?: number;
-  numeromatch?: string;
-  isgameover?: boolean;
-  datedebut?: string | null;
-  datefin?: string | null;
-  trouves?: number;
-  nbCoup?: number;
-}
-
 export interface MenuItem {
   title: string;
   icon: React.ReactNode;

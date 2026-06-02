@@ -69,7 +69,6 @@ export default function LaMise() {
                         </div>
                     )}
                 </div>
-
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                         <Coins className="w-3.5 h-3.5" />
@@ -91,8 +90,8 @@ export default function LaMise() {
             <button
                 onClick={handleNext}
                 disabled={!isSufficient}
-                className={`w-full h-12 mt-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${isSufficient
-                    ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-lg hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+                className={`w-full h-12 mt-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 ${isSufficient
+                    ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-lg cursor-pointer"
                     : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
                     }`}
             >
@@ -108,11 +107,11 @@ export default function LaMise() {
 
             <button
                 onClick={handleGoToMarket}
-                className="group w-full h-10 mt-4 mb-4 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] transition-all duration-300 hover:bg-[#DDE7FA] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] dark:hover:bg-[#162A56]/45"
+                className="group w-full h-10 mt-4 mb-4 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF]"
             >
-                <ShoppingBag className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                <ShoppingBag className="w-4 h-4" />
                 <span>Acquérir des jetons</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="w-4 h-4" />
             </button>
         </div>
     );

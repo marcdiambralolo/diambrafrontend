@@ -1,25 +1,19 @@
-import useTimer from "@/hooks/learning/useTimer";
-import { Case, MatchInfo } from '@/lib/interfaces';
+import useTimer from "@/hooks/learning/endgame/useTimer";
+import { Case, CompetitionInfo, MatchInfo } from '@/lib/interfaces';
 import { choix, decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useGameConfig } from "./useGame";
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const TRANSITION_DELAY = 100;
 
 export const useGameGenerator = () => {
-    const { saveFinalResults, clearCompletedMatches, mesComp,
-        addMatchToSet,
-        getMatchFromSet,
-        hasMatchInSet,
-        removeMatchFromSet,
-        getAllMatchesFromSet,
-        clearMatchSet,
-        addMultipleMatchesToSet
-    } = useMonEtoileStore();
-    const { data: gameConfig } = useGameConfig();
+    const {
+
+        // clearCompletedMatches,
+        addCompetition, gameConfig } = useMonEtoileStore();
+
 
     const [state, setState] = useState({
         tpsglobal: 0,
@@ -202,13 +196,16 @@ export const useGameGenerator = () => {
     useEffect(() => {
         if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
             const competitionId = `comp_${Date.now()}`;
-            addMatchToSet(competitionId, state.infomatch);
-
-
-            saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString());
+            const macompt: CompetitionInfo = {
+                id: competitionId,
+                matchInfo: state.infomatch,
+                datedebut: state.datedebut,
+                datefin: new Date().toISOString()
+            };
+            addCompetition(macompt);
             updateState({ isGameover: true, isLoading: false });
         }
-    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover, saveFinalResults, updateState]);
+    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover, updateState]);
 
     useEffect(() => {
         if (lancementRef.current) return;
@@ -217,7 +214,7 @@ export const useGameGenerator = () => {
         const lancerJeu = async () => {
             updateState({ start: false, isTransitioning: false, isLoading: true }); // 🟢 Activer loader au lancement
 
-            clearCompletedMatches();
+            // clearCompletedMatches();
 
             try {
                 const matchList = generateMatchList();
@@ -249,7 +246,7 @@ export const useGameGenerator = () => {
         };
 
         lancerJeu();
-    }, [gameConfig?.niveau, generateMatchList, loadMatch, chargerMatch, clearCompletedMatches, updateState]);
+    }, [gameConfig?.niveau, generateMatchList, loadMatch, chargerMatch, updateState]);
 
     const currentGameType = useMemo(() => {
         const { infomatch, matchEnCours } = state;

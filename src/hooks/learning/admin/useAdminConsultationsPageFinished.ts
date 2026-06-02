@@ -2,13 +2,11 @@
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useCallback, useMemo } from 'react';
-import { useGameConfig } from './useGame';
 
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
-  const { data: gameConfig } = useGameConfig();
 
-  const { setJeuAcommencer } = useMonEtoileStore();
+  const { setJeuAcommencer, gameConfig } = useMonEtoileStore();
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,

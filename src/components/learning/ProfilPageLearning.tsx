@@ -1,5 +1,6 @@
 'use client';
-import { useCommon } from '@/hooks/learning/useCommon';
+ 
+import { APP_NAME, CURRENT_YEAR } from '@/lib/learning/constantes';
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { HelpCircle } from "lucide-react";
 import { memo, useCallback, useMemo } from 'react';
@@ -10,8 +11,7 @@ import HelpPanel from "./help/HelpPanel";
 import Historique from './historique/Historique';
 import LaBanniere from "./labanniere/LaBanniere";
 import LaMise from "./mise/LaMise";
-
-const CURRENT_YEAR = new Date().getFullYear();
+import { useCommon } from '@/hooks/learning/home/useCommon';
 
 const STATUS_CONFIG = {
   online: { text: 'EN LIGNE', color: 'green' },
@@ -20,7 +20,7 @@ const STATUS_CONFIG = {
 
 const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
   <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg bg-${color === 'red' ? 'red' : 'green'}-500 text-white flex items-center gap-1`}>
-    <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+    <div className={`w-1.5 h-1.5 bg-white rounded-full ${color === 'green' ? 'bg-opacity-100' : 'bg-opacity-100'}`} />
     {text}
   </div>
 ));
@@ -54,9 +54,9 @@ const HeaderSection = memo(() => (
   <div className="flex flex-col items-center justify-center mt-2 mb-2">
     <div className="relative">
       <h1 className="text-xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-        DIAMBRA LEARNING
+        {APP_NAME}
       </h1>
-      <div className="absolute -top-2 -right-6 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+      <div className="absolute -top-2 -right-6 w-2 h-2 bg-yellow-400 rounded-full opacity-75" />
     </div>
     <div className="flex items-center justify-center gap-2 mt-2">
       <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
@@ -69,7 +69,7 @@ const HeaderSection = memo(() => (
 const HelpButton = memo(({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+    className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
     aria-label="Aide"
     type="button"
   >
@@ -78,7 +78,7 @@ const HelpButton = memo(({ onClick }: { onClick: () => void }) => (
 ));
 
 const ProfilPageLearning = memo(() => {
-  const { gameStarted, jeuAcommencer, afficheaide, afficherAide, afficherJeu, } = useMonEtoileStore();
+  const { gameStarted, jeuAcommencer, afficheaide, afficherAide, afficherJeu } = useMonEtoileStore();
 
   const handleHelpClick = useCallback(() => {
     afficherAide();
@@ -120,6 +120,7 @@ const ProfilPageLearning = memo(() => {
   if (afficheaide) {
     return <div className="w-full mx-auto max-w-md">{helpView}</div>;
   }
+
   if (!jeuAcommencer) {
     return <div className="w-full mx-auto max-w-md">{competitionView}</div>;
   }

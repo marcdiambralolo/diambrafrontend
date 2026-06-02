@@ -1,5 +1,5 @@
 'use client';
-import { useGameGenerator } from '@/hooks/learning/useGameGenerator';
+ 
 import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import ResultatsPage from '../endgame/ResultatsPage';
+import { useGameGenerator } from '@/hooks/learning/game/useGameGenerator';
 
 const GRID_BASE_STYLES = "w-full grid";
 const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300";

@@ -7,7 +7,6 @@ import { Consultation } from '@/lib/interfaces';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useGameConfig } from '../useGame';
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -47,8 +46,7 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { data: gameConfig, isLoading: configLoading } = useGameConfig();
-    const { setJouer, setGameStarted, setCurrentConsultationId } = useMonEtoileStore();
+    const { gameConfig, setGameStarted, setCurrentConsultationId } = useMonEtoileStore();
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -68,7 +66,6 @@ export function useLaMise() {
     const isSufficient = useMemo(() => availableQuantity >= POT_CONFIG.quantity, [availableQuantity]);
     const cardClasses = useMemo(() => `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`, [isSufficient]);
 
-    const isLoading = configLoading || walletState.loading;
 
     const handleSubmitAndNavigate = useCallback(async () => {
         if (isSubmittingRef.current) return;
@@ -99,7 +96,6 @@ export function useLaMise() {
 
             await api.put(`/consultations/${consultationId}`, payload);
             setGameStarted(true);
-            setJouer(true);
         } catch (error: any) {
             console.error('Error saving consultation:', error);
             setWalletState(prev => ({
@@ -113,13 +109,13 @@ export function useLaMise() {
                 setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu, setGameStarted, setJouer, setCurrentConsultationId]);
+    }, [monidjeu, setGameStarted, setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
-        if (isSufficient && !isLoading) {
+        if (isSufficient && !walletState.loading) {
             handleSubmitAndNavigate();
         }
-    }, [isSufficient, isLoading, handleSubmitAndNavigate]);
+    }, [isSufficient, (walletState.loading), handleSubmitAndNavigate]);
 
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
@@ -155,7 +151,7 @@ export function useLaMise() {
     }, []);
 
     return {
-        requiredQuantity: POT_CONFIG.quantity, loading: isLoading,
+        requiredQuantity: POT_CONFIG.quantity, loading: walletState.loading,
         handleGoToMarket, handleNext,
         availableQuantity, cardClasses, isSufficient,
     };

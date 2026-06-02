@@ -1,7 +1,8 @@
 'use client';
-import { useAdminConsultationsPageFinished } from "@/hooks/learning/useAdminConsultationsPageFinished";
+import { useAdminConsultationsPageFinished } from "@/hooks/learning/admin/useAdminConsultationsPageFinished";
 import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
+import { COLORS, TIME_UNITS } from "@/lib/learning/constantes";
 import { Calendar, Flame, Users } from "lucide-react";
 import { memo, useEffect, useState, useCallback, useMemo } from 'react';
 
@@ -24,17 +25,6 @@ interface ActiveBannerProps {
   formatDate: (date: Date) => string;
 }
 
-const TIME_UNITS = [
-  { key: 'days', label: 'j', max: 86400000 },
-  { key: 'hours', label: 'h', max: 3600000 },
-  { key: 'minutes', label: 'm', max: 60000 },
-  { key: 'seconds', label: 's', max: 1000 }
-] as const;
-
-const COLORS = {
-  subscribers: "from-purple-600 to-indigo-600"
-} as const;
-
 const StatCard = memo(({ value, label, icon, color }: StatCardProps) => {
   const formattedValue = useMemo(() =>
     value !== null ? formatNumber(value) : '--',
@@ -42,9 +32,9 @@ const StatCard = memo(({ value, label, icon, color }: StatCardProps) => {
   );
 
   return (
-    <div className={`relative overflow-hidden mt-2 rounded-2xl bg-gradient-to-br ${color} p-4 text-white shadow-xl cursor-pointer group border border-white/20 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1`}>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-white/15 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
+    <div className={`relative overflow-hidden mt-2 rounded-2xl bg-gradient-to-br ${color} p-4 text-white shadow-xl cursor-pointer border border-white/20`}>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-white/15 rounded-full blur-xl" />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold opacity-90">{label}</span>
@@ -122,7 +112,7 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
   const formattedEndDate = useMemo(() => formatDate(endDate), [formatDate, endDate]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl mb-4 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 mb-2 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl mb-4 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 shadow-xl">
       <div className="relative flex flex-col gap-2">
         <div className="flex items-center justify-center gap-2 mt-2">
           <div className="rounded-full bg-white/20 p-1.5">
@@ -138,7 +128,7 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
             <Calendar className="w-3 h-3 text-white" aria-hidden="true" />
             <span className="text-white text-xs">Du {formattedStartDate}</span>
           </div>
-          <span className="text-white text-xs">au {formattedEndDate}</span>
+          <span className="text-white text-xs">Au {formattedEndDate}</span>
         </div>
       </div>
     </div>
@@ -147,10 +137,8 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
 
 const LoadingPlaceholder = memo(() => (
   <div className="w-full max-w-md mx-auto">
-    <div className="animate-pulse">
-      <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl mb-4" />
-      <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
-    </div>
+    <div className="bg-gray-200 dark:bg-gray-700 rounded-2xl mb-4 h-32" />
+    <div className="bg-gray-200 dark:bg-gray-700 rounded-2xl h-32" />
   </div>
 ));
 

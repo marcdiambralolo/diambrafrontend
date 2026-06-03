@@ -118,7 +118,7 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
           <div className="rounded-full bg-white/20 p-1.5">
             <Flame className="w-3 h-3 text-white" aria-hidden="true" />
           </div>
-          <p className="text-white/80 text-center text-xs">Temps restant pour jouer</p>
+          <p className="text-white/80 text-center text-xs">Temps de jeu restant</p>
         </div>
 
         <CountdownTimer targetDate={endDate} onFinish={handleEndMatch} />
@@ -165,7 +165,7 @@ const LaBanniere = memo(() => {
 
       <StatCard
         value={stats?.subscribers ?? null}
-        label="Participants"
+        label="Inscrits"
         icon={<Users className="w-4 h-4" aria-hidden="true" />}
         color={COLORS.subscribers}
       />

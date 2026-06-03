@@ -227,7 +227,8 @@ export const useGameGenerator = () => {
             addCompetition(competition);
             console.log('✅ Compétition sauvegardée:', competitionId);
             setLejeu(false);
-            setJeuenattente(false);
+            setJeuenattente(true);
+            window.location.href="/star/learning"; // Recharger la page pour réinitialiser le jeu
             // Nettoyer le store après sauvegarde
            // clearCurrentMatchInfo();
         }

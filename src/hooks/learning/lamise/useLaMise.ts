@@ -46,9 +46,9 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { gameConfig, setLejeu, setLamise, setCurrentConsultationId, currentMatchInfo } = useMonEtoileStore();
+    const { gameConfig, setLejeu, setLamise, setCurrentConsultationId } = useMonEtoileStore();
  
-    console.log('InfoMatch in useLaMise:', currentMatchInfo);
+ 
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);

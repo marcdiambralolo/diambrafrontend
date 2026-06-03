@@ -8,6 +8,7 @@ import { createInitialCases, createMatch, createPlayableCases, getTotalCases, sh
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCompetitionLauncher } from './useCometitionLauncher';
 
 const REFRESH_INTERVAL = 5000;
 const TIME_UPDATE_INTERVAL = 1000;
@@ -23,7 +24,7 @@ const IMAGE_PATH = "/ephotoquatorze.jpg";
 export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const { stats } = useStatsDataWithCache();
-
+ const { demarrerJeu,   resetGame } = useCompetitionLauncher();
   const {
     setJeuAcommencer,
     resetGameState,
@@ -262,13 +263,7 @@ export function useAdminConsultationsPageFinished() {
     if (!gameStarted) setGameStarted(true);
   }, [clearAllCompetitions, gameStarted, setGameStarted]);
 
-  const demarrerJeu = useCallback(async () => {
-    setJeuAcommencer(true);
-     setJeuenattente(false);
-     setGameStarted(false);
-     setLamise(true);
-    await initializeGame();
-  }, [resetGameState, setJeuAcommencer, initializeGame]);
+  
 
   // ============================================================================
   // EFFETS

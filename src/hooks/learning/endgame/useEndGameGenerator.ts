@@ -4,6 +4,7 @@ import { MESSAGE_DURATION } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCompetitionLauncher } from "../lacompetition/useCometitionLauncher";
 interface ValidationMessage {
     text: string;
     type: 'success' | 'error';
@@ -243,17 +244,18 @@ export const useEndGameGenerator = () => {
         resetGameState,
         currentConsultationId,
         getAllCompetitions,
-        addCompetition,setLejeu,
+        setLejeu,
         setJeuAcommencer,
         setGameStarted
     } = useMonEtoileStore();
+
+    const { demarrerJeu, loading, error, resetGame } = useCompetitionLauncher();
 
     const [isValidating, setIsValidating] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState<MessageState | null>(null);
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
 
-    // Mémorisation des compétitions - Conversion depuis le store
     const competitions = useMemo(() => {
         const compList: CompetitionSummary[] = [];
         const allCompetitions = getAllCompetitions();
@@ -340,8 +342,8 @@ export const useEndGameGenerator = () => {
 
     // Redémarrage du jeu
     const handleRestart = useCallback(() => {
-        setLejeu(true);
-    }, [resetGameState, setJeuAcommencer, setGameStarted]);
+        demarrerJeu();
+    }, [setLejeu]);
 
     // Soumission globale (à implémenter selon vos besoins)
     const handleSubmitGame = useCallback(async () => {
@@ -358,6 +360,8 @@ export const useEndGameGenerator = () => {
         }
     }, []);
 
+    const clearValidateMessage = useCallback(() => {        showValidateMessage('', 'success');
+    }, [showValidateMessage]);
       const hasCompetitions = competitions.length > 0;
 
     return {
@@ -370,5 +374,6 @@ export const useEndGameGenerator = () => {
         validateMessage,
         submitMessage,
         hasCompetitions,
+        clearValidateMessage,
     };
 };

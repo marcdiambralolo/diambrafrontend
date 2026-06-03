@@ -1,6 +1,6 @@
 'use client';
-import { ArrowLeft, X } from "lucide-react";
-import { memo, useCallback, useMemo } from "react";
+import { ArrowLeft } from "lucide-react";
+import { memo, Suspense, useCallback, useDeferredValue, useMemo, useTransition } from 'react';
 
 const HELP_SECTIONS = [
     {
@@ -85,6 +85,39 @@ interface HelpSection {
     content: string | string[];
 }
 
+const SkeletonCard = memo(() => (
+    <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 animate-pulse">
+        <div className="flex items-start gap-3 mb-2">
+            <div className="w-9 h-9 bg-gradient-to-br from-gray-300 to-gray-400 rounded-lg" />
+            <div className="flex-1">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-1" />
+                <div className="h-2 bg-gray-100 rounded w-1/4" />
+            </div>
+        </div>
+        <div className="pl-12">
+            <div className="h-3 bg-gray-100 rounded w-full mb-1" />
+            <div className="h-3 bg-gray-100 rounded w-5/6" />
+        </div>
+    </div>
+));
+
+const QuickTipsSkeleton = memo(() => (
+    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-200 animate-pulse">
+        <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-5 bg-amber-200 rounded" />
+            <div className="h-4 bg-amber-200 rounded w-32" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+            {[...Array(4)].map((_, i) => (
+                <div key={i} className="p-2 bg-white rounded-lg">
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-1" />
+                    <div className="h-2 bg-gray-100 rounded w-full" />
+                </div>
+            ))}
+        </div>
+    </div>
+));
+
 const HelpHeader = memo(() => (
     <div className="text-center mb-5">
         <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-3">
@@ -97,13 +130,23 @@ const HelpHeader = memo(() => (
     </div>
 ));
 
-const HelpSectionCard = memo(({ section }: { section: HelpSection }) => {
+const HelpSectionCard = memo(({ section, isPriority = false }: { section: HelpSection; isPriority?: boolean }) => {
     const isList = section.type === "list";
     const contentList = isList ? section.content as string[] : [];
     const contentText = !isList ? section.content as string : '';
 
+    const listItems = useMemo(() =>
+        contentList.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="w-1 h-1 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" aria-hidden="true" />
+                <span>{item}</span>
+            </li>
+        )),
+        [contentList]
+    );
+
     return (
-        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+        <div className={`bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 ${!isPriority ? 'opacity-90' : ''}`}>
             <div className="flex items-start gap-3 mb-2">
                 <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
                     <span className="text-lg" aria-hidden="true">{section.icon}</span>
@@ -120,12 +163,7 @@ const HelpSectionCard = memo(({ section }: { section: HelpSection }) => {
             <div className="pl-12">
                 {isList ? (
                     <ul className="space-y-1">
-                        {contentList.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
-                                <span className="w-1 h-1 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" aria-hidden="true" />
-                                <span>{item}</span>
-                            </li>
-                        ))}
+                        {listItems}
                     </ul>
                 ) : (
                     <p className="text-xs text-gray-600 leading-relaxed">{contentText}</p>
@@ -135,34 +173,65 @@ const HelpSectionCard = memo(({ section }: { section: HelpSection }) => {
     );
 });
 
-const QuickTipsCard = memo(() => (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-200">
-        <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl" aria-hidden="true">💡</span>
-            <h3 className="font-bold text-amber-800 text-sm">Conseils pratiques</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-            {QUICK_TIPS.map((tip, idx) => (
-                <div key={idx} className="flex items-start gap-2 p-2 bg-white rounded-lg">
-                    <span className="text-base flex-shrink-0" aria-hidden="true">{tip.icon}</span>
-                    <div>
-                        <h4 className="font-bold text-amber-800 text-[11px]">{tip.title}</h4>
-                        <p className="text-[10px] text-amber-700">{tip.description}</p>
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-));
+const HelpSectionsList = memo(({ sections, priorityIndices = [0, 1] }: { sections: readonly HelpSection[]; priorityIndices?: number[] }) => {
+    const deferredSections = useDeferredValue(sections);
 
-const BackButton = memo(({ onClick }: { onClick: () => void }) => (
+    const renderedSections = useMemo(() =>
+        deferredSections.map((section, index) => (
+            <HelpSectionCard
+                key={section.id}
+                section={section as HelpSection}
+                isPriority={priorityIndices.includes(index)}
+            />
+        )),
+        [deferredSections, priorityIndices]
+    );
+
+    return (
+        <div className="space-y-2 mb-4">
+            {renderedSections}
+        </div>
+    );
+});
+
+const QuickTipsCard = memo(() => {
+    const tipsList = useMemo(() =>
+        QUICK_TIPS.map((tip, idx) => (
+            <div key={idx} className="flex items-start gap-2 p-2 bg-white rounded-lg hover:bg-amber-50 transition-colors duration-150">
+                <span className="text-base flex-shrink-0" aria-hidden="true">{tip.icon}</span>
+                <div>
+                    <h4 className="font-bold text-amber-800 text-[11px]">{tip.title}</h4>
+                    <p className="text-[10px] text-amber-700">{tip.description}</p>
+                </div>
+            </div>
+        )),
+        []
+    );
+
+    return (
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-200">
+            <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl" aria-hidden="true">💡</span>
+                <h3 className="font-bold text-amber-800 text-sm">Conseils pratiques</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                {tipsList}
+            </div>
+        </div>
+    );
+});
+
+const BackButton = memo(({ onClick, isPending }: { onClick: () => void; isPending?: boolean }) => (
     <button
         onClick={onClick}
-        className="w-full mb-3 py-2 bg-purple-50 rounded-xl text-purple-700 text-xl font-semibold flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+        disabled={isPending}
+        className={`w-full mb-3 py-2 bg-purple-50 rounded-xl text-purple-700 text-xl font-semibold flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all duration-200 hover:bg-purple-100 ${isPending ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
         type="button"
+        aria-busy={isPending}
     >
         <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
-        Reprendre le jeu
+        {isPending ? 'Chargement...' : 'Reprendre le jeu'}
     </button>
 ));
 
@@ -175,36 +244,51 @@ const HelpHeaderGradient = memo(() => (
     </div>
 ));
 
-const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
+const HelpPanel = memo(({ onClose, isOpen }: { onClose: () => void; isOpen?: boolean }) => {
+    const [isPending, startTransition] = useTransition();
+
     const handleClose = useCallback(() => {
-        onClose();
+        startTransition(() => {
+            onClose();
+        });
     }, [onClose]);
 
-    const sectionsList = useMemo(() =>
-        HELP_SECTIONS.map((section) => (
-            <HelpSectionCard key={section.id} section={section as HelpSection} />
-        )),
-        []
-    );
+    const content = useMemo(() => (
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <HelpHeaderGradient />
+            <div className="p-2 overflow-y-auto max-h-[80vh]">
+                <BackButton onClick={handleClose} isPending={isPending} />
 
-    return (
-        <div className="w-full max-w-md mx-auto mt-2 mb-4">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <HelpHeaderGradient />
-
-                <div className="p-2 overflow-y-auto">
-                    <BackButton onClick={handleClose} />
+                <Suspense fallback={<div className="space-y-2"><SkeletonCard /><SkeletonCard /></div>}>
                     <HelpHeader />
-
-                    <div className="space-y-2 mb-4">
-                        {sectionsList}
-                    </div>
-
-                    <QuickTipsCard />
-                </div>
+                    <HelpSectionsList sections={HELP_SECTIONS as readonly HelpSection[]} priorityIndices={[0, 1, 2]} />
+                  
+                    <Suspense fallback={<QuickTipsSkeleton />}>
+                        <QuickTipsCard />
+                    </Suspense>
+                </Suspense>
             </div>
         </div>
+    ), [handleClose, isPending]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="w-full max-w-md mx-auto mt-2 mb-4 animate-in slide-in-from-bottom duration-300">
+            {content}
+        </div>
     );
-});
+}); 
+
+if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(() => {
+        // Précharger les assets critiques
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'style';
+        link.href = '/_next/static/css/help-panel.css';
+        document.head.appendChild(link);
+    });
+}
 
 export default HelpPanel;

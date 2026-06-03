@@ -11,7 +11,7 @@ const parseTimeToSeconds = (timeStr: string): number => {
     const match = timeStr.match(/(\d+(?:\.\d+)?)\s*sec/);
     return match ? parseFloat(match[1]) : 0;
 };
- 
+
 const formatTimeFromSeconds = (seconds: number): string => {
     if (seconds < 60) return `${seconds} sec`;
     const minutes = Math.floor(seconds / 60);
@@ -19,7 +19,7 @@ const formatTimeFromSeconds = (seconds: number): string => {
     if (restSeconds === 0) return `${minutes} min`;
     return `${minutes} min ${restSeconds} sec`;
 };
- 
+
 const computeRankingFromConsultations = (consultations: any[]) => {
     if (!consultations?.length) return null;
 
@@ -64,7 +64,7 @@ const computeRankingFromConsultations = (consultations: any[]) => {
         fastestTimeFormatted: rankedWinners[0]?.timeSpentFormatted || '0 sec',
     };
 };
- 
+
 const WinningInfoCard = ({ fastestTimeFormatted, totalParticipants }: { fastestTimeFormatted: string; totalParticipants: number }) => (
     <div className="relative overflow-hidden mb-4 rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-6 text-white shadow-xl mb-8">
         <div className="relative z-10 text-center">
@@ -236,19 +236,19 @@ const EditionCard = memo(({ activeEdition }: { activeEdition: { startDate: strin
         </div>
     </div>
 ));
- 
-function Historique() {
-    const { loading, activeEdition, consultations } = useAdminConsultationsPageFinished();
 
-    if (loading) return <Loader />;
+function Historique() {
+    const { activeEdition, consultations } = useAdminConsultationsPageFinished();
 
     return (
-        <div className="w-full mx-auto max-w-xl px-4 py-4">
-            {activeEdition && <EditionCard activeEdition={activeEdition} />}
-            <TitleSection />
+        <div className="w-full mx-auto max-w-xl px-2 py-2">
+            {activeEdition && (<>
+                <EditionCard activeEdition={activeEdition} />
+                <TitleSection />
 
-            <WinnersSection consultations={consultations} />
-            <ParticipationsSection consultations={consultations} activeEditionId={activeEdition?.id} />
+                <WinnersSection consultations={consultations} />
+                <ParticipationsSection consultations={consultations} activeEditionId={activeEdition?.id} />
+            </>)}
         </div>
     );
 }

@@ -22,3 +22,14 @@ export interface MenuItem {
   tpsglobal?: number;
   color: string;
 }
+
+export interface ViewState {
+  isEnded: boolean;
+  isActive: boolean;
+  isNotStarted: boolean;
+}
+
+export interface ValidationMessage {
+  text: string;
+  type: 'success' | 'error';
+}

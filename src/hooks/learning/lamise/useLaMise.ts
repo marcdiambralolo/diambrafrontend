@@ -46,7 +46,9 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { gameConfig, setGameStarted, setCurrentConsultationId } = useMonEtoileStore();
+    const { gameConfig, setLejeu, setLamise, setCurrentConsultationId, currentMatchInfo } = useMonEtoileStore();
+ 
+    console.log('InfoMatch in useLaMise:', currentMatchInfo);
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -95,7 +97,8 @@ export function useLaMise() {
             const payload = { ...(data as Consultation) };
 
             await api.put(`/consultations/${consultationId}`, payload);
-            setGameStarted(true);
+            setLejeu(true);
+            setLamise(false);
         } catch (error: any) {
             console.error('Error saving consultation:', error);
             setWalletState(prev => ({
@@ -109,7 +112,7 @@ export function useLaMise() {
                 setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu, setGameStarted, setCurrentConsultationId]);
+    }, [monidjeu, setLejeu, setLamise, setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
         if (isSufficient && !walletState.loading) {

@@ -1,4 +1,4 @@
-import { CompetitionInfo, LearningConfiguration } from '@/lib/interfaces';
+import { CompetitionInfo, LearningConfiguration, MatchInfo } from '@/lib/interfaces';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -7,7 +7,6 @@ import { persist } from 'zustand/middleware';
 // ============================================================================
 
 const MAX_COMPETITIONS = 10;
-const MAX_MATCHES_PER_COMPETITION = 4; // Chaque compétition a 4 matchs max
 
 // ============================================================================
 // TYPE PERSISTANCE ALLÉGÉ
@@ -17,7 +16,6 @@ interface StoredCompetition {
     id: string;
     datedebut: string;
     datefin: string;
-    // Version compressée des matchInfo
     matchInfo: Array<{
         id?: string;
         tpsglobal?: number;
@@ -26,7 +24,6 @@ interface StoredCompetition {
         isgameover?: boolean;
         timeSpent?: number;
         matchNumber?: number;
-        // Ne pas stocker les gros objets comme listeCaseOpLab etc.
     }>;
 }
 
@@ -43,9 +40,17 @@ interface MonEtoileStore {
     gameConfig: LearningConfiguration | null;
     setGameConfig: (config: LearningConfiguration | null) => void;
 
+    // 🆕 Match info courant (pour le jeu en cours)
+    currentMatchInfo: MatchInfo[];
+    setCurrentMatchInfo: (matches: MatchInfo[]) => void;
+    appendMatchInfo: (match: MatchInfo) => void;
+    updateMatchInfo: (index: number, match: Partial<MatchInfo>) => void;
+    clearCurrentMatchInfo: () => void;
+    getCurrentMatchByType: (tpsglobal: number) => MatchInfo | undefined;
+
     // Set de compétitions (tableau limité à 10)
     competitions: CompetitionInfo[];
-    
+
     // Actions pour les compétitions
     addCompetition: (competition: CompetitionInfo) => void;
     getCompetitionById: (id: string) => CompetitionInfo | undefined;
@@ -54,17 +59,25 @@ interface MonEtoileStore {
     getLatestCompetitions: (limit?: number) => CompetitionInfo[];
     clearAllCompetitions: () => void;
     addMultipleCompetitions: (newCompetitions: CompetitionInfo[]) => void;
-    
+
     // États du jeu
     gameStarted: boolean;
     setGameStarted: (gameStarted: boolean) => void;
-    
+
     jeuAcommencer: boolean;
     setJeuAcommencer: (jeuAcommencer: boolean) => void;
-    
+
     afficheaide: boolean;
     setAfficheaide: (afficheaide: boolean) => void;
-    
+
+    lejeu: boolean;
+    setLejeu: (lejeu: boolean) => void;
+    lamise: boolean;
+    setLamise: (lamise: boolean) => void;
+
+    jeuenattente: boolean;
+    setJeuenattente: (jeuenattente: boolean) => void;
+
     // Actions globales
     startGame: () => void;
     stopGame: () => void;
@@ -80,7 +93,6 @@ interface MonEtoileStore {
 // FONCTIONS DE COMPRESSION
 // ============================================================================
 
-// Compresser une compétition pour le stockage
 const compressCompetition = (competition: CompetitionInfo): StoredCompetition => {
     return {
         id: competition.id,
@@ -94,12 +106,10 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
             isgameover: match.isgameover,
             timeSpent: match.timeSpent,
             matchNumber: match.matchNumber,
-            // Ne pas stocker: listeCaseOpLab, listeCaseOpLabInitiale, pieces, etc.
         })),
     };
 };
 
-// Décompresser une compétition depuis le stockage
 const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
     return {
         id: stored.id,
@@ -113,7 +123,6 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
             isgameover: match.isgameover,
             timeSpent: match.timeSpent,
             matchNumber: match.matchNumber,
-            // Valeurs par défaut pour les champs non persistés
             score: match.trouves || 0,
             listeCaseOpLab: [],
             listeCaseOpLabInitiale: [],
@@ -122,26 +131,16 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
     };
 };
 
-// Vérifier la taille du stockage
 const isStorageNearLimit = (): boolean => {
     try {
         const testKey = '__size_test__';
-        const testData = 'x'.repeat(1024 * 1024); // 1MB
+        const testData = 'x'.repeat(1024 * 1024);
         localStorage.setItem(testKey, testData);
         localStorage.removeItem(testKey);
         return false;
     } catch (e) {
-        return true; // Limite atteinte ou proche
+        return true;
     }
-};
-
-// Nettoyer les anciennes compétitions si nécessaire
-const cleanupOldCompetitions = (competitions: CompetitionInfo[]): CompetitionInfo[] => {
-    // Garder seulement les MAX_COMPETITIONS plus récentes
-    const sorted = [...competitions].sort(
-        (a, b) => new Date(b.datedebut).getTime() - new Date(a.datedebut).getTime()
-    );
-    return sorted.slice(0, MAX_COMPETITIONS);
 };
 
 // ============================================================================
@@ -151,10 +150,14 @@ const cleanupOldCompetitions = (competitions: CompetitionInfo[]): CompetitionInf
 const INITIAL_STATE = {
     currentConsultationId: null,
     gameConfig: null,
+    currentMatchInfo: [] as MatchInfo[],
     competitions: [] as CompetitionInfo[],
     gameStarted: false,
     jeuAcommencer: false,
     afficheaide: false,
+    jeuenattente: true,
+    lejeu: false,
+    lamise: false,
 };
 
 // ============================================================================
@@ -193,29 +196,49 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             setGameConfig: (config) => set({ gameConfig: config }),
 
             // ========================================================================
+            // 🆕 ACTIONS MATCH INFO
+            // ========================================================================
+
+            setCurrentMatchInfo: (matches) => set({ currentMatchInfo: matches }),
+
+            appendMatchInfo: (match) => set(state => ({
+                currentMatchInfo: [...state.currentMatchInfo, match]
+            })),
+
+            updateMatchInfo: (index, updatedMatch) => set(state => {
+                const newMatches = [...state.currentMatchInfo];
+                if (index >= 0 && index < newMatches.length) {
+                    newMatches[index] = { ...newMatches[index], ...updatedMatch };
+                }
+                return { currentMatchInfo: newMatches };
+            }),
+
+            clearCurrentMatchInfo: () => set({ currentMatchInfo: [] }),
+
+            getCurrentMatchByType: (tpsglobal) => {
+                return get().currentMatchInfo.find(match => match.tpsglobal === tpsglobal);
+            },
+
+            // ========================================================================
             // ACTIONS COMPETITIONS
             // ========================================================================
 
             addCompetition: (competition: CompetitionInfo) => {
                 set(state => {
-                    // Vérifier si une compétition avec le même ID existe déjà
                     const exists = state.competitions.some(c => c.id === competition.id);
                     if (exists) {
                         console.warn(`Competition with id ${competition.id} already exists`);
                         return state;
                     }
 
-                    // Ajouter la nouvelle compétition et limiter à 10
                     let newCompetitions = [competition, ...state.competitions];
                     newCompetitions = enforceMaxLimit(newCompetitions);
-                    
-                    // Vérifier si la limite de stockage est proche
+
                     if (isStorageNearLimit()) {
                         console.warn('Storage near limit, clearing old competitions');
-                        // Supprimer les 2 plus anciennes pour faire de la place
                         newCompetitions = newCompetitions.slice(0, MAX_COMPETITIONS - 2);
                     }
-                    
+
                     return { competitions: newCompetitions };
                 });
             },
@@ -264,6 +287,9 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             setGameStarted: (gameStarted) => set({ gameStarted }),
             setJeuAcommencer: (jeuAcommencer) => set({ jeuAcommencer }),
             setAfficheaide: (afficheaide) => set({ afficheaide }),
+            setJeuenattente: (jeuenattente) => set({ jeuenattente }),
+            setLejeu: (lejeu) => set({ lejeu }),
+            setLamise: (lamise) => set({ lamise }),
 
             // ========================================================================
             // ACTIONS AIDE
@@ -302,34 +328,35 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             // ========================================================================
 
             resetGameState: () => set({
+                
                 gameStarted: false,
                 jeuAcommencer: false,
                 afficheaide: false,
+               
             }),
 
             resetAll: () => set({
                 ...INITIAL_STATE,
                 competitions: [],
+                currentMatchInfo: [],
             }),
         }),
         {
             name: 'monetoile-store',
             partialize: (state) => {
-                // Compresser les compétitions avant persistance
                 const compressedCompetitions = state.competitions.map(compressCompetition);
-                
+
                 return {
                     currentConsultationId: state.currentConsultationId,
                     gameConfig: state.gameConfig,
-                    competitions: compressedCompetitions, // Version compressée
+                    competitions: compressedCompetitions,
+                    // ⚠️ Ne pas persister currentMatchInfo (trop volumineux)
                 };
             },
             onRehydrateStorage: () => (state) => {
                 if (state && state.competitions) {
-                    // Décompresser les compétitions après récupération
                     try {
                         state.competitions = (state.competitions as any).map(decompressCompetition);
-                        // S'assurer que la limite est respectée
                         state.competitions = enforceMaxLimit(state.competitions);
                     } catch (error) {
                         console.error('Error decompressing competitions:', error);
@@ -338,6 +365,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 }
                 if (state) {
                     state.competitions = state.competitions || [];
+                    state.currentMatchInfo = state.currentMatchInfo || []; // Initialiser si null
                 }
             },
         }

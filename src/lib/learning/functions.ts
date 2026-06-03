@@ -154,3 +154,12 @@ export const decoupelimage = async (urlimage: string, niveau: number): Promise<s
 
 export const getChronoTime = (niveau: number): number =>
   [0, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000][niveau] || 0;
+
+
+export const formatDuration = (seconds?: number): string => {
+    if (!seconds) return '0s';
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+};

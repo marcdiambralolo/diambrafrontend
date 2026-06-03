@@ -1,8 +1,64 @@
 import { api } from "@/lib/api/client";
 import { CompetitionInfo, Consultation, MatchInfo } from "@/lib/interfaces";
-import { MATCH_TYPES, MESSAGE_DURATION } from "@/lib/learning/constantes";
+import { MESSAGE_DURATION } from "@/lib/learning/constantes";
+import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+interface ValidationMessage {
+    text: string;
+    type: 'success' | 'error';
+}
+
+export const useCompetitionValidation = (onValidate: (rawMatches: MatchInfo[]) => Promise<boolean>, competition: CompetitionSummary) => {
+    const [isLocalValidating, setIsLocalValidating] = useState(false);
+    const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
+
+    const handleValidate = useCallback(async () => {
+        if (isLocalValidating || !competition?.rawMatches) return;
+
+        setIsLocalValidating(true);
+        setValidationMessage(null);
+
+        const success = await onValidate(competition.rawMatches);
+
+        setValidationMessage({
+            text: success ? 'Compétition validée avec succès !' : 'Erreur lors de la validation',
+            type: success ? 'success' : 'error'
+        });
+
+        setIsLocalValidating(false);
+    }, [competition?.rawMatches, onValidate, isLocalValidating]);
+
+    const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
+
+    const formattedStartDate = useMemo(() =>
+        new Date(competition.startedAt).toLocaleString(),
+        [competition.startedAt]
+    );
+
+    const formattedFinishedDate = useMemo(() =>
+        competition.finishedAt ? new Date(competition.finishedAt).toLocaleString() : null,
+        [competition.finishedAt]
+    );
+
+    const totalTimeSpent = useMemo(() => {
+        const total = competition.matches.reduce((sum, match) =>
+            sum + (match.timeSpent || 0), 0
+        );
+        return formatDuration(total);
+    }, [competition.matches]);
+
+    return {
+        isLoading: isLocalValidating,
+        validationMessage,
+        formattedStartDate,
+        formattedFinishedDate,
+        totalTimeSpent,
+        handleValidate,
+        handleCloseMessage,
+    };
+};
+
 
 // ============================================================================
 // TYPES
@@ -187,7 +243,7 @@ export const useEndGameGenerator = () => {
         resetGameState,
         currentConsultationId,
         getAllCompetitions,
-        addCompetition,
+        addCompetition,setLejeu,
         setJeuAcommencer,
         setGameStarted
     } = useMonEtoileStore();
@@ -284,8 +340,7 @@ export const useEndGameGenerator = () => {
 
     // Redémarrage du jeu
     const handleRestart = useCallback(() => {
-        setJeuAcommencer(true);
-        setGameStarted(true);
+        setLejeu(true);
     }, [resetGameState, setJeuAcommencer, setGameStarted]);
 
     // Soumission globale (à implémenter selon vos besoins)
@@ -303,6 +358,8 @@ export const useEndGameGenerator = () => {
         }
     }, []);
 
+      const hasCompetitions = competitions.length > 0;
+
     return {
         handleValidateCompetition,
         handleRestart,
@@ -312,5 +369,6 @@ export const useEndGameGenerator = () => {
         competitions,
         validateMessage,
         submitMessage,
+        hasCompetitions,
     };
 };

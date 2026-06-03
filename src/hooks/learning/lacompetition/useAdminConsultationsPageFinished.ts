@@ -1,7 +1,10 @@
 'use client';
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { api } from '@/lib/api/client';
-import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
+import { LastEndedGame, LastEndedResponse, LearningConfiguration, MatchInfo } from '@/lib/interfaces';
+import { decoupelimage } from "@/lib/learning/functions";
+import { ViewState } from '@/lib/learning/interface';
+import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,27 +13,51 @@ const REFRESH_INTERVAL = 5000;
 const TIME_UPDATE_INTERVAL = 1000;
 const QUERY_STALE_TIME = 60 * 1000;
 const QUERY_GC_TIME = 5 * 60 * 1000;
+const RETRY_ATTEMPTS = 3;
+const BASE_RETRY_DELAY = 1000;
+const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
+const DEFAULT_MATCH_ID = "123456789";
+const DEFAULT_NIVEAU = 2;
+const IMAGE_PATH = "/ephotoquatorze.jpg";
 
 export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const { stats } = useStatsDataWithCache();
 
   const {
-    setJeuAcommencer, resetGameState, setGameStarted, setGameConfig,
-    gameStarted, gameConfig: storedGameConfig,
+    setJeuAcommencer,
+    resetGameState,
+    setGameStarted,
+    setGameConfig,
+    setCurrentMatchInfo,
+    clearCurrentMatchInfo,
+    clearAllCompetitions,
+    gameStarted,
+    gameConfig: storedGameConfig,
+    setLamise,
+    setJeuenattente,
   } = useMonEtoileStore();
 
+  // Refs
   const isMountedRef = useRef(true);
   const endGameCalledRef = useRef(false);
   const isFetchingRef = useRef(false);
   const isInitializedRef = useRef(false);
+  const gameInitializedRef = useRef(false);
 
+  // States
   const [matchFinished, setMatchFinished] = useState(false);
   const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEndingGame, setIsEndingGame] = useState(false);
+  const [isGameInitializing, setIsGameInitializing] = useState(false);
+  const [matchinfo, setMatchinfo] = useState<MatchInfo[]>([]);
+
+  // ============================================================================
+  // QUERY POUR LA CONFIGURATION
+  // ============================================================================
 
   const {
     data: queryGameConfig,
@@ -46,12 +73,71 @@ export function useAdminConsultationsPageFinished() {
     },
     staleTime: QUERY_STALE_TIME,
     gcTime: QUERY_GC_TIME,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: RETRY_ATTEMPTS,
+    retryDelay: (attemptIndex) => Math.min(BASE_RETRY_DELAY * 2 ** attemptIndex, 30000),
   });
 
   const gameConfig = queryGameConfig || null;
   const isConfigLoading = isGameConfigLoading && !storedGameConfig;
+
+  // ============================================================================
+  // FONCTIONS DE GÉNÉRATION DE MATCH
+  // ============================================================================
+
+  const generateMatchList = useCallback((): MatchInfo[] => {
+    const matchId = gameConfig?.numeromatch || DEFAULT_MATCH_ID;
+    return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
+  }, [gameConfig?.numeromatch]);
+
+  const loadMatch = useCallback(async (match: MatchInfo, niveau: number, piecesImages: string[]): Promise<MatchInfo> => {
+    const totalCases = getTotalCases(match.tpsglobal!, niveau);
+    const gridSize = niveau * niveau;
+    const seed = parseInt(match.numeromatch!) + 7;
+
+    let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
+
+    if (match.tpsglobal !== 2) {
+      availableCases = shuffleArray(availableCases, seed);
+    }
+
+    const selectedCases = availableCases.slice(0, gridSize);
+    const shuffledCases = shuffleArray([...selectedCases], seed);
+
+    match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
+    match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
+    match.pieces = piecesImages;
+
+    return match;
+  }, []);
+
+  const initializeGame = useCallback(async () => {
+    if (gameInitializedRef.current || isGameInitializing) return;
+    gameInitializedRef.current = true;
+    setIsGameInitializing(true);
+
+    try {
+      const matchList = generateMatchList();
+      const niveau = gameConfig?.niveau || DEFAULT_NIVEAU;
+      const piecesImages = await decoupelimage(IMAGE_PATH, niveau);
+
+      const updatedMatches = await Promise.all(
+        matchList.map(match => loadMatch(match, niveau, piecesImages))
+      );
+
+      clearCurrentMatchInfo();
+      setCurrentMatchInfo(updatedMatches);
+      setMatchinfo(updatedMatches);
+    } catch (error) {
+      console.error("Erreur lors de l'initialisation du jeu:", error);
+      gameInitializedRef.current = false;
+    } finally {
+      setIsGameInitializing(false);
+    }
+  }, [gameConfig?.niveau, generateMatchList, loadMatch, clearCurrentMatchInfo, setCurrentMatchInfo, isGameInitializing]);
+
+  // ============================================================================
+  // INITIALISATION
+  // ============================================================================
 
   useEffect(() => {
     if (!isInitializedRef.current && !storedGameConfig && !isGameConfigLoading) {
@@ -60,10 +146,15 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [storedGameConfig, isGameConfigLoading, refetchGameConfig]);
 
+  // Mise à jour du temps
   useEffect(() => {
     const intervalId = setInterval(() => setCurrentTime(new Date()), TIME_UPDATE_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
+
+  // ============================================================================
+  // CALCULS DES DATES ET ÉTATS
+  // ============================================================================
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -77,7 +168,6 @@ export function useAdminConsultationsPageFinished() {
 
   const isGameActive = useMemo(() => {
     if (!gameConfig) return false;
-
     return (
       gameConfig.isActive === true &&
       gameConfig.status === 'active' &&
@@ -88,13 +178,11 @@ export function useAdminConsultationsPageFinished() {
 
   const isGameEnded = useMemo(() => {
     if (!gameConfig) return false;
-
     return gameConfig.status === 'ended' || (endDate !== null && currentTime > endDate);
   }, [gameConfig, endDate, currentTime]);
 
   const isGameNotStarted = useMemo(() => {
     if (!gameConfig) return false;
-
     return gameConfig.status === 'pending' || (startDate !== null && currentTime < startDate);
   }, [gameConfig, startDate, currentTime]);
 
@@ -104,11 +192,14 @@ export function useAdminConsultationsPageFinished() {
   const showEnded = useMemo(() => {
     if (!gameConfig && !isConfigLoading) return true;
     if (!gameConfig) return false;
-
     return isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
   }, [gameConfig, isConfigLoading, isGameEnded, isGameActive, isGameNotStarted, lastEndedGame]);
 
   const hasNotStartedEdition = showNotStarted && startDate !== null;
+
+  // ============================================================================
+  // ACTIONS API
+  // ============================================================================
 
   const refreshLastEndedGame = useCallback(async () => {
     if (isFetchingRef.current) return;
@@ -162,15 +253,28 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [gameConfig?._id, isEndingGame, refreshLastEndedGame, queryClient, refetchGameConfig, setGameConfig]);
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
   const handleOpenGame = useCallback(() => {
+    clearAllCompetitions();
     if (!gameStarted) setGameStarted(true);
-  }, [gameStarted, setGameStarted]);
+  }, [clearAllCompetitions, gameStarted, setGameStarted]);
 
-  const demarrerJeu = useCallback(() => {
-    resetGameState();
+  const demarrerJeu = useCallback(async () => {
     setJeuAcommencer(true);
-  }, [resetGameState, setJeuAcommencer]);
+     setJeuenattente(false);
+     setGameStarted(false);
+     setLamise(true);
+    await initializeGame();
+  }, [resetGameState, setJeuAcommencer, initializeGame]);
 
+  // ============================================================================
+  // EFFETS
+  // ============================================================================
+
+  // Vérifier si le jeu doit se terminer automatiquement
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
       !matchFinished && !endGameCalledRef.current && gameConfig?._id;
@@ -179,6 +283,7 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [isGameEnded, currentTime, endDate, matchFinished, endGameCalledRef, gameConfig?._id, endGameInBackend]);
 
+  // Rafraîchissement périodique
   useEffect(() => {
     const reloadInterval = setInterval(() => {
       if (!isFetchingRef.current && !isEndingGame) {
@@ -188,6 +293,7 @@ export function useAdminConsultationsPageFinished() {
     return () => clearInterval(reloadInterval);
   }, [isEndingGame, refreshLastEndedGame]);
 
+  // Initialisation
   useEffect(() => {
     isMountedRef.current = true;
     refreshLastEndedGame();
@@ -196,17 +302,42 @@ export function useAdminConsultationsPageFinished() {
     };
   }, [refreshLastEndedGame]);
 
+  // Synchronisation du démarrage du jeu
   useEffect(() => {
     if (showActive && !gameStarted && !hasNotStartedEdition) {
       setGameStarted(true);
     }
   }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
 
-  const isLoading = isConfigLoading || loading;
+  // ============================================================================
+  // VALEURS FINALES
+  // ============================================================================
+
+  const isLoading = isConfigLoading || loading || isGameInitializing;
+
+  const viewState = useMemo((): ViewState => {
+    if (!gameConfig) {
+      return { isEnded: true, isActive: false, isNotStarted: false };
+    }
+    return {
+      isEnded: showEnded,
+      isActive: !showEnded && showActive,
+      isNotStarted: !showEnded && !showActive && showNotStarted,
+    };
+  }, [gameConfig, showEnded, showActive, showNotStarted]);
 
   return {
-    demarrerJeu, handleOpenGame,
-    loading: isLoading, showActive, showNotStarted, showEnded, error,
-    lastEndedGame, endDate, startDate, gameConfig, stats,
+    // Actions
+    demarrerJeu,
+    handleOpenGame,
+    // États
+    startDate,
+    endDate,
+    gameConfig,
+    stats,
+    viewState,
+    loading: isLoading,
+    lastEndedGame,
+    error, matchinfo,
   };
 }

@@ -24,3 +24,8 @@ export const MATCH_TYPES: Record<number, string> = {
 } as const;
 
 export const MESSAGE_DURATION = 3000;
+
+export const STATUS_CONFIG = {
+  online: { text: 'EN LIGNE', color: 'green' },
+  offline: { text: 'HORS LIGNE', color: 'red' }
+} as const;

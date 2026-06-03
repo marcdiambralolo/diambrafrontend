@@ -7,7 +7,6 @@ import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import ResultatsPage from '../endgame/ResultatsPage';
 import { useGameGenerator } from '@/hooks/learning/game/useGameGenerator';
 
 const GRID_BASE_STYLES = "w-full grid";
@@ -249,11 +248,11 @@ const ActionButton = memo(({ onClick, children, variant, ariaLabel }: ActionButt
 
 export default function TheGame() {
     const {
-        toggleShowPun, lockSelectedCase, selectCase, gameisover, casesdujeuencours, casesinitiales,
+        toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales,
         pieces, selectedCase, currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed,
     } = useGameGenerator();
 
-    if (gameisover) { return <ResultatsPage />; }
+  
 
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-md px-0 py-0 m-0 p-0 mb-4">

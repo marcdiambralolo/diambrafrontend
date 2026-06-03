@@ -5,6 +5,7 @@ import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCompetitionLauncher } from "../lacompetition/useCometitionLauncher";
+
 interface ValidationMessage {
     text: string;
     type: 'success' | 'error';
@@ -50,20 +51,10 @@ export const useCompetitionValidation = (onValidate: (rawMatches: MatchInfo[]) =
     }, [competition.matches]);
 
     return {
-        isLoading: isLocalValidating,
-        validationMessage,
-        formattedStartDate,
-        formattedFinishedDate,
-        totalTimeSpent,
-        handleValidate,
-        handleCloseMessage,
+        isLoading: isLocalValidating, validationMessage, formattedStartDate, formattedFinishedDate,
+        totalTimeSpent, handleValidate, handleCloseMessage,
     };
 };
-
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export interface MatchResult {
     matchNumber: number;
@@ -108,24 +99,16 @@ interface LearningStats {
     }>;
 }
 
-// ============================================================================
-// CONSTANTES
-// ============================================================================
-
 const DEFAULT_SCORE = 0;
 const DEFAULT_RATES = 0;
-
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
 
 export const getMatchType = (tpsglobal?: number): string => {
     if (tpsglobal === undefined) return 'Inconnu';
     const types: Record<number, string> = {
-        0: 'Chiffres',
-        1: 'Couleurs',
-        2: 'Images',
-        3: 'Mixte',
+        0: 'Chiffre',
+        1: 'Couleur',
+        2: 'Image',
+        3: 'Lettre',
     };
     return types[tpsglobal] || 'Inconnu';
 };
@@ -147,7 +130,6 @@ const calculateDurationInSeconds = (startDate: string, endDate: string): number 
     return Math.floor((end - start) / 1000);
 };
 
-// Adapter les matchs du store vers le format local
 const adaptCompetitionToLocal = (competition: CompetitionInfo): MatchInfo[] => {
     return competition.matchInfo.map(match => ({
         id: match.id,
@@ -201,10 +183,6 @@ const createCompetitionSummary = (
     };
 };
 
-// ============================================================================
-// HOOKS
-// ============================================================================
-
 const useMessage = () => {
     const [message, setMessage] = useState<MessageState | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout>();
@@ -235,21 +213,10 @@ const useMessage = () => {
     return { message, showMessage, clearMessage };
 };
 
-// ============================================================================
-// HOOK PRINCIPAL
-// ============================================================================
-
 export const useEndGameGenerator = () => {
-    const {
-        resetGameState,
-        currentConsultationId,
-        getAllCompetitions,
-        setLejeu,
-        setJeuAcommencer,
-        setGameStarted
-    } = useMonEtoileStore();
+    const { currentConsultationId, getAllCompetitions, setLejeu } = useMonEtoileStore();
 
-    const { demarrerJeu, loading, error, resetGame } = useCompetitionLauncher();
+    const { demarrerJeu } = useCompetitionLauncher();
 
     const [isValidating, setIsValidating] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -271,7 +238,6 @@ export const useEndGameGenerator = () => {
         );
     }, [getAllCompetitions]);
 
-    // Validation d'une compétition spécifique (envoi au backend)
     const handleValidateCompetition = useCallback(async (rawMatches: MatchInfo[]): Promise<boolean> => {
         if (!currentConsultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
@@ -294,7 +260,6 @@ export const useEndGameGenerator = () => {
             const duration = calculateDuration(startDate, endDate);
             const durationInSeconds = calculateDurationInSeconds(startDate, endDate);
 
-            // Récupérer la consultation existante
             const { data: consultation } = await api.get(`/consultations/${currentConsultationId}`);
             const dataconsultation = consultation as Consultation;
 
@@ -345,11 +310,9 @@ export const useEndGameGenerator = () => {
         demarrerJeu();
     }, [setLejeu]);
 
-    // Soumission globale (à implémenter selon vos besoins)
     const handleSubmitGame = useCallback(async () => {
         setIsSubmitting(true);
         try {
-            // Logique de soumission globale
             await new Promise(resolve => setTimeout(resolve, 1000));
             setSubmitMessage({ text: 'Jeu soumis avec succès !', type: 'success' });
         } catch (error) {
@@ -360,20 +323,13 @@ export const useEndGameGenerator = () => {
         }
     }, []);
 
-    const clearValidateMessage = useCallback(() => {        showValidateMessage('', 'success');
+    const clearValidateMessage = useCallback(() => {
+        showValidateMessage('', 'success');
     }, [showValidateMessage]);
-      const hasCompetitions = competitions.length > 0;
+    const hasCompetitions = competitions.length > 0;
 
     return {
-        handleValidateCompetition,
-        handleRestart,
-        handleSubmitGame,
-        isValidating,
-        isSubmitting,
-        competitions,
-        validateMessage,
-        submitMessage,
-        hasCompetitions,
-        clearValidateMessage,
+        handleValidateCompetition, handleRestart, handleSubmitGame, clearValidateMessage,
+        isValidating, isSubmitting, competitions, validateMessage, submitMessage, hasCompetitions,
     };
 };

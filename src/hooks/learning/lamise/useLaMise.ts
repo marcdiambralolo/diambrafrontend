@@ -47,8 +47,6 @@ const initialState: WalletState = {
 export function useLaMise() {
     const router = useRouter();
     const { gameConfig, setLejeu, setLamise, setCurrentConsultationId } = useMonEtoileStore();
- 
- 
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -56,18 +54,20 @@ export function useLaMise() {
     const [walletState, setWalletState] = useState<WalletState>(initialState);
 
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
+
     const walletMap = useMemo(() => {
         const map = new Map<string, number>();
         walletState.walletOfferings.forEach(w => map.set(w.offeringId, w.quantity));
         return map;
     }, [walletState.walletOfferings]);
+
     const availableQuantity = useMemo(() =>
         walletMap.get(getOfferingId(POT_CONFIG)) || 0,
         [walletMap]
     );
+
     const isSufficient = useMemo(() => availableQuantity >= POT_CONFIG.quantity, [availableQuantity]);
     const cardClasses = useMemo(() => `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`, [isSufficient]);
-
 
     const handleSubmitAndNavigate = useCallback(async () => {
         if (isSubmittingRef.current) return;
@@ -155,7 +155,6 @@ export function useLaMise() {
 
     return {
         requiredQuantity: POT_CONFIG.quantity, loading: walletState.loading,
-        handleGoToMarket, handleNext,
-        availableQuantity, cardClasses, isSufficient,
+        handleGoToMarket, handleNext, availableQuantity, cardClasses, isSufficient,
     };
 }

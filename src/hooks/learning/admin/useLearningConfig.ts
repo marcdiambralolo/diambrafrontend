@@ -1,24 +1,11 @@
 // hooks/learning/useLearningConfig.ts
 import { api } from '@/lib/api/client';
 import { LearningConfiguration } from '@/lib/interfaces';
-import { generateNumeromatch,   normalizeConfigDates,   showToast, toSafeDate } from '@/lib/learning/configUtils';
+import { generateNumeromatch, normalizeConfigDates, showToast, toSafeDate } from '@/lib/learning/configUtils';
 import { useEffect, useState } from 'react';
-
- 
-import { GameConfiguration } from "@/lib/interfaces";
 
 const ITEMS_PER_PAGE = 2;
 
-export const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const tenths = Math.floor((seconds % 1) * 10);
-    return mins > 0
-        ? `${mins}:${secs.toString().padStart(2, '0')}.${tenths}`
-        : `${secs}.${tenths}s`;
-};
-
-let toastId = 0;
 export type ToastType = 'success' | 'error' | 'info';
 
 export type ToastItem = {
@@ -76,7 +63,7 @@ export const statusConfig: Record<ConfigStatus,
         label: 'Annulé',
     },
 };
- 
+
 export function formatDateFR(value: DateLike): string {
     const date = toSafeDate(value, new Date());
     if (!isValidDate(date)) return '';
@@ -89,13 +76,9 @@ export function formatDateFR(value: DateLike): string {
     return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
 }
 
- 
-
 export function isValidDate(value: unknown): value is Date {
     return value instanceof Date && !Number.isNaN(value.getTime());
 }
-
- 
 
 export function normalizeStatus(value: unknown): ConfigStatus {
     if (
@@ -109,8 +92,6 @@ export function normalizeStatus(value: unknown): ConfigStatus {
     return DEFAULT_FORM_STATUS;
 }
 
- 
-
 export function useLearningConfig() {
     const [configs, setConfigs] = useState<LearningConfiguration[]>([]);
     const [loading, setLoading] = useState(true);
@@ -120,26 +101,23 @@ export function useLearningConfig() {
 
     const fetchConfigurations = async () => {
         try {
-           setLoading(true);
+            setLoading(true);
             const response = await api.get('learning-configurations');
-            
-            // Extraction correcte des données
+
             let configurations: LearningConfiguration[] = [];
-            
+
             const data = response.data as { data?: LearningConfiguration[] };
             if (Array.isArray(data.data)) {
-                // Si la réponse est directement un tableau
                 configurations = data.data;
-            }   else {
+            } else {
                 console.warn('Format de réponse inattendu:', response.data);
                 configurations = [];
             }
-            
-            // Normalisation des dates
+
             const normalized = configurations.map((config) =>
                 normalizeConfigDates(config) as LearningConfiguration
             );
-            
+
             setConfigs(normalized);
         } catch {
             showToast('Impossible de charger les configurations', 'error');
@@ -190,7 +168,7 @@ export function useLearningConfig() {
 
     const handleEndEdition = async (id: string) => {
         if (!window.confirm('Terminer cette édition ?')) return;
-        
+
         try {
             await api.post(`learning-configurations/${id}/end`);
             showToast('🏁 Édition terminée avec succès', 'success');
@@ -209,21 +187,8 @@ export function useLearningConfig() {
     const paginatedConfigs = configs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return {
-        configs,
-        paginatedConfigs,
-        loading,
-        editingId,
-        isCreating,
-        currentPage,
-        totalPages,
-        setEditingId,
-        setIsCreating,
-        setCurrentPage,
-        handleCreate,
-        handleUpdate,
-        handleDelete,
-        handleEndEdition,
-        refresh: fetchConfigurations,
-        setConfigs,
+        configs, paginatedConfigs, loading, editingId, isCreating, currentPage, totalPages,
+        setEditingId, setIsCreating, setCurrentPage, handleCreate, handleUpdate, handleDelete,
+        handleEndEdition, refresh: fetchConfigurations, setConfigs,
     };
 }

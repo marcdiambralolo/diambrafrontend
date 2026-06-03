@@ -22,8 +22,5 @@ export function useAdminConsultationsPageFinished() {
     setJeuAcommencer(false);
   }, [setJeuAcommencer]);
 
-  const loading = false; 
-  const error = null;
-
-  return { handleEndMatch, stats, startDate, endDate,loading, error,  };
+  return { handleEndMatch, stats, startDate, endDate };
 }

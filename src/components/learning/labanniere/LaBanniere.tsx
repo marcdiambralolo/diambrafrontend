@@ -1,5 +1,5 @@
 'use client';
-import { useAdminConsultationsPageFinished } from "@/hooks/learning/admin/useAdminConsultationsPageFinished";
+import { useAdminConsultationsPageFinished } from "@/hooks/learning/labanniere/useAdminConsultationsPageFinished";
 import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { COLORS, TIME_UNITS } from "@/lib/learning/constantes";

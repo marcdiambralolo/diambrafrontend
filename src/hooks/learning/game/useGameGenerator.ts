@@ -1,17 +1,34 @@
-import useTimer from "@/hooks/learning/endgame/useTimer";
+
 import { Case, CompetitionInfo, MatchInfo } from '@/lib/interfaces';
 import { choix } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+const useTimer = (start: boolean) => {
+    const [timeElapsed, setTimeElapsed] = useState(0);
+
+    useEffect(() => {
+        if (!start) {
+            setTimeElapsed(0);
+            return;
+        }
+
+        const timer = setInterval(() => {
+            setTimeElapsed((prev) => prev + 1);
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [start]);
+
+    return timeElapsed;
+};
+
 const TRANSITION_DELAY = 100;
 
 export const useGameGenerator = () => {
     const {
-        currentMatchInfo,
-        addCompetition,
-        gameConfig,setLejeu,setJeuenattente,
-        clearCurrentMatchInfo,
+        currentMatchInfo, gameConfig,
+        addCompetition, setLejeu, setJeuenattente, clearCurrentMatchInfo,
     } = useMonEtoileStore();
 
     const [state, setState] = useState({
@@ -40,13 +57,9 @@ export const useGameGenerator = () => {
     }, []);
 
     const allMatchesFinished = useMemo(() =>
-       ( state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true))||state.matchestermine,
+        (state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true)) || state.matchestermine,
         [state.infomatch]
     );
-
-    // ============================================================================
-    // LOGIQUE DE JEU
-    // ============================================================================
 
     const swapCases = useCallback((c1: Case, c2: Case) => {
         const { casesdujeuencours, casesinitiales } = state;
@@ -118,10 +131,6 @@ export const useGameGenerator = () => {
         if (!state.showPun) shuffleUnlockedCases();
     }, [state.showPun, shuffleUnlockedCases]);
 
-    // ============================================================================
-    // CHARGEMENT D'UN MATCH
-    // ============================================================================
-
     const chargerMatch = useCallback((matchData: MatchInfo) => {
         if (!matchData) return;
         updateState({
@@ -133,10 +142,6 @@ export const useGameGenerator = () => {
             showPun: false,
         });
     }, [updateState]);
-
-    // ============================================================================
-    // INITIALISATION À PARTIR DU STORE
-    // ============================================================================
 
     useEffect(() => {
         if (lancementRef.current) return;
@@ -160,14 +165,12 @@ export const useGameGenerator = () => {
         initGame();
     }, [currentMatchInfo, chargerMatch, updateState]);
 
-    // Démarrer le timer
     useEffect(() => {
         if (!state.start && state.infomatch.length > 0) {
             updateState({ start: true });
         }
     }, [state.start, state.infomatch.length, updateState]);
 
-    // Charger un match
     useEffect(() => {
         const { matchEnCours, infomatch } = state;
         if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) return;
@@ -181,16 +184,15 @@ export const useGameGenerator = () => {
         }, TRANSITION_DELAY);
     }, [state.matchEnCours, state.infomatch, chargerMatch, updateState]);
 
-    // Vérifier la fin d'un match et passer au suivant
     useEffect(() => {
         const { casesdujeuencours, isTransitioning, matchEnCours, infomatch } = state;
         if (casesdujeuencours.length === 0 || isTransitioning) return;
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
         updateState({ isTransitioning: true, isLoading: true });
-        
+
         const completedCount = casesdujeuencours.filter(c => c.isLocked).length;
-        
+
         setState(prev => ({
             ...prev,
             infomatch: prev.infomatch.map((m, idx) =>
@@ -211,11 +213,10 @@ export const useGameGenerator = () => {
         }
     }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
 
-    // Sauvegarder la compétition quand tous les matchs sont terminés
     useEffect(() => {
         if (allMatchesFinished && state.infomatch.length > 0 && !allMatchesFinishedRef.current) {
             allMatchesFinishedRef.current = true;
-            
+
             const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
             const competition: CompetitionInfo = {
                 id: competitionId,
@@ -223,20 +224,13 @@ export const useGameGenerator = () => {
                 datedebut: state.datedebut,
                 datefin: new Date().toISOString()
             };
-            
+
             addCompetition(competition);
-            console.log('✅ Compétition sauvegardée:', competitionId);
             setLejeu(false);
             setJeuenattente(true);
-            window.location.href="/star/learning"; // Recharger la page pour réinitialiser le jeu
-            // Nettoyer le store après sauvegarde
-           // clearCurrentMatchInfo();
+            window.location.href = "/star/learning";
         }
     }, [allMatchesFinished, state.infomatch, state.datedebut, addCompetition, clearCurrentMatchInfo]);
-
-    // ============================================================================
-    // VALEURS MÉMORISÉES
-    // ============================================================================
 
     const currentGameType = useMemo(() => {
         const { infomatch, matchEnCours } = state;
@@ -252,27 +246,11 @@ export const useGameGenerator = () => {
         return (lockedCount / state.casesdujeuencours.length) * 100;
     }, [state.casesdujeuencours]);
 
-    // ============================================================================
-    // RETURN
-    // ============================================================================
-
     return {
-        toggleShowPun,
-        lockSelectedCase,
-        selectCase,
-        niveau: gameConfig?.niveau,
-        showPun: state.showPun,
-        timeElapsed,
-        matchEnCours: state.matchEnCours,
-        infomatch: state.infomatch,
-        tpsglobal: state.tpsglobal,
-        casesdujeuencours: state.casesdujeuencours,
-        casesinitiales: state.casesinitiales,
-        pieces: state.pieces,
-        selectedCase: state.selectedCase,
-        allMatchesFinished,
-        currentGameType,
-        progression,
-        isLoading: state.isLoading,
+        toggleShowPun, lockSelectedCase, selectCase, niveau: gameConfig?.niveau, showPun: state.showPun,
+        timeElapsed, matchEnCours: state.matchEnCours, tpsglobal: state.tpsglobal,
+        casesdujeuencours: state.casesdujeuencours, casesinitiales: state.casesinitiales,
+        pieces: state.pieces, selectedCase: state.selectedCase, infomatch: state.infomatch,
+        allMatchesFinished, currentGameType, progression, isLoading: state.isLoading,
     };
 };

@@ -1,13 +1,8 @@
 'use client';
+import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from "lucide-react";
-import dynamic from 'next/dynamic';
 import { Suspense, memo, useCallback, useDeferredValue, useMemo, useTransition } from 'react';
-
-const Loader = dynamic(() => import('@/app/loading'), {
-    ssr: false,
-    loading: () => <div className="animate-pulse h-32 w-full bg-gray-100 rounded-xl" />
-});
 
 interface StatusBannerProps {
     isSufficient: boolean;
@@ -85,10 +80,6 @@ const TokenCard = memo(({
     cardClasses: string;
     onClick: () => void;
 }) => {
-    const ratio = useMemo(() =>
-        `${availableQuantity}/${requiredQuantity}`,
-        [availableQuantity, requiredQuantity]
-    );
 
     const missingTokens = useMemo(() =>
         requiredQuantity - availableQuantity,
@@ -209,11 +200,9 @@ export default function LaMise() {
     const deferredIsSufficient = useDeferredValue(isSufficient);
 
     const handlePlayClick = useCallback(() => {
-        if (!isSufficient) return;
-
-        startPlayTransition(() => {
-            handleNext();
-        });
+      if (!isSufficient) return;
+       handleNext();
+ 
     }, [isSufficient, handleNext]);
 
     const handleMarketClick = useCallback(() => {
@@ -284,27 +273,4 @@ export default function LaMise() {
         </Suspense>
     );
 }
-
-if (typeof window !== 'undefined') {
-    const prefetchRoutes = () => {
-        const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-        idleCallback(() => {
-            const prefetchLink = (href: string) => {
-                const link = document.createElement('link');
-                link.rel = 'prefetch';
-                link.as = 'document';
-                link.href = href;
-                document.head.appendChild(link);
-            };
-
-            prefetchLink('/jeu');
-            prefetchLink('/marketplace');
-        });
-    };
-
-    if (document.readyState === 'complete') {
-        prefetchRoutes();
-    } else {
-        window.addEventListener('load', prefetchRoutes);
-    }
-}
+ 

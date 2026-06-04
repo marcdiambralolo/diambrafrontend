@@ -5,10 +5,11 @@ import { formatDateTime } from "@/lib/functions";
 import { LastEndedGame, MatchInfo, TimeLeft } from "@/lib/interfaces";
 import { APP_NAME, CURRENT_YEAR, MESSAGE_DURATION, NO_DATA_PLACEHOLDER, STATUS_CONFIG, TIME_UNITS } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
-import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { Award, Calendar, Clock, HelpCircle, History, Hourglass, Loader2, Medal, RotateCcw, Send, Timer, Trophy } from "lucide-react";
+import { Award, Clock, HelpCircle, History, Hourglass, Loader2, Medal, RotateCcw, Send, Trophy } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
+import { GlowButton } from "./Boutons";
 
 export const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
     <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${color === 'red' ? 'bg-red-500' : 'bg-green-500'
@@ -54,17 +55,12 @@ export const HeaderSection = memo(() => (
     </div>
 ));
 
-interface HelpButtonProps {
-  onClick?: () => void;
-}
-
-export const HelpButton = memo(({ onClick }: HelpButtonProps) => {
-    const afficherAide = useMonEtoileStore((state) => state.afficherAide);
+export const HelpButton = memo(() => {
+     const router = useRouter();    
 
     const handleClick = useCallback(() => {
-        afficherAide();
-        onClick?.();
-    }, [afficherAide]);
+         router.push('/star/learning/help');       
+    }, [router]);
 
     return (
         <button
@@ -245,9 +241,6 @@ interface EndedBannerProps {
 }
 
 interface ActiveBannerProps {
-    endDate: Date;
-    startDate: Date;
-    formatDate: (date: Date) => string;
     gameConfig: any;
     demarrerJeu: () => void;
 }
@@ -366,19 +359,7 @@ export const EndedBanner = memo(({ lastEndedGame }: EndedBannerProps) => {
     );
 });
 
-export const GlowButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
-    <button
-        onClick={onClick}
-        className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
-        type="button"
-    >
-        {children}
-    </button>
-));
-
-export const ActiveBanner = memo(({ endDate, startDate, formatDate, gameConfig, demarrerJeu }: ActiveBannerProps) => {
-    const formattedStartDate = useMemo(() => formatDate(startDate), [formatDate, startDate]);
-    const formattedEndDate = useMemo(() => formatDate(endDate), [formatDate, endDate]);
+export const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps) => {
 
     return (
         <div className="rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-2 shadow-xl">
@@ -395,24 +376,7 @@ export const ActiveBanner = memo(({ endDate, startDate, formatDate, gameConfig, 
                 </div>
             </div>
 
-            <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton>
-
-            <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="bg-white/10 rounded-xl p-2 text-center">
-                    <div className="flex items-center justify-center gap-1 text-white/80 text-[10px]">
-                        <Calendar className="w-3 h-3" aria-hidden="true" />
-                        <span>DÉBUT</span>
-                    </div>
-                    <div className="text-white font-bold text-[11px]">{formattedStartDate}</div>
-                </div>
-                <div className="bg-white/10 rounded-xl p-2 text-center">
-                    <div className="flex items-center justify-center gap-1 text-white/80 text-[10px]">
-                        <Timer className="w-3 h-3" aria-hidden="true" />
-                        <span>FIN</span>
-                    </div>
-                    <div className="text-white font-bold text-[11px]">{formattedEndDate}</div>
-                </div>
-            </div>
+            <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton> 
         </div>
     );
 }); 

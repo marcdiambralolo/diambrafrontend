@@ -175,7 +175,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
     if (gameInitializedRef.current && !error) {
       setLamise(true);
       setGameStarted(false);
-      router.push('/star/learning/startgame');
+      router.push('/star/learning/choix');
     }
   }, [
     resetGameState,

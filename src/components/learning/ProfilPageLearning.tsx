@@ -1,32 +1,18 @@
 'use client';
-import Loader from "@/app/loading";
 import { useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/lacompetition/useAdminConsultationsPageFinished";
 import { formatDateFRJeu } from "@/lib/functions";
-import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { lazy, memo, startTransition, useCallback, useMemo, useState } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { CompetitionDetails, FooterSection, HeaderSection, HelpButton, MessageToast, RestartButton } from './commons/Features';
 
 const INITIAL_VISIBLE_COUNT = 5;
-const LOAD_MORE_INCREMENT = 10;
+const LOAD_MORE_INCREMENT = 5;
 
 const LaBanniere = lazy(() => import('@/components/learning/labanniere/LaBanniere'));
 const Historique = lazy(() => import('@/components/learning/historique/Historique'));
-const HelpPanel = lazy(() => import('@/components/learning/help/HelpPanel'));
 const ActiveBanner = lazy(() => import('@/components/learning/commons/Features').then(m => ({ default: m.ActiveBanner })));
 const EndedBanner = lazy(() => import('@/components/learning/commons/Features').then(m => ({ default: m.EndedBanner })));
 const NotStartedBanner = lazy(() => import('@/components/learning/commons/Features').then(m => ({ default: m.NotStartedBanner })));
-
-const useStoreSelectors = () => {
-  return useMonEtoileStore(
-    useShallow((state) => ({
-      afficheaide: state.afficheaide,
-      afficherJeu: state.afficherJeu,
-      setAfficheAide: state.setAfficheaide,
-    }))
-  );
-};
 
 const CompetitionContent = memo(() => {
   const {
@@ -110,34 +96,14 @@ const CompetitionContent = memo(() => {
   );
 });
 
-const HelpView = memo(() => {
-  const { afficherJeu, setAfficheAide } = useStoreSelectors();
-
-  const handleCloseHelp = useCallback(() => {
-    setAfficheAide(false);
-    afficherJeu();
-  }, [afficherJeu, setAfficheAide]);
-
-  return (
-    <div className="animate-in slide-in-from-right duration-300">
-      <HelpPanel onClose={handleCloseHelp} />
-    </div>
-  );
-});
-
 const FixedContent = memo(() => {
-  const { setAfficheAide } = useStoreSelectors();
-
-  const handleHelpClick = useCallback(() => {
-    setAfficheAide(true);
-  }, [setAfficheAide]);
 
   return (
     <div className="fixed-bottom-content w-full">
       <LaBanniere />
       <Historique />
       <FooterSection />
-      <HelpButton onClick={handleHelpClick} />
+      <HelpButton />
     </div>
   );
 });
@@ -161,16 +127,12 @@ const HeaderWithToast = memo(() => {
 });
 
 const ProfilPageLearning = () => {
-  const { loading } = useAdminConsultationsPageFinished();
-  const { afficheaide } = useStoreSelectors();
-
-  if (loading) { return <Loader />; }
 
   return (
     <div className="w-full mx-auto max-w-md pb-20">
       <div className="flex flex-col items-center justify-center mb-8 space-y-4">
         <HeaderWithToast />
-        {afficheaide ? <HelpView /> : <CompetitionContent />}
+        <CompetitionContent />
         <FixedContent />
       </div>
     </div>

@@ -97,8 +97,7 @@ export function useLaMise() {
             const payload = { ...(data as Consultation) };
 
             await api.put(`/consultations/${consultationId}`, payload);
-            setLejeu(true);
-            setLamise(false);
+           router.push(`/star/learning/startgame/?retour=learning&monjeu=${monidjeu}&idjeu=${monidjeu}&idconsultation=${consultationId}`);
         } catch (error: any) {
             console.error('Error saving consultation:', error);
             setWalletState(prev => ({
@@ -115,10 +114,11 @@ export function useLaMise() {
     }, [monidjeu, setLejeu, setLamise, setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
-        if (isSufficient && !walletState.loading) {
+    
+        if (isSufficient) {
             handleSubmitAndNavigate();
         }
-    }, [isSufficient, (walletState.loading), handleSubmitAndNavigate]);
+    }, [isSufficient,  handleSubmitAndNavigate]);
 
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);

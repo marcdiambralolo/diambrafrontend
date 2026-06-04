@@ -20,28 +20,28 @@ interface UseCompetitionLauncherReturn {
 }
 
 export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
-  const router =useRouter();
+  const router = useRouter();
   const {
     setJeuAcommencer, resetGameState, setGameStarted, setCurrentMatchInfo,
-    clearCurrentMatchInfo, setLamise, setJeuenattente, setLejeu,
+    clearCurrentMatchInfo, setLamise, setJeuenattente, setLejeu, 
   } = useMonEtoileStore();
 
   const gameConfig = useMonEtoileStore((state) => state.gameConfig);
   const numeromatch = gameConfig?.numeromatch ?? DEFAULT_MATCH_ID;
   const niveau = gameConfig?.niveau ?? DEFAULT_NIVEAU;
-  
+
   const gameInitializedRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const [isGameInitializing, setIsGameInitializing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [matchinfo, setMatchinfo] = useState<MatchInfo[]>([]);
-  
+
   const generateMatchList = useCallback((): MatchInfo[] => {
     const matchId = numeromatch;
     return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
   }, [numeromatch]);
-  
+
   const loadMatch = useCallback(async (
     match: MatchInfo,
     niveau: number,
@@ -100,7 +100,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
     gameInitializedRef.current = false;
   }, []);
 
- 
+
   const initializeGame = useCallback(async () => {
     // Vérifications préalables
     if (gameInitializedRef.current || isGameInitializing) {
@@ -169,15 +169,12 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
    * Démarre le jeu
    */
   const demarrerJeu = useCallback(async () => {
-    resetGameState();
-    setJeuAcommencer(true);
-    setLamise(false);
-    setJeuenattente(false);
+
     await initializeGame();
 
     if (gameInitializedRef.current && !error) {
-      setLejeu(true);
-      setGameStarted(true);
+      setLamise(true);
+      setGameStarted(false);
       router.push('/star/learning/startgame');
     }
   }, [
@@ -190,7 +187,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
     setGameStarted,
     error
   ]);
- 
+
   const resetGame = useCallback(() => {
     cleanup();
     setIsGameInitializing(false);

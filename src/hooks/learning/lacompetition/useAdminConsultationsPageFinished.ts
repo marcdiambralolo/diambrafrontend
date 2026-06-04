@@ -5,7 +5,8 @@ import { ViewState } from '@/lib/learning/interface';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useCompetitionLauncher } from './useCometitionLauncher';
+import { useCompetitionLauncher } from '../home/useCometitionLauncher';
+ 
 
 const REFRESH_INTERVAL = 5000;
 const TIME_UPDATE_INTERVAL = 1000;

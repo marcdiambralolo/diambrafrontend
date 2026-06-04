@@ -54,11 +54,16 @@ export const HeaderSection = memo(() => (
     </div>
 ));
 
-export const HelpButton = memo(() => {
+interface HelpButtonProps {
+  onClick?: () => void;
+}
+
+export const HelpButton = memo(({ onClick }: HelpButtonProps) => {
     const afficherAide = useMonEtoileStore((state) => state.afficherAide);
 
     const handleClick = useCallback(() => {
         afficherAide();
+        onClick?.();
     }, [afficherAide]);
 
     return (

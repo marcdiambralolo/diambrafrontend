@@ -4,9 +4,8 @@ import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/i
 import { ViewState } from '@/lib/learning/interface';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useCompetitionLauncher } from '../home/useCometitionLauncher';
- 
 
 const REFRESH_INTERVAL = 5000;
 const TIME_UPDATE_INTERVAL = 1000;
@@ -17,12 +16,10 @@ const BASE_RETRY_DELAY = 1000;
 
 export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
-  const { demarrerJeu, loading: isLaunchingGame } = useCompetitionLauncher();
+  const router = useRouter();
+
   const {
-    setGameStarted,
-    setGameConfig,
-    clearAllCompetitions,
-    gameStarted,
+     setGameConfig, clearAllCompetitions,
     gameConfig: storedGameConfig,
   } = useMonEtoileStore();
 
@@ -98,6 +95,7 @@ export function useAdminConsultationsPageFinished() {
 
   const isGameNotStarted = useMemo(() => {
     if (!gameConfig) return false;
+
     return gameConfig.status === 'pending' || (startDate !== null && currentTime < startDate);
   }, [gameConfig, startDate, currentTime]);
 
@@ -111,6 +109,10 @@ export function useAdminConsultationsPageFinished() {
   }, [gameConfig, isConfigLoading, isGameEnded, isGameActive, isGameNotStarted, lastEndedGame]);
 
   const hasNotStartedEdition = showNotStarted && startDate !== null;
+
+  const demarrerJeu = useCallback(() => {
+    router.push('/star/learning/choix');
+  }, [router]);
 
   const refreshLastEndedGame = useCallback(async () => {
     if (isFetchingRef.current) return;
@@ -166,8 +168,8 @@ export function useAdminConsultationsPageFinished() {
 
   const handleOpenGame = useCallback(() => {
     clearAllCompetitions();
-    if (!gameStarted) setGameStarted(true);
-  }, [clearAllCompetitions, gameStarted, setGameStarted]);
+ 
+  }, [clearAllCompetitions, ]);
 
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
@@ -194,11 +196,11 @@ export function useAdminConsultationsPageFinished() {
     };
   }, [refreshLastEndedGame]);
 
-  useEffect(() => {
-    if (showActive && !gameStarted && !hasNotStartedEdition) {
-      setGameStarted(true);
-    }
-  }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
+  // useEffect(() => {
+  //   if (showActive && !gameStarted && !hasNotStartedEdition) {
+  //     setGameStarted(true);
+  //   }
+  // }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
 
   const isLoading = isConfigLoading || loading;
 
@@ -215,7 +217,6 @@ export function useAdminConsultationsPageFinished() {
   }, [gameConfig, showEnded, showActive, showNotStarted]);
 
   return {
-    demarrerJeu, handleOpenGame, loading: isLoading || isLaunchingGame,
-    startDate, gameConfig, viewState, lastEndedGame, endDate,
+    demarrerJeu, handleOpenGame, loading: isLoading, startDate, gameConfig, viewState, lastEndedGame, endDate,
   };
 }

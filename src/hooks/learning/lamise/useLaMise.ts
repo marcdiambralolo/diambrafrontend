@@ -46,7 +46,7 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { gameConfig, setLejeu, setLamise, setCurrentConsultationId } = useMonEtoileStore();
+    const { gameConfig,  setCurrentConsultationId } = useMonEtoileStore();
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -97,7 +97,7 @@ export function useLaMise() {
             const payload = { ...(data as Consultation) };
 
             await api.put(`/consultations/${consultationId}`, payload);
-           router.push(`/star/learning/startgame/?retour=learning&monjeu=${monidjeu}&idjeu=${monidjeu}&idconsultation=${consultationId}`);
+            router.push(`/star/learning/startgame/?retour=learning&idconsultation=${consultationId}`);
         } catch (error: any) {
             console.error('Error saving consultation:', error);
             setWalletState(prev => ({
@@ -111,14 +111,14 @@ export function useLaMise() {
                 setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu, setLejeu, setLamise, setCurrentConsultationId]);
+    }, [monidjeu,  setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
-    
+
         if (isSufficient) {
             handleSubmitAndNavigate();
         }
-    }, [isSufficient,  handleSubmitAndNavigate]);
+    }, [isSufficient, handleSubmitAndNavigate]);
 
     const handleGoToMarket = useCallback(() => {
         router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);

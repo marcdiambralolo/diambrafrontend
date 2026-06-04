@@ -4,7 +4,7 @@ import { MESSAGE_DURATION } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCompetitionLauncher } from "../lacompetition/useCometitionLauncher";
+import { useCompetitionLauncher } from "../game/useCompetitionLauncher";
 
 interface ValidationMessage {
     text: string;
@@ -214,7 +214,7 @@ const useMessage = () => {
 };
 
 export const useEndGameGenerator = () => {
-    const { currentConsultationId, getAllCompetitions, setLejeu } = useMonEtoileStore();
+    const { currentConsultationId, getAllCompetitions } = useMonEtoileStore();
 
     const { demarrerJeu } = useCompetitionLauncher();
 
@@ -308,7 +308,7 @@ export const useEndGameGenerator = () => {
     // Redémarrage du jeu
     const handleRestart = useCallback(() => {
         demarrerJeu();
-    }, [setLejeu]);
+    }, []);
 
     const handleSubmitGame = useCallback(async () => {
         setIsSubmitting(true);

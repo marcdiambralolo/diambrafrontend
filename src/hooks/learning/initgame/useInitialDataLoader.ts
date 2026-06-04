@@ -60,8 +60,6 @@ export function useGameLoader({
   const storeActions = useMonEtoileStore(
     useCallback((store) => ({
       setGameConfig: store.setGameConfig,
-      setJeuAcommencer: store.setJeuAcommencer,
-      setJeuenattente: store.setJeuenattente,
       gameConfig: store.gameConfig,
     }), [])
   );
@@ -98,8 +96,6 @@ export function useGameLoader({
   const updateStore = useCallback((config: LearningConfiguration) => {
     startTransition(() => {
       storeActions.setGameConfig(config);
-      storeActions.setJeuAcommencer(true);
-      storeActions.setJeuenattente(true);
     });
   }, [storeActions]);
 

@@ -273,7 +273,7 @@ export default function WelcomePageClient() {
         <section id="regles">
           <SectionHeader
             badge="Règles du jeu"
-            title="📜 Comprendre le jeu maintenant"
+            title="📜 Comprendre Diambra"
             subtitle="3 cases, 10 chiffres, 1 seule bonne combinaison.  "
           />
 
@@ -294,7 +294,7 @@ export default function WelcomePageClient() {
         <section id="jeu">
           <SectionHeader
             badge="Comment jouer"
-            title="🎯 Une expérience pensée pour vous"
+            title="🎯 Une belle expérience"
           />
 
           <HowToPlayCard />

@@ -362,8 +362,8 @@ export const EndedBanner = memo(({ lastEndedGame }: EndedBannerProps) => {
 export const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps) => {
 
     return (
-        <div className="rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-2 shadow-xl">
-            <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-4 shadow-xl">
+            <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-white/15 rounded-2xl p-3 text-center">
                     <div className="text-3xl" aria-hidden="true">🎮</div>
                     <div className="text-[10px] text-white/70">N° Match</div>

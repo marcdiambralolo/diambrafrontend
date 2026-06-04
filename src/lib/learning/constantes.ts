@@ -29,3 +29,13 @@ export const STATUS_CONFIG = {
   online: { text: 'EN LIGNE', color: 'green' },
   offline: { text: 'HORS LIGNE', color: 'red' }
 } as const;
+
+
+export const TIME_UNIT_LABELS: Record<string, string> = {
+  days: 'j',
+  hours: 'h',
+  minutes: 'm',
+  seconds: 's'
+};
+
+export const COUNTDOWN_UPDATE_INTERVAL = 1000;

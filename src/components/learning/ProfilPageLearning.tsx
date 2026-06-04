@@ -16,13 +16,11 @@ const NotStartedBanner = lazy(() => import('@/components/learning/commons/Featur
 
 const CompetitionContent = memo(() => {
   const {
-    demarrerJeu, handleOpenGame,
-    startDate, gameConfig, viewState, lastEndedGame, endDate
+    demarrerJeu, handleOpenGame, startDate, gameConfig, viewState, lastEndedGame, endDate
   } = useAdminConsultationsPageFinished();
 
   const {
-    handleValidateCompetition, handleRestart,
-    hasCompetitions, isValidating, isSubmitting, competitions,
+    handleValidateCompetition, handleRestart, hasCompetitions, isValidating, isSubmitting, competitions,
   } = useEndGameGenerator();
 
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -111,9 +109,7 @@ const FixedContent = memo(() => {
 const HeaderWithToast = memo(() => {
   const { validateMessage } = useEndGameGenerator();
 
-  if (!validateMessage) {
-    return <HeaderSection />;
-  }
+  if (!validateMessage) { return <HeaderSection />; }
 
   return (
     <>

@@ -6,7 +6,7 @@ import { useCallback, useMemo } from 'react';
 export function useAdminConsultationsPageFinished() {
   const { stats } = useStatsDataWithCache();
 
-  const { setJeuAcommencer, gameConfig } = useMonEtoileStore();
+  const {  gameConfig } = useMonEtoileStore();
 
   const startDate = useMemo(() =>
     gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
@@ -19,8 +19,8 @@ export function useAdminConsultationsPageFinished() {
   );
 
   const handleEndMatch = useCallback(() => {
-    setJeuAcommencer(false);
-  }, [setJeuAcommencer]);
+   
+  }, [ ]);
 
   return { handleEndMatch, stats, startDate, endDate };
 }

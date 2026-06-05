@@ -9,8 +9,8 @@ interface SkeletonProps {
   animate?: boolean;
   variant?: 'default' | 'card' | 'avatar' | 'text' | 'button';
   count?: number;
-  gap?: string;
   inline?: boolean;
+  gap?: string;
 }
 
 const ROUNDED_MAP = {

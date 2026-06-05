@@ -92,6 +92,7 @@ export const GlowButton = memo(({
                 <span className="group-hover:translate-x-2 transition-transform duration-300">
                     {children}
                 </span>
+                
                 <span className="absolute right-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:right-4 transition-all duration-300">
                     ⚡
                 </span>
@@ -194,6 +195,7 @@ export const ParticleButton = memo(({ children, onClick }: { children: React.Rea
             type="button"
         >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+         
             <span className="relative flex items-center justify-center gap-2">
                 {children}
             </span>

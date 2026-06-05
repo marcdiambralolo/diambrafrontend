@@ -27,7 +27,7 @@ export function useAdminConsultationsPageFinished() {
 
   const [matchFinished, setMatchFinished] = useState(false);
   const [lastEndedGame, setLastEndedGame] = useState<LastEndedGame | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [ , setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEndingGame, setIsEndingGame] = useState(false);
@@ -203,9 +203,10 @@ export function useAdminConsultationsPageFinished() {
       isNotStarted: !showEnded && !showActive && showNotStarted,
     };
   }, [gameConfig, showEnded, showActive, showNotStarted]);
+  const isLoading =  isConfigLoading;
 
   return {
     demarrerJeu, handleOpenGame, startDate, gameConfig, viewState,
-     lastEndedGame, endDate,loading, error,
+     lastEndedGame, endDate,loading: isLoading, error,  isLoading,
   };
 }

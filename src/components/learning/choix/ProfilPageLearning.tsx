@@ -1,10 +1,10 @@
 'use client';
-import Loader from "@/app/loading";
+import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from "lucide-react";
-import { memo, Suspense } from 'react';
-import { FooterSection, HeaderSection, HelpButton } from '../commons/Features';
-import LaBanniere from "../labanniere/LaBanniere";
+import { memo } from 'react';
+import { HeaderSection } from '../commons/Features';
+import FixedContent from '../commons/FixedContent';
 
 const STATUS_BANNER_CONFIG = {
   sufficient: {
@@ -25,21 +25,42 @@ const STATUS_BANNER_CONFIG = {
   }
 } as const;
 
+const BUTTON_BASE_CLASSES = "transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+
 interface StatusBannerProps {
   isSufficient: boolean;
   requiredQuantity: number;
   availableQuantity: number;
 }
 
+interface TokenCardProps {
+  isSufficient: boolean;
+  requiredQuantity: number;
+  availableQuantity: number;
+  cardClasses: string;
+  onClick: () => void;
+}
+
+interface PlayButtonProps {
+  isSufficient: boolean;
+  onClick: () => void;
+  isPending: boolean;
+}
+
+interface MarketButtonProps {
+  onClick: () => void;
+  isPending: boolean;
+}
+
 const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }: StatusBannerProps) => {
   const missingTokens = requiredQuantity - availableQuantity;
   const config = STATUS_BANNER_CONFIG[isSufficient ? 'sufficient' : 'insufficient'];
+  const Icon = isSufficient ? CheckCircle2 : AlertTriangle;
 
   const title = isSufficient ? "Prêt à valider !" : "Jetons insuffisants";
   const message = isSufficient
     ? `Vous disposez de ${availableQuantity} jeton${availableQuantity > 1 ? 's' : ''}`
     : `Il vous manque ${missingTokens} jeton${missingTokens > 1 ? 's' : ''}.`;
-  const Icon = isSufficient ? CheckCircle2 : AlertTriangle;
 
   return (
     <div className={`relative overflow-hidden mb-4 flex items-start gap-3 p-3 rounded-2xl bg-gradient-to-r ${config.bgGradient} border ${config.borderColor}`}>
@@ -56,14 +77,6 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
   );
 });
 
-interface TokenCardProps {
-  isSufficient: boolean;
-  requiredQuantity: number;
-  availableQuantity: number;
-  cardClasses: string;
-  onClick: () => void;
-}
-
 const TokenCard = memo(({ isSufficient, requiredQuantity, availableQuantity, cardClasses, onClick }: TokenCardProps) => {
   const missingTokens = requiredQuantity - availableQuantity;
 
@@ -71,7 +84,7 @@ const TokenCard = memo(({ isSufficient, requiredQuantity, availableQuantity, car
     <button
       disabled={!isSufficient}
       onClick={onClick}
-      className={`${cardClasses} transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`${cardClasses} ${BUTTON_BASE_CLASSES} hover:scale-[1.02] active:scale-[0.98]`}
       aria-label={isSufficient ? "Valider la mise" : "Jetons insuffisants"}
     >
       <div className="flex-shrink-0">
@@ -108,16 +121,10 @@ const TokenCard = memo(({ isSufficient, requiredQuantity, availableQuantity, car
   );
 });
 
-interface PlayButtonProps {
-  isSufficient: boolean;
-  onClick: () => void;
-  isPending: boolean;
-}
-
 const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButtonProps) => {
   const isEnabled = isSufficient && !isPending;
 
-  const buttonClasses = `w-full h-12 mt-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isEnabled
+  const buttonClasses = `w-full h-12 mt-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 ${BUTTON_BASE_CLASSES} ${isEnabled
     ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
     : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
     }`;
@@ -145,11 +152,6 @@ const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButtonProps) 
   );
 });
 
-interface MarketButtonProps {
-  onClick: () => void;
-  isPending: boolean;
-}
-
 const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
   <button
     onClick={onClick}
@@ -175,57 +177,51 @@ const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
 
 const ProfilPageLearning = () => {
   const {
-    handlePlayClick, handleMarketClick, isPendingMarket, requiredQuantity, loading,
-    availableQuantity, cardClasses, isSufficient, deferredIsSufficient, isPendingPlay,
+    handlePlayClick, handleMarketClick, isPendingMarket, requiredQuantity, availableQuantity,
+    cardClasses, isSufficient, deferredIsSufficient, isPendingPlay, loading,
   } = useLaMise();
 
   if (loading) { return (<Loader />); }
 
   return (
-    <div className="w-full mx-auto max-w-md pb-20 min-h-screen">
-      <div className="flex flex-col items-center justify-center mb-8 space-y-4">
+    <div className="w-full mx-auto max-w-md">
+      <div className="flex flex-col items-center justify-center mb-8 space-y-2">
         <HeaderSection />
 
-        <Suspense fallback={<Loader />}>
-          <div className="w-full max-w-md mx-auto flex flex-col items-center">
-            <StatusBanner
-              isSufficient={deferredIsSufficient}
-              requiredQuantity={requiredQuantity}
-              availableQuantity={availableQuantity}
-            />
+        <div className="w-full max-w-md mx-auto flex flex-col items-center">
+          <StatusBanner
+            isSufficient={deferredIsSufficient}
+            requiredQuantity={requiredQuantity}
+            availableQuantity={availableQuantity}
+          />
 
-            <TokenCard
-              isSufficient={isSufficient}
-              requiredQuantity={requiredQuantity}
-              availableQuantity={availableQuantity}
-              cardClasses={cardClasses}
-              onClick={handlePlayClick}
-            />
+          <TokenCard
+            isSufficient={isSufficient}
+            requiredQuantity={requiredQuantity}
+            availableQuantity={availableQuantity}
+            cardClasses={cardClasses}
+            onClick={handlePlayClick}
+          />
 
-            <PlayButton
-              isSufficient={isSufficient}
-              onClick={handlePlayClick}
-              isPending={isPendingPlay}
-            />
+          <PlayButton
+            isSufficient={isSufficient}
+            onClick={handlePlayClick}
+            isPending={isPendingPlay}
+          />
 
-            {!isSufficient && (
-              <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2 animate-in fade-in duration-300">
-                Vous ne disposez pas d'assez de jetons.
-              </p>
-            )}
+          {!isSufficient && (
+            <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2 animate-in fade-in duration-300">
+              Vous ne disposez pas d'assez de jetons.
+            </p>
+          )}
 
-            <MarketButton
-              onClick={handleMarketClick}
-              isPending={isPendingMarket}
-            />
-          </div>
-        </Suspense>
-
-        <div className="fixed-bottom-content w-full space-y-4">
-          <LaBanniere />
-          <FooterSection />
-          <HelpButton />
+          <MarketButton
+            onClick={handleMarketClick}
+            isPending={isPendingMarket}
+          />
         </div>
+
+        <FixedContent />
       </div>
     </div>
   );

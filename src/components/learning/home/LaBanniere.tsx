@@ -3,8 +3,8 @@ import { useAdminConsultationsPageFinished } from "@/hooks/learning/labanniere/u
 import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { COLORS, COUNTDOWN_UPDATE_INTERVAL, TIME_UNIT_LABELS, TIME_UNITS } from "@/lib/learning/constantes";
-import { Calendar, Flame, Users } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Calendar, Flame, Users } from "lucide-react";
 
 interface StatCardProps {
   value: number | null;
@@ -179,6 +179,7 @@ const LaBanniere = memo(({ affichebanner }: AfficheBannerProps) => {
   if (!endDate || !startDate) {
     return null;
   }
+ 
 
   return (
     <div className="w-full max-w-md mx-auto mt-4">
@@ -188,7 +189,7 @@ const LaBanniere = memo(({ affichebanner }: AfficheBannerProps) => {
         startDate={startDate}
         formatDate={formatDateFRJeu}
       />)}
-      
+
       <StatCard
         value={stats?.subscribers ?? null}
         label="Inscrits"

@@ -1,42 +1,435 @@
 'use client';
-import { useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
-import { LOAD_MORE_INCREMENT } from "@/lib/learning/constantes";
-import { CompetitionDetails, } from '../commons/Features';
+import { CompetitionSummary, useCompetitionValidation, useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
+import { MatchInfo } from "@/lib/interfaces";
+import { LOAD_MORE_INCREMENT, MESSAGE_DURATION, NO_DATA_PLACEHOLDER } from "@/lib/learning/constantes";
+import { formatDuration } from "@/lib/learning/functions";
+import {
+  Calendar, ChevronDown, ChevronUp, ListCollapse, Loader2, Send, Trophy
+} from "lucide-react";
+import { memo, Suspense, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
-const FeuilleDeMatch = () => {
-  const { handleValidateCompetition, handleLoadMore, competitionList, hasMore, remainingCount, } = useEndGameGenerator();
+const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";
+const INITIAL_VISIBLE_MATCHES = 2;
+
+interface InfoRowProps {
+  label: string;
+  value: string | number | undefined;
+  highlight?: boolean;
+  icon?: React.ReactNode;
+}
+
+interface MatchCardProps {
+  match: {
+    matchNumber: number;
+    type: string;
+    score: number;
+    timeSpent?: number;
+  };
+  index: number;
+}
+
+interface CompetitionDetailsProps {
+  competition: CompetitionSummary;
+  onValidate: (rawMatches: MatchInfo[]) => Promise<boolean>;
+  priority?: boolean;
+}
+
+interface ValidationMessage {
+  text: string;
+  type: 'success' | 'error';
+}
+
+const InfoRow = memo(({ label, value, highlight = false, icon }: InfoRowProps) => (
+  <div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 px-2 rounded-lg">
+    <span className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+      {icon && <span className="text-purple-500">{icon}</span>}
+      {label}:
+    </span>
+    <span className={`${highlight ? 'text-purple-600 dark:text-purple-400 font-bold text-lg' : 'text-gray-900 dark:text-gray-100'} font-mono`}>
+      {value ?? NO_DATA_PLACEHOLDER}
+    </span>
+  </div>
+));
+
+const MatchCard = memo(({ match, index, }: MatchCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const timeDisplay = useMemo(() => formatDuration(match.timeSpent), [match.timeSpent]);
+
+  const cardClassName = useMemo(() => {
+    return "hover:bg-purple-50/50 dark:hover:bg-purple-900/10";
+  }, []);
+
+  const toggleExpand = useCallback(() => {
+    setIsExpanded(prev => !prev);
+  }, []);
 
   return (
-    <div className="w-full mx-auto max-w-md pb-20">
-      <div className="space-y-3 animate-in fade-in duration-300">
-
-        <div className="competition-list space-y-2">
-          {competitionList?.map((competition, index) => (
-            <div
-              key={competition.id}
-              style={{ animationDelay: `${index * 50}ms` }}
-              className="animate-in slide-in-from-bottom-4 fade-in duration-300"
-            >
-              <CompetitionDetails
-                competition={competition}
-                onValidate={handleValidateCompetition}
-              />
+    <div className={`
+      ${cardClassName}
+      border rounded-lg transition-all duration-300
+      ${isExpanded ? 'shadow-md' : 'hover:shadow-md'}
+    `}>
+      <div
+        className="p-3 cursor-pointer select-none"
+        onClick={toggleExpand}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleExpand();
+          }
+        }}
+        aria-expanded={isExpanded}
+        aria-label={`Détails du match ${index + 1}`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">            
+            <div>             
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {match.type}
+              </div>
             </div>
-          ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
+                {timeDisplay}
+              </div>
+            </div>
+          </div>
         </div>
-        
-        {hasMore && (
+      </div>
+    </div>
+  );
+});
+
+const MessageToast = memo(({ message, onClose }: { message: ValidationMessage | null; onClose: () => void }) => {
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(onClose, MESSAGE_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [message, onClose]);
+
+  if (!message) return null;
+
+  return (
+    <div
+      className={`
+        ${TOAST_POSITION} 
+        px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium 
+        transition-all duration-500 animate-in slide-in-from-top-4 fade-in
+        ${message.type === 'success'
+          ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+          : 'bg-gradient-to-r from-red-500 to-rose-600'
+        }
+      `}
+      role="alert"
+    >
+      <div className="flex items-center gap-2">
+        {message.type === 'success' ? '✅' : '⚠️'}
+        {message.text}
+      </div>
+    </div>
+  );
+});
+
+const CompetitionHeader = memo(({ name, onValidate, isLoading }: { name: string; onValidate: () => void; isLoading: boolean }) => (
+  <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+        <Trophy className="w-5 h-5 text-white" aria-hidden="true" />
+      </div>
+      <div>
+        <h3 className="text-lg font-bold bg-gradient-to-r from-purple-700 to-purple-500 bg-clip-text text-transparent">
+          {name}
+        </h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Détails de la compétition</p>
+      </div>
+    </div>
+
+    <button
+      onClick={onValidate}
+      disabled={isLoading}
+      className="group relative overflow-hidden flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 hover:scale-105 active:scale-95"
+      type="button"
+    >
+      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+      {isLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <Send className="w-4 h-4 group-hover:scale-110 transition-transform" aria-hidden="true" />
+      )}
+      {isLoading ? 'Validation...' : 'Valider ce jeu'}
+    </button>
+  </div>
+));
+
+const CompetitionStats = memo(({
+  startDate,
+  finishedDate }: {
+    startDate: string;
+    finishedDate?: string;
+  }) => (
+  <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-2xl p-5 mb-5 border border-gray-100 dark:border-gray-700">
+    <div className="space-y-1">
+      <InfoRow
+        label="Date de début"
+        value={startDate}
+        icon={<Calendar className="w-3.5 h-3.5" />}
+      />
+      {finishedDate && (
+        <InfoRow
+          label="Date de fin"
+          value={finishedDate}
+          icon={<Calendar className="w-3.5 h-3.5" />}
+        />
+      )}
+    </div>
+  </div>
+));
+
+const MatchesSection = memo(({ matches }: {
+  matches: any[];
+  bestMatchIndex: number;
+  worstMatchIndex: number;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_MATCHES);
+
+  const visibleMatches = useMemo(() => {
+    if (isExpanded) {
+      return matches;
+    }
+    return matches.slice(0, visibleCount);
+  }, [matches, isExpanded, visibleCount]);
+
+  const hasMoreMatches = matches.length > visibleCount && !isExpanded;
+
+  const handleShowMore = useCallback(() => {
+    setVisibleCount(prev => Math.min(prev + 2, matches.length));
+  }, [matches.length]);
+
+  const toggleExpandAll = useCallback(() => {
+    setIsExpanded(prev => !prev);
+    if (!isExpanded) {
+      setVisibleCount(INITIAL_VISIBLE_MATCHES);
+    }
+  }, [isExpanded]);
+
+  return (
+    <div className="mt-4">
+      <button
+        onClick={toggleExpandAll}
+        className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl hover:shadow-md transition-all duration-200 group mb-3"
+        aria-expanded={isExpanded}
+      >
+        <div className="flex items-center gap-2">
+          {isExpanded ? (
+            <ListCollapse className="w-4 h-4 text-purple-600" />
+          ) : (
+            <ChevronUp className="w-4 h-4 text-purple-600" />
+          )}
+          <span className="font-semibold text-gray-700 dark:text-gray-300">
+            {isExpanded ? 'Masquer les détails des matchs' : 'Voir tous les matchs'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {matches.length} matchs
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="w-4 h-4 text-purple-600 transition-transform group-hover:-translate-y-0.5" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-purple-600 transition-transform group-hover:translate-y-0.5" />
+          )}
+        </div>
+      </button>
+
+      <div className={`
+        space-y-2 transition-all duration-300 overflow-hidden
+        ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-[800px] opacity-100'}
+      `}>
+        {visibleMatches.map((match, idx) => {
+          const originalIndex = matches.findIndex(m => m.id === match.id);
+          return (
+            <MatchCard
+              key={match.id || idx}
+              match={match}
+              index={originalIndex}
+            />
+          );
+        })}
+
+        {hasMoreMatches && (
           <button
-            onClick={handleLoadMore}
-            className="w-full py-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label={`Charger ${Math.min(LOAD_MORE_INCREMENT, remainingCount)} compétitions supplémentaires`}
+            onClick={handleShowMore}
+            className="w-full py-2 text-center text-sm text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 rounded-lg transition-all duration-200"
           >
-            Voir plus ({remainingCount} restantes)
+            Voir plus de matchs ({matches.length - visibleCount} restants)
           </button>
         )}
       </div>
     </div>
   );
+});
+
+const CompetitionDetails = memo(({ competition, onValidate, priority = false }: CompetitionDetailsProps) => {
+  const {
+    isLoading, validationMessage, formattedStartDate, formattedFinishedDate,
+    handleValidate, handleCloseMessage,
+  } = useCompetitionValidation(onValidate, competition);
+
+  const { bestMatchIndex, worstMatchIndex } = useMemo(() => {
+    const times = competition.matches.map(m => m.timeSpent || Infinity);
+    const best = Math.min(...times);
+
+    return {
+      bestMatchIndex: times.indexOf(best),
+      worstMatchIndex: times.indexOf(Math.max(...times))
+    };
+  }, [competition.matches]);
+
+  return (
+    <div className={`
+      space-y-4 mb-5 bg-white dark:bg-gray-800/50 rounded-2xl shadow-md 
+      hover:shadow-xl transition-all duration-300 overflow-hidden
+      ${priority ? 'ring-2 ring-purple-300 dark:ring-purple-700 shadow-lg' : ''}
+    `}>
+      <MessageToast message={validationMessage} onClose={handleCloseMessage} />
+
+      <div className="p-5">
+        <CompetitionHeader
+          name={competition.name}
+          onValidate={handleValidate}
+          isLoading={isLoading}
+        />
+
+        <CompetitionStats
+          startDate={formattedStartDate}
+          finishedDate={formattedFinishedDate!}
+        />
+
+        <MatchesSection
+          matches={competition.matches}
+          bestMatchIndex={bestMatchIndex}
+          worstMatchIndex={worstMatchIndex}
+        />
+      </div>
+    </div>
+  );
+});
+
+const LoadMoreButton = memo(({
+  onClick,
+  remainingCount,
+  isLoading
+}: {
+  onClick: () => void;
+  remainingCount: number;
+  isLoading: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    disabled={isLoading}
+    className="group w-full py-3 mt-2 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+    aria-label={`Charger ${Math.min(LOAD_MORE_INCREMENT, remainingCount)} compétitions supplémentaires`}
+  >
+    {isLoading ? (
+      <>
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span>Chargement...</span>
+      </>
+    ) : (
+      <>
+        <span>Voir plus</span>
+        <ChevronDown className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          ({remainingCount} restantes)
+        </span>
+      </>
+    )}
+  </button>
+));
+
+const FeuilleDeMatch = () => {
+  const { handleValidateCompetition, handleLoadMore, competitionList, hasMore, remainingCount } = useEndGameGenerator();
+
+  const [isLoadingMore, startTransition] = useTransition();
+
+  const handleLoadMoreClick = useCallback(() => {
+    startTransition(() => {
+      handleLoadMore();
+    });
+  }, [handleLoadMore]);
+
+  if (!competitionList?.length) {
+    return (
+      <div className="w-full mx-auto max-w-md pb-20">
+        <div className="text-center py-12 bg-white dark:bg-gray-800/50 rounded-2xl">
+          <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400">Aucune compétition trouvée</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full mx-auto max-w-md pb-20 px-4">
+      <div className="space-y-4 animate-in fade-in duration-500">
+        <Suspense fallback={
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        }>
+          <div className="space-y-4">
+            {competitionList.map((competition, index) => (
+              <div
+                key={competition.id}
+                style={{ animationDelay: `${index * 100}ms` }}
+                className="animate-in slide-in-from-bottom-5 fade-in duration-500"
+              >
+                <CompetitionDetails
+                  competition={competition}
+                  onValidate={handleValidateCompetition}
+                  priority={index === 0}
+                />
+              </div>
+            ))}
+          </div>
+        </Suspense>
+
+        {hasMore && (
+          <LoadMoreButton
+            onClick={handleLoadMoreClick}
+            remainingCount={remainingCount}
+            isLoading={isLoadingMore}
+          />
+        )}
+      </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #c084fc;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a855f7;
+        }
+      `}</style>
+    </div>
+  );
 };
 
-export default FeuilleDeMatch;
+export default memo(FeuilleDeMatch);

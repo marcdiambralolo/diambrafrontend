@@ -4,23 +4,10 @@ import { CURRENT_YEAR, STATUS_CONFIG } from "@/lib/learning/constantes";
 import { HelpCircle } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { useRouter } from "next/navigation";
-import { memo, Suspense, useCallback, useMemo } from 'react';
-
-const LaBanniere = dynamic(
-    () => import('@/components/learning/labanniere/LaBanniere'),
-    {
-        loading: () => <div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl" />,
-        ssr: true,
-    }
-);
-
-const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
-    <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${color === 'red' ? 'bg-red-500' : 'bg-green-500'
-        } text-white flex items-center gap-1`}>
-        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-        {text}
-    </div>
-));
+import { memo, useCallback, useMemo } from 'react';
+import { StatusBadge } from './Features';
+import LaBanniere from '../labanniere/LaBanniere';
+ 
 
 const FooterSection = memo(() => {
     const { onlineStatus } = useCommon();
@@ -64,10 +51,8 @@ const FixedContent = () => {
 
     return (
         <div className="fixed-bottom-content w-full space-y-4">
-            <Suspense fallback={<div className="h-32 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl" />}>
-                <LaBanniere />
-            </Suspense>
-
+                 <LaBanniere />
+ 
             <FooterSection />
 
             <HelpButton />

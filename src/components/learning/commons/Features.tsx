@@ -1,11 +1,10 @@
 'use client';
-import { CompetitionSummary, useCompetitionValidation } from "@/hooks/learning/endgame/useEndGameGenerator";
 import { useCommon } from '@/hooks/learning/home/useCommon';
 import { formatDateTime } from "@/lib/functions";
-import { LastEndedGame, MatchInfo, TimeLeft } from "@/lib/interfaces";
-import { APP_NAME, CURRENT_YEAR, MESSAGE_DURATION, NO_DATA_PLACEHOLDER, STATUS_CONFIG, TIME_UNITS } from "@/lib/learning/constantes";
+import { LastEndedGame, TimeLeft } from "@/lib/interfaces";
+import { APP_NAME, CURRENT_YEAR, MESSAGE_DURATION, STATUS_CONFIG, TIME_UNITS } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
-import { Award, Clock, HelpCircle, History, Hourglass, Loader2, Medal, RotateCcw, Send, Trophy } from "lucide-react";
+import { Award, Clock, HelpCircle, History, Hourglass, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
@@ -74,12 +73,6 @@ export const HelpButton = memo(() => {
     );
 });
 
-interface InfoRowProps {
-    label: string;
-    value: string | number | undefined;
-    highlight?: boolean;
-}
-
 interface MatchCardProps {
     match: {
         matchNumber: number;
@@ -90,26 +83,12 @@ interface MatchCardProps {
     index: number;
 }
 
-interface CompetitionDetailsProps {
-    competition: CompetitionSummary;
-    onValidate: (rawMatches: MatchInfo[]) => Promise<boolean>;
-}
-
 interface ValidationMessage {
     text: string;
     type: 'success' | 'error';
 }
 
 const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";
-
-const InfoRow = memo(({ label, value, highlight = false }: InfoRowProps) => (
-    <div className="flex justify-between py-2 border-b border-gray-200 last:border-0">
-        <span className="font-semibold text-gray-700">{label}:</span>
-        <span className={`${highlight ? 'text-purple-600 font-bold text-lg' : 'text-gray-900'}`}>
-            {value ?? NO_DATA_PLACEHOLDER}
-        </span>
-    </div>
-));
 
 export const MatchCard = memo(({ match, index }: MatchCardProps) => {
     const timeDisplay = useMemo(() => formatDuration(match.timeSpent), [match.timeSpent]);
@@ -151,66 +130,6 @@ export const MessageToast = memo(({ message, onClose }: { message: ValidationMes
         </div>
     );
 });
-
-export const CompetitionDetails = memo(({ competition, onValidate }: CompetitionDetailsProps) => {
-    const {
-        isLoading,
-        validationMessage,
-        formattedStartDate,
-        formattedFinishedDate,
-        totalTimeSpent,
-        handleValidate,
-        handleCloseMessage,
-    } = useCompetitionValidation(onValidate, competition);
-
-    return (
-        <div className="space-y-4 mb-6 p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-            <MessageToast message={validationMessage} onClose={handleCloseMessage} />
-
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 className="text-xl font-bold text-purple-700 flex items-center gap-2">
-                    <Trophy className="w-6 h-6" aria-hidden="true" />
-                    {competition.name}
-                </h3>
-
-                <button
-                    onClick={handleValidate}
-                    disabled={isLoading}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all focus:outline-none focus:ring-2 focus:ring-green-400"
-                    type="button"
-                >
-                    {isLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-                    ) : (
-                        <Send className="w-4 h-4" aria-hidden="true" />
-                    )}
-                    {isLoading ? 'Validation...' : 'Valider ce jeu'}
-                </button>
-            </div>
-
-            <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                <InfoRow label="Date de début" value={formattedStartDate} />
-                {formattedFinishedDate && (
-                    <InfoRow label="Date de fin" value={formattedFinishedDate} />
-                )}
-                <InfoRow label="Temps total" value={totalTimeSpent} highlight />
-                <InfoRow label="Nombre de matchs" value={competition.matches.length} />
-            </div>
-
-            <div>
-                <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <Medal className="w-4 h-4" aria-hidden="true" />
-                    Résultats par match
-                </h4>
-                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-                    {competition.matches.map((match, idx) => (
-                        <MatchCard key={idx} match={match} index={idx} />
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}); 
 
 interface CountdownTimerProps {
     targetDate: Date;

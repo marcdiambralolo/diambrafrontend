@@ -101,10 +101,10 @@ export function useAdminConsultationsPageFinished() {
     }
     
     // Nettoyer les données
-    clearCurrentMatchInfo();
+   // clearCurrentMatchInfo();
     
     // Rediriger
-    router.push('/star/learning');
+   // router.push('/star/learning');
   }, [router, clearCurrentMatchInfo]);
 
   // Déclencher la fin du jeu

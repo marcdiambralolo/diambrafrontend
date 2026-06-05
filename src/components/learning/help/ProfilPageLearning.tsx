@@ -1,7 +1,7 @@
 'use client';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
+import { memo, startTransition, Suspense, useCallback, useMemo, useTransition } from 'react';
 import { FooterSection } from "../commons/Features";
-import { memo, useCallback, useDeferredValue, useMemo, useTransition } from 'react';
 
 const HELP_SECTIONS = [
   {
@@ -71,10 +71,10 @@ const HELP_SECTIONS = [
 ] as const;
 
 const QUICK_TIPS = [
-  { icon: "⏰", title: "Prenez votre temps", description: "Mémorisez bien le plateau P1 avant de commencer" },
-  { icon: "🎯", title: "Commencez facile", description: "Essayez d'abord les niveaux 2×2 ou 3×3" },
-  { icon: "💪", title: "Pratiquez régulièrement", description: "L'entraînement améliore vos performances" },
-  { icon: "⚡", title: "Mode automatique", description: "Pour un défi chronométré plus intense" }
+  { icon: "⏰", title: "Prenez votre temps", description: "Mémorisez bien le plateau P1 avant de commencer", color: "amber" },
+  { icon: "🎯", title: "Commencez facile", description: "Essayez d'abord les niveaux 2×2 ou 3×3", color: "blue" },
+  { icon: "💪", title: "Pratiquez régulièrement", description: "L'entraînement améliore vos performances", color: "green" },
+  { icon: "⚡", title: "Mode automatique", description: "Pour un défi chronométré plus intense", color: "purple" }
 ] as const;
 
 interface HelpSection {
@@ -86,90 +86,118 @@ interface HelpSection {
   content: string | string[];
 }
 
-const HelpHeader = memo(() => (
-  <div className="text-center mb-5">
-    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-3">
-      <span className="text-3xl" aria-hidden="true">💡</span>
+const getGradientByColor = (color: string) => {
+  const gradients = {
+    amber: "from-amber-50 to-orange-50",
+    blue: "from-blue-50 to-indigo-50",
+    green: "from-green-50 to-emerald-50",
+    purple: "from-purple-50 to-pink-50"
+  };
+  return gradients[color as keyof typeof gradients] || gradients.amber;
+};
+
+const HelpHeader = memo(function HelpHeader() {
+  return (
+    <div className="text-center mb-6">
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-4 animate-in zoom-in duration-500">
+        <span className="text-3xl" aria-hidden="true">💡</span>
+      </div>
+      <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Guide d&apos;utilisation
+      </h2>
+      <p className="text-xs text-gray-500 mt-2">Devenez un expert en DIAMBRA LEARNING</p>
     </div>
-    <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-      Guide d'utilisation
-    </h2>
-    <p className="text-xs text-gray-500 mt-1">Devenez un expert en DIAMBRA LEARNING</p>
-  </div>
-));
-
-const HelpSectionCard = memo(({ section, isPriority = false }: { section: HelpSection; isPriority?: boolean }) => {
-  const isList = section.type === "list";
-  const contentList = isList ? section.content as string[] : [];
-  const contentText = !isList ? section.content as string : '';
-
-  const listItems = useMemo(() =>
-    contentList.map((item, idx) => (
-      <li key={idx} className="flex items-start gap-2 text-xs text-gray-600">
-        <span className="w-1 h-1 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" aria-hidden="true" />
-        <span>{item}</span>
-      </li>
-    )),
-    [contentList]
   );
+});
+
+const HelpHeaderGradient = memo(function HelpHeaderGradient({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="relative h-24 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-t-2xl overflow-hidden">
+      <div className="absolute inset-0 bg-black/10" />
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 w-8 h-8 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 hover:scale-110"
+        aria-label="Fermer"
+        type="button"
+      >
+        <X className="w-4 h-4 text-white" aria-hidden="true" />
+      </button>
+      <div className="absolute bottom-3 left-4">
+        <h2 className="text-lg font-bold text-white">Centre d&apos;aide</h2>
+        <p className="text-xs text-white/90">Tout ce que vous devez savoir sur DIAMBRA</p>
+      </div>
+    </div>
+  );
+});
+
+const HelpSectionCard = memo(function HelpSectionCard({
+  section,
+  priority = false
+}: {
+  section: HelpSection;
+  priority?: boolean;
+}) {
+  const isList = section.type === "list";
+
+  const content = useMemo(() => {
+    if (isList) {
+      const items = section.content as string[];
+      return (
+        <ul className="space-y-1.5">
+          {items.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-2 text-xs text-gray-600 group">
+              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0 group-hover:scale-125 transition-transform" aria-hidden="true" />
+              <span className="group-hover:text-gray-800 transition-colors">{item}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    return (
+      <p className="text-xs text-gray-600 leading-relaxed hover:text-gray-800 transition-colors">
+        {section.content as string}
+      </p>
+    );
+  }, [isList, section.content]);
 
   return (
-    <div className={`bg-white rounded-xl p-3 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 ${!isPriority ? 'opacity-90' : ''}`}>
-      <div className="flex items-start gap-3 mb-2">
-        <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
-          <span className="text-lg" aria-hidden="true">{section.icon}</span>
+    <div className={`
+      bg-white rounded-xl p-4 shadow-sm border border-gray-100 
+      transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:border-blue-200
+      ${priority ? 'ring-1 ring-blue-200 bg-gradient-to-br from-white to-blue-50/30' : ''}
+    `}>
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+          <span className="text-xl" aria-hidden="true">{section.icon}</span>
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-gray-800 text-sm">{section.title}</h3>
+          <h3 className="font-bold text-gray-800">{section.title}</h3>
           {section.badge && (
-            <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block">
+            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block">
               {section.badge}
             </span>
           )}
         </div>
       </div>
-      <div className="pl-12">
-        {isList ? (
-          <ul className="space-y-1">
-            {listItems}
-          </ul>
-        ) : (
-          <p className="text-xs text-gray-600 leading-relaxed">{contentText}</p>
-        )}
+      <div className="pl-13">
+        {content}
       </div>
     </div>
   );
 });
 
-const HelpSectionsList = memo(({ sections, priorityIndices = [0, 1] }: { sections: readonly HelpSection[]; priorityIndices?: number[] }) => {
-  const deferredSections = useDeferredValue(sections);
-
-  const renderedSections = useMemo(() =>
-    deferredSections.map((section, index) => (
-      <HelpSectionCard
-        key={section.id}
-        section={section as HelpSection}
-        isPriority={priorityIndices.includes(index)}
-      />
-    )),
-    [deferredSections, priorityIndices]
-  );
-
-  return (
-    <div className="space-y-2 mb-4">
-      {renderedSections}
-    </div>
-  );
-});
-
-const QuickTipsCard = memo(() => {
-  const tipsList = useMemo(() =>
-    QUICK_TIPS.map((tip, idx) => (
-      <div key={idx} className="flex items-start gap-2 p-2 bg-white rounded-lg hover:bg-amber-50 transition-colors duration-150">
-        <span className="text-base flex-shrink-0" aria-hidden="true">{tip.icon}</span>
+const QuickTipsCard = memo(function QuickTipsCard() {
+  const tips = useMemo(() =>
+    QUICK_TIPS.map((tip) => (
+      <div
+        key={tip.title}
+        className={`group flex items-start gap-2 p-2 bg-gradient-to-r ${getGradientByColor(tip.color)} rounded-lg hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-default`}
+      >
+        <span className="text-xl flex-shrink-0 transition-transform group-hover:scale-110 duration-200" aria-hidden="true">{tip.icon}</span>
         <div>
-          <h4 className="font-bold text-amber-800 text-[11px]">{tip.title}</h4>
-          <p className="text-[10px] text-amber-700">{tip.description}</p>
+          <h4 className="font-bold text-gray-800 text-xs">{tip.title}</h4>
+          <p className="text-[11px] text-gray-600">{tip.description}</p>
         </div>
       </div>
     )),
@@ -177,50 +205,42 @@ const QuickTipsCard = memo(() => {
   );
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-3 border border-amber-200">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xl" aria-hidden="true">💡</span>
-        <h3 className="font-bold text-amber-800 text-sm">Conseils pratiques</h3>
+    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200 mt-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-2xl animate-bounce" aria-hidden="true">💡</span>
+        <h3 className="font-bold text-amber-800">Conseils pratiques</h3>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {tipsList}
+        {tips}
       </div>
     </div>
   );
 });
 
-const BackButton = memo(({ onClick, isPending }: { onClick: () => void; isPending?: boolean }) => (
-  <button
-    onClick={onClick}
-    disabled={isPending}
-    className={`w-full mb-3 py-2 bg-purple-50 rounded-xl text-purple-700 text-sm font-semibold flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all duration-200 hover:bg-purple-100 ${isPending ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
-    type="button"
-    aria-busy={isPending}
-  >
-    <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
-    {isPending ? 'Chargement...' : 'Reprendre le jeu'}
-  </button>
-));
-
-const HelpHeaderGradient = memo(() => (
-  <div className="relative h-20 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-t-2xl">
+const BackButton = memo(function BackButton({ onClick, isPending }: { onClick: () => void; isPending?: boolean; }) {
+  return (
     <button
-      onClick={() => window.history.back()}
-      className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-      aria-label="Fermer"
+      onClick={onClick}
+      disabled={isPending}
+      className={`
+        w-full mb-4 py-2.5 bg-gradient-to-r from-purple-50 to-purple-100 
+        rounded-xl text-purple-700 text-sm font-semibold 
+        flex items-center justify-center gap-2 
+        focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2
+        transition-all duration-200 hover:from-purple-100 hover:to-purple-200
+        hover:shadow-md active:scale-98
+        ${isPending ? 'opacity-50 cursor-not-allowed' : ''}
+      `}
       type="button"
+      aria-busy={isPending}
     >
-      ✕
+      <ArrowLeft className={`w-4 h-4 transition-transform duration-200 ${!isPending && 'group-hover:-translate-x-1'}`} aria-hidden="true" />
+      {isPending ? 'Chargement...' : 'Reprendre le jeu'}
     </button>
-    <div className="absolute bottom-2 left-4">
-      <h2 className="text-base font-bold text-white">Centre d'aide</h2>
-      <p className="text-[10px] text-white/80">Tout ce que vous devez savoir sur DIAMBRA</p>
-    </div>
-  </div>
-));
+  );
+});
 
-const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
+const HelpPanel = memo(function HelpPanel({ onClose }: { onClose: () => void }) {
   const [isPending, startTransition] = useTransition();
 
   const handleClose = useCallback(() => {
@@ -229,40 +249,62 @@ const HelpPanel = memo(({ onClose }: { onClose: () => void }) => {
     });
   }, [onClose]);
 
-  const content = useMemo(() => (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <HelpHeaderGradient />
-      <div className="p-3 overflow-y-auto ">
-        <BackButton onClick={handleClose} isPending={isPending} />
-
-        <HelpHeader />
-        <HelpSectionsList sections={HELP_SECTIONS as readonly HelpSection[]} priorityIndices={[0, 1, 2]} />
-        <QuickTipsCard />
-      </div>
-    </div>
-  ), [handleClose, isPending]);
+  const sections = useMemo(() =>
+    HELP_SECTIONS.map((section, index) => (
+      <HelpSectionCard
+        key={section.id}
+        section={section as HelpSection}
+        priority={index < 3}
+      />
+    )),
+    []
+  );
 
   return (
-    <div className="w-full max-w-md mx-auto mt-2 mb-4 animate-in slide-in-from-bottom duration-300">
-      {content}
+    <div className="w-full max-w-md mx-auto mt-2 mb-4 animate-in slide-in-from-bottom duration-500 fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <HelpHeaderGradient onClose={handleClose} />
+
+        <div className="p-4 overflow-y-auto">
+          <BackButton onClick={handleClose} isPending={isPending} />
+
+          <HelpHeader />
+
+          <div className="space-y-3">
+            {sections}
+          </div>
+
+          <QuickTipsCard />
+        </div>
+      </div>
     </div>
   );
 });
 
-const HelpPage = () => {
+const HelpPage = memo(function HelpPage() {
   const handleCloseHelp = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.history.back();
+      startTransition(() => {
+        window.history.back();
+      });
     }
   }, []);
 
   return (
-    <div className="w-full mx-auto max-w-md pb-8 mt-8  bg-gray-50">
-      <HelpPanel onClose={handleCloseHelp} />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="container mx-auto px-4 py-8 max-w-md">
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600" />
+          </div>
+        }>
+          <HelpPanel onClose={handleCloseHelp} />
+        </Suspense>
 
-      <FooterSection />
+        <FooterSection />
+      </div>
     </div>
   );
-};
+});
 
-export default memo(HelpPage);
+export default HelpPage;

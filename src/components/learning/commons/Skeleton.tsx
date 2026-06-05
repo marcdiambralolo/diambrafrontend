@@ -1,10 +1,5 @@
 'use client';
-
 import { memo, useMemo, CSSProperties, useEffect, useState } from 'react';
-
-// ============================================================================
-// TYPES OPTIMISÉS
-// ============================================================================
 
 interface SkeletonProps {
   height?: string | number;
@@ -17,10 +12,6 @@ interface SkeletonProps {
   gap?: string;
   inline?: boolean;
 }
-
-// ============================================================================
-// CONSTANTES OPTIMISÉES (mise en cache)
-// ============================================================================
 
 const ROUNDED_MAP = {
   none: 'rounded-none',
@@ -39,10 +30,6 @@ const VARIANT_STYLES = {
   text: 'bg-gray-100 dark:bg-gray-800 h-4',
   button: 'bg-gray-200 dark:bg-gray-700 rounded-lg'
 } as const;
-
-// ============================================================================
-// SQUELETTE DE BASE OPTIMISÉ
-// ============================================================================
 
 const BaseSkeleton = memo(({
   height,
@@ -92,10 +79,6 @@ const BaseSkeleton = memo(({
 });
 
 BaseSkeleton.displayName = 'BaseSkeleton';
-
-// ============================================================================
-// VARIANTES DE SQUELETTES SPÉCIALISÉES
-// ============================================================================
 
 export const TextSkeleton = memo(({ lines = 1, lastLineWidth = 'w-3/4', gap = 'gap-2' }: {
   lines?: number;
@@ -239,10 +222,6 @@ export const TableSkeleton = memo(({
 
 TableSkeleton.displayName = 'TableSkeleton';
 
-// ============================================================================
-// COMPOSANT PRINCIPAL OPTIMISÉ
-// ============================================================================
-
 export const Skeleton = memo(({
   height = 'h-4',
   width,
@@ -296,10 +275,6 @@ export const Skeleton = memo(({
 
 Skeleton.displayName = 'Skeleton';
 
-// ============================================================================
-// COMPOSANTS DE HAUTE PERFORMANCE POUR CAS SPÉCIFIQUES
-// ============================================================================
-
 export const LazySkeleton = memo(({
   height = 'h-4',
   width,
@@ -327,8 +302,6 @@ export const LazySkeleton = memo(({
   );
 });
 
-LazySkeleton.displayName = 'LazySkeleton';
-
 export const withSkeleton = <P extends object>(
   Component: React.ComponentType<P>,
   skeletonProps: SkeletonProps = {}
@@ -345,6 +318,7 @@ export const withSkeleton = <P extends object>(
 };
 
 export const useSkeletonDelay = (delay: number = 300) => {
+
   const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
 import { api } from "@/lib/api/client";
 import { CompetitionInfo, Consultation, MatchInfo } from "@/lib/interfaces";
-import { MESSAGE_DURATION } from "@/lib/learning/constantes";
+import { INITIAL_VISIBLE_COUNT, LOAD_MORE_INCREMENT, MESSAGE_DURATION } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCompetitionLauncher } from "../game/useCompetitionLauncher";
 
 interface ValidationMessage {
@@ -328,8 +328,27 @@ export const useEndGameGenerator = () => {
     }, [showValidateMessage]);
     const hasCompetitions = competitions.length > 0;
 
+    
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+
+  const handleLoadMore = useCallback(() => {
+    startTransition(() => {
+      setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
+    });
+  }, [competitions.length]);
+
+  const competitionList = useMemo(() => {
+    if (!hasCompetitions) return null;
+    return competitions.slice(0, visibleCount);
+  }, [competitions, visibleCount, hasCompetitions]);
+
+  const hasMore = visibleCount < competitions.length;
+  const remainingCount = competitions.length - visibleCount;
+
     return {
         handleValidateCompetition, handleRestart, handleSubmitGame, clearValidateMessage,
         isValidating, isSubmitting, competitions, validateMessage, submitMessage, hasCompetitions,
+        competitionList, hasMore, remainingCount, handleLoadMore,
+        
     };
 };

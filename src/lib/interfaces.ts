@@ -425,5 +425,6 @@ export interface CompetitionInfo {
     id: string;
     datedebut: string;
     datefin: string;
+    idConfig: string;
     matchInfo: MatchInfo[];
 }

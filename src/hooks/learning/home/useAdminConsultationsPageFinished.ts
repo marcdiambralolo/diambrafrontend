@@ -18,10 +18,7 @@ export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const {
-     setGameConfig, clearAllCompetitions,
-    gameConfig: storedGameConfig,setAfficheBanana,
-  } = useMonEtoileStore();
+  const { setGameConfig, clearAllCompetitions, setAfficheBanana, } = useMonEtoileStore();
 
   const isMountedRef = useRef(true);
   const endGameCalledRef = useRef(false);
@@ -54,14 +51,14 @@ export function useAdminConsultationsPageFinished() {
   });
 
   const gameConfig = queryGameConfig || null;
-  const isConfigLoading = isGameConfigLoading && !storedGameConfig;
+  const isConfigLoading = isGameConfigLoading;
 
   useEffect(() => {
-    if (!isInitializedRef.current && !storedGameConfig && !isGameConfigLoading) {
+    if (!isInitializedRef.current && !isGameConfigLoading) {
       isInitializedRef.current = true;
       refetchGameConfig();
     }
-  }, [storedGameConfig, isGameConfigLoading, refetchGameConfig]);
+  }, [isGameConfigLoading, refetchGameConfig]);
 
   useEffect(() => {
     const intervalId = setInterval(() => setCurrentTime(new Date()), TIME_UPDATE_INTERVAL);
@@ -108,8 +105,6 @@ export function useAdminConsultationsPageFinished() {
     return isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
   }, [gameConfig, isConfigLoading, isGameEnded, isGameActive, isGameNotStarted, lastEndedGame]);
 
-  const hasNotStartedEdition = showNotStarted && startDate !== null;
-
   const demarrerJeu = useCallback(() => {
     router.push('/star/learning/choix');
   }, [router]);
@@ -148,6 +143,7 @@ export function useAdminConsultationsPageFinished() {
         setMatchFinished(true);
         await queryClient.invalidateQueries({ queryKey: ['game', 'config'] });
         const newConfig = await refetchGameConfig();
+        
         if (newConfig.data) {
           setGameConfig(newConfig.data);
         }
@@ -169,8 +165,7 @@ export function useAdminConsultationsPageFinished() {
   const handleOpenGame = useCallback(() => {
     clearAllCompetitions();
     setAfficheBanana(true);
- 
-  }, [clearAllCompetitions, ]);
+  }, [clearAllCompetitions,]);
 
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&
@@ -197,14 +192,6 @@ export function useAdminConsultationsPageFinished() {
     };
   }, [refreshLastEndedGame]);
 
-  // useEffect(() => {
-  //   if (showActive && !gameStarted && !hasNotStartedEdition) {
-  //     setGameStarted(true);
-  //   }
-  // }, [showActive, gameStarted, hasNotStartedEdition, setGameStarted]);
-
-  const isLoading = isConfigLoading || loading;
-
   const viewState = useMemo((): ViewState => {
     if (!gameConfig) {
       return { isEnded: true, isActive: false, isNotStarted: false };
@@ -218,6 +205,7 @@ export function useAdminConsultationsPageFinished() {
   }, [gameConfig, showEnded, showActive, showNotStarted]);
 
   return {
-    demarrerJeu, handleOpenGame, loading: isLoading, startDate, gameConfig, viewState, lastEndedGame, endDate,
+    demarrerJeu, handleOpenGame, startDate, gameConfig, viewState,
+     lastEndedGame, endDate,loading, error,
   };
 }

@@ -25,6 +25,9 @@ interface ActiveBannerProps {
   formatDate: (date: Date) => string;
 }
 
+interface AfficheBannerProps {
+  affichebanner?: boolean;
+}
 
 interface TimeUnitProps {
   unit: string;
@@ -170,7 +173,7 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
   );
 });
 
-const LaBanniere = memo(() => {
+const LaBanniere = memo(({ affichebanner }: AfficheBannerProps) => {
   const { handleEndMatch, stats, startDate, endDate, } = useAdminConsultationsPageFinished();
 
   if (!endDate || !startDate) {
@@ -179,13 +182,13 @@ const LaBanniere = memo(() => {
 
   return (
     <div className="w-full max-w-md mx-auto mt-4">
-      <ActiveBanner
+      {affichebanner && (<ActiveBanner
         endDate={endDate}
         handleEndMatch={handleEndMatch}
         startDate={startDate}
         formatDate={formatDateFRJeu}
-      />
-
+      />)}
+      
       <StatCard
         value={stats?.subscribers ?? null}
         label="Inscrits"

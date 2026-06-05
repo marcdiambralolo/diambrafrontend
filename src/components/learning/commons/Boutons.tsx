@@ -42,9 +42,9 @@ const sizeStyles = {
     lg: 'px-8 py-4 text-lg',
 };
 
-export const GlowButton = memo(({ 
-    children, 
-    onClick, 
+export const GlowButton = memo(({
+    children,
+    onClick,
     disabled = false,
     variant = 'success',
     size = 'md'
@@ -78,16 +78,13 @@ export const GlowButton = memo(({
             `}
             type="button"
         >
-            {/* Effet de lueur externe */}
             <div className="absolute inset-0 -z-10 bg-gradient-to-r from-transparent via-current to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-            
-            {/* Effet de particules */}
+
             <span className="absolute inset-0 overflow-hidden rounded-xl">
                 <span className="absolute -top-10 -left-10 w-20 h-20 bg-white/30 rounded-full blur-xl group-hover:scale-300 transition-transform duration-700" />
                 <span className="absolute -bottom-10 -right-10 w-20 h-20 bg-white/30 rounded-full blur-xl group-hover:scale-300 transition-transform duration-700 delay-100" />
             </span>
 
-            {/* Contenu avec animation de texte */}
             <span className="relative flex items-center justify-center gap-2 group-hover:gap-3 transition-all duration-300">
                 <span className="absolute left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:left-4 transition-all duration-300">
                     ✨
@@ -105,7 +102,6 @@ export const GlowButton = memo(({
 
 GlowButton.displayName = 'GlowButton';
 
-// Version simplifiée avec effet 3D et néon
 export const NeonButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
     <button
         onClick={onClick}
@@ -125,30 +121,24 @@ export const NeonButton = memo(({ children, onClick }: { children: React.ReactNo
     </button>
 ));
 
-// Version avec effet carte de crédit
 export const CardButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
     <button
         onClick={onClick}
         className="relative w-full px-6 py-3 text-white font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group"
         type="button"
     >
-        {/* Effet de fond animé */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 animate-gradient-xy" />
-        
-        {/* Effet de brillance */}
+
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-        
-        {/* Effet de bordure lumineuse */}
+
         <div className="absolute inset-0 rounded-xl border-2 border-white/20 group-hover:border-white/40 transition-colors duration-300" />
-        
-        {/* Contenu */}
+
         <span className="relative flex items-center justify-center gap-2">
             {children}
         </span>
     </button>
 ));
 
-// Version avec effet de vague
 export const WaveButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
     <button
         onClick={onClick}
@@ -159,7 +149,6 @@ export const WaveButton = memo(({ children, onClick }: { children: React.ReactNo
             backgroundSize: '200% auto',
         }}
     >
-        {/* Vague animée */}
         <span className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity">
             <svg className="absolute bottom-0 w-full h-12 animate-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,64L80,69C160,75,240,85,320,80C400,75,480,53,560,48C640,43,720,53,800,64C880,75,960,85,1040,80C1120,75,1200,53,1200,53L1200,120L0,120Z" fill="rgba(255,255,255,0.15)" />
@@ -168,21 +157,20 @@ export const WaveButton = memo(({ children, onClick }: { children: React.ReactNo
                 <path d="M0,96L80,90C160,85,240,75,320,80C400,85,480,107,560,112C640,117,720,107,800,96C880,85,960,75,1040,80C1120,85,1200,107,1200,107L1200,120L0,120Z" fill="rgba(255,255,255,0.1)" />
             </svg>
         </span>
-        
+
         <span className="relative flex items-center justify-center gap-2 group-hover:gap-3 transition-all duration-300">
             {children}
         </span>
     </button>
 ));
 
-// Version avec effet de particules
 export const ParticleButton = memo(({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => {
     const createParticles = (e: React.MouseEvent<HTMLButtonElement>) => {
         const button = e.currentTarget;
         const rect = button.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
+
         for (let i = 0; i < 12; i++) {
             const particle = document.createElement('span');
             particle.className = 'absolute w-1 h-1 bg-white rounded-full pointer-events-none';
@@ -192,13 +180,13 @@ export const ParticleButton = memo(({ children, onClick }: { children: React.Rea
             particle.style.setProperty('--dx', `${(Math.random() - 0.5) * 100}px`);
             particle.style.setProperty('--dy', `${(Math.random() - 0.5) * 100 - 50}px`);
             button.appendChild(particle);
-            
+
             setTimeout(() => particle.remove(), 600);
         }
-        
+
         onClick();
     };
-    
+
     return (
         <button
             onClick={createParticles}
@@ -213,7 +201,6 @@ export const ParticleButton = memo(({ children, onClick }: { children: React.Rea
     );
 });
 
-// Styles CSS à ajouter dans votre fichier global.css
 const styles = `
 @keyframes particle-fly {
     0% {

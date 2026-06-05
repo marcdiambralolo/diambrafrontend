@@ -56,10 +56,10 @@ export const HeaderSection = memo(() => (
 ));
 
 export const HelpButton = memo(() => {
-     const router = useRouter();    
+    const router = useRouter();
 
     const handleClick = useCallback(() => {
-         router.push('/star/learning/help');       
+        router.push('/star/learning/help');
     }, [router]);
 
     return (
@@ -304,7 +304,7 @@ export const HistoryButton = memo(() => (
 ));
 
 export const NotStartedBanner = memo(({ startDate, handleOpenGame }: NotStartedBannerProps) => (
-    <div className="rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-5 mb-6 shadow-xl">
+    <div className="w-full rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-5 mb-6 shadow-xl">
         <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-3">
                 <div className="rounded-full bg-white/20 p-2">
@@ -364,11 +364,13 @@ export const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps
     return (
         <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-4 shadow-xl">
             <div className="grid grid-cols-2 gap-4 mb-4">
+
                 <div className="bg-white/15 rounded-2xl p-3 text-center">
                     <div className="text-3xl" aria-hidden="true">🎮</div>
                     <div className="text-[10px] text-white/70">N° Match</div>
                     <div className="text-sm font-bold text-white">{gameConfig?.numeromatch || 'N/A'}</div>
                 </div>
+
                 <div className="bg-white/15 rounded-2xl p-3 text-center">
                     <div className="text-3xl" aria-hidden="true">📊</div>
                     <div className="text-[10px] text-white/70">Niveau</div>
@@ -376,7 +378,7 @@ export const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps
                 </div>
             </div>
 
-            <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton> 
+            <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton>
         </div>
     );
 }); 

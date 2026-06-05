@@ -1,12 +1,10 @@
 'use client';
 import Loader from "@/app/loading";
-import { useAdminConsultationsPageFinished } from "@/hooks/learning/lacompetition/useAdminConsultationsPageFinished";
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from "lucide-react";
-import dynamic from 'next/dynamic';
-import { memo, Suspense, useCallback, useDeferredValue, useEffect, useTransition } from 'react';
+import { memo, Suspense } from 'react';
 import { FooterSection, HeaderSection, HelpButton } from '../commons/Features';
-import { CardSkeleton } from "../commons/Skeleton";
+import LaBanniere from "../labanniere/LaBanniere";
 
 const STATUS_BANNER_CONFIG = {
   sufficient: {
@@ -26,22 +24,6 @@ const STATUS_BANNER_CONFIG = {
     textColor: "text-red-700 dark:text-red-400/80"
   }
 } as const;
-
-const StatusBannerSkeleton = memo(() => (
-  <div className="relative overflow-hidden mb-4 p-3 rounded-2xl bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
-    <div className="flex items-start gap-3">
-      <div className="rounded-full bg-gray-300 dark:bg-gray-600 p-1.5 w-7 h-7 animate-pulse" />
-      <div className="flex-1 space-y-2">
-        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-32 animate-pulse" />
-        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-48 animate-pulse" />
-      </div>
-    </div>
-  </div>
-));
-
-const ButtonSkeleton = memo(() => (
-  <div className="w-full h-12 mt-4 rounded-xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
-));
 
 interface StatusBannerProps {
   isSufficient: boolean;
@@ -191,112 +173,59 @@ const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
   </button>
 ));
 
-const FixedContent = memo(() => (
-  <div className="fixed-bottom-content w-full space-y-4">
-    <Suspense fallback={<CardSkeleton />}>
-      <LaBanniere />
-    </Suspense>
-    <FooterSection />
-    <HelpButton />
-  </div>
-));
-
-const LaBanniere = dynamic(
-  () => import('@/components/learning/labanniere/LaBanniere').then(mod => ({ default: mod.default })),
-  {
-    loading: () => <CardSkeleton />,
-    ssr: false,
-  }
-);
-
-function LaMise() {
+const ProfilPageLearning = () => {
   const {
-    handleGoToMarket, handleNext,
-    availableQuantity, cardClasses, isSufficient, requiredQuantity, loading
+    handlePlayClick, handleMarketClick, isPendingMarket, requiredQuantity, loading,
+    availableQuantity, cardClasses, isSufficient, deferredIsSufficient, isPendingPlay,
   } = useLaMise();
 
-  const [isPendingPlay, startPlayTransition] = useTransition();
-  const [isPendingMarket, startMarketTransition] = useTransition();
-
-  const deferredIsSufficient = useDeferredValue(isSufficient);
-
-  const handlePlayClick = useCallback(() => {
-    if (!isSufficient) return;
-    startPlayTransition(() => {
-      handleNext();
-    });
-  }, [isSufficient, handleNext]);
-
-  const handleMarketClick = useCallback(() => {
-    startMarketTransition(() => {
-      handleGoToMarket();
-    });
-  }, [handleGoToMarket]); 
-
-  if (loading) {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <StatusBannerSkeleton />
-        <ButtonSkeleton />
-        <ButtonSkeleton />
-      </div>
-    );
-  }
-
-  return (
-    <Suspense fallback={
-      <div className="w-full max-w-md mx-auto">
-        <StatusBannerSkeleton />
-        <ButtonSkeleton />
-        <ButtonSkeleton />
-      </div>
-    }>
-      <div className="w-full max-w-md mx-auto flex flex-col items-center">
-        <StatusBanner
-          isSufficient={deferredIsSufficient}
-          requiredQuantity={requiredQuantity}
-          availableQuantity={availableQuantity}
-        />
-
-        <TokenCard
-          isSufficient={isSufficient}
-          requiredQuantity={requiredQuantity}
-          availableQuantity={availableQuantity}
-          cardClasses={cardClasses}
-          onClick={handlePlayClick}
-        />
-        <PlayButton
-          isSufficient={isSufficient}
-          onClick={handlePlayClick}
-          isPending={isPendingPlay}
-        />
-
-        {!isSufficient && (
-          <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2 animate-in fade-in duration-300">
-            Vous ne disposez pas d'assez de jetons.
-          </p>
-        )}
-
-        <MarketButton
-          onClick={handleMarketClick}
-          isPending={isPendingMarket}
-        />
-      </div>
-    </Suspense>
-  );
-}
-
-const ProfilPageLearning = () => {
-  const { loading } = useAdminConsultationsPageFinished();
-
-  if (loading) { return <Loader />; }
+  if (loading) { return (<Loader />); }
 
   return (
     <div className="w-full mx-auto max-w-md pb-20 min-h-screen">
       <div className="flex flex-col items-center justify-center mb-8 space-y-4">
         <HeaderSection />
-        <LaMise />
-        <FixedContent />
+
+        <Suspense fallback={<Loader />}>
+          <div className="w-full max-w-md mx-auto flex flex-col items-center">
+            <StatusBanner
+              isSufficient={deferredIsSufficient}
+              requiredQuantity={requiredQuantity}
+              availableQuantity={availableQuantity}
+            />
+
+            <TokenCard
+              isSufficient={isSufficient}
+              requiredQuantity={requiredQuantity}
+              availableQuantity={availableQuantity}
+              cardClasses={cardClasses}
+              onClick={handlePlayClick}
+            />
+
+            <PlayButton
+              isSufficient={isSufficient}
+              onClick={handlePlayClick}
+              isPending={isPendingPlay}
+            />
+
+            {!isSufficient && (
+              <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2 animate-in fade-in duration-300">
+                Vous ne disposez pas d'assez de jetons.
+              </p>
+            )}
+
+            <MarketButton
+              onClick={handleMarketClick}
+              isPending={isPendingMarket}
+            />
+          </div>
+        </Suspense>
+
+        <div className="fixed-bottom-content w-full space-y-4">
+          <LaBanniere />
+          <FooterSection />
+          <HelpButton />
+        </div>
       </div>
     </div>
   );

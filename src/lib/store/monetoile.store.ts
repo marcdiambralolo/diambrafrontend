@@ -8,6 +8,7 @@ interface StoredCompetition {
     id: string;
     datedebut: string;
     datefin: string;
+    idConfig: string;
     matchInfo: Array<{
         id?: string;
         tpsglobal?: number;
@@ -24,6 +25,9 @@ interface MonEtoileStore {
     setCurrentConsultationId: (id: string | null) => void;
     gameConfig: LearningConfiguration | null;
     setGameConfig: (config: LearningConfiguration | null) => void;
+
+    afficheBanana: boolean;
+    setAfficheBanana: (value: boolean) => void;
 
     currentMatchInfo: MatchInfo[];
     setCurrentMatchInfo: (matches: MatchInfo[]) => void;
@@ -48,6 +52,7 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
         id: competition.id,
         datedebut: competition.datedebut,
         datefin: competition.datefin,
+        idConfig: competition.idConfig,
         matchInfo: competition.matchInfo.map(match => ({
             id: match.id,
             tpsglobal: match.tpsglobal,
@@ -65,6 +70,7 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
         id: stored.id,
         datedebut: stored.datedebut,
         datefin: stored.datefin,
+        idConfig: stored.idConfig,
         matchInfo: stored.matchInfo.map(match => ({
             id: match.id,
             tpsglobal: match.tpsglobal,
@@ -104,6 +110,7 @@ const INITIAL_STATE = {
     jeuenattente: true,
     lejeu: false,
     lamise: false,
+    afficheBanana: false,
 };
  
 const sortByDateDesc = (a: CompetitionInfo, b: CompetitionInfo): number => {
@@ -193,6 +200,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                     return { competitions: allCompetitions };
                 });
             },         
+            setAfficheBanana: (value: boolean) => set({ afficheBanana: value }),
             resetAll: () => set({
                 ...INITIAL_STATE,
                 competitions: [],
@@ -208,6 +216,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                     currentConsultationId: state.currentConsultationId,
                     gameConfig: state.gameConfig,
                     competitions: compressedCompetitions,
+                    afficheBanana: state.afficheBanana,
                     // ⚠️ Ne pas persister currentMatchInfo (trop volumineux)
                 };
             },

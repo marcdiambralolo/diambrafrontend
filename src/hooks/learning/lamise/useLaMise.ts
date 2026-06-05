@@ -6,7 +6,7 @@ import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
 import { Consultation } from '@/lib/interfaces';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -46,7 +46,7 @@ const initialState: WalletState = {
 
 export function useLaMise() {
     const router = useRouter();
-    const { gameConfig,  setCurrentConsultationId } = useMonEtoileStore();
+    const { gameConfig, setCurrentConsultationId } = useMonEtoileStore();
 
     const isMountedRef = useRef(true);
     const isSubmittingRef = useRef(false);
@@ -77,7 +77,7 @@ export function useLaMise() {
 
         try {
             const consultationId = await createCategoryConsultation(monidjeu || '');
-            if (!consultationId) throw new Error('Impossible de créer la consultation');
+            if (!consultationId) throw new Error('Impossible de créer la competition');
 
             setCurrentConsultationId(consultationId);
 
@@ -111,7 +111,7 @@ export function useLaMise() {
                 setWalletState(prev => ({ ...prev, loading: false }));
             }
         }
-    }, [monidjeu,  setCurrentConsultationId]);
+    }, [monidjeu, setCurrentConsultationId]);
 
     const handleNext = useCallback(() => {
 
@@ -153,8 +153,30 @@ export function useLaMise() {
         };
     }, []);
 
+    
+
+  const [isPendingPlay, startPlayTransition] = useTransition();
+  const [isPendingMarket, startMarketTransition] = useTransition();
+
+  const deferredIsSufficient = useDeferredValue(isSufficient);
+
+  const handlePlayClick = useCallback(() => {
+    if (!isSufficient) return;
+    startPlayTransition(() => {
+      handleNext();
+    });
+  }, [isSufficient, handleNext]);
+
+  const handleMarketClick = useCallback(() => {
+    startMarketTransition(() => {
+      handleGoToMarket();
+    });
+  }, [handleGoToMarket]);
+
     return {
         requiredQuantity: POT_CONFIG.quantity, loading: walletState.loading,
         handleGoToMarket, handleNext, availableQuantity, cardClasses, isSufficient,
+        handlePlayClick, handleMarketClick, isPendingPlay, isPendingMarket,
+        deferredIsSufficient,
     };
 }

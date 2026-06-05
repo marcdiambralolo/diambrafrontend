@@ -1,49 +1,14 @@
-'use client';
-
+ 
 import { Case, CompetitionInfo, MatchInfo } from '@/lib/interfaces';
 import { choix, decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-// ============================================================================
-// CONSTANTES
-// ============================================================================
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ 
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
-const DEFAULT_MATCH_ID = "123456789";
-const DEFAULT_NIVEAU = 2;
-const IMAGE_PATH = "/ephotoquatorze.jpg";
 const TRANSITION_DELAY = 100;
-const BATCH_SIZE = 2;
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
-
-// Types
-interface GameState {
-    tpsglobal: number;
-    casesdujeuencours: Case[];
-    casesinitiales: Case[];
-    pieces: string[];
-    selectedCase: Case | null;
-    datedebut: string;
-    start: boolean;
-    showPun: boolean;
-    matchEnCours: number;
-    infomatch: MatchInfo[];
-    isTransitioning: boolean;
-    isLoading: boolean;
-    matchestermine: boolean;
-    isGameInitializing: boolean;
-    error: Error | null;
-    lancementStarted: boolean;
-    allMatchesFinished: boolean;
-    matchLoading: boolean;
-}
-
-// ============================================================================
-// HOOK PERSONNALISÉ POUR LE TIMER
-// ============================================================================
 
 const useTimer = (start: boolean) => {
     const [timeElapsed, setTimeElapsed] = useState(0);
@@ -64,192 +29,87 @@ const useTimer = (start: boolean) => {
     return timeElapsed;
 };
 
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-const withRetry = async <T,>(
-    fn: () => Promise<T>,
-    retries: number = MAX_RETRIES,
-    delayMs: number = RETRY_DELAY
-): Promise<T> => {
-    try {
-        return await fn();
-    } catch (error) {
-        if (retries === 0) throw error;
-        await delay(delayMs);
-        return withRetry(fn, retries - 1, delayMs);
-    }
-};
-
-// ============================================================================
-// HOOK PRINCIPAL OPTIMISÉ
-// ============================================================================
-
 export const useGameGenerator = () => {
-    const { gameConfig, setCurrentMatchInfo, addCompetition } = useMonEtoileStore();
+     const { gameConfig, setCurrentMatchInfo, addCompetition } = useMonEtoileStore();
+ 
 
-    const numeromatch = gameConfig?.numeromatch ?? DEFAULT_MATCH_ID;
-    const niveau = gameConfig?.niveau ?? DEFAULT_NIVEAU;
+    const router = useRouter();
 
-    // État unique regroupé
-    const [state, setState] = useState<GameState>({
+    const [state, setState] = useState({
         tpsglobal: 0,
-        casesdujeuencours: [],
-        casesinitiales: [],
-        pieces: [],
-        selectedCase: null,
+        casesdujeuencours: [] as Case[],
+        casesinitiales: [] as Case[],
+        pieces: [] as string[],
+        selectedCase: null as Case | null,
         datedebut: "",
         start: false,
         showPun: false,
-        matchEnCours: 0,
-        infomatch: [],
+        matchEnCours: -1,
+        infomatch: [] as MatchInfo[],
+        isGameover: false,
         isTransitioning: false,
-        isLoading: true,
-        matchestermine: false,
-        isGameInitializing: false,
-        error: null,
-        lancementStarted: false,
-        allMatchesFinished: false,
-        matchLoading: false,
     });
 
+    const lancementRef = useRef(false);
+    const isLoadingMatch = useRef(false);
     const timeElapsed = useTimer(state.start);
 
-    // ============================================================================
-    // FONCTIONS DE MISE À JOUR
-    // ============================================================================
-
-    const updateState = useCallback((updates: Partial<GameState>) => {
+    const updateState = useCallback((updates: Partial<typeof state>) => {
         setState(prev => ({ ...prev, ...updates }));
     }, []);
 
-    const updateMatchInfo = useCallback((index: number, updates: Partial<MatchInfo>) => {
-        setState(prev => ({
-            ...prev,
-            infomatch: prev.infomatch.map((m, idx) =>
-                idx === index ? { ...m, ...updates } : m
-            ),
-        }));
-    }, []);
-
-    // ============================================================================
-    // LOGIQUE MÉTIER
-    // ============================================================================
-
-    const generateMatchList = useCallback((): MatchInfo[] => {
-        return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, numeromatch));
-    }, [numeromatch]);
-
-    const loadMatch = useCallback(async (
-        match: MatchInfo,
-        currentNiveau: number,
-        piecesImages: string[]
-    ): Promise<MatchInfo> => {
-        const totalCases = getTotalCases(match.tpsglobal!, currentNiveau);
-        const gridSize = currentNiveau * currentNiveau;
-        const seed = parseInt(match.numeromatch!) + 7;
-
-        let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
-
-        if (match.tpsglobal !== 2) {
-            availableCases = shuffleArray(availableCases, seed);
-        }
-
-        const selectedCases = availableCases.slice(0, gridSize);
-        const shuffledCases = shuffleArray([...selectedCases], seed);
-
-        match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
-        match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
-        match.pieces = piecesImages;
-
-        return match;
-    }, []);
-
-    const initializeMatches = useCallback(async (
-        matchList: MatchInfo[],
-        currentNiveau: number,
-        piecesImages: string[]
-    ): Promise<MatchInfo[]> => {
-        const results: MatchInfo[] = [];
-
-        for (let i = 0; i < matchList.length; i += BATCH_SIZE) {
-            const batch = matchList.slice(i, i + BATCH_SIZE);
-            const batchResults = await Promise.all(
-                batch.map(match => loadMatch(match, currentNiveau, piecesImages))
-            );
-            results.push(...batchResults);
-        }
-
-        return results;
-    }, [loadMatch]);
-
-    const chargerMatch = useCallback((matchData: MatchInfo) => {
-        if (!matchData) return;
-        updateState({
-            tpsglobal: matchData.tpsglobal ?? 0,
-            casesdujeuencours: matchData.listeCaseOpLab ?? [],
-            casesinitiales: matchData.listeCaseOpLabInitiale ?? [],
-            pieces: matchData.pieces ?? [],
-            selectedCase: null,
-            showPun: false,
-        });
-    }, [updateState]);
+    const allMatchesFinished = useMemo(() =>
+        state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true),
+        [state.infomatch]);
 
     const swapCases = useCallback((c1: Case, c2: Case) => {
-        setState(prev => {
-            const { casesdujeuencours, casesinitiales } = prev;
-            if (!c1 || !c2 || casesinitiales.length === 0) return prev;
+        const { casesdujeuencours, casesinitiales } = state;
+        if (!c1 || !c2 || casesinitiales.length === 0) return;
 
-            const index1 = casesdujeuencours.findIndex(c => c.id === c1.id);
-            const index2 = casesdujeuencours.findIndex(c => c.id === c2.id);
-            if (index1 === -1 || index2 === -1 || index1 >= casesinitiales.length || index2 >= casesinitiales.length) return prev;
+        const index1 = casesdujeuencours.findIndex(c => c.id === c1.id);
+        const index2 = casesdujeuencours.findIndex(c => c.id === c2.id);
+        if (index1 === -1 || index2 === -1 || index1 >= casesinitiales.length || index2 >= casesinitiales.length) return;
 
-            const newCases = [...casesdujeuencours];
-            newCases[index1] = { ...newCases[index1], txt: c2.txt, isLocked: false, isSelected: false };
-            newCases[index2] = { ...newCases[index2], txt: c1.txt, isLocked: casesinitiales[index2]?.txt === c1.txt, isSelected: false };
-
-            return { ...prev, casesdujeuencours: newCases };
-        });
-    }, []);
+        setState(prev => ({
+            ...prev,
+            casesdujeuencours: prev.casesdujeuencours.map((c, idx) => {
+                if (idx === index1) {
+                    const newTxt = c2.txt;
+                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
+                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
+                }
+                if (idx === index2) {
+                    const newTxt = c1.txt;
+                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
+                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
+                }
+                return c;
+            }),
+        }));
+    }, [state]);
 
     const selectCase = useCallback((c: Case | null) => {
-        setState(prev => {
-            if (!c || c.isLocked) return { ...prev, selectedCase: null };
-            if (!prev.selectedCase) return { ...prev, selectedCase: c };
-            
-            // Swap cases
-            const index1 = prev.casesdujeuencours.findIndex(case_ => case_.id === prev.selectedCase?.id);
-            const index2 = prev.casesdujeuencours.findIndex(case_ => case_.id === c.id);
-            
-            if (index1 === -1 || index2 === -1) return { ...prev, selectedCase: null };
-            
-            const newCases = [...prev.casesdujeuencours];
-            newCases[index1] = { ...newCases[index1], txt: c.txt, isLocked: false, isSelected: false };
-            newCases[index2] = { ...newCases[index2], txt: prev.selectedCase.txt, isLocked: prev.casesinitiales[index2]?.txt === prev.selectedCase.txt, isSelected: false };
-            
-            return { ...prev, casesdujeuencours: newCases, selectedCase: null };
-        });
-    }, []);
+        if (!c || c.isLocked) return updateState({ selectedCase: null });
+        if (!state.selectedCase) return updateState({ selectedCase: c });
+        swapCases(state.selectedCase, c);
+        updateState({ selectedCase: null });
+    }, [state.selectedCase, swapCases, updateState]);
 
     const lockSelectedCase = useCallback(() => {
-        setState(prev => {
-            const { selectedCase, casesdujeuencours, casesinitiales } = prev;
-            if (!selectedCase || casesinitiales.length === 0) return { ...prev, selectedCase: null };
+        const { selectedCase, casesdujeuencours, casesinitiales } = state;
+        if (!selectedCase || casesinitiales.length === 0) return updateState({ selectedCase: null });
 
-            const index = casesdujeuencours.findIndex(c => c.id === selectedCase.id);
-            if (index === -1 || index >= casesinitiales.length) return { ...prev, selectedCase: null };
-            if (selectedCase.txt !== casesinitiales[index]?.txt) return { ...prev, selectedCase: null };
+        const index = casesdujeuencours.findIndex(c => c.id === selectedCase.id);
+        if (index === -1 || index >= casesinitiales.length) return updateState({ selectedCase: null });
+        if (selectedCase.txt !== casesinitiales[index]?.txt) return updateState({ selectedCase: null });
 
-            const newCases = casesdujeuencours.map(c =>
+        updateState({
+            casesdujeuencours: casesdujeuencours.map(c =>
                 c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c
-            );
-
-            return { ...prev, casesdujeuencours: newCases, selectedCase: null };
+            ),
+            selectedCase: null,
         });
-    }, []);
+    }, [state, updateState]);
 
     const shuffleUnlockedCases = useCallback(() => {
         setState(prev => {
@@ -275,176 +135,145 @@ export const useGameGenerator = () => {
         if (!state.showPun) shuffleUnlockedCases();
     }, [state.showPun, shuffleUnlockedCases]);
 
-    // ============================================================================
-    // INITIALISATION DU JEU
-    // ============================================================================
-
-    const initializeGame = useCallback(async () => {
-        setState(prev => {
-            if (prev.isGameInitializing || prev.lancementStarted) return prev;
-            return { ...prev, isGameInitializing: true, error: null, lancementStarted: true };
+    const chargerMatch = useCallback((matchData: MatchInfo) => {
+        if (!matchData) return;
+        updateState({
+            tpsglobal: matchData.tpsglobal ?? 0,
+            casesdujeuencours: matchData.listeCaseOpLab ?? [],
+            casesinitiales: matchData.listeCaseOpLabInitiale ?? [],
+            pieces: matchData.pieces ?? [],
+            selectedCase: null,
+            showPun: false,
         });
+    }, [updateState]);
 
-        try {
-            const matchList = generateMatchList();
-            const piecesImages = await withRetry(() => decoupelimage(IMAGE_PATH, niveau));
+    const generateMatchList = useCallback((): MatchInfo[] => {
+        const matchId = gameConfig?.numeromatch || "123456789";
+        return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
+    }, [gameConfig?.numeromatch]);
 
-            const updatedMatches = await initializeMatches(matchList, niveau, piecesImages);
+    const loadMatch = useCallback(async (match: MatchInfo, niveau: number, piecesImages: string[]): Promise<MatchInfo> => {
+        const totalCases = getTotalCases(match.tpsglobal!, niveau);
+        const gridSize = niveau * niveau;
+        const seed = parseInt(match.numeromatch!) + 7;
 
-            setCurrentMatchInfo(updatedMatches);
-            
-            setState(prev => ({
-                ...prev,
-                infomatch: updatedMatches,
-                datedebut: new Date().toISOString(),
-                matchEnCours: 0,
-                isLoading: false,
-                isGameInitializing: false,
-            }));
+        let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
 
-            if (updatedMatches[0]) chargerMatch(updatedMatches[0]);
-
-        } catch (err) {
-            console.error("Erreur lors de l'initialisation du jeu:", err);
-            setState(prev => ({
-                ...prev,
-                error: err instanceof Error ? err : new Error('Erreur inconnue'),
-                isGameInitializing: false,
-                isLoading: false,
-                infomatch: [],
-            }));
+        if (match.tpsglobal !== 2) {
+            availableCases = shuffleArray(availableCases, seed);
         }
-    }, [generateMatchList, niveau, initializeMatches, setCurrentMatchInfo, chargerMatch]);
 
-    // ============================================================================
-    // GESTION DES TRANSITIONS DE MATCH
-    // ============================================================================
+        const selectedCases = availableCases.slice(0, gridSize);
+        let shuffledCases = shuffleArray([...selectedCases], seed);
 
-    const handleMatchTransition = useCallback(() => {
-        setState(prev => {
-            const { matchEnCours, infomatch } = prev;
-            
-            if (matchEnCours + 1 < infomatch.length) {
-                const nextMatch = infomatch[matchEnCours + 1];
-                return {
-                    ...prev,
-                    isTransitioning: true,
-                    isLoading: true,
-                    matchEnCours: matchEnCours + 1,
-                    showPun: false,
-                    selectedCase: null,
-                };
-            } else {
-                return {
-                    ...prev,
-                    isLoading: false,
-                    matchestermine: true,
-                    isTransitioning: false,
-                };
-            }
-        });
+        match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
+        match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
+        match.pieces = piecesImages;
+
+        return match;
     }, []);
 
-    // ============================================================================
-    // EFFETS
-    // ============================================================================
+    useEffect(() => { if (!state.start) updateState({ start: true }); }, [state.start, updateState]);
 
-    // Démarrer l'initialisation
     useEffect(() => {
-        initializeGame();
-    }, [initializeGame]);
+        const { matchEnCours, infomatch } = state;
+        if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) return;
 
-    // Démarrer le timer
-    useEffect(() => {
-        if (!state.start && state.infomatch.length > 0) {
-            updateState({ start: true });
-        }
-    }, [state.start, state.infomatch.length, updateState]);
-
-    // Gestion du chargement des matches
-    useEffect(() => {
-        const { matchEnCours, infomatch, matchLoading, isTransitioning } = state;
-        
-        if (matchEnCours === -1 || !infomatch[matchEnCours] || matchLoading || isTransitioning) return;
-
-        setState(prev => ({ ...prev, matchLoading: true, isLoading: true }));
+        isLoadingMatch.current = true;
         chargerMatch(infomatch[matchEnCours]);
+        setTimeout(() => { isLoadingMatch.current = false; updateState({ isTransitioning: false }); }, TRANSITION_DELAY);
+    }, [state.matchEnCours, state.infomatch, chargerMatch, updateState]);
 
-        const timer = setTimeout(() => {
-            setState(prev => ({ ...prev, matchLoading: false, isLoading: false, isTransitioning: false }));
-        }, TRANSITION_DELAY);
-
-        return () => clearTimeout(timer);
-    }, [state.matchEnCours, state.infomatch, state.matchLoading, state.isTransitioning, chargerMatch]);
-
-    // Vérifier si le match est terminé
     useEffect(() => {
-        const { casesdujeuencours, isTransitioning, matchEnCours, infomatch, matchLoading } = state;
-        
-        if (casesdujeuencours.length === 0 || isTransitioning || matchLoading) return;
+        const { casesdujeuencours, isTransitioning, matchEnCours, infomatch } = state;
+        if (casesdujeuencours.length === 0 || isTransitioning) return;
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
-        const completedCount = casesdujeuencours.filter(c => c.isLocked).length;
-        
-        updateMatchInfo(matchEnCours, { 
-            isgameover: true, 
-            trouves: (infomatch[matchEnCours]?.trouves || 0) + completedCount 
-        });
+        updateState({ isTransitioning: true });
+        setState(prev => ({
+            ...prev,
+            infomatch: prev.infomatch.map((m, idx) =>
+                idx === matchEnCours ? { ...m, isgameover: true, trouves: (m.trouves || 0) + prev.casesdujeuencours.filter(c => c.isLocked).length } : m
+            ),
+        }));
 
-        const timer = setTimeout(handleMatchTransition, TRANSITION_DELAY);
-        return () => clearTimeout(timer);
-    }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, state.matchLoading, updateMatchInfo, handleMatchTransition]);
+        if (matchEnCours + 1 < infomatch.length) {
+            updateState({ matchEnCours: matchEnCours + 1, showPun: false, selectedCase: null });
+        }
+    }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
 
-    // Sauvegarder la compétition
     useEffect(() => {
-        const { infomatch, datedebut, matchestermine, allMatchesFinished } = state;
-        
-        const allMatchesCompleted = infomatch.length > 0 && infomatch.every(m => m.isgameover === true);
-        
-        if (allMatchesCompleted && infomatch.length > 0 && !allMatchesFinished && matchestermine) {
-            const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+            const { infomatch, datedebut,  } = state;
+        if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
+          //  saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString());
+            updateState({ isGameover: true });
+const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
             const competition: CompetitionInfo = {
                 id: competitionId,
                 matchInfo: infomatch,
                 datedebut: datedebut,
+                idConfig: gameConfig?.id!,
                 datefin: new Date().toISOString()
             };
 
             addCompetition(competition);
-            setState(prev => ({ ...prev, allMatchesFinished: true }));
+            router.push('/star/learning');
         }
-    }, [state.infomatch, state.datedebut, state.matchestermine, state.allMatchesFinished, addCompetition]);
+    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover,   updateState]);
 
-    // ============================================================================
-    // VALEURS MÉMOISÉES
-    // ============================================================================
+    useEffect(() => {
+        if (lancementRef.current) return;
+        lancementRef.current = true;
+
+        const lancerJeu = async () => {
+            updateState({ start: false, isTransitioning: false });
+           // clearCompletedMatches();
+
+            try {
+                const matchList = generateMatchList();
+                let piecesImages: string[] = [];
+
+                const hasImageMode = matchList.some(m => m.tpsglobal === 2);
+
+                if (hasImageMode) {
+                    piecesImages = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
+                }
+
+                const updatedMatches = await Promise.all(
+                    matchList.map(match => loadMatch(match, gameConfig?.niveau!, piecesImages))
+                );
+
+                updateState({
+                    infomatch: updatedMatches,
+                    datedebut: new Date().toISOString(),
+                    matchEnCours: 0,
+                });
+                if (updatedMatches[0]) chargerMatch(updatedMatches[0]);
+            } catch (error) {
+                console.error("Erreur:", error);
+            } finally {
+                lancementRef.current = false;
+            }
+        };
+
+        lancerJeu();
+    }, [gameConfig?.niveau, generateMatchList, loadMatch, chargerMatch,  updateState]);
 
     const currentGameType = useMemo(() => {
         const { infomatch, matchEnCours } = state;
-        if (!infomatch?.length || matchEnCours === undefined || !infomatch[matchEnCours]) {
-            return "Aucun match en cours";
-        }
+        if (!infomatch?.length || matchEnCours === undefined || !infomatch[matchEnCours]) return "Aucun match en cours";
         return choix(infomatch[matchEnCours].tpsglobal || 0);
     }, [state.infomatch, state.matchEnCours]);
 
-    const progression = useMemo(() => {
-        if (state.casesdujeuencours.length === 0) return 0;
-        const lockedCount = state.casesdujeuencours.filter(c => c.isLocked).length;
-        return (lockedCount / state.casesdujeuencours.length) * 100;
-    }, [state.casesdujeuencours]);
+    const progression = state.casesdujeuencours.length > 0
+        ? (state.casesdujeuencours.filter(c => c.isLocked).length / state.casesdujeuencours.length) * 100
+        : 0;
 
-    // ============================================================================
-    // RETOUR
-    // ============================================================================
-
-    return { 
-          showPun: state.showPun,
-        tpsglobal: state.tpsglobal,
-        casesdujeuencours: state.casesdujeuencours,
-        casesinitiales: state.casesinitiales,
-        pieces: state.pieces,
-        selectedCase: state.selectedCase,
-        toggleShowPun, lockSelectedCase, selectCase,
-        currentGameType, progression, niveau, timeElapsed,
+    return {
+        toggleShowPun, lockSelectedCase, selectCase, niveau: gameConfig?.niveau,
+        showPun: state.showPun, timeElapsed, matchEnCours: state.matchEnCours,
+        infomatch: state.infomatch, tpsglobal: state.tpsglobal, casesdujeuencours: state.casesdujeuencours,
+        casesinitiales: state.casesinitiales, pieces: state.pieces, selectedCase: state.selectedCase,
+        allMatchesFinished, currentGameType, progression, gameisover: state.isGameover,
     };
 };

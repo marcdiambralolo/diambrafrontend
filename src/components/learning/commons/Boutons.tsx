@@ -154,11 +154,11 @@ export const WaveButton = memo(({ children, onClick }: { children: React.ReactNo
             <svg className="absolute bottom-0 w-full h-12 animate-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,64L80,69C160,75,240,85,320,80C400,75,480,53,560,48C640,43,720,53,800,64C880,75,960,85,1040,80C1120,75,1200,53,1200,53L1200,120L0,120Z" fill="rgba(255,255,255,0.15)" />
             </svg>
+
             <svg className="absolute bottom-0 w-full h-16 animate-wave-delay" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,96L80,90C160,85,240,75,320,80C400,85,480,107,560,112C640,117,720,107,800,96C880,85,960,75,1040,80C1120,85,1200,107,1200,107L1200,120L0,120Z" fill="rgba(255,255,255,0.1)" />
             </svg>
         </span>
-
         <span className="relative flex items-center justify-center gap-2 group-hover:gap-3 transition-all duration-300">
             {children}
         </span>

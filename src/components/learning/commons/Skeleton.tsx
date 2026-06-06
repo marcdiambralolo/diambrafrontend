@@ -26,8 +26,8 @@ const ROUNDED_MAP = {
 const VARIANT_STYLES = {
   default: 'bg-gray-100 dark:bg-gray-800',
   card: 'bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800',
-  avatar: 'rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600',
   text: 'bg-gray-100 dark:bg-gray-800 h-4',
+  avatar: 'rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600',
   button: 'bg-gray-200 dark:bg-gray-700 rounded-lg'
 } as const;
 

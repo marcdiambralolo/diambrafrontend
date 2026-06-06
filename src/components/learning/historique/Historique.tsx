@@ -1,5 +1,4 @@
 'use client';
-import Loader from "@/app/loading";
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/historique/useAdminConsultationsPageFinished";
 import { formatEditionDate } from "@/lib/functions";
 import { Award, Crown, Gift, Medal, Sparkles, Trophy } from "lucide-react";
@@ -245,7 +244,6 @@ function Historique() {
             {activeEdition && (<>
                 <EditionCard activeEdition={activeEdition} />
                 <TitleSection />
-
                 <WinnersSection consultations={consultations} />
                 <ParticipationsSection consultations={consultations} activeEditionId={activeEdition?.id} />
             </>)}

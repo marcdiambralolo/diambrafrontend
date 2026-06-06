@@ -3,13 +3,10 @@ import { CompetitionSummary, useCompetitionValidation, useEndGameGenerator } fro
 import { MatchInfo } from "@/lib/interfaces";
 import { LOAD_MORE_INCREMENT, MESSAGE_DURATION, NO_DATA_PLACEHOLDER } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
-import {
-  Calendar, ChevronDown, ChevronUp, ListCollapse, Loader2, Send, Trophy
-} from "lucide-react";
-import { memo, Suspense, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { Calendar, ChevronDown, Loader2, Send, Trophy } from "lucide-react";
+import { memo, Suspense, useCallback, useEffect, useMemo, useTransition } from 'react';
 
 const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";
-const INITIAL_VISIBLE_MATCHES = 2;
 
 interface InfoRowProps {
   label: string;
@@ -25,7 +22,6 @@ interface MatchCardProps {
     score: number;
     timeSpent?: number;
   };
-  index: number;
 }
 
 interface CompetitionDetailsProps {
@@ -40,7 +36,7 @@ interface ValidationMessage {
 }
 
 const InfoRow = memo(({ label, value, highlight = false, icon }: InfoRowProps) => (
-  <div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 px-2 rounded-lg">
+  <div className="flex justify-between items-center  border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 px-2 rounded-lg">
     <span className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
       {icon && <span className="text-purple-500">{icon}</span>}
       {label}:
@@ -51,41 +47,23 @@ const InfoRow = memo(({ label, value, highlight = false, icon }: InfoRowProps) =
   </div>
 ));
 
-const MatchCard = memo(({ match, index, }: MatchCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const MatchCard = memo(({ match, }: MatchCardProps) => {
   const timeDisplay = useMemo(() => formatDuration(match.timeSpent), [match.timeSpent]);
 
   const cardClassName = useMemo(() => {
     return "hover:bg-purple-50/50 dark:hover:bg-purple-900/10";
   }, []);
 
-  const toggleExpand = useCallback(() => {
-    setIsExpanded(prev => !prev);
-  }, []);
-
   return (
-    <div className={`
-      ${cardClassName}
-      border rounded-lg transition-all duration-300
-      ${isExpanded ? 'shadow-md' : 'hover:shadow-md'}
-    `}>
+    <div className={`${cardClassName} border rounded-lg transition-all duration-300`}>
       <div
-        className="p-3 cursor-pointer select-none"
-        onClick={toggleExpand}
+        className="p-1 cursor-pointer select-none"
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleExpand();
-          }
-        }}
-        aria-expanded={isExpanded}
-        aria-label={`Détails du match ${index + 1}`}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">            
-            <div>             
+          <div className="flex items-center gap-3">
+            <div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 {match.type}
               </div>
@@ -137,16 +115,16 @@ const MessageToast = memo(({ message, onClose }: { message: ValidationMessage | 
 });
 
 const CompetitionHeader = memo(({ name, onValidate, isLoading }: { name: string; onValidate: () => void; isLoading: boolean }) => (
-  <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+  <div className="flex items-center justify-center mb-5 flex-wrap gap-3">
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
         <Trophy className="w-5 h-5 text-white" aria-hidden="true" />
       </div>
+
       <div>
         <h3 className="text-lg font-bold bg-gradient-to-r from-purple-700 to-purple-500 bg-clip-text text-transparent">
           {name}
         </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Détails de la compétition</p>
       </div>
     </div>
 
@@ -171,7 +149,7 @@ const CompetitionStats = memo(({
   startDate,
   finishedDate }: {
     startDate: string;
-    finishedDate?: string;
+    finishedDate: string;
   }) => (
   <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-2xl p-5 mb-5 border border-gray-100 dark:border-gray-700">
     <div className="space-y-1">
@@ -180,98 +158,27 @@ const CompetitionStats = memo(({
         value={startDate}
         icon={<Calendar className="w-3.5 h-3.5" />}
       />
-      {finishedDate && (
-        <InfoRow
-          label="Date de fin"
-          value={finishedDate}
-          icon={<Calendar className="w-3.5 h-3.5" />}
-        />
-      )}
+      <InfoRow
+        label="Date de fin"
+        value={finishedDate}
+        icon={<Calendar className="w-3.5 h-3.5" />}
+      />
     </div>
   </div>
 ));
 
-const MatchesSection = memo(({ matches }: {
-  matches: any[];
-  bestMatchIndex: number;
-  worstMatchIndex: number;
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_MATCHES);
-
-  const visibleMatches = useMemo(() => {
-    if (isExpanded) {
-      return matches;
-    }
-    return matches.slice(0, visibleCount);
-  }, [matches, isExpanded, visibleCount]);
-
-  const hasMoreMatches = matches.length > visibleCount && !isExpanded;
-
-  const handleShowMore = useCallback(() => {
-    setVisibleCount(prev => Math.min(prev + 2, matches.length));
-  }, [matches.length]);
-
-  const toggleExpandAll = useCallback(() => {
-    setIsExpanded(prev => !prev);
-    if (!isExpanded) {
-      setVisibleCount(INITIAL_VISIBLE_MATCHES);
-    }
-  }, [isExpanded]);
+const MatchesSection = memo(({ matches }: { matches: any[]; }) => {
 
   return (
-    <div className="mt-4">
-      <button
-        onClick={toggleExpandAll}
-        className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl hover:shadow-md transition-all duration-200 group mb-3"
-        aria-expanded={isExpanded}
-      >
-        <div className="flex items-center gap-2">
-          {isExpanded ? (
-            <ListCollapse className="w-4 h-4 text-purple-600" />
-          ) : (
-            <ChevronUp className="w-4 h-4 text-purple-600" />
-          )}
-          <span className="font-semibold text-gray-700 dark:text-gray-300">
-            {isExpanded ? 'Masquer les détails des matchs' : 'Voir tous les matchs'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {matches.length} matchs
-          </span>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-purple-600 transition-transform group-hover:-translate-y-0.5" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-purple-600 transition-transform group-hover:translate-y-0.5" />
-          )}
-        </div>
-      </button>
-
-      <div className={`
-        space-y-2 transition-all duration-300 overflow-hidden
-        ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-[800px] opacity-100'}
-      `}>
-        {visibleMatches.map((match, idx) => {
-          const originalIndex = matches.findIndex(m => m.id === match.id);
-          return (
-            <MatchCard
-              key={match.id || idx}
-              match={match}
-              index={originalIndex}
-            />
-          );
-        })}
-
-        {hasMoreMatches && (
-          <button
-            onClick={handleShowMore}
-            className="w-full py-2 text-center text-sm text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 rounded-lg transition-all duration-200"
-          >
-            Voir plus de matchs ({matches.length - visibleCount} restants)
-          </button>
-        )}
-      </div>
+    <div className={`space-y-2 transition-all duration-300 overflow-hidden`}>
+      {matches.map((match, idx) => {
+        return (
+          <MatchCard
+            key={match.id || idx}
+            match={match}
+          />
+        );
+      })}
     </div>
   );
 });
@@ -281,16 +188,6 @@ const CompetitionDetails = memo(({ competition, onValidate, priority = false }: 
     isLoading, validationMessage, formattedStartDate, formattedFinishedDate,
     handleValidate, handleCloseMessage,
   } = useCompetitionValidation(onValidate, competition);
-
-  const { bestMatchIndex, worstMatchIndex } = useMemo(() => {
-    const times = competition.matches.map(m => m.timeSpent || Infinity);
-    const best = Math.min(...times);
-
-    return {
-      bestMatchIndex: times.indexOf(best),
-      worstMatchIndex: times.indexOf(Math.max(...times))
-    };
-  }, [competition.matches]);
 
   return (
     <div className={`
@@ -314,8 +211,6 @@ const CompetitionDetails = memo(({ competition, onValidate, priority = false }: 
 
         <MatchesSection
           matches={competition.matches}
-          bestMatchIndex={bestMatchIndex}
-          worstMatchIndex={worstMatchIndex}
         />
       </div>
     </div>
@@ -365,43 +260,27 @@ const FeuilleDeMatch = () => {
     });
   }, [handleLoadMore]);
 
-  if (!competitionList?.length) {
-    return (
-      <div className="w-full mx-auto max-w-md pb-20">
-        <div className="text-center py-12 bg-white dark:bg-gray-800/50 rounded-2xl">
-          <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500 dark:text-gray-400">Aucune compétition trouvée</p>
-        </div>
-      </div>
-    );
-  }
+  if (!competitionList?.length) { return (null); }
 
   return (
-    <div className="w-full mx-auto max-w-md pb-20 px-4">
+    <div className="w-full mx-auto max-w-md  px-4">
       <div className="space-y-4 animate-in fade-in duration-500">
-        <Suspense fallback={
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        }>
-          <div className="space-y-4">
-            {competitionList.map((competition, index) => (
-              <div
-                key={competition.id}
-                style={{ animationDelay: `${index * 100}ms` }}
-                className="animate-in slide-in-from-bottom-5 fade-in duration-500"
-              >
-                <CompetitionDetails
-                  competition={competition}
-                  onValidate={handleValidateCompetition}
-                  priority={index === 0}
-                />
-              </div>
-            ))}
-          </div>
-        </Suspense>
+
+        <div className="space-y-4">
+          {competitionList.map((competition, index) => (
+            <div
+              key={competition.id}
+              style={{ animationDelay: `${index * 100}ms` }}
+              className="animate-in slide-in-from-bottom-5 fade-in duration-500"
+            >
+              <CompetitionDetails
+                competition={competition}
+                onValidate={handleValidateCompetition}
+                priority={index === 0}
+              />
+            </div>
+          ))}
+        </div>
 
         {hasMore && (
           <LoadMoreButton

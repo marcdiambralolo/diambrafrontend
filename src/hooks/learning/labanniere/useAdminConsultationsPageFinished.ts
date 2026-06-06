@@ -73,13 +73,12 @@ export function useAdminConsultationsPageFinished() {
     
     // Vérification immédiate
     checkGameFinished();
-    setCheckCount(prev => prev + 1);
+
 
     // Intervalle toutes les secondes
     intervalRef.current = setInterval(() => {
       if (isMountedRef.current) {
         checkGameFinished();
-        setCheckCount(prev => prev + 1);
       }
     }, 1000);
 

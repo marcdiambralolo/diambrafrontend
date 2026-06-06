@@ -179,7 +179,6 @@ const LaBanniere = memo(({ affichebanner }: AfficheBannerProps) => {
   if (!endDate || !startDate) {
     return null;
   }
- 
 
   return (
     <div className="w-full max-w-md mx-auto mt-4">

@@ -1,13 +1,7 @@
-// components/ui/ErrorMessage.tsx
 'use client';
-
 import { memo, useCallback, useEffect, useState } from 'react';
 import { AlertCircle, RefreshCw, Home, ChevronLeft, AlertTriangle, WifiOff } from 'lucide-react';
 import React from 'react';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface ErrorMessageProps {
   /** Message d'erreur principal */
@@ -48,10 +42,6 @@ interface ErrorConfig {
   defaultTitle: string;
 }
 
-// ============================================================================
-// CONFIGURATIONS PAR TYPE D'ERREUR
-// ============================================================================
-
 const ERROR_CONFIGS: Record<NonNullable<ErrorMessageProps['type']>, ErrorConfig> = {
   error: {
     icon: <AlertCircle className="w-6 h-6" />,
@@ -91,17 +81,13 @@ const ERROR_CONFIGS: Record<NonNullable<ErrorMessageProps['type']>, ErrorConfig>
   }
 };
 
-// ============================================================================
-// HOOK DE GESTION D'ERREUR AVEC RETRY AUTOMATIQUE
-// ============================================================================
-
 export const useErrorHandler = (autoRetryCount: number = 0) => {
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
 
   const handleRetry = useCallback(async (onRetry?: () => void | Promise<void>) => {
     if (!onRetry || isRetrying) return;
-    
+
     setIsRetrying(true);
     try {
       await onRetry();
@@ -125,10 +111,6 @@ export const useErrorHandler = (autoRetryCount: number = 0) => {
     shouldAutoRetry
   };
 };
-
-// ============================================================================
-// COMPOSANT PRINCIPAL D'ERREUR
-// ============================================================================
 
 const ErrorMessage = memo(({
   message,
@@ -154,10 +136,10 @@ const ErrorMessage = memo(({
       const timer = setTimeout(() => {
         handleRetry(onRetry);
       }, 1000 * (retryCount + 1));
-      
+
       return () => clearTimeout(timer);
     }
-    
+
     if (retryCount >= autoRetryCount && retryCount > 0 && onRetryFailed) {
       onRetryFailed();
     }
@@ -287,12 +269,6 @@ const ErrorMessage = memo(({
   );
 });
 
-ErrorMessage.displayName = 'ErrorMessage';
-
-// ============================================================================
-// COMPOSANT DE BOUNDARY D'ERREUR
-// ============================================================================
-
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -319,7 +295,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, { hasError: bool
       if (this.props.fallback) {
         return this.props.fallback;
       }
-      
+
       return (
         <ErrorMessage
           type="error"

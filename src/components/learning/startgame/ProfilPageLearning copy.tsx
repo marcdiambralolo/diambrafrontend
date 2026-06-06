@@ -7,8 +7,8 @@ import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { FooterSection, HeaderSection, HelpButton } from '../commons/Features';
-import LaBanniere from "../labanniere/LaBanniere";
+import { HeaderSection } from '../commons/Features';
+import FixedContent from '../commons/FixedContent';
 import { ActionButton, EmptyState, InfoRowGame, ObjectiveCard } from "./Features";
 
 const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
@@ -271,11 +271,7 @@ const ProfilPageLearning = () => {
           </motion.div>
         </div>
 
-        <div className="fixed-bottom-content">
-          <LaBanniere />
-          <FooterSection />
-          <HelpButton />
-        </div>
+          <FixedContent />
       </div>
     </div>
   );

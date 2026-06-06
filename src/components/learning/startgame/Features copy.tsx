@@ -3,13 +3,19 @@ import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { generateLetterPairs } from '@/lib/learning/functions';
 import { TrophyOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 const GRID_BASE_STYLES = "w-full grid";
-const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";
+const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold text-xl rounded-xl shadow-md transition-all duration-300";
 const INFO_CARD_STYLES = "flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-200";
+
+export const boardVariants: Variants = {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2, ease: "easeInOut" } }
+};
 
 export const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
     const caseRef = useRef<HTMLDivElement>(null);
@@ -67,6 +73,7 @@ export const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, si
         }
     }, [fontSize, isLocked, isSelected, letterPairs, mode, tpsglobal, txt, txtIndex]);
 
+
     useEffect(() => {
         if (!caseRef.current) return;
         const observer = new ResizeObserver(updateFontSize);
@@ -78,7 +85,7 @@ export const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, si
         <div
             ref={caseRef}
             onClick={onClick}
-            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square"
+            className="text-white font-semibold flex items-center justify-center border border-white cursor-pointer overflow-hidden whitespace-nowrap aspect-square transition-all duration-200"
             style={{
                 width: size,
                 height: size,
@@ -124,9 +131,17 @@ export const PloaderFixe = memo(({ niveau, casesun, pieces }: PloaderFixeProps) 
     );
 
     return (
-        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P1">
+        <motion.div
+            variants={boardVariants!}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={GRID_BASE_STYLES}
+            style={gridStyles}
+            aria-label="Grille de cases P1"
+        >
             {renderedCases}
-        </div>
+        </motion.div>
     );
 });
 
@@ -165,9 +180,17 @@ export const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCas
     );
 
     return (
-        <div className={GRID_BASE_STYLES} style={gridStyles} aria-label="Grille de cases P2">
+        <motion.div
+            variants={boardVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={GRID_BASE_STYLES}
+            style={gridStyles}
+            aria-label="Grille de cases P2"
+        >
             {renderedCases}
-        </div>
+        </motion.div>
     );
 });
 
@@ -200,7 +223,7 @@ export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
     label: string;
     value: string | number;
 }) => (
-    <motion.div whileHover={{ x: 5 }} className={INFO_CARD_STYLES}>
+    <div className={INFO_CARD_STYLES}>
         <div className={`p-1 ${iconBg} rounded-lg`}>
             <div className={iconColor}>{icon}</div>
         </div>
@@ -208,11 +231,12 @@ export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
                 {label}
             </p>
+
             <p className="font-semibold text-gray-800 dark:text-gray-200">
                 {value}
             </p>
         </div>
-    </motion.div>
+    </div>
 ));
 
 interface ActionButtonProps {
@@ -229,9 +253,7 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
     };
 
     return (
-        <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
+        <button
             onClick={onClick}
             className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
             aria-label={ariaLabel}
@@ -239,6 +261,6 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
             tabIndex={0}
         >
             {children}
-        </motion.button>
+        </button>
     );
-}); 
+});

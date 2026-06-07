@@ -32,7 +32,7 @@ const StatsCard = memo(({ icon, label, value, color, delay = 0 }: StatsCardProps
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-semibold opacity-90">{label}</span>
-      
+
         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
           {icon}
         </div>

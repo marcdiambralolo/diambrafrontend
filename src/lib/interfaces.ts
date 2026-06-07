@@ -427,4 +427,6 @@ export interface CompetitionInfo {
     datefin: string;
     idConfig: string;
     matchInfo: MatchInfo[];
+    consultationId: string;
+    timeSpent?: number;
 }

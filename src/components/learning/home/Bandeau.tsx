@@ -4,7 +4,7 @@ import { useAdminConsultationsPageFinished } from "@/hooks/learning/home/useAdmi
 import { formatDateFRJeu, formatDateTime } from "@/lib/functions";
 import { LastEndedGame, TimeLeft } from "@/lib/interfaces";
 import { TIME_UNITS } from "@/lib/learning/constantes";
-import { Award, Clock, History, Hourglass, Trophy } from "lucide-react";
+import { Award, CalendarX, Clock, History, Hourglass, Trophy } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
 import { GlowButton } from "../commons/Boutons";
@@ -80,11 +80,27 @@ const CountdownTimer = memo(({ targetDate, onFinish }: CountdownTimerProps) => {
 const HistoryButton = memo(() => (
     <CacheLink
         href="/star/learning/historique/1779760200000"
-        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors hover:bg-blue-700"
     >
         <History className="w-4 h-4" aria-hidden="true" />
         <span>Historique</span>
     </CacheLink>
+));
+
+const NoCompetitionBanner = memo(() => (
+    <div className="w-full rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 p-6 mb-6 shadow-xl border border-slate-800">
+        <div className="flex flex-col items-center text-center gap-4">
+            <div className="rounded-full bg-slate-700/50 p-3 animate-pulse">
+                <CalendarX className="w-8 h-8 text-slate-400" aria-hidden="true" />
+            </div>
+            <div>
+                <p className="text-white font-extrabold text-lg">Aucun match programmé</p>
+                <p className="text-slate-400 text-xs max-w-[280px] mt-1 mx-auto">
+                    Les administrateurs n'ont pas encore planifié la prochaine session de jeu. Revenez un peu plus tard !
+                </p>
+            </div>
+        </div>
+    </div>
 ));
 
 const NotStartedBanner = memo(({ startDate, handleOpenGame }: NotStartedBannerProps) => (
@@ -143,39 +159,32 @@ const EndedBanner = memo(({ lastEndedGame }: EndedBannerProps) => {
     );
 });
 
-const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps) => {
-
-    return (
-        <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-4 shadow-xl">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-
-                <div className="bg-white/15 rounded-2xl p-3 text-center">
-                    <div className="text-3xl" aria-hidden="true">🎮</div>
-                    <div className="text-[10px] text-white/70">N° Match</div>
-                    <div className="text-sm font-bold text-white">{gameConfig?.numeromatch || 'N/A'}</div>
-                </div>
-
-                <div className="bg-white/15 rounded-2xl p-3 text-center">
-                    <div className="text-3xl" aria-hidden="true">📊</div>
-                    <div className="text-[10px] text-white/70">Niveau</div>
-                    <div className="text-sm font-bold text-white">{gameConfig?.niveau || 2}</div>
-                </div>
+const ActiveBanner = memo(({ gameConfig, demarrerJeu }: ActiveBannerProps) => (
+    <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-2 mb-4 shadow-xl">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-white/15 rounded-2xl p-3 text-center">
+                <div className="text-3xl" aria-hidden="true">🎮</div>
+                <div className="text-[10px] text-white/70">N° Match</div>
+                <div className="text-sm font-bold text-white">{gameConfig?.numeromatch || 'N/A'}</div>
             </div>
-
-            <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton>
+            <div className="bg-white/15 rounded-2xl p-3 text-center">
+                <div className="text-3xl" aria-hidden="true">📊</div>
+                <div className="text-[10px] text-white/70">Niveau</div>
+                <div className="text-sm font-bold text-white">{gameConfig?.niveau || 2}</div>
+            </div>
         </div>
-    );
-});
+        <GlowButton onClick={demarrerJeu}>🚀 JOUER</GlowButton>
+    </div>
+));
 
 const Bandeau = () => {
     const {
-        demarrerJeu, handleOpenGame, startDate, gameConfig, viewState,
-        lastEndedGame, endDate, isLoading, error,
+        demarrerJeu, handleOpenGame, startDate, gameConfig, viewState, lastEndedGame, endDate, isLoading, error,
     } = useAdminConsultationsPageFinished();
 
     const bannerProps = useMemo(() => ({
-        endDate: endDate!,
-        startDate: startDate!,
+        endDate: endDate ?? new Date(),
+        startDate: startDate ?? new Date(),
         formatDate: formatDateFRJeu,
         gameConfig,
         demarrerJeu,
@@ -183,18 +192,15 @@ const Bandeau = () => {
         lastEndedGame
     }), [endDate, startDate, gameConfig, demarrerJeu, handleOpenGame, lastEndedGame]);
 
-    const BannerComponent = useMemo(() => {
-        if (viewState.isEnded) return <EndedBanner {...bannerProps} />;
-        if (viewState.isNotStarted) return <NotStartedBanner {...bannerProps} />;
-        if (viewState.isActive) return <ActiveBanner {...bannerProps} />;
-        return null;
-    }, [viewState.isEnded, viewState.isNotStarted, viewState.isActive, bannerProps]);
+    if (isLoading) return <Loader />;
+    if (error) return <ErrorPage />;
 
-    if (isLoading) { return (<Loader />); }
-    if (error) { return (<ErrorPage />); }
     return (
         <div className="w-full mx-auto max-w-md">
-            {BannerComponent}
+            {viewState.isEmpty && <NoCompetitionBanner />}
+            {viewState.isEnded && <EndedBanner {...bannerProps} />}
+            {viewState.isNotStarted && <NotStartedBanner startDate={bannerProps.startDate} handleOpenGame={handleOpenGame} />}
+            {viewState.isActive && <ActiveBanner gameConfig={gameConfig} demarrerJeu={demarrerJeu} />}
         </div>
     );
 };

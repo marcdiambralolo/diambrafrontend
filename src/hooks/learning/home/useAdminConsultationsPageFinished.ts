@@ -1,12 +1,18 @@
 'use client';
-
 import { api } from '@/lib/api/client';
 import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
-import { ViewState } from '@/lib/learning/interface';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+// Structure locale étendue de ViewState pour inclure le cas à null
+interface ExtendedViewState {
+  isEnded: boolean;
+  isActive: boolean;
+  isNotStarted: boolean;
+  isEmpty: boolean;
+}
 
 const TIME_UPDATE_INTERVAL = 1000;
 const QUERY_STALE_TIME = 30 * 1000; // 30 secondes
@@ -16,13 +22,13 @@ export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { setGameConfig, clearAllCompetitions, setAfficheBanana } = useMonEtoileStore();
+  const { setGameConfig,  setAfficheBanana, setAfficheStat } = useMonEtoileStore();
 
-  // On ne garde qu'un seul état temporel léger (timestamp numérique au lieu d'un objet Date lourd)
+  // État temporel léger sous forme de timestamp numérique pour limiter les re-renders
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
   // ============================================================================
-  // TANSTACK QUERY : CONFIGURATION DU JEU
+  // TANSTACK QUERY : CONFIGURATION DU JEU CURRENT
   // ============================================================================
   const { data: gameConfig = null, isLoading: isConfigLoading, isError: isConfigError } = useQuery<LearningConfiguration | null>({
     queryKey: ['game', 'config'],
@@ -32,16 +38,16 @@ export function useAdminConsultationsPageFinished() {
     },
     staleTime: QUERY_STALE_TIME,
     retry: RETRY_ATTEMPTS,
-    refetchInterval: 10000, // Remplace avantageusement les setInterval manuels
+    refetchInterval: 10000, // Rafraîchissement automatique en arrière-plan toutes les 10s
   });
 
-  // Synchronisation synchrone du store Zustand uniquement quand la config change
+  // Synchronisation avec le store Zustand global si une config valide est reçue
   useEffect(() => {
     if (gameConfig) setGameConfig(gameConfig);
   }, [gameConfig, setGameConfig]);
 
   // ============================================================================
-  // TANSTACK QUERY : DERNIÈRE PARTIE TERMINÉE
+  // TANSTACK QUERY : DERNIÈRE COMPÉTITION TERMINÉE (HISTORIQUE)
   // ============================================================================
   const { data: lastEndedGame = null } = useQuery<LastEndedGame | null>({
     queryKey: ['game', 'last-ended'],
@@ -50,11 +56,11 @@ export function useAdminConsultationsPageFinished() {
       return data?.hasEndedEdition ? data.configuration : null;
     },
     staleTime: QUERY_STALE_TIME,
-    refetchInterval: 5000, // Rafraîchissement automatique en tâche de fond sécurisé
+    refetchInterval: 5000,
   });
 
   // ============================================================================
-  // MUTATION : CLÔTURE DU JEU EN BACKEND
+  // MUTATION : ACTION DE SÉCURITÉ DE CLÔTURE DU MATCH EN BACKEND
   // ============================================================================
   const { mutate: mutateEndGame, isPending: isEndingGame } = useMutation({
     mutationFn: async (configId: string) => {
@@ -62,7 +68,6 @@ export function useAdminConsultationsPageFinished() {
       return data;
     },
     onSuccess: async () => {
-      // Invalidation en chaîne propre et atomique
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['game', 'config'] }),
         queryClient.invalidateQueries({ queryKey: ['game', 'last-ended'] })
@@ -70,7 +75,6 @@ export function useAdminConsultationsPageFinished() {
     },
     onError: (err: any) => {
       if (err?.response?.status === 409) {
-        // Conflit : Déjà clôturé côté serveur, on rafraîchit la donnée locale
         queryClient.invalidateQueries({ queryKey: ['game', 'last-ended'] });
       } else {
         console.error('Erreur clôture automatique du jeu:', err);
@@ -78,23 +82,20 @@ export function useAdminConsultationsPageFinished() {
     }
   });
 
-  // Horloge atomique : uniquement responsable de mettre à jour le timestamp
+  // Horloge native haute performance
   useEffect(() => {
     const intervalId = setInterval(() => setCurrentTimestamp(Date.now()), TIME_UPDATE_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
 
-  // ============================================================================
-  // LOGIQUE DE DÉDUCTION DES ÉTATS ET DATES
-  // ============================================================================
   const { startDate, endDate } = useMemo(() => ({
     startDate: gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
     endDate: gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
   }), [gameConfig?.startgameDate, gameConfig?.endgameDate]);
 
-  const viewState = useMemo((): ViewState => {
+  const viewState = useMemo((): ExtendedViewState => {
     if (!gameConfig) {
-      return { isEnded: true, isActive: false, isNotStarted: false };
+      return { isEnded: false, isActive: false, isNotStarted: false, isEmpty: true };
     }
 
     const startMs = startDate ? startDate.getTime() : 0;
@@ -116,43 +117,36 @@ export function useAdminConsultationsPageFinished() {
       isEnded: showEnded,
       isActive: !showEnded && showActive,
       isNotStarted: !showEnded && !showActive && showNotStarted,
+      isEmpty: false
     };
   }, [gameConfig, startDate, endDate, currentTimestamp, lastEndedGame]);
 
-  // Trigger automatique de fin de jeu
   useEffect(() => {
     if (endDate && currentTimestamp > endDate.getTime() && gameConfig?.status === 'active' && gameConfig._id && !isEndingGame) {
       mutateEndGame(gameConfig._id);
     }
   }, [currentTimestamp, endDate, gameConfig, isEndingGame, mutateEndGame]);
 
-  // Synchronisation de l'affichage du store externe
-  const shouldShowBanana = viewState.isActive && !viewState.isNotStarted;
+  const shouldShowBanana = viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty;
   useEffect(() => {
     setAfficheBanana(shouldShowBanana);
   }, [shouldShowBanana, setAfficheBanana]);
 
-  // ============================================================================
-  // ACTIONS UTILISATEURS
-  // ============================================================================
+    const shouldShowStat =   !viewState.isEmpty;
+  useEffect(() => {
+    setAfficheStat(shouldShowStat);
+  }, [shouldShowStat, setAfficheBanana]); 
+
   const demarrerJeu = useCallback(() => {
     router.push('/star/learning/choix');
   }, [router]);
 
-  const handleOpenGame = useCallback(() => {
-    clearAllCompetitions();
+  const handleOpenGame = useCallback(() => { 
     setAfficheBanana(true);
-  }, [clearAllCompetitions, setAfficheBanana]);
-
+  }, [  setAfficheBanana]); 
+ 
   return {
-    demarrerJeu,
-    handleOpenGame,
-    startDate,
-    gameConfig,
-    viewState,
-    lastEndedGame,
-    endDate,
-    isLoading: isConfigLoading,
-    error: isConfigError, // Géré nativement par TanStack query via `isError` si nécessaire
+    demarrerJeu,    handleOpenGame,    startDate,    gameConfig,    viewState,
+    lastEndedGame,    endDate,    isLoading: isConfigLoading,    error: isConfigError,
   };
 }

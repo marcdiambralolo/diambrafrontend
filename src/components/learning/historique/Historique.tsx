@@ -222,7 +222,7 @@ const TitleSection = memo(() => (
 ));
 
 const EditionCard = memo(({ activeEdition }: { activeEdition: { startDate: string; endDate: string } }) => (
-    <div className="mb-8 mt-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-600 to-gray-600 p-5 shadow-xl">
+    <div className="mb-4 mt-4 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-800 via-indigo-600 to-gray-600 p-5 shadow-xl">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
                 <div>
@@ -240,7 +240,7 @@ function Historique() {
     const { activeEdition, consultations } = useAdminConsultationsPageFinished();
 
     return (
-        <div className="w-full mx-auto max-w-xl px-2 py-2">
+        <div className="w-full mx-auto max-w-xl">
             {activeEdition && (<>
                 <EditionCard activeEdition={activeEdition} />
                 <TitleSection />

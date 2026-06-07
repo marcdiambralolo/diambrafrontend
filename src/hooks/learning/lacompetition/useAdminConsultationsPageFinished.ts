@@ -19,7 +19,7 @@ export function useAdminConsultationsPageFinished() {
   const router = useRouter();
 
   const {
-     setGameConfig, clearAllCompetitions,
+     setGameConfig, 
     gameConfig: storedGameConfig,setAfficheBanana,
   } = useMonEtoileStore();
 
@@ -167,10 +167,10 @@ export function useAdminConsultationsPageFinished() {
   }, [gameConfig?._id, isEndingGame, refreshLastEndedGame, queryClient, refetchGameConfig, setGameConfig]);
 
   const handleOpenGame = useCallback(() => {
-    clearAllCompetitions();
+
     setAfficheBanana(true);
  
-  }, [clearAllCompetitions, ]);
+  }, [ ]);
 
   useEffect(() => {
     const shouldEnd = (isGameEnded || (endDate && currentTime > endDate)) &&

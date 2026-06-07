@@ -302,6 +302,19 @@ export const LazySkeleton = memo(({
   );
 });
 
+export const PageSkeleton = memo(() => (
+  <div className="w-full mx-auto max-w-md pb-20 min-h-screen">
+    <div className="flex flex-col items-center justify-center mb-8 space-y-4">
+      <div className="h-16 w-full bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+      <div className="h-40 w-full bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse" />
+      <div className="h-64 w-full bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+      <div className="h-32 w-full bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+    </div>
+  </div>
+));
+
+PageSkeleton.displayName = 'PageSkeleton';
+
 export const withSkeleton = <P extends object>(
   Component: React.ComponentType<P>,
   skeletonProps: SkeletonProps = {}

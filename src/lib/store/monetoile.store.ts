@@ -9,6 +9,8 @@ interface StoredCompetition {
     datedebut: string;
     datefin: string;
     idConfig: string;
+      consultationId: string;
+       timeSpent: number;
     matchInfo: Array<{
         id?: string;
         tpsglobal?: number;
@@ -28,6 +30,8 @@ interface MonEtoileStore {
 
     afficheBanana: boolean;
     setAfficheBanana: (value: boolean) => void;
+      afficheStat: boolean;
+    setAfficheStat: (value: boolean) => void;
 
     currentMatchInfo: MatchInfo[];
     setCurrentMatchInfo: (matches: MatchInfo[]) => void;
@@ -42,7 +46,6 @@ interface MonEtoileStore {
     removeCompetitionById: (id: string) => boolean;
     getAllCompetitions: () => CompetitionInfo[];
     getLatestCompetitions: (limit?: number) => CompetitionInfo[];
-    clearAllCompetitions: () => void;
     addMultipleCompetitions: (newCompetitions: CompetitionInfo[]) => void;
     resetAll: () => void;
 }
@@ -53,6 +56,8 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
         datedebut: competition.datedebut,
         datefin: competition.datefin,
         idConfig: competition.idConfig,
+        consultationId: competition.consultationId,
+        timeSpent: competition.timeSpent!,
         matchInfo: competition.matchInfo.map(match => ({
             id: match.id,
             tpsglobal: match.tpsglobal,
@@ -71,6 +76,8 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
         datedebut: stored.datedebut,
         datefin: stored.datefin,
         idConfig: stored.idConfig,
+        consultationId: stored.consultationId,
+        timeSpent: stored.timeSpent,
         matchInfo: stored.matchInfo.map(match => ({
             id: match.id,
             tpsglobal: match.tpsglobal,
@@ -111,6 +118,7 @@ const INITIAL_STATE = {
     lejeu: false,
     lamise: false,
     afficheBanana: false,
+    afficheStat: false,
 };
  
 const sortByDateDesc = (a: CompetitionInfo, b: CompetitionInfo): number => {
@@ -185,11 +193,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             getLatestCompetitions: (limit: number = MAX_COMPETITIONS) => {
                 const competitions = get().competitions;
                 return [...competitions].sort(sortByDateDesc).slice(0, limit);
-            },
-
-            clearAllCompetitions: () => {
-                set({ competitions: [] });
-            },
+            }, 
 
             addMultipleCompetitions: (newCompetitions: CompetitionInfo[]) => {
                 set(state => {
@@ -201,6 +205,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 });
             },         
             setAfficheBanana: (value: boolean) => set({ afficheBanana: value }),
+            setAfficheStat: (value: boolean) => set({ afficheStat: value }),
             resetAll: () => set({
                 ...INITIAL_STATE,
                 competitions: [],

@@ -214,7 +214,7 @@ const useMessage = () => {
 };
 
 export const useEndGameGenerator = () => {
-    const { currentConsultationId, getAllCompetitions } = useMonEtoileStore();
+    const { currentConsultationId, getAllCompetitions,gameConfig } = useMonEtoileStore();
 
     const { demarrerJeu } = useCompetitionLauncher();
 
@@ -226,8 +226,16 @@ export const useEndGameGenerator = () => {
     const competitions = useMemo(() => {
         const compList: CompetitionSummary[] = [];
         const allCompetitions = getAllCompetitions();
+        
+        console.log('allCompetitions', allCompetitions);
+        console.log('gameConfig?.id', gameConfig?.id);
 
         for (const competition of allCompetitions) {
+            // ✅ FILTRE: Ne garder que les compétitions dont l'idConfig correspond au gameConfig.id
+            if (competition.idConfig !== gameConfig?.id) {
+                continue; // Ignorer les compétitions d'autres configurations
+            }
+
             const localMatches = adaptCompetitionToLocal(competition);
             const stats = computeCompetitionStats(localMatches);
             compList.push(createCompetitionSummary(competition, stats));
@@ -236,7 +244,7 @@ export const useEndGameGenerator = () => {
         return compList.sort(
             (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
         );
-    }, [getAllCompetitions]);
+    }, [getAllCompetitions, gameConfig?.id]);
 
     const handleValidateCompetition = useCallback(async (rawMatches: MatchInfo[]): Promise<boolean> => {
         if (!currentConsultationId) {
@@ -348,7 +356,6 @@ export const useEndGameGenerator = () => {
     return {
         handleValidateCompetition, handleRestart, handleSubmitGame, clearValidateMessage,
         isValidating, isSubmitting, competitions, validateMessage, submitMessage, hasCompetitions,
-        competitionList, hasMore, remainingCount, handleLoadMore,
-        
+        competitionList, hasMore, remainingCount, handleLoadMore,       
     };
 };

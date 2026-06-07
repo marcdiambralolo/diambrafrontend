@@ -408,6 +408,7 @@ export const useGameGenerator = () => {
                 matchInfo: infomatch,
                 datedebut: datedebut,
                 idConfig: gameConfig?.id!,
+                consultationId: gameConfig?.id!,
                 datefin: new Date().toISOString()
             };
 

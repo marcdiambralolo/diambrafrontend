@@ -22,8 +22,7 @@ interface UseCompetitionLauncherReturn {
 export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
   const router =useRouter();
   const {
-    setCurrentMatchInfo,
-    clearCurrentMatchInfo,  
+    setCurrentMatchInfo,  
   } = useMonEtoileStore();
 
   const gameConfig = useMonEtoileStore((state) => state.gameConfig);
@@ -133,8 +132,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
       // Vérification d'annulation
       if (signal.aborted) return;
 
-      // Étape 4: Mise à jour du store
-      clearCurrentMatchInfo();
+ 
       setCurrentMatchInfo(updatedMatches);
       setMatchinfo(updatedMatches);
 
@@ -147,7 +145,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
       gameInitializedRef.current = false;
 
       // Nettoyage en cas d'erreur
-      clearCurrentMatchInfo();
+   
       setMatchinfo([]);
     } finally {
       if (!signal.aborted) {
@@ -159,7 +157,7 @@ export function useCompetitionLauncher(): UseCompetitionLauncherReturn {
     generateMatchList,
     niveau,
     initializeMatches,
-    clearCurrentMatchInfo,
+   
     setCurrentMatchInfo,
     isGameInitializing,
     cleanup

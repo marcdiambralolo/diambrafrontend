@@ -1,6 +1,6 @@
 'use client';
 import { ArrowLeft, Lightbulb, X, Zap } from "lucide-react";
-import { memo, startTransition, Suspense, useCallback, useMemo, useState, useTransition } from 'react';
+import { memo, startTransition, useCallback, useMemo, useState, useTransition } from 'react';
 import { FooterSection } from "../commons/Features";
 
 const HELP_SECTIONS = [
@@ -156,7 +156,7 @@ const HelpHeaderGradient = memo(function HelpHeaderGradient({ onClose }: { onClo
       </button>
       <div className="absolute bottom-4 left-5">
         <h2 className="text-xl font-bold text-white">Centre d&apos;aide</h2>
-        <p className="text-xs text-white/90">Tout ce que vous devez savoir sur DIAMBRA</p>
+        <p className="text-xs text-white/90">Tout ce que vous devez savoir sur DIAMBRA LEARNING</p>
       </div>
     </div>
   );
@@ -366,20 +366,8 @@ const HelpPage = memo(function HelpPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 max-w-md">
-        <Suspense fallback={
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-3" />
 
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Chargement du guide...
-              </p>
-            </div>
-          </div>
-        }>
-          <HelpPanel onClose={handleCloseHelp} />
-        </Suspense>
-
+        <HelpPanel onClose={handleCloseHelp} />
         <div className="mt-6">
           <FooterSection />
         </div>

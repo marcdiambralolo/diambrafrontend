@@ -1,16 +1,19 @@
 'use client';
 import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
+import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { memo, useMemo } from 'react';
 import ErrorPage from '../commons/Erreur';
 import { HeaderSection } from '../commons/Features';
 import FixedContent from '../commons/FixedContent';
+import GameFinishedCelebration from '../commons/GameFinishedCelebration';
 import { InsufficientTokensMessage, MarketButton, PlayButton, StatusBanner, TokenCard } from './Features';
 
 const ProfilPageLearning = () => {
+  const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
   const {
     handlePlayClick, handleMarketClick,
-    isSufficient, loading, requiredQuantity, availableQuantity, cardClasses, error,
+    isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
   } = useLaMise();
 
   const statusBannerProps = useMemo(() => ({
@@ -28,16 +31,18 @@ const ProfilPageLearning = () => {
     isPending: loading
   }), [isSufficient, requiredQuantity, availableQuantity, cardClasses, handlePlayClick, loading]);
 
+  if (gameIsFinished) { return <GameFinishedCelebration />; }
+
   if (loading) return <Loader />;
 
   if (error) return <ErrorPage />;
 
   return (
-    <div className="w-full mx-auto max-w-md dark:from-gray-900 dark:to-gray-800">
-      <div className="flex flex-col items-center justify-center px-4 py-6 space-y-4">
+    <div className="w-full mx-auto max-w-md">
+      <div className="flex flex-col items-center justify-center">
         <HeaderSection />
 
-        <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-3">
+        <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
           <StatusBanner {...statusBannerProps} />
 
           <TokenCard {...tokenCardProps} />
@@ -76,8 +81,7 @@ const ProfilPageLearning = () => {
           100% {
             background-position: 0% 50%;
           }
-        }
-        
+        }        
         .animate-shimmer {
           animation: shimmer 2s infinite;
         }

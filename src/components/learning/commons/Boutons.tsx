@@ -11,7 +11,7 @@ interface GlowButtonProps {
 
 const variantStyles = {
     primary: {
-        gradient: 'from-purple-600 via-pink-600 to-blue-600',
+        gradient: 'from-purple-600 via-pink-600 to-blue-700',
         glow: 'rgba(168, 85, 247, 0.7)',
         hoverGlow: 'rgba(168, 85, 247, 0.9)',
         ring: 'ring-purple-400',

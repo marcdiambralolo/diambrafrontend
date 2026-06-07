@@ -1,53 +1,23 @@
-// hooks/learning/game/useGameGenerator.ts
 'use client';
-
-import { Case, CompetitionInfo, MatchInfo, Consultation } from '@/lib/interfaces';
+import { api } from '@/lib/api/client';
+import { Case, CompetitionInfo, Consultation, MatchInfo } from '@/lib/interfaces';
 import { choix, decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { api } from '@/lib/api/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTimer } from './useTimer';
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const TRANSITION_DELAY = 100;
 
-// ============================================================================
-// TIMER HOOK
-// ============================================================================
-
-const useTimer = (start: boolean) => {
-    const [timeElapsed, setTimeElapsed] = useState(0);
-
-    useEffect(() => {
-        if (!start) {
-            setTimeElapsed(0);
-            return;
-        }
-
-        const timer = setInterval(() => {
-            setTimeElapsed((prev) => prev + 1);
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [start]);
-
-    return timeElapsed;
-};
-
-// ============================================================================
-// HOOK PRINCIPAL
-// ============================================================================
-
 export const useGameGenerator = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
-    const { gameConfig, setCurrentMatchInfo, addCompetition,   } = useMonEtoileStore();
+    const { gameConfig, addCompetition, } = useMonEtoileStore();
 
-    // Récupération de l'idConsultation depuis l'URL ou le store
     const consultationIdFromUrl = searchParams.get('idconsultation');
-    const existingConsultationId = consultationIdFromUrl ;
+    const existingConsultationId = consultationIdFromUrl;
 
     const [state, setState] = useState({
         tpsglobal: 0,
@@ -76,10 +46,6 @@ export const useGameGenerator = () => {
         state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true),
         [state.infomatch]);
 
-    // ============================================================================
-    // MISE À JOUR DE LA CONSULTATION AVEC LA DURÉE
-    // ============================================================================
-
     const updateConsultationWithDuration = useCallback(async (durationInSeconds: number) => {
         if (!existingConsultationId) {
             console.warn('Aucun ID de consultation trouvé');
@@ -87,18 +53,15 @@ export const useGameGenerator = () => {
         }
 
         try {
-            // Récupérer la consultation existante
             const { data: existingConsultation } = await api.get(`/consultations/${existingConsultationId}`);
-            
+
             if (!existingConsultation) {
                 console.warn('Consultation non trouvée');
                 return null;
             }
 
-            // Calculer la durée en millisecondes
             const timeSpentMs = durationInSeconds * 1000;
-            
-            // Mettre à jour la consultation avec la durée
+
             const updatedConsultation: Partial<Consultation> = {
                 ...existingConsultation,
                 timeSpent: timeSpentMs.toString(),
@@ -107,7 +70,7 @@ export const useGameGenerator = () => {
             };
 
             const { data } = await api.put(`/consultations/${existingConsultationId}`, updatedConsultation);
-            
+
             console.log(`✅ Consultation mise à jour avec durée: ${durationInSeconds}s`);
             return data;
         } catch (error) {
@@ -116,14 +79,9 @@ export const useGameGenerator = () => {
         }
     }, [existingConsultationId]);
 
-    // ============================================================================
-    // CRÉATION D'UNE NOUVELLE CONSULTATION SI NÉCESSAIRE
-    // ============================================================================
-
     const createOrUpdateConsultation = useCallback(async (durationInSeconds: number) => {
         let consultationId = existingConsultationId;
 
-        // Si pas d'ID, créer une nouvelle consultation
         if (!consultationId) {
             try {
                 const { data } = await api.post('/consultations', {
@@ -133,7 +91,7 @@ export const useGameGenerator = () => {
                     timeSpent: durationInSeconds * 1000,
                     status: 'completed',
                 });
-                consultationId = (  data as Consultation)._id;
+                consultationId = (data as Consultation)._id;
                 console.log(`✅ Nouvelle consultation créée avec durée: ${durationInSeconds}s`);
                 return consultationId;
             } catch (error) {
@@ -142,25 +100,16 @@ export const useGameGenerator = () => {
             }
         }
 
-        // Sinon, mettre à jour l'existante
         await updateConsultationWithDuration(durationInSeconds);
         return consultationId;
-    }, [existingConsultationId, gameConfig?.id, state.datedebut, updateConsultationWithDuration,  ]);
-
-    // ============================================================================
-    // SAUVEGARDE DES RÉSULTATS FINAUX
-    // ============================================================================
+    }, [existingConsultationId, gameConfig?.id, state.datedebut, updateConsultationWithDuration,]);
 
     const saveFinalResults = useCallback(async () => {
         if (!allMatchesFinished) return;
 
-        // Durée totale en secondes
         const totalDurationSeconds = timeElapsed;
-        
-        // Créer ou mettre à jour la consultation avec la durée
         const consultationId = await createOrUpdateConsultation(totalDurationSeconds);
 
-        // Sauvegarder la compétition dans le store
         const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
         const competition: CompetitionInfo = {
             id: competitionId,
@@ -173,15 +122,11 @@ export const useGameGenerator = () => {
         };
 
         addCompetition(competition);
-        
+
         console.log(`✅ Compétition terminée - Durée: ${totalDurationSeconds}s - Consultation: ${consultationId || 'non créée'}`);
-        
+
         return consultationId;
     }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition, createOrUpdateConsultation]);
-
-    // ============================================================================
-    // LOGIQUE DE JEU (swapCases, selectCase, lockSelectedCase, etc.)
-    // ============================================================================
 
     const swapCases = useCallback((c1: Case, c2: Case) => {
         const { casesdujeuencours, casesinitiales } = state;
@@ -294,12 +239,8 @@ export const useGameGenerator = () => {
         return match;
     }, []);
 
-    // ============================================================================
-    // EFFETS
-    // ============================================================================
-
-    useEffect(() => { 
-        if (!state.start) updateState({ start: true }); 
+    useEffect(() => {
+        if (!state.start) updateState({ start: true });
     }, [state.start, updateState]);
 
     useEffect(() => {
@@ -308,9 +249,9 @@ export const useGameGenerator = () => {
 
         isLoadingMatch.current = true;
         chargerMatch(infomatch[matchEnCours]);
-        setTimeout(() => { 
-            isLoadingMatch.current = false; 
-            updateState({ isTransitioning: false }); 
+        setTimeout(() => {
+            isLoadingMatch.current = false;
+            updateState({ isTransitioning: false });
         }, TRANSITION_DELAY);
     }, [state.matchEnCours, state.infomatch, chargerMatch, updateState]);
 
@@ -332,21 +273,18 @@ export const useGameGenerator = () => {
         }
     }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
 
-    // Fin de tous les matches - Sauvegarde avec durée
     useEffect(() => {
         if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
             updateState({ isGameover: true });
             saveFinalResults();
-            
-            // Redirection avec l'ID de consultation si existant
-            const redirectUrl = existingConsultationId 
+
+            const redirectUrl = existingConsultationId
                 ? `/star/learning?retour=game&idconsultation=${existingConsultationId}`
                 : '/star/learning';
             router.push(redirectUrl);
         }
     }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, router, existingConsultationId, updateState]);
 
-    // Initialisation du jeu
     useEffect(() => {
         if (lancementRef.current) return;
         lancementRef.current = true;
@@ -384,10 +322,6 @@ export const useGameGenerator = () => {
         lancerJeu();
     }, [gameConfig?.niveau, generateMatchList, loadMatch, chargerMatch, updateState]);
 
-    // ============================================================================
-    // VALEURS MÉMOISÉES
-    // ============================================================================
-
     const currentGameType = useMemo(() => {
         const { infomatch, matchEnCours } = state;
         if (!infomatch?.length || matchEnCours === undefined || !infomatch[matchEnCours]) return "Aucun match en cours";
@@ -398,28 +332,15 @@ export const useGameGenerator = () => {
         ? (state.casesdujeuencours.filter(c => c.isLocked).length / state.casesdujeuencours.length) * 100
         : 0;
 
-    // ============================================================================
-    // RETURN
-    // ============================================================================
-
     return {
-        toggleShowPun,
-        lockSelectedCase,
-        selectCase,
         niveau: gameConfig?.niveau,
         showPun: state.showPun,
-        timeElapsed,
-        matchEnCours: state.matchEnCours,
-        infomatch: state.infomatch,
         tpsglobal: state.tpsglobal,
         casesdujeuencours: state.casesdujeuencours,
         casesinitiales: state.casesinitiales,
         pieces: state.pieces,
         selectedCase: state.selectedCase,
-        allMatchesFinished,
-        currentGameType,
-        progression,
-        gameisover: state.isGameover,
-        consultationId: existingConsultationId,
+        toggleShowPun, lockSelectedCase, selectCase,
+        currentGameType, progression, timeElapsed,
     };
 };

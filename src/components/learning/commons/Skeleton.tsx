@@ -314,12 +314,10 @@ export const withSkeleton = <P extends object>(
 
 export const useSkeletonDelay = (delay: number = 300) => {
   const [showSkeleton, setShowSkeleton] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => setShowSkeleton(true), delay);
     return () => clearTimeout(timer);
   }, [delay]);
-
   return showSkeleton;
 };
 

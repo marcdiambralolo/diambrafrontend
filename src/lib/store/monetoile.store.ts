@@ -28,6 +28,8 @@ interface MonEtoileStore {
 
     afficheBanana: boolean;
     setAfficheBanana: (value: boolean) => void;
+     gameIsFinished: boolean;
+    setGameIsFinished: (value: boolean) => void;
     afficheStat: boolean;
     setAfficheStat: (value: boolean) => void;
 
@@ -35,7 +37,6 @@ interface MonEtoileStore {
     setCurrentMatchInfo: (matches: MatchInfo[]) => void;
     appendMatchInfo: (match: MatchInfo) => void;
     updateMatchInfo: (index: number, match: Partial<MatchInfo>) => void;
-    clearCurrentMatchInfo: () => void;
     getCurrentMatchByType: (tpsglobal: number) => MatchInfo | undefined;
 
     competitions: CompetitionInfo[];
@@ -117,6 +118,7 @@ const INITIAL_STATE = {
     lamise: false,
     afficheBanana: false,
     afficheStat: false,
+    gameIsFinished: false,
 };
 
 const sortByDateDesc = (a: CompetitionInfo, b: CompetitionInfo): number => {
@@ -203,6 +205,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             },
             setAfficheBanana: (value: boolean) => set({ afficheBanana: value }),
             setAfficheStat: (value: boolean) => set({ afficheStat: value }),
+            setGameIsFinished: (value: boolean) => set({ gameIsFinished: value }),
             resetAll: () => set({
                 ...INITIAL_STATE,
                 competitions: [],

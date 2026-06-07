@@ -1,6 +1,6 @@
 'use client';
-import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
 import React, { memo, useCallback, useEffect, useState } from 'react';
+import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
 
 interface ErrorMessageProps {
   message?: string;

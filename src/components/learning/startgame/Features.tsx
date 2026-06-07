@@ -4,8 +4,8 @@ import { colorReference, Theme } from "@/lib/learning/data";
 import { generateLetterPairs } from '@/lib/learning/functions';
 import { TrophyOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import Image from "next/image";
 
 const GRID_BASE_STYLES = "w-full grid";
 const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";

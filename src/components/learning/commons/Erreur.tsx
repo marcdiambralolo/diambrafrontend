@@ -1,6 +1,6 @@
 'use client';
-import ErrorMessage from './ErrorMessage';
 import { HeaderSection } from './Features';
+import ErrorMessage from './ErrorMessage';
 
 const ErrorPage = () => {
 

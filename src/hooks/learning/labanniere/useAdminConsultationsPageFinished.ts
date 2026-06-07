@@ -10,7 +10,7 @@ const TICK_INTERVAL = 1000;
 export function useAdminConsultationsPageFinished() {
   const router = useRouter();
   const { stats } = useStatsDataWithCache();
-  const { gameConfig, clearCurrentMatchInfo } = useMonEtoileStore();
+  const { gameConfig,setGameIsFinished} = useMonEtoileStore();
 
   // On stocke uniquement le timestamp actuel pour l'horloge globale
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
@@ -59,14 +59,9 @@ export function useAdminConsultationsPageFinished() {
   const handleEndMatch = useCallback(() => {
     if (hasRedirectedRef.current) return;
     hasRedirectedRef.current = true;
-
-    // Si besoin d'appeler l'action du store fournie par Zustand :
-    if (typeof clearCurrentMatchInfo === 'function') {
-      clearCurrentMatchInfo();
-    }
-
-    // router.push('/star/learning');
-  }, [router, clearCurrentMatchInfo]);
+ setGameIsFinished(true);
+    
+  }, [router,  ]);
 
   // 5. Déclencheur automatique de fin de jeu dès que la condition synchrone passe à true
   useEffect(() => {

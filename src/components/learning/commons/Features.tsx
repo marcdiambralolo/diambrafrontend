@@ -2,8 +2,8 @@
 import { useCommon } from '@/hooks/learning/home/useCommon';
 import { APP_NAME, CURRENT_YEAR, MESSAGE_DURATION, STATUS_CONFIG } from "@/lib/learning/constantes";
 import { HelpCircle } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
 const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";
 

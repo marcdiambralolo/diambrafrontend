@@ -5,8 +5,8 @@ import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { COLORS, COUNTDOWN_UPDATE_INTERVAL, CURRENT_YEAR, STATUS_CONFIG, TIME_UNIT_LABELS, TIME_UNITS } from "@/lib/learning/constantes";
 import { Calendar, Flame, HelpCircle, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from "next/navigation";
 
 interface StatCardProps {
     value: number | null;

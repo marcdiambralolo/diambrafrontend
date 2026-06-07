@@ -15,7 +15,7 @@ const STATUS_BANNER_CONFIG = {
   },
   insufficient: {
     bgGradient: "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
-    borderColor: "border-red-200 dark:border-red-800",
+    borderColor: "border-red-300 dark:border-red-800",
     iconBg: "bg-red-100 dark:bg-red-900/40",
     iconColor: "text-red-600 dark:text-red-400",
     titleColor: "text-red-800 dark:text-red-300",
@@ -76,7 +76,7 @@ export const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQua
 
   return (
     <div className={`
-      relative overflow-hidden mb-5 flex items-start gap-3 p-4 
+      relative overflow-hidden mb-1 flex items-start gap-3 p-2
       rounded-2xl bg-gradient-to-r ${config.bgGradient} 
       border ${config.borderColor} animate-in slide-in-from-top duration-300
     `}>

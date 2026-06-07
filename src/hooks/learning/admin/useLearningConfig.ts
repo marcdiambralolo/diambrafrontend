@@ -1,11 +1,9 @@
-// hooks/learning/useLearningConfig.ts
 import { api } from '@/lib/api/client';
 import { LearningConfiguration } from '@/lib/interfaces';
 import { generateNumeromatch, normalizeConfigDates, showToast, toSafeDate } from '@/lib/learning/configUtils';
 import { useEffect, useState } from 'react';
 
 const ITEMS_PER_PAGE = 2;
-
 export type ToastType = 'success' | 'error' | 'info';
 
 export type ToastItem = {
@@ -15,9 +13,7 @@ export type ToastItem = {
 };
 
 export type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
-
 export type DateLike = Date | string | number | null | undefined;
-
 export const DEFAULT_FORM_STATUS: ConfigStatus = 'pending';
 
 export const statusConfig: Record<ConfigStatus,

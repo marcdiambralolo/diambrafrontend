@@ -2,11 +2,10 @@
 import { api } from '@/lib/api/client';
 import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-// Structure locale étendue de ViewState pour inclure le cas à null
 interface ExtendedViewState {
   isEnded: boolean;
   isActive: boolean;
@@ -15,30 +14,32 @@ interface ExtendedViewState {
 }
 
 const TIME_UPDATE_INTERVAL = 1000;
-const QUERY_STALE_TIME = 30 * 1000; // 30 secondes
+const QUERY_STALE_TIME = 30 * 1000;
 const RETRY_ATTEMPTS = 2;
+const ONE_HOUR_IN_MS = 60 * 60 * 1000; // 1 heure
+const ONE_MINUTE_IN_MS = 60 * 1000;    // 1 minute
 
 export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { setGameConfig,  setAfficheBanana, setAfficheStat } = useMonEtoileStore();
+  const { setGameConfig, setAfficheBanana, setAfficheStat } = useMonEtoileStore();
 
-  // État temporel léger sous forme de timestamp numérique pour limiter les re-renders
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
-  // ============================================================================
-  // TANSTACK QUERY : CONFIGURATION DU JEU CURRENT
-  // ============================================================================
   const { data: gameConfig = null, isLoading: isConfigLoading, isError: isConfigError } = useQuery<LearningConfiguration | null>({
     queryKey: ['game', 'config'],
     queryFn: async () => {
       const { data } = await api.get('learning-configurations/current-config');
       return data as LearningConfiguration;
     },
-    staleTime: QUERY_STALE_TIME,
+    staleTime: ONE_HOUR_IN_MS,      // 1 heure avant de considérer les données comme périmées
+    gcTime: ONE_HOUR_IN_MS + ONE_MINUTE_IN_MS, // 1h01 de cache
     retry: RETRY_ATTEMPTS,
-    refetchInterval: 10000, // Rafraîchissement automatique en arrière-plan toutes les 10s
+    refetchInterval: ONE_HOUR_IN_MS, // ✅ Rafraîchit automatiquement toutes les 1 heure
+    refetchOnWindowFocus: false,     // ❌ Désactive le refetch au focus pour économiser les ressources
+    refetchOnReconnect: false,       // ❌ Désactive le refetch à la reconnexion
+    refetchOnMount: true,            // ✅ Refetch au montage
   });
 
   // Synchronisation avec le store Zustand global si une config valide est reçue
@@ -102,9 +103,9 @@ export function useAdminConsultationsPageFinished() {
     const endMs = endDate ? endDate.getTime() : 0;
 
     const isGameActive = gameConfig.isActive === true &&
-                         gameConfig.status === 'active' &&
-                         startMs > 0 && endMs > 0 &&
-                         currentTimestamp >= startMs && currentTimestamp <= endMs;
+      gameConfig.status === 'active' &&
+      startMs > 0 && endMs > 0 &&
+      currentTimestamp >= startMs && currentTimestamp <= endMs;
 
     const isGameEnded = gameConfig.status === 'ended' || (endMs > 0 && currentTimestamp > endMs);
     const isGameNotStarted = gameConfig.status === 'pending' || (startMs > 0 && currentTimestamp < startMs);
@@ -132,21 +133,21 @@ export function useAdminConsultationsPageFinished() {
     setAfficheBanana(shouldShowBanana);
   }, [shouldShowBanana, setAfficheBanana]);
 
-    const shouldShowStat =   !viewState.isEmpty;
+  const shouldShowStat = !viewState.isEmpty;
   useEffect(() => {
     setAfficheStat(shouldShowStat);
-  }, [shouldShowStat, setAfficheBanana]); 
+  }, [shouldShowStat, setAfficheBanana]);
 
   const demarrerJeu = useCallback(() => {
     router.push('/star/learning/choix');
   }, [router]);
 
-  const handleOpenGame = useCallback(() => { 
+  const handleOpenGame = useCallback(() => {
     setAfficheBanana(true);
-  }, [  setAfficheBanana]); 
- 
+  }, [setAfficheBanana]);
+
   return {
-    demarrerJeu,    handleOpenGame,    startDate,    gameConfig,    viewState,
-    lastEndedGame,    endDate,    isLoading: isConfigLoading,    error: isConfigError,
+    demarrerJeu, handleOpenGame, startDate, gameConfig, viewState,
+    lastEndedGame, endDate, isLoading: isConfigLoading, error: isConfigError,
   };
 }

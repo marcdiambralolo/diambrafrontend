@@ -1,10 +1,9 @@
 'use client';
 import { CompetitionSummary, useCompetitionValidation, useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
-import { MatchInfo } from "@/lib/interfaces";
 import { LOAD_MORE_INCREMENT, MESSAGE_DURATION, NO_DATA_PLACEHOLDER } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
 import { Calendar, ChevronDown, Loader2, Send, Trophy } from "lucide-react";
-import { memo, Suspense, useCallback, useEffect, useMemo, useTransition } from 'react';
+import { memo, useCallback, useEffect, useMemo, useTransition } from 'react';
 
 const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";
 
@@ -26,7 +25,7 @@ interface MatchCardProps {
 
 interface CompetitionDetailsProps {
   competition: CompetitionSummary;
-  onValidate: (rawMatches: MatchInfo[]) => Promise<boolean>;
+  onValidate: (competition: CompetitionSummary) => Promise<boolean>;
   priority?: boolean;
 }
 
@@ -115,7 +114,7 @@ const MessageToast = memo(({ message, onClose }: { message: ValidationMessage | 
 });
 
 const CompetitionHeader = memo(({ name, onValidate, isLoading }: { name: string; onValidate: () => void; isLoading: boolean }) => (
-  <div className="flex items-center justify-center mb-5 flex-wrap gap-3">
+  <div className="flex items-center justify-center  flex-wrap gap-2">
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
         <Trophy className="w-5 h-5 text-white" aria-hidden="true" />
@@ -170,7 +169,7 @@ const CompetitionStats = memo(({
 const MatchesSection = memo(({ matches }: { matches: any[]; }) => {
 
   return (
-    <div className={`space-y-2 transition-all duration-300 overflow-hidden`}>
+    <div className={`w-full space-y-2 transition-all duration-300 overflow-hidden`}>
       {matches.map((match, idx) => {
         return (
           <MatchCard
@@ -191,13 +190,13 @@ const CompetitionDetails = memo(({ competition, onValidate, priority = false }: 
 
   return (
     <div className={`
-      space-y-4 mb-5 bg-white dark:bg-gray-800/50 rounded-2xl shadow-md 
+     bg-white dark:bg-gray-800/50 rounded-2xl shadow-md 
       hover:shadow-xl transition-all duration-300 overflow-hidden
       ${priority ? 'ring-2 ring-purple-300 dark:ring-purple-700 shadow-lg' : ''}
     `}>
       <MessageToast message={validationMessage} onClose={handleCloseMessage} />
 
-      <div className="p-5">
+      <div className="w-full flex flex-col items-center justify-center gap-2 space-y-2 p-2 ">
         <CompetitionHeader
           name={competition.name}
           onValidate={handleValidate}
@@ -263,24 +262,21 @@ const FeuilleDeMatch = () => {
   if (!competitionList?.length) { return (null); }
 
   return (
-    <div className="w-full mx-auto max-w-md  px-4">
+    <div className="w-full mx-auto max-w-md">
       <div className="space-y-4 animate-in fade-in duration-500">
-
-        <div className="space-y-4">
-          {competitionList.map((competition, index) => (
-            <div
-              key={competition.id}
-              style={{ animationDelay: `${index * 100}ms` }}
-              className="animate-in slide-in-from-bottom-5 fade-in duration-500"
-            >
-              <CompetitionDetails
-                competition={competition}
-                onValidate={handleValidateCompetition}
-                priority={index === 0}
-              />
-            </div>
-          ))}
-        </div>
+        {competitionList.map((competition, index) => (
+          <div
+            key={competition.id}
+            style={{ animationDelay: `${index * 100}ms` }}
+            className="animate-in slide-in-from-bottom-5 fade-in duration-500"
+          >
+            <CompetitionDetails
+              competition={competition}
+              onValidate={handleValidateCompetition}
+              priority={index === 0}
+            />
+          </div>
+        ))}
 
         {hasMore && (
           <LoadMoreButton

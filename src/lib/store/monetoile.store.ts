@@ -9,8 +9,8 @@ interface StoredCompetition {
     datedebut: string;
     datefin: string;
     idConfig: string;
-      consultationId: string;
-       timeSpent: number;
+    consultationId: string;
+    timeSpent: number;
     matchInfo: Array<{
         id?: string;
         tpsglobal?: number;
@@ -23,14 +23,12 @@ interface StoredCompetition {
 }
 
 interface MonEtoileStore {
-    currentConsultationId: string | null;
-    setCurrentConsultationId: (id: string | null) => void;
     gameConfig: LearningConfiguration | null;
     setGameConfig: (config: LearningConfiguration | null) => void;
 
     afficheBanana: boolean;
     setAfficheBanana: (value: boolean) => void;
-      afficheStat: boolean;
+    afficheStat: boolean;
     setAfficheStat: (value: boolean) => void;
 
     currentMatchInfo: MatchInfo[];
@@ -104,7 +102,7 @@ const isStorageNearLimit = (): boolean => {
     } catch (e) {
         return true;
     }
-}; 
+};
 
 const INITIAL_STATE = {
     currentConsultationId: null,
@@ -120,7 +118,7 @@ const INITIAL_STATE = {
     afficheBanana: false,
     afficheStat: false,
 };
- 
+
 const sortByDateDesc = (a: CompetitionInfo, b: CompetitionInfo): number => {
     return new Date(b.datedebut).getTime() - new Date(a.datedebut).getTime();
 };
@@ -134,9 +132,8 @@ const enforceMaxLimit = (competitions: CompetitionInfo[]): CompetitionInfo[] => 
 export const useMonEtoileStore = create<MonEtoileStore>()(
     persist(
         (set, get) => ({
-            ...INITIAL_STATE, 
-            setCurrentConsultationId: (id) => set({ currentConsultationId: id }), 
-            setGameConfig: (config) => set({ gameConfig: config }), 
+            ...INITIAL_STATE,
+            setGameConfig: (config) => set({ gameConfig: config }),
             setCurrentMatchInfo: (matches) => set({ currentMatchInfo: matches }),
             appendMatchInfo: (match) => set(state => ({
                 currentMatchInfo: [...state.currentMatchInfo, match]
@@ -151,7 +148,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             clearCurrentMatchInfo: () => set({ currentMatchInfo: [] }),
             getCurrentMatchByType: (tpsglobal) => {
                 return get().currentMatchInfo.find(match => match.tpsglobal === tpsglobal);
-            }, 
+            },
             addCompetition: (competition: CompetitionInfo) => {
                 set(state => {
                     const exists = state.competitions.some(c => c.id === competition.id);
@@ -193,7 +190,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
             getLatestCompetitions: (limit: number = MAX_COMPETITIONS) => {
                 const competitions = get().competitions;
                 return [...competitions].sort(sortByDateDesc).slice(0, limit);
-            }, 
+            },
 
             addMultipleCompetitions: (newCompetitions: CompetitionInfo[]) => {
                 set(state => {
@@ -203,7 +200,7 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                     allCompetitions = enforceMaxLimit(allCompetitions);
                     return { competitions: allCompetitions };
                 });
-            },         
+            },
             setAfficheBanana: (value: boolean) => set({ afficheBanana: value }),
             setAfficheStat: (value: boolean) => set({ afficheStat: value }),
             resetAll: () => set({
@@ -218,7 +215,6 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 const compressedCompetitions = state.competitions.map(compressCompetition);
 
                 return {
-                    currentConsultationId: state.currentConsultationId,
                     gameConfig: state.gameConfig,
                     competitions: compressedCompetitions,
                     afficheBanana: state.afficheBanana,

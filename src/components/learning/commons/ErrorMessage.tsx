@@ -1,34 +1,20 @@
 'use client';
-import { memo, useCallback, useEffect, useState } from 'react';
-import { AlertCircle, RefreshCw, Home, ChevronLeft, AlertTriangle, WifiOff } from 'lucide-react';
-import React from 'react';
+import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 interface ErrorMessageProps {
-  /** Message d'erreur principal */
   message?: string;
-  /** Description détaillée de l'erreur */
   description?: string;
-  /** Type d'erreur pour le style et les actions */
   type?: 'error' | 'warning' | 'info' | 'offline';
-  /** Titre personnalisé */
   title?: string;
-  /** Action au clic sur le bouton principal */
   onRetry?: () => void | Promise<void>;
-  /** Action au clic sur le bouton retour */
   onBack?: () => void;
-  /** Afficher le bouton de retour à l'accueil */
   showHomeButton?: boolean;
-  /** Afficher le bouton de rechargement */
   showRetryButton?: boolean;
-  /** Nombre de tentatives automatiques */
   autoRetryCount?: number;
-  /** Callback appelé après un échec de retry */
   onRetryFailed?: () => void;
-  /** Classes CSS supplémentaires */
   className?: string;
-  /** Taille du composant */
   size?: 'sm' | 'md' | 'lg';
-  /** Variante d'affichage */
   variant?: 'default' | 'minimal' | 'fullscreen';
 }
 
@@ -130,7 +116,6 @@ const ErrorMessage = memo(({
   const config = ERROR_CONFIGS[type];
   const { handleRetry, isRetrying, retryCount, shouldAutoRetry } = useErrorHandler(autoRetryCount);
 
-  // Retry automatique
   useEffect(() => {
     if (shouldAutoRetry() && onRetry && !isRetrying) {
       const timer = setTimeout(() => {
@@ -153,14 +138,12 @@ const ErrorMessage = memo(({
     window.location.href = '/';
   }, []);
 
-  // Classes selon la taille
   const sizeClasses = {
     sm: 'p-3 text-sm',
     md: 'p-4 text-base',
     lg: 'p-6 text-lg'
   };
 
-  // Classes selon la variante
   if (variant === 'fullscreen') {
     return (
       <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 ${className}`}>
@@ -191,31 +174,26 @@ const ErrorMessage = memo(({
   return (
     <div className={`rounded-2xl ${config.bgGradient} border ${config.borderColor} ${sizeClasses[size]} ${className}`}>
       <div className="flex flex-col items-center text-center">
-        {/* Icône */}
         <div className={`rounded-full ${config.iconBg} p-3 mb-4`}>
           <div className={config.iconColor}>{config.icon}</div>
         </div>
 
-        {/* Titre */}
         <h3 className={`font-bold ${config.titleColor} text-lg mb-2`}>
           {title || config.defaultTitle}
         </h3>
 
-        {/* Message */}
         {message && (
           <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">
             {message}
           </p>
         )}
 
-        {/* Description */}
         {description && (
           <p className="text-gray-500 dark:text-gray-400 text-xs mb-4">
             {description}
           </p>
         )}
 
-        {/* Boutons d'action */}
         <div className="flex flex-wrap gap-3 justify-center mt-2">
           {showRetryButton && onRetry && (
             <button
@@ -258,7 +236,6 @@ const ErrorMessage = memo(({
           )}
         </div>
 
-        {/* Indicateur de tentatives */}
         {autoRetryCount > 0 && retryCount > 0 && retryCount < autoRetryCount && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
             Tentative {retryCount}/{autoRetryCount}...
@@ -313,4 +290,5 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, { hasError: bool
 }
 
 export { ErrorBoundary };
+
 export default ErrorMessage;

@@ -1,7 +1,7 @@
 'use client';
 import { ArrowLeft, Lightbulb, X, Zap } from "lucide-react";
-import { FooterSection } from "../commons/Features";
 import { memo, startTransition, Suspense, useCallback, useMemo, useState, useTransition } from 'react';
+import { FooterSection } from "../commons/Features";
 
 const HELP_SECTIONS = [
   {

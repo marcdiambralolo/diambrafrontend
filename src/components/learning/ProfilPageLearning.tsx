@@ -3,8 +3,8 @@ import dynamic from 'next/dynamic';
 import { Suspense, memo } from 'react';
 import { FooterSection, HelpButton } from './commons/Features';
 import { PageSkeleton } from './commons/Skeleton';
-import FeuilleDeMatch from "./home/FeuilleDematch";
 import HeaderWithToast from "./home/HeaderWithToast";
+import FeuilleDeMatch from "./home/FeuilleDematch";
 
 const Bandeau = dynamic(
   () => import('./home/Bandeau'),

@@ -43,7 +43,7 @@ export const useGameGenerator = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     
-    const { gameConfig, setCurrentMatchInfo, addCompetition, currentConsultationId, setCurrentConsultationId } = useMonEtoileStore();
+    const { gameConfig, setCurrentMatchInfo, addCompetition,   } = useMonEtoileStore();
 
     // Récupération de l'idConsultation depuis l'URL ou le store
     const consultationIdFromUrl = searchParams.get('idconsultation');
@@ -134,7 +134,6 @@ export const useGameGenerator = () => {
                     status: 'completed',
                 });
                 consultationId = (  data as Consultation)._id;
-                setCurrentConsultationId(consultationId);
                 console.log(`✅ Nouvelle consultation créée avec durée: ${durationInSeconds}s`);
                 return consultationId;
             } catch (error) {
@@ -146,7 +145,7 @@ export const useGameGenerator = () => {
         // Sinon, mettre à jour l'existante
         await updateConsultationWithDuration(durationInSeconds);
         return consultationId;
-    }, [existingConsultationId, gameConfig?.id, state.datedebut, updateConsultationWithDuration, setCurrentConsultationId]);
+    }, [existingConsultationId, gameConfig?.id, state.datedebut, updateConsultationWithDuration,  ]);
 
     // ============================================================================
     // SAUVEGARDE DES RÉSULTATS FINAUX

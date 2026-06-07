@@ -3,9 +3,9 @@ import { useAdminConsultationsPageFinished } from "@/hooks/learning/labanniere/u
 import { formatDateFRJeu, formatNumber } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { COLORS, COUNTDOWN_UPDATE_INTERVAL, TIME_UNIT_LABELS, TIME_UNITS } from "@/lib/learning/constantes";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Calendar, Flame, Users } from "lucide-react";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
+import { Calendar, Flame, Users } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface StatCardProps {
   value: number | null;
@@ -175,9 +175,9 @@ const ActiveBanner = memo(({ endDate, handleEndMatch, startDate, formatDate }: A
 });
 
 const LaBanniere = memo(() => {
-  const afficheBanana = useMonEtoileStore((state) => state.afficheBanana);
-  const afficheStat= useMonEtoileStore((state) => state.afficheStat);
   const { handleEndMatch, stats, startDate, endDate, } = useAdminConsultationsPageFinished();
+  const afficheBanana = useMonEtoileStore((state) => state.afficheBanana);
+  const afficheStat = useMonEtoileStore((state) => state.afficheStat);
 
   if (!endDate || !startDate) {
     return null;
@@ -196,7 +196,7 @@ const LaBanniere = memo(() => {
         label="Inscrits"
         icon={<Users className="w-4 h-4" aria-hidden="true" />}
         color={COLORS.subscribers}
-      />)}      
+      />)}
     </div>
   );
 });

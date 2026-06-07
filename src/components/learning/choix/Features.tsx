@@ -11,7 +11,7 @@ const STATUS_BANNER_CONFIG = {
     titleColor: "text-green-800 dark:text-green-300",
     textColor: "text-green-700 dark:text-green-400/80",
     icon: CheckCircle2,
-    title: "Prêt à valider !"
+    title: "Prêt à valider"
   },
   insufficient: {
     bgGradient: "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
@@ -81,11 +81,9 @@ export const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQua
       border ${config.borderColor} animate-in slide-in-from-top duration-300
     `}>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
-
       <div className={`rounded-full ${config.iconBg} p-2 flex-shrink-0 backdrop-blur-sm`}>
         <Icon className={`w-5 h-5 ${config.iconColor}`} aria-hidden="true" />
       </div>
-
       <div className="flex-1">
         <p className={`text-sm font-semibold ${config.titleColor} flex items-center gap-2`}>
           {config.title}

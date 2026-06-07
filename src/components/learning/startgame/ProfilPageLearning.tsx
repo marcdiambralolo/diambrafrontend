@@ -15,7 +15,6 @@ export default function TheGame() {
 
     return (
         <div className="flex flex-col items-center justify-center w-full m-0 p-0 py-0 px-0 mb-4">
-
             <div className="w-full mx-auto max-w-md pb-20">
                 <div className="flex flex-col items-center justify-center mb-8 space-y-4">
                     <HeaderSection />
@@ -96,6 +95,7 @@ export default function TheGame() {
                                         label="JEU EN COURS"
                                         value={currentGameType}
                                     />
+                                    
                                     <InfoRowGame
                                         icon={<BarChartOutlined />}
                                         iconBg="bg-green-100 dark:bg-green-900/30"

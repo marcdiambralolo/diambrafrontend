@@ -78,8 +78,6 @@ const BaseSkeleton = memo(({
   );
 });
 
-BaseSkeleton.displayName = 'BaseSkeleton';
-
 export const TextSkeleton = memo(({ lines = 1, lastLineWidth = 'w-3/4', gap = 'gap-2' }: {
   lines?: number;
   lastLineWidth?: string;
@@ -105,13 +103,9 @@ export const TextSkeleton = memo(({ lines = 1, lastLineWidth = 'w-3/4', gap = 'g
   );
 });
 
-TextSkeleton.displayName = 'TextSkeleton';
-
 export const AvatarSkeleton = memo(({ size = 'w-12 h-12' }: { size?: string }) => (
   <Skeleton height={size} width={size} variant="avatar" rounded="full" />
 ));
-
-AvatarSkeleton.displayName = 'AvatarSkeleton';
 
 export const CardSkeleton = memo(() => (
   <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
@@ -131,8 +125,6 @@ export const CardSkeleton = memo(() => (
   </div>
 ));
 
-CardSkeleton.displayName = 'CardSkeleton';
-
 export const ListSkeleton = memo(({ items = 5, itemHeight = 'h-16', gap = 'gap-3' }: {
   items?: number;
   itemHeight?: string;
@@ -148,8 +140,6 @@ export const ListSkeleton = memo(({ items = 5, itemHeight = 'h-16', gap = 'gap-3
     </div>
   );
 });
-
-ListSkeleton.displayName = 'ListSkeleton';
 
 export const GridSkeleton = memo(({
   cols = 2,
@@ -186,8 +176,6 @@ export const GridSkeleton = memo(({
   );
 });
 
-GridSkeleton.displayName = 'GridSkeleton';
-
 export const TableSkeleton = memo(({
   rows = 5,
   cols = 4,
@@ -219,8 +207,6 @@ export const TableSkeleton = memo(({
     ))}
   </div>
 ));
-
-TableSkeleton.displayName = 'TableSkeleton';
 
 export const Skeleton = memo(({
   height = 'h-4',
@@ -273,8 +259,6 @@ export const Skeleton = memo(({
   );
 });
 
-Skeleton.displayName = 'Skeleton';
-
 export const LazySkeleton = memo(({
   height = 'h-4',
   width,
@@ -313,8 +297,6 @@ export const PageSkeleton = memo(() => (
   </div>
 ));
 
-PageSkeleton.displayName = 'PageSkeleton';
-
 export const withSkeleton = <P extends object>(
   Component: React.ComponentType<P>,
   skeletonProps: SkeletonProps = {}
@@ -331,7 +313,6 @@ export const withSkeleton = <P extends object>(
 };
 
 export const useSkeletonDelay = (delay: number = 300) => {
-
   const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {

@@ -231,7 +231,7 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
     return (
         <motion.button
             whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.06 }}
             onClick={onClick}
             className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
             aria-label={ariaLabel}

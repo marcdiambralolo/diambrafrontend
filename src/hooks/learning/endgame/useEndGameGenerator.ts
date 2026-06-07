@@ -11,7 +11,7 @@ interface ValidationMessage {
     type: 'success' | 'error';
 }
 
-export const useCompetitionValidation = (onValidate: (rawMatches: MatchInfo[]) => Promise<boolean>, competition: CompetitionSummary) => {
+export const useCompetitionValidation = (onValidate: (competition: CompetitionSummary) => Promise<boolean>, competition: CompetitionSummary) => {
     const [isLocalValidating, setIsLocalValidating] = useState(false);
     const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
 
@@ -21,7 +21,7 @@ export const useCompetitionValidation = (onValidate: (rawMatches: MatchInfo[]) =
         setIsLocalValidating(true);
         setValidationMessage(null);
 
-        const success = await onValidate(competition.rawMatches);
+        const success = await onValidate(competition);
 
         setValidationMessage({
             text: success ? 'Compétition validée avec succès !' : 'Erreur lors de la validation',
@@ -72,7 +72,13 @@ export interface CompetitionSummary {
     finishedAt?: string;
     matches: MatchResult[];
     rawMatches?: MatchInfo[];
-    totalScore: number;
+    totalScore: number; 
+    datedebut: string;
+    datefin: string;
+    idConfig: string;
+    matchInfo: MatchInfo[];
+    consultationId: string;
+    timeSpent?: number;
 }
 
 export interface MessageState {
@@ -180,6 +186,11 @@ const createCompetitionSummary = (
         totalScore: stats.totalScore,
         matches: stats.matches,
         rawMatches: stats.rawMatches,
+        datedebut: competition.datedebut,
+        datefin: competition.datefin,
+        idConfig: competition.idConfig,
+        matchInfo: competition.matchInfo,
+        consultationId: competition.consultationId,
     };
 };
 
@@ -214,7 +225,7 @@ const useMessage = () => {
 };
 
 export const useEndGameGenerator = () => {
-    const { currentConsultationId, getAllCompetitions,gameConfig } = useMonEtoileStore();
+    const { getAllCompetitions,gameConfig } = useMonEtoileStore();
 
     const { demarrerJeu } = useCompetitionLauncher();
 
@@ -246,13 +257,13 @@ export const useEndGameGenerator = () => {
         );
     }, [getAllCompetitions, gameConfig?.id]);
 
-    const handleValidateCompetition = useCallback(async (rawMatches: MatchInfo[]): Promise<boolean> => {
-        if (!currentConsultationId) {
+    const handleValidateCompetition = useCallback(async (competition: CompetitionSummary): Promise<boolean> => {
+        if (!competition.consultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
             return false;
         }
 
-        if (!rawMatches?.length) {
+        if (!competition.rawMatches?.length) {
             showValidateMessage('Aucun match à valider', 'error');
             return false;
         }
@@ -260,15 +271,15 @@ export const useEndGameGenerator = () => {
         setIsValidating(true);
 
         try {
-            const totalScore = rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
-            const totalTrouves = rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
-            const totalRates = rawMatches.reduce((acc, match) => acc + (match.rates || DEFAULT_RATES), 0);
-            const startDate = rawMatches[0]?.datedebut || new Date().toISOString();
+            const totalScore = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
+            const totalTrouves = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
+            const totalRates = competition.rawMatches.reduce((acc, match) => acc + (match.rates || DEFAULT_RATES), 0);
+            const startDate = competition.rawMatches[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
             const duration = calculateDuration(startDate, endDate);
             const durationInSeconds = calculateDurationInSeconds(startDate, endDate);
 
-            const { data: consultation } = await api.get(`/consultations/${currentConsultationId}`);
+            const { data: consultation } = await api.get(`/consultations/${competition.consultationId}`);
             const dataconsultation = consultation as Consultation;
 
             const existingStats = (dataconsultation?.learningStats || {}) as LearningStats;
@@ -286,7 +297,7 @@ export const useEndGameGenerator = () => {
                     completedAt: endDate,
                     matchesDetails: [
                         ...existingMatches,
-                        ...rawMatches.map(m => ({
+                        ...competition.rawMatches.map(m => ({
                             tpsglobal: m.tpsglobal,
                             score: m.trouves,
                             trouves: m.trouves,
@@ -299,7 +310,7 @@ export const useEndGameGenerator = () => {
                 },
             };
 
-            await api.put(`/consultations/${currentConsultationId}`, updatedPayload);
+            await api.put(`/consultations/${competition.consultationId}`, updatedPayload);
 
             showValidateMessage('Compétition validée avec succès !', 'success');
             return true;
@@ -311,7 +322,7 @@ export const useEndGameGenerator = () => {
         } finally {
             setIsValidating(false);
         }
-    }, [currentConsultationId, showValidateMessage]);
+    }, [ showValidateMessage]);
 
     // Redémarrage du jeu
     const handleRestart = useCallback(() => {

@@ -1,5 +1,4 @@
 'use client';
-
 import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
 import { api } from '@/lib/api/client';
 import { walletService } from '@/lib/api/services/wallet.service';
@@ -35,38 +34,34 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
 export function useLaMise() {
     const router = useRouter();
     const [isPendingNavigation, startNavigationTransition] = useTransition();
-    const { gameConfig, setCurrentConsultationId } = useMonEtoileStore();
+
+    const { gameConfig } = useMonEtoileStore();
 
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
     const configOfferingId = useMemo(() => getOfferingId(POT_CONFIG), []);
 
-    // 1. Fetch des données via TanStack Query (Suppression complète de useEffect et des états locaux)
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
         queryFn: () => walletService.getUnusedWalletOfferings(),
-        staleTime: 1000 * 30, // Considéré frais pendant 30 secondes
+        staleTime: 1000 * 30,
     });
 
-    // 2. Calculs mémorisés dérivés de la Query
     const availableQuantity = useMemo(() => {
         const target = walletOfferings.find(w => w.offeringId === configOfferingId);
         return target ? target.quantity : 0;
     }, [walletOfferings, configOfferingId]);
 
     const isSufficient = availableQuantity >= POT_CONFIG.quantity;
-    
-    const cardClasses = useMemo(() => 
-        `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`, 
+
+    const cardClasses = useMemo(() =>
+        `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`,
         [isSufficient]
     );
 
-    // 3. Gestion de l'action asynchrone via une Mutation (Fin des verrous manuels et des refs de montage)
-    const { mutateAsync: executeSubmit, isPending: isSubmitLoading, error: submitError } = useMutation({
+    const { mutateAsync: executeSubmit, isPending: isSubmitLoading, error: submitError } = useMutation<string, Error, void>({
         mutationFn: async () => {
             const consultationId = await createCategoryConsultation(monidjeu);
             if (!consultationId) throw new Error('Impossible de créer la compétition');
-
-            setCurrentConsultationId(consultationId);
 
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: configOfferingId,
@@ -77,7 +72,6 @@ export function useLaMise() {
                 throw new Error(consumeRes.message || 'Erreur lors de la consommation');
             }
 
-            // Invalidation propre des caches
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_TRANSACTIONS] });
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS] });
 
@@ -88,7 +82,6 @@ export function useLaMise() {
         }
     });
 
-    // 4. Actions utilisateurs emballées dans un useTransition pour Next.js App Router
     const handlePlayClick = useCallback(() => {
         if (!isSufficient || isSubmitLoading) return;
 
@@ -109,17 +102,9 @@ export function useLaMise() {
     }, [router, monidjeu]);
 
     return {
-        requiredQuantity: POT_CONFIG.quantity,
-        availableQuantity,
-        isSufficient,
-        cardClasses,
-        
-        // États de chargement et d'erreurs unifiés
+        requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient, cardClasses,
         loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
         error: submitError ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission') : null,
-        
-        // Handlers d'action épurés pour l'UI
-        handlePlayClick,
-        handleMarketClick,
+        handlePlayClick, handleMarketClick,
     };
 }

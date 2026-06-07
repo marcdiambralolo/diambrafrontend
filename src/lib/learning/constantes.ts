@@ -40,5 +40,5 @@ export const TIME_UNIT_LABELS: Record<string, string> = {
 
 export const COUNTDOWN_UPDATE_INTERVAL = 1000;
 
-export const INITIAL_VISIBLE_COUNT = 1;
+export const INITIAL_VISIBLE_COUNT = 5;
 export const LOAD_MORE_INCREMENT = 5;

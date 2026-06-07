@@ -5,7 +5,7 @@ import { HeaderSection } from './Features';
 const ErrorPage = () => {
 
   return (
-    <div className="w-full mx-auto max-w-md pb-20 min-h-screen">
+    <div className="w-full mx-auto max-w-md pb-20">
       <div className="flex flex-col items-center justify-center mb-8 space-y-4">
         <HeaderSection />
         <ErrorMessage

@@ -219,7 +219,7 @@ const FooterSection = memo(() => {
                 <span>© {CURRENT_YEAR}</span>
                 <StatusBadge text={status.text} color={status.color} />
             </div>
-            <p className="text-white mt-2">DIAMBRA CORPORATION • Tous droits réservés.</p>
+            <p className="text-white text-center mt-2">DIAMBRA CORPORATION</p>
         </footer>
     );
 });

@@ -61,9 +61,7 @@ export const GlowButton = memo(({
                 ${sizeClass}
                 font-bold rounded-xl
                 bg-gradient-to-r ${styles.gradient}
-                text-white
-                shadow-xl
-                w-full
+                text-white shadow-xl w-full
                 transition-all duration-300
                 transform hover:scale-105 active:scale-95
                 focus:outline-none focus:ring-2 focus:ring-offset-2 ${styles.ring}

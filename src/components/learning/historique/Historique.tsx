@@ -69,9 +69,11 @@ const WinningInfoCard = ({ fastestTimeFormatted, totalParticipants }: { fastestT
         <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-4">
                 <Trophy className="w-4 h-4" />
+                
                 <span className="text-xs font-bold uppercase tracking-wider">🏆 Meilleur temps</span>
                 <Award className="w-4 h-4" />
             </div>
+
             <div className="text-center mb-4">
                 <div className="text-5xl sm:text-6xl font-black">{fastestTimeFormatted}</div>
                 <p className="text-sm mt-2 opacity-90">sur {totalParticipants} participant{totalParticipants > 1 ? 's' : ''}</p>

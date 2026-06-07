@@ -94,7 +94,7 @@ const NoCompetitionBanner = memo(() => (
                 <CalendarX className="w-8 h-8 text-slate-400" aria-hidden="true" />
             </div>
             <div>
-                <p className="text-white font-extrabold text-lg">Aucun match programmé</p>
+                <p className="text-white font-extrabold text-lg">Aucun match programmé.</p>
                 <p className="text-slate-400 text-xs max-w-[280px] mt-1 mx-auto">
                     Les administrateurs n'ont pas encore planifié la prochaine session de jeu. Revenez un peu plus tard !
                 </p>

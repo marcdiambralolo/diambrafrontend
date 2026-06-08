@@ -191,6 +191,7 @@ export interface LearningConfiguration {
     _id?: string;
     startgameDate: Date;
     endgameDate: Date;
+    proclamationDate?: Date;
     sequence?: string;
     niveau?: number;
     numeromatch?: string;

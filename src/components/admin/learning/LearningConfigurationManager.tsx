@@ -187,6 +187,13 @@ function ConfigCard({ config, onEdit, onDelete, onEnd }: {
                     <div className="text-sm font-semibold">{formatDateFR(config.endgameDate)}</div>
                   </div>
                 </div>
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-gray-600">
+                  <CalendarIcon className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <div className="text-xs text-gray-400">Proclamation</div>
+                    <div className="text-sm font-semibold">{formatDateFR(config.proclamationDate)}</div>
+                  </div>
+                </div>
               </div>
             </div>
 

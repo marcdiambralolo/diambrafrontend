@@ -135,7 +135,7 @@ const HelpHeader = memo(function HelpHeader() {
         Guide d&apos;utilisation
       </h2>
       <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-        Devenez un expert en DIAMBRA LEARNING
+        Devenez un expert en DIAMBRA LEARNING.
       </p>
     </div>
   );

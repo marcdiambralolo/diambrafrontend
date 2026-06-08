@@ -1,11 +1,31 @@
 'use client';
-import { memo } from 'react';
-import { FooterSection, HelpButton } from './commons/Features';
+import { useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
+import { memo, useCallback } from 'react';
+import { FooterSection, HeaderSection, HelpButton, MessageToast } from './commons/Features';
 import Historique from './historique/Historique';
 import Bandeau from './home/Bandeau';
 import FeuilleDeMatch from "./home/FeuilleDematch";
-import HeaderWithToast from "./home/HeaderWithToast";
 import LaBanniere from './home/LaBanniere';
+
+const HeaderWithToast = () => {
+  const { validateMessage, clearValidateMessage } = useEndGameGenerator();
+
+  const handleCloseToast = useCallback(() => {
+    clearValidateMessage();
+  }, [clearValidateMessage]);
+
+  return (
+    <>
+      {validateMessage && (
+        <MessageToast
+          message={validateMessage}
+          onClose={handleCloseToast}
+        />
+      )}
+      <HeaderSection />
+    </>
+  );
+};
 
 const ProfilPageLearning = memo(() => {
 

@@ -48,13 +48,13 @@ interface TokenCardProps {
   isPending: boolean;
 }
 
-interface PlayButtonProps {
-  isSufficient: boolean;
+interface MarketButtonProps {
   onClick: () => void;
   isPending: boolean;
 }
 
-interface MarketButtonProps {
+interface PlayButtonProps {
+  isSufficient: boolean;
   onClick: () => void;
   isPending: boolean;
 }

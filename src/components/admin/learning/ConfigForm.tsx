@@ -71,6 +71,7 @@ export default function LearningConfigForm({
             numeromatch: formData.numeromatch,
             pieces: formData.pieces ?? [],
             sequence: formData.sequence ?? '',
+            proclamationDate: formData.proclamationDate ?? new Date(),
         });
     };
 
@@ -125,6 +126,21 @@ export default function LearningConfigForm({
                             selected={formData.endgameDate}
                             onChange={(date: Date) =>
                                 !isEnded && setFormData((prev) => ({ ...prev, endgameDate: date }))
+                            }
+                            minDate={new Date()}
+                            placeholder="Sélectionner la date et l'heure"
+                            disabled={isEnded}
+                        />
+                    </div>
+
+                     <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                            🏁 Date de proclamtion des resultats
+                        </label>
+                        <CustomDateTimePicker
+                            selected={formData.proclamationDate}
+                            onChange={(date: Date) =>
+                                !isEnded && setFormData((prev) => ({ ...prev, proclamationDate: date }))
                             }
                             minDate={new Date()}
                             placeholder="Sélectionner la date et l'heure"
@@ -300,7 +316,9 @@ export default function LearningConfigForm({
                         Annuler
                     </motion.button>
                 </div>
+                    <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/>
             </form>
+            <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/>
         </motion.div>
     );
 }

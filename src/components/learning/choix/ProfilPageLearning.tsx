@@ -11,6 +11,7 @@ import { InsufficientTokensMessage, MarketButton, PlayButton, StatusBanner, Toke
 
 const ProfilPageLearning = () => {
   const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
+
   const {
     handlePlayClick, handleMarketClick,
     isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
@@ -44,7 +45,6 @@ const ProfilPageLearning = () => {
 
         <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
           <StatusBanner {...statusBannerProps} />
-
           <TokenCard {...tokenCardProps} />
 
           <PlayButton

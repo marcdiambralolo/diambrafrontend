@@ -5,7 +5,22 @@ import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/i
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+
+// ============================================================================
+// CONSTANTES
+// ============================================================================
+
+const TIME_UPDATE_INTERVAL = 1000;
+const QUERY_STALE_TIME = 30 * 1000;
+const RETRY_ATTEMPTS = 2;
+const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const ONE_MINUTE_IN_MS = 60 * 1000;
+const LAST_ENDED_REFETCH_INTERVAL = 5000;
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 interface ExtendedViewState {
   isEnded: boolean;
@@ -14,30 +29,49 @@ interface ExtendedViewState {
   isEmpty: boolean;
 }
 
-const TIME_UPDATE_INTERVAL = 1000;
-const QUERY_STALE_TIME = 30 * 1000;
-const RETRY_ATTEMPTS = 2;
-const ONE_HOUR_IN_MS = 60 * 60 * 1000;
-const ONE_MINUTE_IN_MS = 60 * 1000;
+interface ViewStateResult {
+  viewState: ExtendedViewState;
+  shouldShowBanana: boolean;
+  shouldShowStat: boolean;
+}
+
+// ============================================================================
+// SÉLECTEURS STORE (évitent les re-rendus)
+// ============================================================================
+
+const selectSetGameConfig = (state: any) => state.setGameConfig;
+const selectSetAfficheBanana = (state: any) => state.setAfficheBanana;
+const selectSetAfficheStat = (state: any) => state.setAfficheStat;
+
+// ============================================================================
+// HOOK PRINCIPAL
+// ============================================================================
 
 export function useAdminConsultationsPageFinished() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  
-  const { 
-    setGameConfig, 
-    setAfficheBanana, 
-    setAfficheStat,
-    getAllCompetitions,
-    // gameConfig: currentGameConfig
-  } = useMonEtoileStore();
+
+  // Refs pour éviter les re-rendus et redirections multiples
+  const hasAutoEndedRef = useRef(false);
+  const hasRedirectedRef = useRef(false);
+
+  // Sélecteurs optimisés
+  const setGameConfig = useMonEtoileStore(selectSetGameConfig);
+  const setAfficheBanana = useMonEtoileStore(selectSetAfficheBanana);
+  const setAfficheStat = useMonEtoileStore(selectSetAfficheStat);
+  const getAllCompetitions = useMonEtoileStore((state) => state.getAllCompetitions);
 
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
   // ============================================================================
   // QUERY: CONFIGURATION DU JEU
   // ============================================================================
-  const { data: gameConfig = null, isLoading: isConfigLoading, isError: isConfigError } = useQuery<LearningConfiguration | null>({
+  const {
+    data: gameConfig = null,
+    isLoading: isConfigLoading,
+    isError: isConfigError,
+    refetch: refetchConfig
+  } = useQuery<LearningConfiguration | null>({
     queryKey: ['game', 'config'],
     queryFn: async () => {
       const { data } = await api.get('learning-configurations/current-config');
@@ -52,26 +86,32 @@ export function useAdminConsultationsPageFinished() {
     refetchOnMount: true,
   });
 
-  // Synchronisation avec le store
+  // Synchronisation du store
   useEffect(() => {
-    if (gameConfig) setGameConfig(gameConfig);
+    if (gameConfig) {
+      setGameConfig(gameConfig);
+    }
   }, [gameConfig, setGameConfig]);
 
   // ============================================================================
-  // QUERY: DERNIÈRE COMPÉTITION TERMINÉE
+  // QUERY: DERNIÈRE COMPÉTITION
   // ============================================================================
-  const { data: lastEndedGame = null } = useQuery<LastEndedGame | null>({
+  const {
+    data: lastEndedGame = null,
+    refetch: refetchLastEnded
+  } = useQuery<LastEndedGame | null>({
     queryKey: ['game', 'last-ended'],
     queryFn: async () => {
       const { data } = await api.get<LastEndedResponse>('/learning-configurations/last-ended');
       return data?.hasEndedEdition ? data.configuration : null;
     },
     staleTime: QUERY_STALE_TIME,
-    refetchInterval: 5000,
+    refetchInterval: LAST_ENDED_REFETCH_INTERVAL,
+    refetchOnWindowFocus: false,
   });
 
   // ============================================================================
-  // MUTATION: CLÔTURE DU MATCH
+  // MUTATION: CLÔTURE
   // ============================================================================
   const { mutate: mutateEndGame, isPending: isEndingGame } = useMutation({
     mutationFn: async (configId: string) => {
@@ -93,26 +133,36 @@ export function useAdminConsultationsPageFinished() {
     }
   });
 
-  // Horloge
+  // ============================================================================
+  // HORLOGE
+  // ============================================================================
   useEffect(() => {
     const intervalId = setInterval(() => setCurrentTimestamp(Date.now()), TIME_UPDATE_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
 
-  // Calcul des dates
+  // ============================================================================
+  // CALCUL DES DATES (mémorisé)
+  // ============================================================================
   const { startDate, endDate } = useMemo(() => ({
     startDate: gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
     endDate: gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
   }), [gameConfig?.startgameDate, gameConfig?.endgameDate]);
 
-  // État de la vue
-  const viewState = useMemo((): ExtendedViewState => {
+  // ============================================================================
+  // CALCUL DE L'ÉTAT DE LA VUE (mémorisé)
+  // ============================================================================
+  const viewStateResult = useMemo((): ViewStateResult => {
     if (!gameConfig) {
-      return { isEnded: false, isActive: false, isNotStarted: false, isEmpty: true };
+      return {
+        viewState: { isEnded: false, isActive: false, isNotStarted: false, isEmpty: true },
+        shouldShowBanana: false,
+        shouldShowStat: false
+      };
     }
 
-    const startMs = startDate ? startDate.getTime() : 0;
-    const endMs = endDate ? endDate.getTime() : 0;
+    const startMs = startDate?.getTime() || 0;
+    const endMs = endDate?.getTime() || 0;
 
     const isGameActive = gameConfig.isActive === true &&
       gameConfig.status === 'active' &&
@@ -126,77 +176,102 @@ export function useAdminConsultationsPageFinished() {
     const showActive = isGameActive && !isGameEnded;
     const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
 
-    return {
+    const viewState = {
       isEnded: showEnded,
       isActive: !showEnded && showActive,
       isNotStarted: !showEnded && !showActive && showNotStarted,
       isEmpty: false
     };
+
+    return {
+      viewState,
+      shouldShowBanana: viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty,
+      shouldShowStat: !viewState.isEmpty
+    };
   }, [gameConfig, startDate, endDate, currentTimestamp, lastEndedGame]);
 
-  // Clôture automatique
+  // ============================================================================
+  // CLÔTURE AUTOMATIQUE
+  // ============================================================================
   useEffect(() => {
-    if (endDate && currentTimestamp > endDate.getTime() && gameConfig?.status === 'active' && gameConfig._id && !isEndingGame) {
-      mutateEndGame(gameConfig._id);
+    const shouldAutoEnd = endDate &&
+      currentTimestamp > endDate.getTime() &&
+      gameConfig?.status === 'active' &&
+      gameConfig._id &&
+      !isEndingGame &&
+      !hasAutoEndedRef.current;
+
+    if (shouldAutoEnd) {
+      hasAutoEndedRef.current = true;
+      mutateEndGame(gameConfig._id!);
     }
   }, [currentTimestamp, endDate, gameConfig, isEndingGame, mutateEndGame]);
 
-  // Mise à jour des flags du store
-  const shouldShowBanana = viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty;
+  // ============================================================================
+  // SYNCHRONISATION STORE (banana et stat)
+  // ============================================================================
   useEffect(() => {
-    setAfficheBanana(shouldShowBanana);
-  }, [shouldShowBanana, setAfficheBanana]);
+    setAfficheBanana(viewStateResult.shouldShowBanana);
+  }, [viewStateResult.shouldShowBanana, setAfficheBanana]);
 
-  const shouldShowStat = !viewState.isEmpty;
   useEffect(() => {
-    setAfficheStat(shouldShowStat);
-  }, [shouldShowStat, setAfficheStat]);
+    setAfficheStat(viewStateResult.shouldShowStat);
+  }, [viewStateResult.shouldShowStat, setAfficheStat]);
 
   // ============================================================================
-  // DEMARRER JEU - LOGIQUE CORRIGÉE
+  // DÉMARRER LE JEU (avec cache busting et évitement des doubles redirections)
   // ============================================================================
   const demarrerJeu = useCallback(() => {
-    // Récupérer la config actuelle
-    const configId = gameConfig?._id ;
-    
+    if (hasRedirectedRef.current) return;
+
+    const configId = gameConfig?._id || gameConfig?.id;
     if (!configId) {
-      console.warn('Aucune configuration trouvée');
       router.push('/star/learning/choix');
       return;
     }
 
-    // Récupérer toutes les compétitions
     const allCompetitions = getAllCompetitions();
-    
-    // Vérifier s'il existe une compétition en cours avec le bon idConfig
     const hasActiveCompetition = allCompetitions.some(
-      competition => competition.idConfig === configId 
+      competition => competition.idConfig === configId
     );
 
+    hasRedirectedRef.current = true;
 
-    // Redirection selon l'existence d'une compétition
-    if (hasActiveCompetition ) {
-      // Compétition existante -> aller directement au jeu
-      router.push('/star/learning/startgame');
-    } else {
-      // Aucune compétition -> aller au choix de jeu
-      router.push('/star/learning/choix');
-    }
-  }, [gameConfig,   getAllCompetitions, router]);
+    const targetPath = hasActiveCompetition
+      ? `/star/learning/startgame?_cb=${Date.now()}`
+      : '/star/learning/choix';
 
+    router.push(targetPath);
+  }, [gameConfig, getAllCompetitions, router]);
+
+  // ============================================================================
+  // HANDLE OPEN GAME
+  // ============================================================================
   const handleOpenGame = useCallback(() => {
     setAfficheBanana(true);
   }, [setAfficheBanana]);
 
+  // ============================================================================
+  // REFETCH MANUEL
+  // ============================================================================
+  const refetchAll = useCallback(async () => {
+    await Promise.all([refetchConfig(), refetchLastEnded()]);
+  }, [refetchConfig, refetchLastEnded]);
+
+  // ============================================================================
+  // RETURN
+  // ============================================================================
   return {
     demarrerJeu,
     handleOpenGame,
     startDate,
-    gameConfig,
-    viewState,
-    lastEndedGame,
     endDate,
+    gameConfig,
+    viewState: viewStateResult.viewState,
+    lastEndedGame,
     isLoading: isConfigLoading,
     error: isConfigError,
+    refetchAll,
+    isEndingGame,
   };
 }

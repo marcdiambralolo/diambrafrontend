@@ -120,6 +120,7 @@ export function normalizeConfigDates(config?: Partial<LearningConfiguration> | n
     return {
         ...config,
         startgameDate: toSafeDate(config?.startgameDate, new Date()),
+        proclamationDate: toSafeDate(config?.proclamationDate, new Date()),
         endgameDate: toSafeDate(config?.endgameDate, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
         isActive: Boolean(config?.isActive),
         status: normalizeStatus(config?.status),

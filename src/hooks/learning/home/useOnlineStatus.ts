@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState<boolean>(true);

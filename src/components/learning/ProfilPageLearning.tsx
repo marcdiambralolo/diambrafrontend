@@ -4,8 +4,8 @@ import { memo, useCallback } from 'react';
 import { FooterSection, HeaderSection, HelpButton, MessageToast } from './commons/Features';
 import Historique from './historique/Historique';
 import Bandeau from './home/Bandeau';
-import FeuilleDeMatch from "./home/FeuilleDematch";
 import LaBanniere from './home/LaBanniere';
+import FeuilleDeMatch from "./home/FeuilleDematch";
 
 const HeaderWithToast = () => {
   const { validateMessage, clearValidateMessage } = useEndGameGenerator();

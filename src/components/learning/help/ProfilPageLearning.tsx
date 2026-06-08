@@ -1,7 +1,7 @@
 'use client';
 import { ArrowLeft, Lightbulb, X, Zap } from "lucide-react";
 import { memo, startTransition, useCallback, useMemo, useState, useTransition } from 'react';
-import { FooterSection } from "../commons/Features";
+import { FooterSection, HeaderSection } from "../commons/Features";
 
 const HELP_SECTIONS = [
   {
@@ -134,9 +134,6 @@ const HelpHeader = memo(function HelpHeader() {
       <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
         Guide d&apos;utilisation
       </h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-        Devenez un expert en DIAMBRA LEARNING.
-      </p>
     </div>
   );
 });
@@ -241,7 +238,7 @@ const QuickTipsCard = memo(function QuickTipsCard() {
       <div
         key={tip.title}
         className={`
-          group flex items-start gap-2.5 p-2.5 bg-gradient-to-r ${getGradientByColor(tip.color)} 
+          group flex items-start gap-2.5 p-2 bg-gradient-to-r ${getGradientByColor(tip.color)} 
           rounded-lg hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-default
         `}
       >
@@ -364,10 +361,11 @@ const HelpPage = memo(function HelpPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 max-w-md">
-
+        <HeaderSection />
         <HelpPanel onClose={handleCloseHelp} />
+
         <div className="mt-6">
           <FooterSection />
         </div>

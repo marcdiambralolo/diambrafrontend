@@ -14,15 +14,6 @@ interface InfoRowProps {
   icon?: React.ReactNode;
 }
 
-interface MatchCardProps {
-  match: {
-    matchNumber: number;
-    type: string;
-    score: number;
-    timeSpent?: number;
-  };
-}
-
 interface CompetitionDetailsProps {
   competition: CompetitionSummary;
   onValidate: (competition: CompetitionSummary) => Promise<boolean>;
@@ -45,42 +36,6 @@ const InfoRow = memo(({ label, value, highlight = false, icon }: InfoRowProps) =
     </span>
   </div>
 ));
-
-const MatchCard = memo(({ match, }: MatchCardProps) => {
-  const timeDisplay = useMemo(() => formatDuration(match.timeSpent), [match.timeSpent]);
-
-  const cardClassName = useMemo(() => {
-    return "hover:bg-purple-50/50 dark:hover:bg-purple-900/10";
-  }, []);
-
-  return (
-    <div className={`${cardClassName} border rounded-lg transition-all duration-300`}>
-      <div
-        className="p-1 cursor-pointer select-none"
-        role="button"
-        tabIndex={0}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {match.type}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-sm font-mono font-bold text-purple-600 dark:text-purple-400">
-                {timeDisplay}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
 
 const MessageToast = memo(({ message, onClose }: { message: ValidationMessage | null; onClose: () => void }) => {
   useEffect(() => {
@@ -146,38 +101,50 @@ const CompetitionHeader = memo(({ name, onValidate, isLoading }: { name: string;
 
 const CompetitionStats = memo(({
   startDate,
-  finishedDate }: {
-    startDate: string;
-    finishedDate: string;
-  }) => (
-  <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-2xl p-5 mb-5 border border-gray-100 dark:border-gray-700">
-    <div className="space-y-1">
-      <InfoRow
-        label="Date de début"
-        value={startDate}
-        icon={<Calendar className="w-3.5 h-3.5" />}
-      />
-      <InfoRow
-        label="Date de fin"
-        value={finishedDate}
-        icon={<Calendar className="w-3.5 h-3.5" />}
-      />
-    </div>
-  </div>
-));
+  finishedDate
+}: {
+  startDate: string;
+  finishedDate: string;
+}) => {
 
-const MatchesSection = memo(({ matches }: { matches: any[]; }) => {
+  const elapsedTime = useMemo(() => {
+    if (!startDate || !finishedDate) return null;
+
+    const start = new Date(startDate);
+    const end = new Date(finishedDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+    const diffInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+
+    if (diffInSeconds < 0) return "Négatif";
+
+    return formatDuration(diffInSeconds);
+  }, [startDate, finishedDate]);
 
   return (
-    <div className={`w-full space-y-2 transition-all duration-300 overflow-hidden`}>
-      {matches.map((match, idx) => {
-        return (
-          <MatchCard
-            key={match.id || idx}
-            match={match}
+    <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-2xl p-5 mb-5 border border-gray-100 dark:border-gray-700">
+      <div className="space-y-1">
+        <InfoRow
+          label="Date de début"
+          value={startDate}
+          icon={<Calendar className="w-3.5 h-3.5" />}
+        />
+        <InfoRow
+          label="Date de fin"
+          value={finishedDate}
+          icon={<Calendar className="w-3.5 h-3.5" />}
+        />
+
+        {elapsedTime && (
+          <InfoRow
+            label="Temps écoulé"
+            value={elapsedTime}
+            highlight={true}
+            icon={<span className="text-sm">⏱️</span>}
           />
-        );
-      })}
+        )}
+      </div>
     </div>
   );
 });
@@ -206,10 +173,6 @@ const CompetitionDetails = memo(({ competition, onValidate, priority = false }: 
         <CompetitionStats
           startDate={formattedStartDate}
           finishedDate={formattedFinishedDate!}
-        />
-
-        <MatchesSection
-          matches={competition.matches}
         />
       </div>
     </div>
@@ -277,7 +240,6 @@ const FeuilleDeMatch = () => {
             />
           </div>
         ))}
-
         {hasMore && (
           <LoadMoreButton
             onClick={handleLoadMoreClick}

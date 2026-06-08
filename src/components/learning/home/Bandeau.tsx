@@ -1,5 +1,4 @@
 'use client';
-
 import Loader from "@/app/loading";
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/home/useAdminConsultationsPageFinished";
 import { formatDateTime } from "@/lib/functions";
@@ -10,10 +9,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
 import { GlowButton } from "../commons/Boutons";
 import ErrorPage from "../commons/Erreur";
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface CountdownTimerProps {
     targetDate: Date;
@@ -36,15 +31,6 @@ interface ActiveBannerProps {
     demarrerJeu: () => void;
     endDate: Date;
 }
-
-interface ResultsBannerProps {
-    proclamationDate: Date;
-    lastEndedGame: LastEndedGame | null;
-}
-
-// ============================================================================
-// COMPOSANT COUNTDOWN TIMER
-// ============================================================================
 
 const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -80,7 +66,7 @@ const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: Coun
         return () => clearInterval(timer);
     }, [calculateTimeLeft]);
 
-    const variantClasses = variant === 'celebration' 
+    const variantClasses = variant === 'celebration'
         ? 'bg-purple-900/40 backdrop-blur-lg border border-purple-400/30'
         : 'bg-black/25 backdrop-blur-lg';
 
@@ -100,77 +86,6 @@ const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: Coun
     );
 });
 
-
-const CountdownTimer2 = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
-    const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-    const [hasFinished, setHasFinished] = useState(false);
-
-    const calculateTimeLeft = useCallback(() => {
-        const diff = targetDate.getTime() - Date.now();
-
-        if (diff <= 0) {
-            if (!hasFinished) {
-                setHasFinished(true);
-                onFinish();
-            }
-            return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-        }
-
-        return {
-            days: Math.floor(diff / 86400000),
-            hours: Math.floor((diff % 86400000) / 3600000),
-            minutes: Math.floor((diff % 3600000) / 60000),
-            seconds: Math.floor((diff % 60000) / 1000)
-        };
-    }, [targetDate, hasFinished, onFinish]);
-
-    useEffect(() => {
-        const updateTimer = () => setTimeLeft(calculateTimeLeft());
-        updateTimer();
-        const timer = setInterval(updateTimer, 1000);
-        return () => clearInterval(timer);
-    }, [calculateTimeLeft]);
-
-    const variantClasses = {
-        default: 'bg-black/25 backdrop-blur-lg',
-        celebration: 'bg-purple-900/40 backdrop-blur-lg border border-purple-400/30',
-        results: 'bg-green-900/40 backdrop-blur-lg border border-green-400/30'
-    }[variant];
-
-    const textColor = {
-        default: 'text-white',
-        celebration: 'text-purple-200',
-        results: 'text-green-200'
-    }[variant];
-
-    const subTextColor = {
-        default: 'text-white/70',
-        celebration: 'text-purple-300/70',
-        results: 'text-green-300/70'
-    }[variant];
-
-    return (
-        <div className="flex gap-2 justify-center flex-wrap">
-            {TIME_UNITS.map(({ key, label }) => (
-                <div key={key} className={`text-center ${variantClasses} rounded-xl px-2 py-1.5 min-w-[55px] shadow-lg`}>
-                    <p className={`font-black text-xl leading-tight ${textColor}`}>
-                        {String(timeLeft[key as keyof TimeLeft]).padStart(2, '0')}
-                    </p>
-                    {/* <p className={`text-[9px] uppercase tracking-wider ${subTextColor}`}>
-                        {label === 'hours' ? 'h' : label === 'minutes' ? 'm' : label === 'seconds' ? 's' : label[0]}
-                    </p> */}
-                </div>
-            ))}
-        </div>
-    );
-});
-
-CountdownTimer.displayName = 'CountdownTimer';
-
-// ============================================================================
-// BANNIÈRE ÉDITION NON COMMENCÉE
-// ============================================================================
-
 const NotStartedBanner = memo(({ startDate }: NotStartedBannerProps) => (
     <div className="w-full rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-5 mb-6 shadow-xl">
         <div className="flex flex-col items-center gap-3">
@@ -183,7 +98,7 @@ const NotStartedBanner = memo(({ startDate }: NotStartedBannerProps) => (
                     <p className="text-white/80 text-xs">L'édition n'a pas encore commencé</p>
                 </div>
             </div>
-            <CountdownTimer targetDate={startDate} onFinish={() => {}} />
+            <CountdownTimer targetDate={startDate} onFinish={() => { }} />
             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-xl">
                 <Clock className="w-3 h-3 text-white" aria-hidden="true" />
                 <span className="text-white text-xs">Début {formatDateTime(startDate)}</span>
@@ -191,12 +106,6 @@ const NotStartedBanner = memo(({ startDate }: NotStartedBannerProps) => (
         </div>
     </div>
 ));
-
-NotStartedBanner.displayName = 'NotStartedBanner';
-
-// ============================================================================
-// BANNIÈRE ÉDITION ACTIVE
-// ============================================================================
 
 const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate }: ActiveBannerProps) => (
     <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-5 mb-6 shadow-xl">
@@ -210,12 +119,12 @@ const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate }: ActiveBannerPro
                     <p className="text-white/80 text-xs">Participez avant la fin</p>
                 </div>
             </div>
-            
+
             <div className="text-center">
                 <p className="text-white/80 text-xs mb-2">Temps restant</p>
-                <CountdownTimer targetDate={endDate} onFinish={() => {}} />
+                <CountdownTimer targetDate={endDate} onFinish={() => { }} />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 w-full mt-2">
                 <div className="bg-white/15 rounded-2xl p-2 text-center">
                     <div className="text-2xl">🎮</div>
@@ -228,17 +137,11 @@ const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate }: ActiveBannerPro
                     <div className="text-sm font-bold text-white">{gameConfig?.niveau || 2}</div>
                 </div>
             </div>
-            
+
             <GlowButton onClick={demarrerJeu}>🚀 JOUER MAINTENANT</GlowButton>
         </div>
     </div>
 ));
-
-ActiveBanner.displayName = 'ActiveBanner';
-
-// ============================================================================
-// BANNIÈRE ATTENTE DES RÉSULTATS
-// ============================================================================
 
 const ResultsWaitingBanner = memo(({ proclamationDate }: { proclamationDate: Date }) => (
     <div className="w-full rounded-2xl bg-gradient-to-br from-purple-700 via-indigo-800 to-purple-900 p-6 mb-6 shadow-2xl border border-purple-500/30">
@@ -264,7 +167,7 @@ const ResultsWaitingBanner = memo(({ proclamationDate }: { proclamationDate: Dat
                     <Gift className="w-3 h-3" />
                     Proclamation des résultats dans
                 </p>
-                <CountdownTimer targetDate={proclamationDate} onFinish={() => {}} variant="celebration" />
+                <CountdownTimer targetDate={proclamationDate} onFinish={() => { }} variant="celebration" />
             </div>
 
             <div className="bg-purple-800/30 rounded-xl p-3 text-center">
@@ -278,14 +181,8 @@ const ResultsWaitingBanner = memo(({ proclamationDate }: { proclamationDate: Dat
     </div>
 ));
 
-ResultsWaitingBanner.displayName = 'ResultsWaitingBanner';
-
-// ============================================================================
-// BANNIÈRE RÉSULTATS DISPONIBLES
-// ============================================================================
-
 const ResultsAvailableBanner = memo(({ lastEndedGame }: { lastEndedGame: LastEndedGame | null }) => {
-    const endGameDate = lastEndedGame 
+    const endGameDate = lastEndedGame
         ? new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR')
         : null;
 
@@ -293,16 +190,16 @@ const ResultsAvailableBanner = memo(({ lastEndedGame }: { lastEndedGame: LastEnd
         <div className="w-full rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 p-6 mb-6 shadow-xl">
             <div className="flex flex-col items-center gap-4">
                 <Trophy className="w-16 h-16 text-yellow-300" />
-                
+
                 <div className="text-center">
                     <p className="text-white font-bold text-xl">Résultats disponibles !</p>
                     <p className="text-white/80 text-sm mt-1">
-                        {lastEndedGame 
+                        {lastEndedGame
                             ? `Édition terminée le ${endGameDate}`
                             : 'Merci pour votre participation'}
                     </p>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center justify-center gap-3">
                     <CacheLink
                         href="/star/learning/historique/1779760200000"
@@ -316,12 +213,6 @@ const ResultsAvailableBanner = memo(({ lastEndedGame }: { lastEndedGame: LastEnd
         </div>
     );
 });
-
-ResultsAvailableBanner.displayName = 'ResultsAvailableBanner';
-
-// ============================================================================
-// BANNIÈRE AUCUNE COMPÉTITION
-// ============================================================================
 
 const NoCompetitionBanner = memo(() => (
     <div className="w-full rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 p-6 mb-6 shadow-xl border border-slate-800">
@@ -339,30 +230,21 @@ const NoCompetitionBanner = memo(() => (
     </div>
 ));
 
-NoCompetitionBanner.displayName = 'NoCompetitionBanner';
-
-// ============================================================================
-// BANNIÈRE ÉDITION TERMINÉE (gère les 2 états)
-// ============================================================================
-
 const EndedBanner = memo(({ lastEndedGame, endDate, proclamationDate }: EndedBannerProps) => {
     const now = Date.now();
     const proclamationMs = proclamationDate?.getTime() || 0;
     const isProclamationPassed = proclamationMs > 0 && now >= proclamationMs;
     const hasProclamationFuture = proclamationMs > 0 && now < proclamationMs;
 
-    // Étape 3: Résultats disponibles
     if (isProclamationPassed) {
         return <ResultsAvailableBanner lastEndedGame={lastEndedGame} />;
     }
 
-    // Étape 2: Attente des résultats (entre fin et proclamation)
     if (hasProclamationFuture && endDate && now >= endDate.getTime()) {
         return <ResultsWaitingBanner proclamationDate={proclamationDate!} />;
     }
 
-    // Fallback
-    const endGameDate = lastEndedGame 
+    const endGameDate = lastEndedGame
         ? new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR')
         : null;
 
@@ -380,6 +262,7 @@ const EndedBanner = memo(({ lastEndedGame, endDate, proclamationDate }: EndedBan
                         </p>
                     </div>
                 </div>
+
                 {proclamationDate && (
                     <div className="bg-white/10 rounded-xl px-3 py-2">
                         <p className="text-gray-300 text-xs">
@@ -399,22 +282,9 @@ const EndedBanner = memo(({ lastEndedGame, endDate, proclamationDate }: EndedBan
     );
 });
 
-EndedBanner.displayName = 'EndedBanner';
-
-// ============================================================================
-// COMPOSANT PRINCIPAL
-// ============================================================================
-
 const Bandeau = () => {
     const {
-        demarrerJeu,
-        startDate,
-        gameConfig,
-        viewState,
-        lastEndedGame,
-        endDate,
-        isLoading,
-        error,
+        demarrerJeu, startDate, gameConfig, viewState, lastEndedGame, endDate, isLoading, error,
     } = useAdminConsultationsPageFinished();
 
     const proclamationDate = useMemo(
@@ -428,11 +298,10 @@ const Bandeau = () => {
     return (
         <div className="w-full mx-auto max-w-md">
             {viewState.isEmpty && <NoCompetitionBanner />}
-            
             {viewState.isNotStarted && startDate && (
                 <NotStartedBanner startDate={startDate} />
             )}
-            
+
             {viewState.isActive && gameConfig && endDate && (
                 <ActiveBanner
                     gameConfig={gameConfig}
@@ -440,7 +309,7 @@ const Bandeau = () => {
                     endDate={endDate}
                 />
             )}
-            
+
             {viewState.isEnded && (
                 <EndedBanner
                     lastEndedGame={lastEndedGame}

@@ -1,26 +1,17 @@
 'use client';
-
 import { api } from '@/lib/api/client';
 import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-
-// ============================================================================
-// CONSTANTES
-// ============================================================================
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TIME_UPDATE_INTERVAL = 1000;
 const QUERY_STALE_TIME = 30 * 1000;
 const RETRY_ATTEMPTS = 2;
-const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const ONE_HOUR_IN_MS = 1000;//const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 const ONE_MINUTE_IN_MS = 60 * 1000;
 const LAST_ENDED_REFETCH_INTERVAL = 5000;
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface ExtendedViewState {
   isEnded: boolean;
@@ -35,27 +26,15 @@ interface ViewStateResult {
   shouldShowStat: boolean;
 }
 
-// ============================================================================
-// SÉLECTEURS STORE (évitent les re-rendus)
-// ============================================================================
-
 const selectSetGameConfig = (state: any) => state.setGameConfig;
 const selectSetAfficheBanana = (state: any) => state.setAfficheBanana;
 const selectSetAfficheStat = (state: any) => state.setAfficheStat;
 
-// ============================================================================
-// HOOK PRINCIPAL
-// ============================================================================
-
 export function useAdminConsultationsPageFinished() {
-  const queryClient = useQueryClient();
   const router = useRouter();
 
-  // Refs pour éviter les re-rendus et redirections multiples
-  const hasAutoEndedRef = useRef(false);
   const hasRedirectedRef = useRef(false);
 
-  // Sélecteurs optimisés
   const setGameConfig = useMonEtoileStore(selectSetGameConfig);
   const setAfficheBanana = useMonEtoileStore(selectSetAfficheBanana);
   const setAfficheStat = useMonEtoileStore(selectSetAfficheStat);
@@ -63,9 +42,6 @@ export function useAdminConsultationsPageFinished() {
 
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
-  // ============================================================================
-  // QUERY: CONFIGURATION DU JEU
-  // ============================================================================
   const {
     data: gameConfig = null,
     isLoading: isConfigLoading,
@@ -86,16 +62,12 @@ export function useAdminConsultationsPageFinished() {
     refetchOnMount: true,
   });
 
-  // Synchronisation du store
   useEffect(() => {
     if (gameConfig) {
       setGameConfig(gameConfig);
     }
   }, [gameConfig, setGameConfig]);
 
-  // ============================================================================
-  // QUERY: DERNIÈRE COMPÉTITION
-  // ============================================================================
   const {
     data: lastEndedGame = null,
     refetch: refetchLastEnded
@@ -110,48 +82,16 @@ export function useAdminConsultationsPageFinished() {
     refetchOnWindowFocus: false,
   });
 
-  // ============================================================================
-  // MUTATION: CLÔTURE
-  // ============================================================================
-  const { mutate: mutateEndGame, isPending: isEndingGame } = useMutation({
-    mutationFn: async (configId: string) => {
-      const { data } = await api.post(`/learning-configurations/${configId}/end`);
-      return data;
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['game', 'config'] }),
-        queryClient.invalidateQueries({ queryKey: ['game', 'last-ended'] })
-      ]);
-    },
-    onError: (err: any) => {
-      if (err?.response?.status === 409) {
-        queryClient.invalidateQueries({ queryKey: ['game', 'last-ended'] });
-      } else {
-        console.error('Erreur clôture automatique du jeu:', err);
-      }
-    }
-  });
-
-  // ============================================================================
-  // HORLOGE
-  // ============================================================================
   useEffect(() => {
     const intervalId = setInterval(() => setCurrentTimestamp(Date.now()), TIME_UPDATE_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
 
-  // ============================================================================
-  // CALCUL DES DATES (mémorisé)
-  // ============================================================================
   const { startDate, endDate } = useMemo(() => ({
     startDate: gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
     endDate: gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
   }), [gameConfig?.startgameDate, gameConfig?.endgameDate]);
 
-  // ============================================================================
-  // CALCUL DE L'ÉTAT DE LA VUE (mémorisé)
-  // ============================================================================
   const viewStateResult = useMemo((): ViewStateResult => {
     if (!gameConfig) {
       return {
@@ -185,31 +125,11 @@ export function useAdminConsultationsPageFinished() {
 
     return {
       viewState,
-      shouldShowBanana: viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty,
+      shouldShowBanana: !viewState.isEnded && !viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty,
       shouldShowStat: !viewState.isEmpty
     };
   }, [gameConfig, startDate, endDate, currentTimestamp, lastEndedGame]);
 
-  // ============================================================================
-  // CLÔTURE AUTOMATIQUE
-  // ============================================================================
-  useEffect(() => {
-    const shouldAutoEnd = endDate &&
-      currentTimestamp > endDate.getTime() &&
-      gameConfig?.status === 'active' &&
-      gameConfig._id &&
-      !isEndingGame &&
-      !hasAutoEndedRef.current;
-
-    if (shouldAutoEnd) {
-      hasAutoEndedRef.current = true;
-      mutateEndGame(gameConfig._id!);
-    }
-  }, [currentTimestamp, endDate, gameConfig, isEndingGame, mutateEndGame]);
-
-  // ============================================================================
-  // SYNCHRONISATION STORE (banana et stat)
-  // ============================================================================
   useEffect(() => {
     setAfficheBanana(viewStateResult.shouldShowBanana);
   }, [viewStateResult.shouldShowBanana, setAfficheBanana]);
@@ -218,9 +138,6 @@ export function useAdminConsultationsPageFinished() {
     setAfficheStat(viewStateResult.shouldShowStat);
   }, [viewStateResult.shouldShowStat, setAfficheStat]);
 
-  // ============================================================================
-  // DÉMARRER LE JEU (avec cache busting et évitement des doubles redirections)
-  // ============================================================================
   const demarrerJeu = useCallback(() => {
     if (hasRedirectedRef.current) return;
 
@@ -244,34 +161,8 @@ export function useAdminConsultationsPageFinished() {
     router.push(targetPath);
   }, [gameConfig, getAllCompetitions, router]);
 
-  // ============================================================================
-  // HANDLE OPEN GAME
-  // ============================================================================
-  const handleOpenGame = useCallback(() => {
-    setAfficheBanana(true);
-  }, [setAfficheBanana]);
-
-  // ============================================================================
-  // REFETCH MANUEL
-  // ============================================================================
-  const refetchAll = useCallback(async () => {
-    await Promise.all([refetchConfig(), refetchLastEnded()]);
-  }, [refetchConfig, refetchLastEnded]);
-
-  // ============================================================================
-  // RETURN
-  // ============================================================================
   return {
-    demarrerJeu,
-    handleOpenGame,
-    startDate,
-    endDate,
-    gameConfig,
-    viewState: viewStateResult.viewState,
-    lastEndedGame,
-    isLoading: isConfigLoading,
-    error: isConfigError,
-    refetchAll,
-    isEndingGame,
+    viewState: viewStateResult.viewState, isLoading: isConfigLoading, error: isConfigError,
+    demarrerJeu, startDate, gameConfig, lastEndedGame, endDate, refetchLastEnded, refetchConfig
   };
 }

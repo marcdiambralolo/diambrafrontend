@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ConfigForm from './ConfigForm';
-import { formatDateFR, normalizeStatus, statusConfig, ToastItem, useLearningConfig } from '@/hooks/learning/admin/useLearningConfig';
+import {  normalizeStatus, statusConfig, ToastItem, useLearningConfig } from '@/hooks/learning/admin/useLearningConfig';
+import { formatDateFR } from '@/lib/learning/functions';
 
 const ToastContainer = () => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);

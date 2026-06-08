@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 const TIME_UPDATE_INTERVAL = 1000;
 const QUERY_STALE_TIME = 30 * 1000;
 const RETRY_ATTEMPTS = 2;
-const ONE_HOUR_IN_MS = 1000;//const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const ONE_HOUR_IN_MS = 1000; //const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 const ONE_MINUTE_IN_MS = 60 * 1000;
 const LAST_ENDED_REFETCH_INTERVAL = 5000;
 

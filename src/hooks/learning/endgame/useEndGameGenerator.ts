@@ -4,7 +4,6 @@ import { INITIAL_VISIBLE_COUNT, LOAD_MORE_INCREMENT, MESSAGE_DURATION } from "@/
 import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCompetitionLauncher } from "../game/useCompetitionLauncher";
 
 interface ValidationMessage {
     text: string;
@@ -72,7 +71,7 @@ export interface CompetitionSummary {
     finishedAt?: string;
     matches: MatchResult[];
     rawMatches?: MatchInfo[];
-    totalScore: number; 
+    totalScore: number;
     datedebut: string;
     datefin: string;
     idConfig: string;
@@ -91,7 +90,6 @@ interface LearningStats {
     totalScore?: number;
     totalTrouves?: number;
     totalRates?: number;
-    averageScore?: string;
     competitionsCount?: number;
     completedAt?: string;
     matchesDetails?: Array<{
@@ -104,9 +102,6 @@ interface LearningStats {
         validatedAt?: string;
     }>;
 }
-
-const DEFAULT_SCORE = 0;
-const DEFAULT_RATES = 0;
 
 export const getMatchType = (tpsglobal?: number): string => {
     if (tpsglobal === undefined) return 'Inconnu';
@@ -140,14 +135,14 @@ const adaptCompetitionToLocal = (competition: CompetitionInfo): MatchInfo[] => {
     return competition.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,
-        trouves: match.trouves || DEFAULT_SCORE,
-        rates: match.rates || DEFAULT_RATES,
+        trouves: match.trouves || 0,
+        rates: match.rates || 0,
         isgameover: match.isgameover,
         timeSpent: match.timeSpent ? Number(match.timeSpent) : undefined,
         datedebut: competition.datedebut,
         competitionId: competition.id,
         matchNumber: match.matchNumber,
-        score: match.trouves || DEFAULT_SCORE,
+        score: match.trouves || 0,
     }));
 };
 
@@ -155,7 +150,7 @@ const computeCompetitionStats = (matches: MatchInfo[]): Pick<CompetitionSummary,
     let totalScore = 0;
 
     const matchResults: MatchResult[] = matches.map((match, idx) => {
-        const score = match.trouves || DEFAULT_SCORE;
+        const score = match.trouves || 0;
         totalScore += score;
         return {
             matchNumber: idx + 1,
@@ -180,7 +175,7 @@ const createCompetitionSummary = (
 ): CompetitionSummary => {
     return {
         id: competition.id,
-        name: `N° Jeu : ${competition.id.slice(-12)}`,
+        name: `N°: ${competition.id.slice(-12)}`,
         startedAt: competition.datedebut,
         finishedAt: competition.datefin,
         totalScore: stats.totalScore,
@@ -225,26 +220,16 @@ const useMessage = () => {
 };
 
 export const useEndGameGenerator = () => {
-    const { getAllCompetitions,gameConfig } = useMonEtoileStore();
-
-    const { demarrerJeu } = useCompetitionLauncher();
-
-    const [isValidating, setIsValidating] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitMessage, setSubmitMessage] = useState<MessageState | null>(null);
+    const { getAllCompetitions, gameConfig } = useMonEtoileStore();
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
 
     const competitions = useMemo(() => {
         const compList: CompetitionSummary[] = [];
         const allCompetitions = getAllCompetitions();
-        
-        console.log('allCompetitions', allCompetitions);
-        console.log('gameConfig?.id', gameConfig?.id);
 
         for (const competition of allCompetitions) {
-            // ✅ FILTRE: Ne garder que les compétitions dont l'idConfig correspond au gameConfig.id
             if (competition.idConfig !== gameConfig?.id) {
-                continue; // Ignorer les compétitions d'autres configurations
+                continue;
             }
 
             const localMatches = adaptCompetitionToLocal(competition);
@@ -268,12 +253,10 @@ export const useEndGameGenerator = () => {
             return false;
         }
 
-        setIsValidating(true);
-
         try {
-            const totalScore = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
-            const totalTrouves = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || DEFAULT_SCORE), 0);
-            const totalRates = competition.rawMatches.reduce((acc, match) => acc + (match.rates || DEFAULT_RATES), 0);
+            const totalScore = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || 0), 0);
+            const totalTrouves = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || 0), 0);
+            const totalRates = competition.rawMatches.reduce((acc, match) => acc + (match.rates || 0), 0);
             const startDate = competition.rawMatches[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
             const duration = calculateDuration(startDate, endDate);
@@ -290,9 +273,9 @@ export const useEndGameGenerator = () => {
                 timeSpent: durationInSeconds,
                 learningStats: {
                     totalTime: duration,
-                    totalScore: (existingStats.totalScore || DEFAULT_SCORE) + totalScore,
-                    totalTrouves: (existingStats.totalTrouves || DEFAULT_SCORE) + totalTrouves,
-                    totalRates: (existingStats.totalRates || DEFAULT_SCORE) + totalRates,
+                    totalScore: (existingStats.totalScore || 0) + totalScore,
+                    totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
+                    totalRates: (existingStats.totalRates || 0) + totalRates,
                     competitionsCount: (existingStats.competitionsCount || 0) + 1,
                     completedAt: endDate,
                     matchesDetails: [
@@ -319,54 +302,33 @@ export const useEndGameGenerator = () => {
             const errorMessage = error?.response?.data?.message || 'Erreur lors de la validation';
             showValidateMessage(errorMessage, 'error');
             return false;
-        } finally {
-            setIsValidating(false);
         }
-    }, [ showValidateMessage]);
-
-    // Redémarrage du jeu
-    const handleRestart = useCallback(() => {
-        demarrerJeu();
-    }, []);
-
-    const handleSubmitGame = useCallback(async () => {
-        setIsSubmitting(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setSubmitMessage({ text: 'Jeu soumis avec succès !', type: 'success' });
-        } catch (error) {
-            setSubmitMessage({ text: 'Erreur lors de la soumission', type: 'error' });
-        } finally {
-            setIsSubmitting(false);
-            setTimeout(() => setSubmitMessage(null), MESSAGE_DURATION);
-        }
-    }, []);
+    }, [showValidateMessage]);
 
     const clearValidateMessage = useCallback(() => {
         showValidateMessage('', 'success');
     }, [showValidateMessage]);
+
     const hasCompetitions = competitions.length > 0;
+    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
-    
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+    const handleLoadMore = useCallback(() => {
+        startTransition(() => {
+            setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
+        });
+    }, [competitions.length]);
 
-  const handleLoadMore = useCallback(() => {
-    startTransition(() => {
-      setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
-    });
-  }, [competitions.length]);
+    const competitionList = useMemo(() => {
+        if (!hasCompetitions) return null;
 
-  const competitionList = useMemo(() => {
-    if (!hasCompetitions) return null;
-    return competitions.slice(0, visibleCount);
-  }, [competitions, visibleCount, hasCompetitions]);
+        return competitions.slice(0, visibleCount);
+    }, [competitions, visibleCount, hasCompetitions]);
 
-  const hasMore = visibleCount < competitions.length;
-  const remainingCount = competitions.length - visibleCount;
+    const hasMore = visibleCount < competitions.length;
+    const remainingCount = competitions.length - visibleCount;
 
     return {
-        handleValidateCompetition, handleRestart, handleSubmitGame, clearValidateMessage,
-        isValidating, isSubmitting, competitions, validateMessage, submitMessage, hasCompetitions,
-        competitionList, hasMore, remainingCount, handleLoadMore,       
+        handleValidateCompetition, handleLoadMore, clearValidateMessage,
+        competitionList, hasMore, remainingCount, validateMessage,
     };
 };

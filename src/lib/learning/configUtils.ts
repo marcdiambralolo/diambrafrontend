@@ -1,8 +1,5 @@
-// lib/learning/configUtils.ts
-
 import { LearningConfigStatus, LearningConfiguration, ToastType } from "../interfaces";
 
- 
 let toastId = 0;
 
 export const statusConfig: Record<LearningConfigStatus, {

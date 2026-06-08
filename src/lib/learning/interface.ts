@@ -1,3 +1,5 @@
+export type DateLike = Date | string | number | null | undefined;
+
 export interface Case {
   numordrep?: number;
   tpsglobal?: number;

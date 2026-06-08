@@ -1,3 +1,6 @@
+import { toSafeDate } from "./configUtils";
+import { DateLike } from "./interface";
+
 export const dst = (date: Date): string => {
   return date.toISOString();
 };
@@ -157,9 +160,25 @@ export const getChronoTime = (niveau: number): number =>
 
 
 export const formatDuration = (seconds?: number): string => {
-    if (!seconds) return '0s';
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+  if (!seconds) return '0s';
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
 };
+
+export function formatDateFR(value: DateLike): string {
+  const date = toSafeDate(value, new Date());
+  if (!isValidDate(date)) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
+}
+
+export function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && !Number.isNaN(value.getTime());
+}

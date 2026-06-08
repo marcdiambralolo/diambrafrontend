@@ -1,6 +1,6 @@
 'use client';
 import { api } from '@/lib/api/client';
-import { ActiveEdition, Consultation, StatisticsData, WinnersData } from '@/lib/interfaces';
+import { ActiveEdition, Consultation } from '@/lib/interfaces';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const ITEMS_PER_PAGE = 10000;
@@ -18,15 +18,11 @@ const isValidTimeSpent = (consultation: Consultation): boolean => {
 
 export function useAdminConsultationsPageFinished() {
   const isMountedRef = useRef(true);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [activeEdition, setActiveEdition] = useState<ActiveEdition | null>(null);
-  const [winners, setWinners] = useState<WinnersData | null>(null);
-  const [statistics, setStatistics] = useState<StatisticsData | null>(null);
-
-  const hasWinners = winners?.totalWinners ? winners.totalWinners > 0 : false;
-  const winningCombination = statistics?.winningCombination || activeEdition?.winningCombination || null;
 
   const fetchData = useCallback(async () => {
     try {
@@ -38,8 +34,6 @@ export function useAdminConsultationsPageFinished() {
         const validConsultations = (data?.consultations || []).filter(isValidTimeSpent);
         setConsultations(validConsultations);
         setActiveEdition(data?.activeEdition || null);
-        setWinners(data?.winners || null);
-        setStatistics(data?.statistics || null);
         setError(null);
       }
     } catch (err: any) {
@@ -58,5 +52,5 @@ export function useAdminConsultationsPageFinished() {
     return () => { isMountedRef.current = false; };
   }, [fetchData]);
 
-  return { loading, error, activeEdition, consultations, winners, statistics, hasWinners, winningCombination, };
+  return { activeEdition, consultations, };
 }

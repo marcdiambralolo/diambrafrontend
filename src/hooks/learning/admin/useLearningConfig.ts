@@ -1,9 +1,9 @@
 import { api } from '@/lib/api/client';
 import { LearningConfiguration } from '@/lib/interfaces';
-import { generateNumeromatch, normalizeConfigDates, showToast, toSafeDate } from '@/lib/learning/configUtils';
+import { generateNumeromatch, normalizeConfigDates, showToast } from '@/lib/learning/configUtils';
 import { useEffect, useState } from 'react';
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 export type ToastType = 'success' | 'error' | 'info';
 
 export type ToastItem = {
@@ -13,7 +13,6 @@ export type ToastItem = {
 };
 
 export type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
-export type DateLike = Date | string | number | null | undefined;
 export const DEFAULT_FORM_STATUS: ConfigStatus = 'pending';
 
 export const statusConfig: Record<ConfigStatus,
@@ -59,22 +58,6 @@ export const statusConfig: Record<ConfigStatus,
         label: 'Annulé',
     },
 };
-
-export function formatDateFR(value: DateLike): string {
-    const date = toSafeDate(value, new Date());
-    if (!isValidDate(date)) return '';
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    const second = String(date.getSeconds()).padStart(2, '0');
-    return `${day}/${month}/${year}` + " à " + `${hour}:${minute}:${second}`;
-}
-
-export function isValidDate(value: unknown): value is Date {
-    return value instanceof Date && !Number.isNaN(value.getTime());
-}
 
 export function normalizeStatus(value: unknown): ConfigStatus {
     if (
@@ -162,18 +145,6 @@ export function useLearningConfig() {
         }
     };
 
-    const handleEndEdition = async (id: string) => {
-        if (!window.confirm('Terminer cette édition ?')) return;
-
-        try {
-            await api.post(`learning-configurations/${id}/end`);
-            showToast('🏁 Édition terminée avec succès', 'success');
-            await fetchConfigurations();
-        } catch {
-            showToast('Erreur lors de la fin de l\'édition', 'error');
-        }
-    };
-
     useEffect(() => {
         fetchConfigurations();
     }, []);
@@ -183,8 +154,7 @@ export function useLearningConfig() {
     const paginatedConfigs = configs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return {
-        configs, paginatedConfigs, loading, editingId, isCreating, currentPage, totalPages,
-        setEditingId, setIsCreating, setCurrentPage, handleCreate, handleUpdate, handleDelete,
-        handleEndEdition, refresh: fetchConfigurations, setConfigs,
+        setEditingId, setIsCreating, setConfigs, handleCreate, handleUpdate, handleDelete, setCurrentPage,
+        currentPage, totalPages, paginatedConfigs, configs, loading, editingId, isCreating,
     };
 }

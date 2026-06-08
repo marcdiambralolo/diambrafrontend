@@ -13,7 +13,6 @@ export const COLORS = {
   subscribers: "from-purple-600 to-indigo-600"
 } as const;
 
-
 export const NO_DATA_PLACEHOLDER = 'N/A';
 
 export const MATCH_TYPES: Record<number, string> = {
@@ -29,7 +28,6 @@ export const STATUS_CONFIG = {
   online: { text: 'EN LIGNE', color: 'green' },
   offline: { text: 'HORS LIGNE', color: 'red' }
 } as const;
-
 
 export const TIME_UNIT_LABELS: Record<string, string> = {
   days: 'j',

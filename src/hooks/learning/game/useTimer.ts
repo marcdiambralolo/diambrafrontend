@@ -8,11 +8,9 @@ export const useTimer = (start: boolean) => {
             setTimeElapsed(0);
             return;
         }
-
         const timer = setInterval(() => {
             setTimeElapsed((prev) => prev + 1);
         }, 1000);
-
         return () => clearInterval(timer);
     }, [start]);
 

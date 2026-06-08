@@ -40,6 +40,7 @@ export function useLaMise() {
     const [isPendingNavigation, startNavigationTransition] = useTransition();
 
     const { gameConfig, getAllCompetitions } = useMonEtoileStore();
+
     const hasRedirectedRef = useRef(false);
 
     const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
@@ -49,6 +50,7 @@ export function useLaMise() {
         if (hasRedirectedRef.current || !gameConfig) return;
 
         const configId = gameConfig?._id || gameConfig?.id;
+
         if (!configId) return;
 
         const allCompetitions = getAllCompetitions();

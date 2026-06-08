@@ -10,9 +10,7 @@ export function useOnlineStatus() {
 
   useEffect(() => {
     const updateStatus = () => setIsOnline(navigator.onLine);
-
     updateStatus();
-
     window.addEventListener("online", updateStatus);
     window.addEventListener("offline", updateStatus);
 

@@ -3,7 +3,7 @@ import { LearningConfiguration } from '@/lib/interfaces';
 import { generateNumeromatch, normalizeConfigDates, showToast } from '@/lib/learning/configUtils';
 import { useEffect, useState } from 'react';
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 export type ToastType = 'success' | 'error' | 'info';
 
 export type ToastItem = {

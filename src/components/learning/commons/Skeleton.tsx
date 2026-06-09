@@ -1,5 +1,5 @@
 'use client';
-import { memo, useMemo, CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
 
 interface SkeletonProps {
   height?: string | number;
@@ -11,6 +11,10 @@ interface SkeletonProps {
   count?: number;
   inline?: boolean;
   gap?: string;
+}
+
+interface BaseSkeletonProps extends SkeletonProps {
+  style?: CSSProperties;
 }
 
 const ROUNDED_MAP = {
@@ -25,9 +29,9 @@ const ROUNDED_MAP = {
 
 const VARIANT_STYLES = {
   default: 'bg-gray-100 dark:bg-gray-800',
-  card: 'bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800',
+  card: 'bg-gray-100 dark:bg-gray-800',
   text: 'bg-gray-100 dark:bg-gray-800 h-4',
-  avatar: 'rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600',
+  avatar: 'rounded-full bg-gray-200 dark:bg-gray-700',
   button: 'bg-gray-200 dark:bg-gray-700 rounded-lg'
 } as const;
 
@@ -39,16 +43,20 @@ const BaseSkeleton = memo(({
   animate = true,
   variant = 'default',
   style = {}
-}: SkeletonProps & { style?: CSSProperties }) => {
-  // Mémorisation des classes combinées
+}: BaseSkeletonProps) => {
   const combinedClasses = useMemo(() => {
     const variantClass = VARIANT_STYLES[variant];
     const roundedClass = ROUNDED_MAP[rounded];
     const animationClass = animate ? 'animate-pulse' : '';
 
-    // Conversion de la hauteur/largeur si nécessaire
-    const heightClass = height ? (typeof height === 'number' ? `h-[${height}px]` : height) : '';
-    const widthClass = width ? (typeof width === 'number' ? `w-[${width}px]` : width) : '';
+    const getSizeClass = (value?: string | number) => {
+      if (!value) return '';
+      if (typeof value === 'number') return `h-[${value}px] w-[${value}px]`;
+      return value;
+    };
+
+    const heightClass = getSizeClass(height);
+    const widthClass = getSizeClass(width);
 
     return [
       variantClass,
@@ -60,7 +68,6 @@ const BaseSkeleton = memo(({
     ].filter(Boolean).join(' ');
   }, [variant, rounded, animate, height, width, className]);
 
-  // Mémorisation du style inline
   const inlineStyle = useMemo(() => {
     const styles: CSSProperties = { ...style };
     if (height && typeof height === 'number') styles.height = height;
@@ -78,7 +85,61 @@ const BaseSkeleton = memo(({
   );
 });
 
-export const TextSkeleton = memo(({ lines = 1, lastLineWidth = 'w-3/4', gap = 'gap-2' }: {
+export const Skeleton = memo(({
+  height = 'h-4',
+  width,
+  rounded = 'xl',
+  className = '',
+  animate = true,
+  variant = 'default',
+  count = 1,
+  gap = 'gap-2',
+  inline = false
+}: SkeletonProps) => {
+  const skeletons = useMemo(() =>
+    Array.from({ length: count }, (_, index) => (
+      <BaseSkeleton
+        key={index}
+        height={height}
+        width={width}
+        rounded={rounded}
+        className={className}
+        animate={animate}
+        variant={variant}
+      />
+    )),
+    [count, height, width, rounded, className, animate, variant]
+  );
+
+  if (count === 1) {
+    return (
+      <BaseSkeleton
+        height={height}
+        width={width}
+        rounded={rounded}
+        className={className}
+        animate={animate}
+        variant={variant}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${inline ? 'inline-flex' : 'flex flex-col'} ${gap}`}
+      role="presentation"
+      aria-label={`Chargement de ${count} éléments`}
+    >
+      {skeletons}
+    </div>
+  );
+});
+
+export const TextSkeleton = memo(({
+  lines = 1,
+  lastLineWidth = 'w-3/4',
+  gap = 'gap-2'
+}: {
   lines?: number;
   lastLineWidth?: string;
   gap?: string;
@@ -96,7 +157,6 @@ export const TextSkeleton = memo(({ lines = 1, lastLineWidth = 'w-3/4', gap = 'g
           height="h-4"
           width={index === lines - 1 && lines > 1 ? lastLineWidth : 'w-full'}
           variant="text"
-          className={index === lines - 1 ? 'w-3/4' : ''}
         />
       ))}
     </div>
@@ -112,7 +172,7 @@ export const CardSkeleton = memo(() => (
     <div className="flex items-start gap-3">
       <AvatarSkeleton size="w-10 h-10" />
       <div className="flex-1">
-        <TextSkeleton lines={2} lastLineWidth="w-1/2" />
+        <TextSkeleton lines={2} />
       </div>
     </div>
     <div className="mt-3">
@@ -125,12 +185,19 @@ export const CardSkeleton = memo(() => (
   </div>
 ));
 
-export const ListSkeleton = memo(({ items = 5, itemHeight = 'h-16', gap = 'gap-3' }: {
+export const ListSkeleton = memo(({
+  items = 5,
+  itemHeight = 'h-16',
+  gap = 'gap-3'
+}: {
   items?: number;
   itemHeight?: string;
   gap?: string;
 }) => {
-  const itemsArray = useMemo(() => Array.from({ length: items }, (_, i) => i), [items]);
+  const itemsArray = useMemo(() =>
+    Array.from({ length: items }, (_, i) => i),
+    [items]
+  );
 
   return (
     <div className={`flex flex-col ${gap}`} role="presentation" aria-label={`Chargement de ${items} éléments`}>
@@ -153,9 +220,7 @@ export const GridSkeleton = memo(({
   gap?: string;
 }) => {
   const totalItems = cols * rows;
-  const gridCols = `grid-cols-${cols}`;
 
-  // Utilisation de CSS Grid personnalisé pour les colonnes
   const gridStyle = useMemo(() => ({
     display: 'grid',
     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
@@ -165,7 +230,7 @@ export const GridSkeleton = memo(({
   return (
     <div
       style={gridStyle}
-      className={`w-full ${gap}`}
+      className="w-full"
       role="presentation"
       aria-label={`Chargement de ${totalItems} éléments`}
     >
@@ -208,84 +273,6 @@ export const TableSkeleton = memo(({
   </div>
 ));
 
-export const Skeleton = memo(({
-  height = 'h-4',
-  width,
-  rounded = 'xl',
-  className = '',
-  animate = true,
-  variant = 'default',
-  count = 1,
-  gap = 'gap-2',
-  inline = false
-}: SkeletonProps) => {
-  // Mémorisation des squelettes multiples
-  const skeletons = useMemo(() =>
-    Array.from({ length: count }, (_, index) => (
-      <BaseSkeleton
-        key={index}
-        height={height}
-        width={width}
-        rounded={rounded}
-        className={className}
-        animate={animate}
-        variant={variant}
-      />
-    )),
-    [count, height, width, rounded, className, animate, variant]
-  );
-
-  if (count === 1) {
-    return (
-      <BaseSkeleton
-        height={height}
-        width={width}
-        rounded={rounded}
-        className={className}
-        animate={animate}
-        variant={variant}
-      />
-    );
-  }
-
-  return (
-    <div
-      className={`${inline ? 'inline-flex' : 'flex flex-col'} ${gap}`}
-      role="presentation"
-      aria-label={`Chargement de ${count} éléments`}
-    >
-      {skeletons}
-    </div>
-  );
-});
-
-export const LazySkeleton = memo(({
-  height = 'h-4',
-  width,
-  rounded = 'xl',
-  delay = 0
-}: SkeletonProps & { delay?: number }) => {
-  const [showSkeleton, setShowSkeleton] = useState(delay === 0);
-
-  useEffect(() => {
-    if (delay > 0) {
-      const timer = setTimeout(() => setShowSkeleton(true), delay);
-      return () => clearTimeout(timer);
-    }
-  }, [delay]);
-
-  if (!showSkeleton) return null;
-
-  return (
-    <BaseSkeleton
-      height={height}
-      width={width}
-      rounded={rounded}
-      animate={true}
-    />
-  );
-});
-
 export const PageSkeleton = memo(() => (
   <div className="w-full mx-auto max-w-md pb-20 min-h-screen">
     <div className="flex flex-col items-center justify-center mb-8 space-y-4">
@@ -296,6 +283,17 @@ export const PageSkeleton = memo(() => (
     </div>
   </div>
 ));
+
+export const useSkeletonDelay = (delay: number = 300): boolean => {
+  const [showSkeleton, setShowSkeleton] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSkeleton(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return showSkeleton;
+};
 
 export const withSkeleton = <P extends object>(
   Component: React.ComponentType<P>,
@@ -309,16 +307,8 @@ export const withSkeleton = <P extends object>(
   });
 
   WithSkeleton.displayName = `WithSkeleton(${Component.displayName || Component.name})`;
-  return WithSkeleton;
-};
 
-export const useSkeletonDelay = (delay: number = 300) => {
-  const [showSkeleton, setShowSkeleton] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSkeleton(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-  return showSkeleton;
+  return WithSkeleton;
 };
 
 export default Skeleton;

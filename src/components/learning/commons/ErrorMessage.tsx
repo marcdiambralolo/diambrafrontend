@@ -1,6 +1,6 @@
 'use client';
-import React, { memo, useCallback, useEffect, useState } from 'react';
 import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface ErrorMessageProps {
   message?: string;
@@ -67,9 +67,16 @@ const ERROR_CONFIGS: Record<NonNullable<ErrorMessageProps['type']>, ErrorConfig>
   }
 };
 
+const sizeClasses = {
+  sm: 'p-3 text-sm',
+  md: 'p-4 text-base',
+  lg: 'p-6 text-lg'
+} as const;
+
 export const useErrorHandler = (autoRetryCount: number = 0) => {
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleRetry = useCallback(async (onRetry?: () => void | Promise<void>) => {
     if (!onRetry || isRetrying) return;
@@ -86,17 +93,59 @@ export const useErrorHandler = (autoRetryCount: number = 0) => {
     }
   }, [isRetrying]);
 
+  const clearRetryTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
   const shouldAutoRetry = useCallback(() => {
     return retryCount < autoRetryCount;
   }, [retryCount, autoRetryCount]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     handleRetry,
     isRetrying,
     retryCount,
-    shouldAutoRetry
+    shouldAutoRetry,
+    clearRetryTimeout
   };
 };
+
+const RetryButton = memo(({
+  onClick,
+  isRetrying
+}: {
+  onClick: () => void;
+  isRetrying: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    disabled={isRetrying}
+    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+  >
+    {isRetrying ? (
+      <>
+        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <span>Nouvelle tentative...</span>
+      </>
+    ) : (
+      <>
+        <RefreshCw className="w-4 h-4" />
+        <span>Réessayer</span>
+      </>
+    )}
+  </button>
+));
 
 const ErrorMessage = memo(({
   message,
@@ -114,7 +163,7 @@ const ErrorMessage = memo(({
   variant = 'default'
 }: ErrorMessageProps) => {
   const config = ERROR_CONFIGS[type];
-  const { handleRetry, isRetrying, retryCount, shouldAutoRetry } = useErrorHandler(autoRetryCount);
+  const { handleRetry, isRetrying, retryCount, shouldAutoRetry, clearRetryTimeout } = useErrorHandler(autoRetryCount);
 
   useEffect(() => {
     if (shouldAutoRetry() && onRetry && !isRetrying) {
@@ -122,13 +171,16 @@ const ErrorMessage = memo(({
         handleRetry(onRetry);
       }, 1000 * (retryCount + 1));
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearRetryTimeout();
+      };
     }
 
     if (retryCount >= autoRetryCount && retryCount > 0 && onRetryFailed) {
       onRetryFailed();
     }
-  }, [shouldAutoRetry, onRetry, handleRetry, isRetrying, retryCount, autoRetryCount, onRetryFailed]);
+  }, [shouldAutoRetry, onRetry, handleRetry, isRetrying, retryCount, autoRetryCount, onRetryFailed, clearRetryTimeout]);
 
   const handleRetryClick = useCallback(() => {
     handleRetry(onRetry);
@@ -137,12 +189,6 @@ const ErrorMessage = memo(({
   const handleHomeClick = useCallback(() => {
     window.location.href = '/';
   }, []);
-
-  const sizeClasses = {
-    sm: 'p-3 text-sm',
-    md: 'p-4 text-base',
-    lg: 'p-6 text-lg'
-  };
 
   if (variant === 'fullscreen') {
     return (
@@ -196,29 +242,13 @@ const ErrorMessage = memo(({
 
         <div className="flex flex-wrap gap-3 justify-center mt-2">
           {showRetryButton && onRetry && (
-            <button
-              onClick={handleRetryClick}
-              disabled={isRetrying}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-            >
-              {isRetrying ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Nouvelle tentative...</span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Réessayer</span>
-                </>
-              )}
-            </button>
+            <RetryButton onClick={handleRetryClick} isRetrying={isRetrying} />
           )}
 
           {onBack && (
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Retour</span>
@@ -228,7 +258,7 @@ const ErrorMessage = memo(({
           {showHomeButton && (
             <button
               onClick={handleHomeClick}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 text-sm font-medium rounded-xl hover:bg-purple-100 dark:hover:bg-purple-950/50 transition-all duration-200"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 text-sm font-medium rounded-xl hover:bg-purple-100 dark:hover:bg-purple-950/50 transition-colors"
             >
               <Home className="w-4 h-4" />
               <span>Accueil</span>
@@ -252,22 +282,27 @@ interface ErrorBoundaryProps {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, { hasError: boolean; error: Error | null }> {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
@@ -290,5 +325,4 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, { hasError: bool
 }
 
 export { ErrorBoundary };
-
 export default ErrorMessage;

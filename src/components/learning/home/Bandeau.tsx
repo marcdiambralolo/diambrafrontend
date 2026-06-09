@@ -56,29 +56,28 @@ const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: Coun
     }, [targetDate, hasFinished, onFinish]);
 
     useEffect(() => {
-        const updateTimer = () => {
-            setTimeLeft(calculateTimeLeft());
-        };
-
+        const updateTimer = () => setTimeLeft(calculateTimeLeft());
         updateTimer();
         const timer = setInterval(updateTimer, 1000);
-
         return () => clearInterval(timer);
     }, [calculateTimeLeft]);
 
     const variantClasses = variant === 'celebration'
-        ? 'bg-purple-900/40 backdrop-blur-lg border border-purple-400/30'
-        : 'bg-black/25 backdrop-blur-lg';
+        ? 'bg-purple-900/40 border border-purple-400/30'
+        : 'bg-black/25';
+
+    const textColor = variant === 'celebration' ? 'text-purple-200' : 'text-white';
+    const subTextColor = variant === 'celebration' ? 'text-purple-300/70' : 'text-white/70';
 
     return (
         <div className="flex gap-2 justify-center flex-wrap">
             {TIME_UNITS.map(({ key, label }) => (
                 <div key={key} className={`text-center ${variantClasses} rounded-xl px-2 py-1.5 min-w-[55px] shadow-lg`}>
-                    <p className={`font-black text-xl leading-tight ${variant === 'celebration' ? 'text-purple-200' : 'text-white'}`}>
+                    <p className={`font-black text-xl leading-tight ${textColor}`}>
                         {String(timeLeft[key as keyof TimeLeft]).padStart(2, '0')}
                     </p>
-                    <p className={`text-[9px] uppercase tracking-wider ${variant === 'celebration' ? 'text-purple-300/70' : 'text-white/70'}`}>
-                        {label}
+                    <p className={`text-[9px] uppercase tracking-wider ${subTextColor}`}>
+                        {label === 'h' ? 'h' : label === 'm' ? 'm' : label === 's' ? 's' : label[0]}
                     </p>
                 </div>
             ))}
@@ -147,7 +146,6 @@ const ResultsWaitingBanner = memo(({ proclamationDate }: { proclamationDate: Dat
     <div className="w-full rounded-2xl bg-gradient-to-br from-purple-700 via-indigo-800 to-purple-900 p-6 mb-6 shadow-2xl border border-purple-500/30">
         <div className="flex flex-col items-center gap-4">
             <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-purple-400/30 animate-ping" />
                 <div className="relative rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 p-3 shadow-lg">
                     <Medal className="w-8 h-8 text-white" aria-hidden="true" />
                 </div>
@@ -203,7 +201,7 @@ const ResultsAvailableBanner = memo(({ lastEndedGame }: { lastEndedGame: LastEnd
                 <div className="flex flex-wrap items-center justify-center gap-3">
                     <CacheLink
                         href="/star/learning/historique/1779760200000"
-                        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/20 backdrop-blur rounded-xl text-white text-sm font-semibold hover:bg-white/30 transition-colors"
+                        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/20 rounded-xl text-white text-sm font-semibold hover:bg-white/30 transition-colors"
                     >
                         <History className="w-4 h-4" />
                         <span>Voir l'historique des résultats</span>
@@ -270,6 +268,7 @@ const EndedBanner = memo(({ lastEndedGame, endDate, proclamationDate }: EndedBan
                         </p>
                     </div>
                 )}
+
                 <CacheLink
                     href="/star/learning/historique/1779760200000"
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors"
@@ -298,6 +297,7 @@ const Bandeau = () => {
     return (
         <div className="w-full mx-auto max-w-md">
             {viewState.isEmpty && <NoCompetitionBanner />}
+
             {viewState.isNotStarted && startDate && (
                 <NotStartedBanner startDate={startDate} />
             )}

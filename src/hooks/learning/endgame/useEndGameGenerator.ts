@@ -13,24 +13,76 @@ interface ValidationMessage {
 export const useCompetitionValidation = (onValidate: (competition: CompetitionSummary) => Promise<boolean>, competition: CompetitionSummary) => {
     const [isLocalValidating, setIsLocalValidating] = useState(false);
     const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
+    const [isValidated, setIsValidated] = useState(false);
+    const [showPermanentMessage, setShowPermanentMessage] = useState(false);
+
+    // Vérifier si la compétition a déjà été validée (localStorage)
+    useEffect(() => {
+        const storageKey = `validated_competition_${competition.id}`;
+        const alreadyValidated = localStorage.getItem(storageKey) === 'true';
+        setIsValidated(alreadyValidated);
+        
+        // Si déjà validée, afficher le message permanent
+        if (alreadyValidated) {
+            setShowPermanentMessage(true);
+        }
+    }, [competition.id]);
 
     const handleValidate = useCallback(async () => {
-        if (isLocalValidating || !competition?.rawMatches) return;
+        if (isLocalValidating || !competition?.rawMatches || isValidated) return;
 
         setIsLocalValidating(true);
         setValidationMessage(null);
 
         const success = await onValidate(competition);
 
-        setValidationMessage({
-            text: success ? 'Compétition validée avec succès !' : 'Erreur lors de la validation',
-            type: success ? 'success' : 'error'
-        });
+        if (success) {
+            // Succès - afficher le message de succès
+            setValidationMessage({
+                text: '✅ Compétition validée avec succès !',
+                type: 'success'
+            });
+            
+            // Marquer comme validée
+            setIsValidated(true);
+            
+            // Sauvegarder dans localStorage
+            const storageKey = `validated_competition_${competition.id}`;
+            localStorage.setItem(storageKey, 'true');
+            
+            // Afficher le message permanent
+            setShowPermanentMessage(true);
+            
+            // Optionnel: masquer automatiquement après 10 secondes
+            setTimeout(() => {
+                setShowPermanentMessage(false);
+            }, 10000);
+        } else {
+            // Erreur
+            setValidationMessage({
+                text: '❌ Erreur lors de la validation. Veuillez réessayer.',
+                type: 'error'
+            });
+        }
 
         setIsLocalValidating(false);
-    }, [competition?.rawMatches, onValidate, isLocalValidating]);
+    }, [competition?.rawMatches, onValidate, isLocalValidating, isValidated, competition.id]);
 
     const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
+    
+    const handleClosePermanentMessage = useCallback(() => {
+        setShowPermanentMessage(false);
+        // Optionnel: ne pas effacer le statut validé pour persistance
+        // setIsValidated(false); // Décommentez si vous voulez réinitialiser
+    }, []);
+
+    const clearValidationStatus = useCallback(() => {
+        const storageKey = `validated_competition_${competition.id}`;
+        localStorage.removeItem(storageKey);
+        setIsValidated(false);
+        setShowPermanentMessage(false);
+        setValidationMessage(null);
+    }, [competition.id]);
 
     const formattedStartDate = useMemo(() =>
         new Date(competition.startedAt).toLocaleString(),
@@ -50,8 +102,17 @@ export const useCompetitionValidation = (onValidate: (competition: CompetitionSu
     }, [competition.matches]);
 
     return {
-        isLoading: isLocalValidating, validationMessage, formattedStartDate, formattedFinishedDate,
-        totalTimeSpent, handleValidate, handleCloseMessage,
+        isLoading: isLocalValidating,
+        validationMessage,
+        formattedStartDate,
+        formattedFinishedDate,
+        totalTimeSpent,
+        handleValidate,
+        handleCloseMessage,
+        isValidated,
+        showPermanentMessage,
+        handleClosePermanentMessage,
+        clearValidationStatus
     };
 };
 
@@ -243,6 +304,8 @@ export const useEndGameGenerator = () => {
     }, [getAllCompetitions, gameConfig?.id]);
 
     const handleValidateCompetition = useCallback(async (competition: CompetitionSummary): Promise<boolean> => {
+      console.log('handleValidateCompetition', competition);
+      
         if (!competition.consultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
             return false;

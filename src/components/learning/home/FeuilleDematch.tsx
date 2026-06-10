@@ -299,4 +299,4 @@ const FeuilleDeMatch = () => {
   );
 };
 
-export default memo(FeuilleDeMatch);
+export default FeuilleDeMatch;

@@ -7,7 +7,7 @@ import type { Consultation, OfferingAlternative, WalletOffering } from '@/lib/in
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useTransition } from 'react';
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -19,7 +19,7 @@ const POT_CONFIG: OfferingAlternative = {
     _id: '69ada22a910a174365e2a216',
 } as const;
 
-const BASE_CLASSES = "w-full flex items-center gap-4 p-2 rounded-2xl border-1 transition-all duration-300 text-left relative overflow-hidden group";
+const BASE_CLASSES = "w-full flex items-center gap-4 p-2 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden group";
 const INSUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed";
 const SUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-[#9BC2FF] hover:shadow-xl hover:shadow-[#4F83D1]/10 active:scale-[0.98] cursor-pointer";
 
@@ -31,57 +31,47 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
     return offeringId as string;
 };
 
+const CONFIG_OFFERING_ID = getOfferingId(POT_CONFIG);
+
 export function useLaMise() {
     const router = useRouter();
     const [isPendingNavigation, startNavigationTransition] = useTransition();
 
     const { gameConfig, getAllCompetitions } = useMonEtoileStore();
-
     const hasRedirectedRef = useRef(false);
 
-    const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
-    const configOfferingId = useMemo(() => getOfferingId(POT_CONFIG), []);
+    const monidjeu = gameConfig?._id || gameConfig?.id || "";
 
     useEffect(() => {
-        if (hasRedirectedRef.current || !gameConfig) return;
-
-        const configId = gameConfig?._id || gameConfig?.id;
-        if (!configId) return;
+        if (hasRedirectedRef.current || !monidjeu) return;
 
         const allCompetitions = getAllCompetitions();
         const hasActiveCompetition = allCompetitions.some(
-            competition => competition.idConfig === configId
+            competition => competition.idConfig === monidjeu
         );
 
-        hasRedirectedRef.current = true;
-
-        startNavigationTransition(() => {
-            if (hasActiveCompetition) {
+        if (hasActiveCompetition) {
+            hasRedirectedRef.current = true;
+            startNavigationTransition(() => {
                 router.push(`/star/learning/startgame?_t=${Date.now()}`);
-            }
-        });
-    }, [gameConfig, getAllCompetitions, startNavigationTransition, router]);
+            });
+        }
+    }, [monidjeu, getAllCompetitions, router]);
 
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
         queryFn: () => walletService.getUnusedWalletOfferings(),
         staleTime: 30000, // 30s
-        gcTime: 300000, // 5min
+        gcTime: 300000,   // 5min
         retry: 2,
-        enabled: !!gameConfig,
+        enabled: !!monidjeu,
     });
 
-    const availableQuantity = useMemo(() => {
-        const target = walletOfferings.find(w => w.offeringId === configOfferingId);
-        return target?.quantity ?? 0;
-    }, [walletOfferings, configOfferingId]);
-
+    const targetOffering = walletOfferings.find(w => w.offeringId === CONFIG_OFFERING_ID);
+    const availableQuantity = targetOffering?.quantity ?? 0;
     const isSufficient = availableQuantity >= POT_CONFIG.quantity;
 
-    const cardClasses = useMemo(() =>
-        `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`,
-        [isSufficient]
-    );
+    const cardClasses = `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`;
 
     const { mutateAsync: executeSubmit, isPending: isSubmitLoading, error: submitError } = useMutation<string, Error, void>({
         mutationFn: async () => {
@@ -95,7 +85,7 @@ export function useLaMise() {
             }
 
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
-                offeringId: configOfferingId,
+                offeringId: CONFIG_OFFERING_ID,
                 quantity: POT_CONFIG.quantity,
             }]);
 
@@ -109,7 +99,6 @@ export function useLaMise() {
             ]);
 
             const { data: consultationData } = await api.get<Consultation>(`/consultations/${consultationId}`);
-
             await api.put(`/consultations/${consultationId}`, consultationData);
 
             return consultationId;
@@ -120,18 +109,19 @@ export function useLaMise() {
         },
     });
 
-    const handlePlayClick = useCallback(() => {
+    const handlePlayClick = useCallback(async () => {
         if (!isSufficient || isSubmitLoading || isPendingNavigation) return;
 
-        startNavigationTransition(async () => {
-            try {
-                const consultationId = await executeSubmit();
+        try {
+            const consultationId = await executeSubmit();
+
+            startNavigationTransition(() => {
                 router.push(`/star/learning/startgame/?idconsultation=${consultationId}`);
-            } catch (err) {
-                console.error('Submission processing failed:', err);
-            }
-        });
-    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, router, startNavigationTransition]);
+            });
+        } catch (err) {
+            console.error('Submission processing failed:', err);
+        }
+    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, router]);
 
     const handleMarketClick = useCallback(() => {
         if (isPendingNavigation || !monidjeu) return;
@@ -139,16 +129,12 @@ export function useLaMise() {
         startNavigationTransition(() => {
             router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
         });
-    }, [router, monidjeu, isPendingNavigation, startNavigationTransition]);
+    }, [router, monidjeu, isPendingNavigation]);
 
     return {
-        handlePlayClick,
-        handleMarketClick,
-        requiredQuantity: POT_CONFIG.quantity,
-        availableQuantity,
-        isSufficient,
-        cardClasses,
-        loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
+        handlePlayClick, handleMarketClick,
+        requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient,
+        cardClasses, loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
         error: submitError
             ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission')
             : null,

@@ -2,12 +2,16 @@
 import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag, } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
-import ErrorPage from '../commons/Erreur';
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { HeaderSection } from '../commons/Features';
 import FixedContent from '../commons/FixedContent';
-import GameFinishedCelebration from '../commons/GameFinishedCelebration';
+
+const GameFinishedCelebration = dynamic(() => import('../commons/GameFinishedCelebration'), {
+  loading: () => <Loader />
+});
+
+const ErrorPage = dynamic(() => import('../commons/Erreur'));
 
 const STATUS_BANNER_CONFIG = {
   sufficient: {
@@ -33,7 +37,7 @@ const STATUS_BANNER_CONFIG = {
 } as const;
 
 const BUTTON_BASE_CLASSES =
-  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200";
 
 interface StatusBannerProps {
   isSufficient: boolean;
@@ -41,52 +45,29 @@ interface StatusBannerProps {
   availableQuantity: number;
 }
 
-interface TokenCardProps {
-  isSufficient: boolean;
-  requiredQuantity: number;
-  availableQuantity: number;
-  cardClasses: string;
-  onPlayClick: () => void;
-  isPending: boolean;
-}
-
-interface MarketButtonProps {
-  onClick: () => void;
-  isPending: boolean;
-}
-
-interface PlayButtonProps {
-  isSufficient: boolean;
-  onClick: () => void;
-  isPending: boolean;
-}
-
 const StatusBanner = ({ isSufficient, requiredQuantity, availableQuantity }: StatusBannerProps) => {
   const missingTokens = requiredQuantity - availableQuantity;
   const config = STATUS_BANNER_CONFIG[isSufficient ? 'sufficient' : 'insufficient'];
   const Icon = config.icon;
 
-  const message = useMemo(() => {
-    if (isSufficient) {
-      return `Vous disposez de ${availableQuantity} jeton${availableQuantity > 1 ? 's' : ''}`;
-    }
-    return `Il vous manque ${missingTokens} jeton${missingTokens > 1 ? 's' : ''}.`;
-  }, [isSufficient, availableQuantity, missingTokens]);
+  const message = isSufficient
+    ? `Vous disposez de ${availableQuantity} jeton${availableQuantity > 1 ? 's' : ''}`
+    : `Il vous manque ${missingTokens} jeton${missingTokens > 1 ? 's' : ''}.`;
 
   return (
-    <div className={`relative overflow-hidden mb-1 flex items-start gap-3 p-2 rounded-2xl bg-gradient-to-r ${config.bgGradient} border ${config.borderColor}`}>
+    <div className={`relative overflow-hidden mb-1 flex items-start gap-3 p-2 rounded-2xl bg-gradient-to-r ${config.bgGradient} border ${config.borderColor} w-full`}>
       <div className={`rounded-full ${config.iconBg} p-2 flex-shrink-0`}>
         <Icon className={`w-5 h-5 ${config.iconColor}`} aria-hidden="true" />
       </div>
       <div className="flex-1">
-        <p className={`text-sm font-semibold ${config.titleColor} flex items-center gap-2`}>
+        <div className={`text-sm font-semibold ${config.titleColor} flex items-center gap-2`}>
           {config.title}
           {isSufficient && (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200">
               OK
             </span>
           )}
-        </p>
+        </div>
         <p className={`text-xs ${config.textColor} mt-0.5`}>
           {message}
           {!isSufficient && (
@@ -97,6 +78,12 @@ const StatusBanner = ({ isSufficient, requiredQuantity, availableQuantity }: Sta
     </div>
   );
 };
+
+interface TokenCardProps extends StatusBannerProps {
+  cardClasses: string;
+  onPlayClick: () => void;
+  isPending: boolean;
+}
 
 const TokenCard = ({
   isSufficient,
@@ -109,19 +96,13 @@ const TokenCard = ({
   const missingTokens = requiredQuantity - availableQuantity;
   const isEnabled = isSufficient && !isPending;
 
-  const handleClick = useCallback(() => {
-    if (isEnabled) {
-      onPlayClick();
-    }
-  }, [isEnabled, onPlayClick]);
-
   return (
     <button
+      type="button"
       disabled={!isEnabled}
-      onClick={handleClick}
-      className={`${cardClasses} ${BUTTON_BASE_CLASSES} group`}
+      onClick={onPlayClick}
+      className={`${cardClasses} ${BUTTON_BASE_CLASSES} group flex items-center gap-3 w-full`}
       aria-label={isSufficient ? "Valider la mise" : "Jetons insuffisants"}
-      aria-disabled={!isEnabled}
     >
       <div className="flex-shrink-0">
         {isSufficient ? (
@@ -159,19 +140,26 @@ const TokenCard = ({
   );
 };
 
+interface PlayButtonProps {
+  isSufficient: boolean;
+  onClick: () => void;
+  isPending: boolean;
+}
+
 const PlayButton = ({ isSufficient, onClick, isPending }: PlayButtonProps) => {
   const isEnabled = isSufficient && !isPending;
 
-  const buttonClasses = useMemo(() => `
+  const buttonClasses = `
     w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 ${BUTTON_BASE_CLASSES}
     ${isEnabled
       ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-md hover:shadow-lg cursor-pointer"
       : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
     }
-  `, [isEnabled]);
+  `;
 
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={!isEnabled}
       className={buttonClasses}
@@ -180,7 +168,7 @@ const PlayButton = ({ isSufficient, onClick, isPending }: PlayButtonProps) => {
     >
       {isPending ? (
         <>
-          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
           <span>Chargement...</span>
         </>
       ) : (
@@ -193,17 +181,23 @@ const PlayButton = ({ isSufficient, onClick, isPending }: PlayButtonProps) => {
   );
 };
 
+interface MarketButtonProps {
+  onClick: () => void;
+  isPending: boolean;
+}
+
 const MarketButton = ({ onClick, isPending }: MarketButtonProps) => (
   <button
+    type="button"
     onClick={onClick}
     disabled={isPending}
-    className="group w-full h-11 mt-4 mb-4 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] transition-colors hover:bg-[#E5EEFF] dark:hover:bg-[#1A2A5A]/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+    className="group w-full h-11 mt-2 mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] transition-colors hover:bg-[#E5EEFF] dark:hover:bg-[#1A2A5A]/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
     aria-label="Acquérir des jetons"
     aria-busy={isPending}
   >
     {isPending ? (
       <>
-        <div className="w-4 h-4 border-2 border-[#2E5AA6] border-t-transparent rounded-full animate-spin" />
+        <div className="w-4 h-4 border-2 border-[#2E5AA6] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
         <span>Chargement...</span>
       </>
     ) : (
@@ -216,12 +210,6 @@ const MarketButton = ({ onClick, isPending }: MarketButtonProps) => (
   </button>
 );
 
-const InsufficientTokensMessage = () => (
-  <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2">
-    Vous ne disposez pas d&apos;assez de jetons.
-  </p>
-);
-
 const ProfilPageLearning = () => {
   const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
 
@@ -230,42 +218,44 @@ const ProfilPageLearning = () => {
     isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
   } = useLaMise();
 
-  const statusBannerProps = {
-    isSufficient,
-    requiredQuantity,
-    availableQuantity
-  };
+  if (gameIsFinished) return <GameFinishedCelebration />;
+  if (error) return <ErrorPage />;
 
-  const tokenCardProps = {
-    isSufficient,
-    requiredQuantity,
-    availableQuantity,
-    cardClasses,
-    onPlayClick: handlePlayClick,
-    isPending: loading
-  };
-
-  if (gameIsFinished) { return <GameFinishedCelebration />; }
-
-  if (loading) { return <Loader />; }
-
-  if (error) { return <ErrorPage />; }
+  if (loading) return <Loader />;
 
   return (
-    <div className="w-full mx-auto max-w-md">
+    <div className="w-full mx-auto max-w-md px-4 sm:px-0">
       <div className="flex flex-col items-center justify-center">
         <HeaderSection />
 
         <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
-          <StatusBanner {...statusBannerProps} />
-          <TokenCard {...tokenCardProps} />
+          <StatusBanner
+            isSufficient={isSufficient}
+            requiredQuantity={requiredQuantity}
+            availableQuantity={availableQuantity}
+          />
+
+          <TokenCard
+            isSufficient={isSufficient}
+            requiredQuantity={requiredQuantity}
+            availableQuantity={availableQuantity}
+            cardClasses={cardClasses}
+            onPlayClick={handlePlayClick}
+            isPending={loading}
+          />
 
           <PlayButton
             isSufficient={isSufficient}
             onClick={handlePlayClick}
             isPending={loading}
           />
-          {!isSufficient && <InsufficientTokensMessage />}
+
+          {!isSufficient && (
+            <p className="text-center text-xs text-red-500 dark:text-red-400 animate-pulse">
+              Vous ne disposez pas d&apos;assez de jetons.
+            </p>
+          )}
+
           <MarketButton onClick={handleMarketClick} isPending={loading} />
         </div>
 

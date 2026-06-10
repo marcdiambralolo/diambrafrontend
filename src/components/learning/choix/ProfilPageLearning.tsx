@@ -2,8 +2,8 @@
 import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from "lucide-react";
-import { memo, useCallback, useMemo } from 'react';
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag, } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import ErrorPage from '../commons/Erreur';
 import { HeaderSection } from '../commons/Features';
 import FixedContent from '../commons/FixedContent';
@@ -32,7 +32,8 @@ const STATUS_BANNER_CONFIG = {
   }
 } as const;
 
-const BUTTON_BASE_CLASSES = "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+const BUTTON_BASE_CLASSES =
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface StatusBannerProps {
   isSufficient: boolean;
@@ -60,7 +61,7 @@ interface PlayButtonProps {
   isPending: boolean;
 }
 
-const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }: StatusBannerProps) => {
+const StatusBanner = ({ isSufficient, requiredQuantity, availableQuantity }: StatusBannerProps) => {
   const missingTokens = requiredQuantity - availableQuantity;
   const config = STATUS_BANNER_CONFIG[isSufficient ? 'sufficient' : 'insufficient'];
   const Icon = config.icon;
@@ -95,9 +96,9 @@ const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQuantity }
       </div>
     </div>
   );
-});
+};
 
-const TokenCard = memo(({
+const TokenCard = ({
   isSufficient,
   requiredQuantity,
   availableQuantity,
@@ -156,9 +157,9 @@ const TokenCard = memo(({
       )}
     </button>
   );
-});
+};
 
-const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButtonProps) => {
+const PlayButton = ({ isSufficient, onClick, isPending }: PlayButtonProps) => {
   const isEnabled = isSufficient && !isPending;
 
   const buttonClasses = useMemo(() => `
@@ -190,9 +191,9 @@ const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButtonProps) 
       )}
     </button>
   );
-});
+};
 
-const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
+const MarketButton = ({ onClick, isPending }: MarketButtonProps) => (
   <button
     onClick={onClick}
     disabled={isPending}
@@ -213,13 +214,13 @@ const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
       </>
     )}
   </button>
-));
+);
 
-const InsufficientTokensMessage = memo(() => (
+const InsufficientTokensMessage = () => (
   <p className="text-center text-xs text-red-500 dark:text-red-400 mt-2">
     Vous ne disposez pas d&apos;assez de jetons.
   </p>
-));
+);
 
 const ProfilPageLearning = () => {
   const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
@@ -229,20 +230,20 @@ const ProfilPageLearning = () => {
     isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
   } = useLaMise();
 
-  const statusBannerProps = useMemo(() => ({
+  const statusBannerProps = {
     isSufficient,
     requiredQuantity,
     availableQuantity
-  }), [isSufficient, requiredQuantity, availableQuantity]);
+  };
 
-  const tokenCardProps = useMemo(() => ({
+  const tokenCardProps = {
     isSufficient,
     requiredQuantity,
     availableQuantity,
     cardClasses,
     onPlayClick: handlePlayClick,
     isPending: loading
-  }), [isSufficient, requiredQuantity, availableQuantity, cardClasses, handlePlayClick, loading]);
+  };
 
   if (gameIsFinished) { return <GameFinishedCelebration />; }
 
@@ -258,6 +259,7 @@ const ProfilPageLearning = () => {
         <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
           <StatusBanner {...statusBannerProps} />
           <TokenCard {...tokenCardProps} />
+
           <PlayButton
             isSufficient={isSufficient}
             onClick={handlePlayClick}
@@ -273,4 +275,4 @@ const ProfilPageLearning = () => {
   );
 };
 
-export default memo(ProfilPageLearning);
+export default ProfilPageLearning;

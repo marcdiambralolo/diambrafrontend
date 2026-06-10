@@ -5,116 +5,14 @@ import { formatDuration } from "@/lib/learning/functions";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
 interface ValidationMessage {
     text: string;
     type: 'success' | 'error';
 }
-
-export const useCompetitionValidation = (onValidate: (competition: CompetitionSummary) => Promise<boolean>, competition: CompetitionSummary) => {
-    const [isLocalValidating, setIsLocalValidating] = useState(false);
-    const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
-    const [isValidated, setIsValidated] = useState(false);
-    const [showPermanentMessage, setShowPermanentMessage] = useState(false);
-
-    // Vérifier si la compétition a déjà été validée (localStorage)
-    useEffect(() => {
-        const storageKey = `validated_competition_${competition.id}`;
-        const alreadyValidated = localStorage.getItem(storageKey) === 'true';
-        setIsValidated(alreadyValidated);
-        
-        // Si déjà validée, afficher le message permanent
-        if (alreadyValidated) {
-            setShowPermanentMessage(true);
-        }
-    }, [competition.id]);
-
-    const handleValidate = useCallback(async () => {
-        if (isLocalValidating || !competition?.rawMatches || isValidated) return;
-
-        setIsLocalValidating(true);
-        setValidationMessage(null);
-
-        const success = await onValidate(competition);
-
-        if (success) {
-            // Succès - afficher le message de succès
-            setValidationMessage({
-                text: '✅ Compétition validée avec succès !',
-                type: 'success'
-            });
-            
-            // Marquer comme validée
-            setIsValidated(true);
-            
-            // Sauvegarder dans localStorage
-            const storageKey = `validated_competition_${competition.id}`;
-            localStorage.setItem(storageKey, 'true');
-            
-            // Afficher le message permanent
-            setShowPermanentMessage(true);
-            
-            // Optionnel: masquer automatiquement après 10 secondes
-            setTimeout(() => {
-                setShowPermanentMessage(false);
-            }, 10000);
-        } else {
-            // Erreur
-            setValidationMessage({
-                text: '❌ Erreur lors de la validation. Veuillez réessayer.',
-                type: 'error'
-            });
-        }
-
-        setIsLocalValidating(false);
-    }, [competition?.rawMatches, onValidate, isLocalValidating, isValidated, competition.id]);
-
-    const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
-    
-    const handleClosePermanentMessage = useCallback(() => {
-        setShowPermanentMessage(false);
-        // Optionnel: ne pas effacer le statut validé pour persistance
-        // setIsValidated(false); // Décommentez si vous voulez réinitialiser
-    }, []);
-
-    const clearValidationStatus = useCallback(() => {
-        const storageKey = `validated_competition_${competition.id}`;
-        localStorage.removeItem(storageKey);
-        setIsValidated(false);
-        setShowPermanentMessage(false);
-        setValidationMessage(null);
-    }, [competition.id]);
-
-    const formattedStartDate = useMemo(() =>
-        new Date(competition.startedAt).toLocaleString(),
-        [competition.startedAt]
-    );
-
-    const formattedFinishedDate = useMemo(() =>
-        competition.finishedAt ? new Date(competition.finishedAt).toLocaleString() : null,
-        [competition.finishedAt]
-    );
-
-    const totalTimeSpent = useMemo(() => {
-        const total = competition.matches.reduce((sum, match) =>
-            sum + (match.timeSpent || 0), 0
-        );
-        return formatDuration(total);
-    }, [competition.matches]);
-
-    return {
-        isLoading: isLocalValidating,
-        validationMessage,
-        formattedStartDate,
-        formattedFinishedDate,
-        totalTimeSpent,
-        handleValidate,
-        handleCloseMessage,
-        isValidated,
-        showPermanentMessage,
-        handleClosePermanentMessage,
-        clearValidationStatus
-    };
-};
 
 export interface MatchResult {
     matchNumber: number;
@@ -141,11 +39,6 @@ export interface CompetitionSummary {
     timeSpent?: number;
 }
 
-export interface MessageState {
-    text: string;
-    type: 'success' | 'error';
-}
-
 interface LearningStats {
     totalTime?: string;
     totalScore?: number;
@@ -164,15 +57,26 @@ interface LearningStats {
     }>;
 }
 
+// ============================================================================
+// CONSTANTES
+// ============================================================================
+
+const MATCH_TYPES: Record<number, string> = {
+    0: 'Chiffre',
+    1: 'Couleur',
+    2: 'Image',
+    3: 'Lettre',
+};
+
+const PERMANENT_MESSAGE_DURATION = 10000;
+
+// ============================================================================
+// FONCTIONS UTILITAIRES
+// ============================================================================
+
 export const getMatchType = (tpsglobal?: number): string => {
     if (tpsglobal === undefined) return 'Inconnu';
-    const types: Record<number, string> = {
-        0: 'Chiffre',
-        1: 'Couleur',
-        2: 'Image',
-        3: 'Lettre',
-    };
-    return types[tpsglobal] || 'Inconnu';
+    return MATCH_TYPES[tpsglobal] || 'Inconnu';
 };
 
 const calculateDuration = (startDate: string, endDate: string): string => {
@@ -207,7 +111,7 @@ const adaptCompetitionToLocal = (competition: CompetitionInfo): MatchInfo[] => {
     }));
 };
 
-const computeCompetitionStats = (matches: MatchInfo[]): Pick<CompetitionSummary, 'totalScore' | 'matches' | 'rawMatches'> => {
+const computeCompetitionStats = (matches: MatchInfo[]) => {
     let totalScore = 0;
 
     const matchResults: MatchResult[] = matches.map((match, idx) => {
@@ -233,79 +137,137 @@ const computeCompetitionStats = (matches: MatchInfo[]): Pick<CompetitionSummary,
 const createCompetitionSummary = (
     competition: CompetitionInfo,
     stats: ReturnType<typeof computeCompetitionStats>
-): CompetitionSummary => {
-    return {
-        id: competition.id,
-        name: `N°: ${competition.id.slice(-12)}`,
-        startedAt: competition.datedebut,
-        finishedAt: competition.datefin,
-        totalScore: stats.totalScore,
-        matches: stats.matches,
-        rawMatches: stats.rawMatches,
-        datedebut: competition.datedebut,
-        datefin: competition.datefin,
-        idConfig: competition.idConfig,
-        matchInfo: competition.matchInfo,
-        consultationId: competition.consultationId,
-    };
-};
+): CompetitionSummary => ({
+    id: competition.id,
+    name: `N°: ${competition.id.slice(-12)}`,
+    startedAt: competition.datedebut,
+    finishedAt: competition.datefin,
+    totalScore: stats.totalScore,
+    matches: stats.matches,
+    rawMatches: stats.rawMatches,
+    datedebut: competition.datedebut,
+    datefin: competition.datefin,
+    idConfig: competition.idConfig,
+    matchInfo: competition.matchInfo,
+    consultationId: competition.consultationId,
+});
+
+// ============================================================================
+// HOOK useMessage
+// ============================================================================
 
 const useMessage = () => {
-    const [message, setMessage] = useState<MessageState | null>(null);
+    const [message, setMessage] = useState<ValidationMessage | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout>();
 
     const showMessage = useCallback((text: string, type: 'success' | 'error') => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setMessage({ text, type });
         timeoutRef.current = setTimeout(() => setMessage(null), MESSAGE_DURATION);
     }, []);
 
     const clearMessage = useCallback(() => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setMessage(null);
     }, []);
 
-    useEffect(() => {
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
+    useEffect(() => () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
     }, []);
 
     return { message, showMessage, clearMessage };
 };
 
+// ============================================================================
+// HOOK useCompetitionValidation
+// ============================================================================
+
+export const useCompetitionValidation = (
+    onValidate: (competition: CompetitionSummary) => Promise<boolean>,
+    competition: CompetitionSummary
+) => {
+    const [isLocalValidating, setIsLocalValidating] = useState(false);
+    const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
+    const [isValidated, setIsValidated] = useState(false);
+    const [showPermanentMessage, setShowPermanentMessage] = useState(false);
+
+    useEffect(() => {
+        const storageKey = `validated_competition_${competition.id}`;
+        const alreadyValidated = localStorage.getItem(storageKey) === 'true';
+        setIsValidated(alreadyValidated);
+        if (alreadyValidated) setShowPermanentMessage(true);
+    }, [competition.id]);
+
+    const handleValidate = useCallback(async () => {
+        if (isLocalValidating || !competition.rawMatches?.length || isValidated) return;
+
+        setIsLocalValidating(true);
+        setValidationMessage(null);
+
+        const success = await onValidate(competition);
+
+        if (success) {
+            setValidationMessage({ text: '✅ Compétition validée avec succès !', type: 'success' });
+            setIsValidated(true);
+            localStorage.setItem(`validated_competition_${competition.id}`, 'true');
+            setShowPermanentMessage(true);
+            setTimeout(() => setShowPermanentMessage(false), PERMANENT_MESSAGE_DURATION);
+        } else {
+            setValidationMessage({ text: '❌ Erreur lors de la validation. Veuillez réessayer.', type: 'error' });
+        }
+
+        setIsLocalValidating(false);
+    }, [competition, isLocalValidating, isValidated, onValidate]);
+
+    const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
+    const handleClosePermanentMessage = useCallback(() => setShowPermanentMessage(false), []);
+    const clearValidationStatus = useCallback(() => {
+        localStorage.removeItem(`validated_competition_${competition.id}`);
+        setIsValidated(false);
+        setShowPermanentMessage(false);
+        setValidationMessage(null);
+    }, [competition.id]);
+
+    const formattedStartDate = useMemo(() => new Date(competition.startedAt).toLocaleString(), [competition.startedAt]);
+    const formattedFinishedDate = useMemo(() => competition.finishedAt ? new Date(competition.finishedAt).toLocaleString() : null, [competition.finishedAt]);
+    const totalTimeSpent = useMemo(() => formatDuration(competition.matches.reduce((sum, m) => sum + (m.timeSpent || 0), 0)), [competition.matches]);
+
+    return {
+        isLoading: isLocalValidating,
+        validationMessage,
+        formattedStartDate,
+        formattedFinishedDate,
+        totalTimeSpent,
+        handleValidate,
+        handleCloseMessage,
+        isValidated,
+        showPermanentMessage,
+        handleClosePermanentMessage,
+        clearValidationStatus
+    };
+};
+
+// ============================================================================
+// HOOK useEndGameGenerator
+// ============================================================================
+
 export const useEndGameGenerator = () => {
     const { getAllCompetitions, gameConfig } = useMonEtoileStore();
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
+    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
     const competitions = useMemo(() => {
-        const compList: CompetitionSummary[] = [];
         const allCompetitions = getAllCompetitions();
-
-        for (const competition of allCompetitions) {
-            if (competition.idConfig !== gameConfig?.id) {
-                continue;
-            }
-
-            const localMatches = adaptCompetitionToLocal(competition);
+        const filtered = allCompetitions.filter(comp => comp.idConfig === gameConfig?.id);
+        
+        return filtered.map(comp => {
+            const localMatches = adaptCompetitionToLocal(comp);
             const stats = computeCompetitionStats(localMatches);
-            compList.push(createCompetitionSummary(competition, stats));
-        }
-
-        return compList.sort(
-            (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-        );
+            return createCompetitionSummary(comp, stats);
+        }).sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
     }, [getAllCompetitions, gameConfig?.id]);
 
     const handleValidateCompetition = useCallback(async (competition: CompetitionSummary): Promise<boolean> => {
-      console.log('handleValidateCompetition', competition);
-      
         if (!competition.consultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
             return false;
@@ -317,9 +279,9 @@ export const useEndGameGenerator = () => {
         }
 
         try {
-            const totalScore = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || 0), 0);
-            const totalTrouves = competition.rawMatches.reduce((acc, match) => acc + (match.trouves || 0), 0);
-            const totalRates = competition.rawMatches.reduce((acc, match) => acc + (match.rates || 0), 0);
+            const totalScore = competition.rawMatches.reduce((acc, m) => acc + (m.trouves || 0), 0);
+            const totalTrouves = competition.rawMatches.reduce((acc, m) => acc + (m.trouves || 0), 0);
+            const totalRates = competition.rawMatches.reduce((acc, m) => acc + (m.rates || 0), 0);
             const startDate = competition.rawMatches[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
             const duration = calculateDuration(startDate, endDate);
@@ -327,7 +289,6 @@ export const useEndGameGenerator = () => {
 
             const { data: consultation } = await api.get(`/consultations/${competition.consultationId}`);
             const dataconsultation = consultation as Consultation;
-
             const existingStats = (dataconsultation?.learningStats || {}) as LearningStats;
             const existingMatches = existingStats.matchesDetails || [];
 
@@ -357,23 +318,22 @@ export const useEndGameGenerator = () => {
             };
 
             await api.put(`/consultations/${competition.consultationId}`, updatedPayload);
-
             showValidateMessage('Compétition validée avec succès !', 'success');
             return true;
         } catch (error: any) {
-            console.error('Erreur lors de la validation:', error);
-            const errorMessage = error?.response?.data?.message || 'Erreur lors de la validation';
-            showValidateMessage(errorMessage, 'error');
+            console.error('Erreur validation:', error);
+            showValidateMessage(error?.response?.data?.message || 'Erreur lors de la validation', 'error');
             return false;
         }
     }, [showValidateMessage]);
 
-    const clearValidateMessage = useCallback(() => {
-        showValidateMessage('', 'success');
-    }, [showValidateMessage]);
+    const clearValidateMessage = useCallback(() => showValidateMessage('', 'success'), [showValidateMessage]);
 
     const hasCompetitions = competitions.length > 0;
-    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+    const competitionList = useMemo(() => {
+        if (!hasCompetitions) return null;
+        return competitions.slice(0, visibleCount);
+    }, [competitions, visibleCount, hasCompetitions]);
 
     const handleLoadMore = useCallback(() => {
         startTransition(() => {
@@ -381,17 +341,16 @@ export const useEndGameGenerator = () => {
         });
     }, [competitions.length]);
 
-    const competitionList = useMemo(() => {
-        if (!hasCompetitions) return null;
-
-        return competitions.slice(0, visibleCount);
-    }, [competitions, visibleCount, hasCompetitions]);
-
     const hasMore = visibleCount < competitions.length;
     const remainingCount = competitions.length - visibleCount;
 
     return {
-        handleValidateCompetition, handleLoadMore, clearValidateMessage,
-        competitionList, hasMore, remainingCount, validateMessage,
+        handleValidateCompetition,
+        handleLoadMore,
+        clearValidateMessage,
+        competitionList,
+        hasMore,
+        remainingCount,
+        validateMessage,
     };
 };

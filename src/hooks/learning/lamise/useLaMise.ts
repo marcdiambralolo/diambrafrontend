@@ -31,10 +31,6 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
     return offeringId as string;
 };
 
-const redirectToGame = (router: ReturnType<typeof useRouter>, hasCompetition: boolean) => {
-    if (hasCompetition) { router.push(`/star/learning/startgame?_t=${Date.now()}`); }
-};
-
 export function useLaMise() {
     const router = useRouter();
     const [isPendingNavigation, startNavigationTransition] = useTransition();
@@ -50,25 +46,29 @@ export function useLaMise() {
         if (hasRedirectedRef.current || !gameConfig) return;
 
         const configId = gameConfig?._id || gameConfig?.id;
-
         if (!configId) return;
 
         const allCompetitions = getAllCompetitions();
-
         const hasActiveCompetition = allCompetitions.some(
             competition => competition.idConfig === configId
         );
 
         hasRedirectedRef.current = true;
-        redirectToGame(router, hasActiveCompetition);
-    }, [gameConfig, getAllCompetitions, router]);
+
+        startNavigationTransition(() => {
+            if (hasActiveCompetition) {
+                router.push(`/star/learning/startgame?_t=${Date.now()}`);
+            }
+        });
+    }, [gameConfig, getAllCompetitions, startNavigationTransition, router]);
 
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
         queryFn: () => walletService.getUnusedWalletOfferings(),
-        staleTime: 1000 * 30,
-        gcTime: 1000 * 60 * 5,
+        staleTime: 30000, // 30s
+        gcTime: 300000, // 5min
         retry: 2,
+        enabled: !!gameConfig,
     });
 
     const availableQuantity = useMemo(() => {
@@ -85,8 +85,14 @@ export function useLaMise() {
 
     const { mutateAsync: executeSubmit, isPending: isSubmitLoading, error: submitError } = useMutation<string, Error, void>({
         mutationFn: async () => {
+            if (!monidjeu) {
+                throw new Error('Game configuration not found');
+            }
+
             const consultationId = await createCategoryConsultation(monidjeu);
-            if (!consultationId) throw new Error('Impossible de créer la compétition');
+            if (!consultationId) {
+                throw new Error('Impossible de créer la compétition');
+            }
 
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: configOfferingId,
@@ -99,15 +105,19 @@ export function useLaMise() {
 
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_TRANSACTIONS] }),
-                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS] })
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS] }),
             ]);
 
-            const { data } = await api.get(`/consultations/${consultationId}`);
-            await api.put(`/consultations/${consultationId}`, { ...(data as Consultation) });
+            const { data: consultationData } = await api.get<Consultation>(`/consultations/${consultationId}`);
+
+            await api.put(`/consultations/${consultationId}`, consultationData);
 
             return consultationId;
         },
         retry: 1,
+        onMutate: () => {
+            hasRedirectedRef.current = false;
+        },
     });
 
     const handlePlayClick = useCallback(() => {
@@ -116,25 +126,31 @@ export function useLaMise() {
         startNavigationTransition(async () => {
             try {
                 const consultationId = await executeSubmit();
-                router.push(`/star/learning/startgame/?retour=learning&idconsultation=${consultationId}`);
+                router.push(`/star/learning/startgame/?idconsultation=${consultationId}`);
             } catch (err) {
                 console.error('Submission processing failed:', err);
             }
         });
-    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, router]);
+    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, router, startNavigationTransition]);
 
     const handleMarketClick = useCallback(() => {
-        if (isPendingNavigation) return;
+        if (isPendingNavigation || !monidjeu) return;
 
         startNavigationTransition(() => {
             router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
         });
-    }, [router, monidjeu, isPendingNavigation]);
+    }, [router, monidjeu, isPendingNavigation, startNavigationTransition]);
 
     return {
-        handlePlayClick, handleMarketClick, requiredQuantity: POT_CONFIG.quantity,
-        availableQuantity, isSufficient, cardClasses,
+        handlePlayClick,
+        handleMarketClick,
+        requiredQuantity: POT_CONFIG.quantity,
+        availableQuantity,
+        isSufficient,
+        cardClasses,
         loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
-        error: submitError ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission') : null,
+        error: submitError
+            ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission')
+            : null,
     };
 }

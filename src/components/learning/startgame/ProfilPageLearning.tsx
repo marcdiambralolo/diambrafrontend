@@ -99,11 +99,8 @@ const TheGame = () => {
     const {
         toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, pieces,
         currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed, selectedCase,
+        lockedCount, totalCount, hasCases,
     } = useGameGenerator();
-
-    const lockedCount = casesdujeuencours.filter(c => c.isLocked).length;
-    const totalCount = casesdujeuencours.length;
-    const hasCases = totalCount > 0;
 
     if (gameIsFinished) {
         return <GameFinishedCelebration />;
@@ -124,7 +121,6 @@ const TheGame = () => {
                     selectCase={selectCase}
                     tpsglobal={tpsglobal}
                 />
-
                 <GameControls
                     showPun={showPun}
                     onToggleShowPun={toggleShowPun}

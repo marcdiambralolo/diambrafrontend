@@ -332,6 +332,10 @@ export const useGameGenerator = () => {
         ? (state.casesdujeuencours.filter(c => c.isLocked).length / state.casesdujeuencours.length) * 100
         : 0;
 
+    const lockedCount = state.casesdujeuencours.filter(c => c.isLocked).length;
+    const totalCount = state.casesdujeuencours.length;
+    const hasCases = totalCount > 0;
+
     return {
         niveau: gameConfig?.niveau,
         showPun: state.showPun,
@@ -342,5 +346,6 @@ export const useGameGenerator = () => {
         selectedCase: state.selectedCase,
         toggleShowPun, lockSelectedCase, selectCase,
         currentGameType, progression, timeElapsed,
+        lockedCount, totalCount, hasCases,
     };
 };

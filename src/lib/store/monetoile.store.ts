@@ -11,6 +11,7 @@ interface StoredCompetition {
     idConfig: string;
     consultationId: string;
     timeSpent: number;
+    displayName?: string;
     matchInfo: Array<{
         id?: string;
         tpsglobal?: number;
@@ -77,6 +78,7 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => {
         idConfig: stored.idConfig,
         consultationId: stored.consultationId,
         timeSpent: stored.timeSpent,
+        displayName: stored.displayName!,
         matchInfo: stored.matchInfo.map(match => ({
             id: match.id,
             tpsglobal: match.tpsglobal,

@@ -202,25 +202,35 @@ export const useGameGenerator = () => {
         }
     }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
 
-    useEffect(() => {
-            const { infomatch, datedebut,  } = state;
-        if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
-          //  saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString());
-            updateState({ isGameover: true });
-const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-            const competition: CompetitionInfo = {
-                id: competitionId,
-                matchInfo: infomatch,
-                datedebut: datedebut,
-                idConfig: gameConfig?.id!,
-                consultationId: gameConfig?.id!,
-                datefin: new Date().toISOString()
-            };
+//     useEffect(() => {
+//             const { infomatch, datedebut,  } = state;
+//         if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
+//           //  saveFinalResults(state.infomatch, state.datedebut, new Date().toISOString());
+//             updateState({ isGameover: true });
+// const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+//             const competition: CompetitionInfo = {
+//                 id: competitionId,
+//                 matchInfo: infomatch,
+//                 datedebut: datedebut,
+//                 idConfig: gameConfig?.id!,
+//                 consultationId: gameConfig?.id!,
+//                 datefin: new Date().toISOString(),
+//                 name: `N°: ${competitionId.slice(-12)}`,
+//                 totalScore: infomatch.reduce((total, match) => total + (match.trouves || 0), 0),
+//                 matches: infomatch.map(match => ({
+//                     id: match.id,
+//                     tpsglobal: match.tpsglobal,
+//                     trouves: match.trouves || 0,
+//                     rates: match.rates || 0,
+//                     isgameover: match.isgameover,
+//                     timeSpent: match.timeSpent ? Number(match.timeSpent) : undefined,
+//                 })),
+//             };
 
-            addCompetition(competition);
-            router.push('/star/learning');
-        }
-    }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover,   updateState]);
+//             addCompetition(competition);
+//             router.push('/star/learning');
+//         }
+//     }, [allMatchesFinished, state.infomatch, state.datedebut, state.isGameover,   updateState]);
 
     useEffect(() => {
         if (lancementRef.current) return;

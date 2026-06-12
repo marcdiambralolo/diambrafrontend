@@ -118,7 +118,7 @@ export interface Consultation {
   combinaison: string;
   timeSpent: string;
   idjeu: string | GameConfiguration;
-  edition: any;  
+  edition: any;
   [key: string]: unknown;
 }
 
@@ -184,23 +184,23 @@ export interface GameConfiguration {
   isActive: boolean;
   status: 'pending' | 'active' | 'ended' | 'cancelled';
 }
- 
+
 
 export interface LearningConfiguration {
-    id?: string;
-    _id?: string;
-    startgameDate: Date;
-    endgameDate: Date;
-    proclamationDate?: Date;
-    sequence?: string;
-    niveau?: number;
-    numeromatch?: string;
-    tpsglobal?: number;
-    pieces?: string[];
-    isActive: boolean;
-    status: 'pending' | 'active' | 'ended' | 'cancelled';
-    createdAt?: Date;
-    updatedAt?: Date;
+  id?: string;
+  _id?: string;
+  startgameDate: Date;
+  endgameDate: Date;
+  proclamationDate?: Date;
+  sequence?: string;
+  niveau?: number;
+  numeromatch?: string;
+  tpsglobal?: number;
+  pieces?: string[];
+  isActive: boolean;
+  status: 'pending' | 'active' | 'ended' | 'cancelled';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type LearningConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
@@ -379,16 +379,36 @@ export interface Case {
   mode?: boolean;
 }
 
-export interface MatchInfo {
- 
-    id?: string;
-  
+
+
+export interface MenuItem {
+  title: string;
+  icon: React.ReactNode;
+  tpsglobal?: number;
+  color: string;
+  gradient?: string;
+}
+
+export interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+export interface MatchResult {
+    matchNumber: number;
+    type: string;
+    score: number;
     timeSpent?: number;
-   
-    matchNumber?: number;
-   
- 
- 
+    trouves?: number;
+    rates?: number;
+}
+
+export interface MatchInfo {
+  id?: string;
+  timeSpent?: number;
+  matchNumber?: number;
   competitionId?: string;
   listeCaseOpLab?: Case[];
   listeCaseOpLabInitiale?: Case[];
@@ -407,27 +427,18 @@ export interface MatchInfo {
   nbCoup?: number;
 }
 
-export interface MenuItem {
-  title: string;
-  icon: React.ReactNode;
-  tpsglobal?: number;
-  color: string;
-  gradient?: string;
-}
-
-export interface TimeLeft {
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-}
-
 export interface CompetitionInfo {
-    id: string;
-    datedebut: string;
-    datefin: string;
-    idConfig: string;
-    matchInfo: MatchInfo[];
-    consultationId: string;
-    timeSpent?: number;
+  id: string;
+  datedebut: string;
+  datefin: string;
+  idConfig: string;
+  matchInfo: MatchInfo[];
+  consultationId: string;
+  timeSpent?: number;
+  name?: string;
+  matches?: MatchResult[];
+  totalScore?: number;
+  isValidated?: boolean; 
+   
+    displayName: string;
 }

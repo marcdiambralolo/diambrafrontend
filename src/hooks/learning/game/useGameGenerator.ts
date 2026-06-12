@@ -119,6 +119,8 @@ export const useGameGenerator = () => {
             datefin: new Date().toISOString(),
             consultationId: consultationId || '',
             timeSpent: totalDurationSeconds,
+            name: gameConfig?.id,
+            displayName: gameConfig?.id!,
         };
 
         addCompetition(competition);

@@ -97,14 +97,11 @@ const GameInfo = memo(({ currentGameType, niveau }: { currentGameType: string; n
 const TheGame = () => {
     const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
     const {
-        toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, pieces,
-        currentGameType, progression, tpsglobal, niveau, showPun, timeElapsed, selectedCase,
-        lockedCount, totalCount, hasCases,
+        toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, timeElapsed, selectedCase,
+        currentGameType, progression, tpsglobal, niveau, showPun, lockedCount, totalCount, hasCases, pieces,
     } = useGameGenerator();
 
-    if (gameIsFinished) {
-        return <GameFinishedCelebration />;
-    }
+    if (gameIsFinished) { return <GameFinishedCelebration />; }
 
     return (
         <div className="w-full mx-auto max-w-md pb-20 flex flex-col items-center justify-center">
@@ -121,6 +118,7 @@ const TheGame = () => {
                     selectCase={selectCase}
                     tpsglobal={tpsglobal}
                 />
+
                 <GameControls
                     showPun={showPun}
                     onToggleShowPun={toggleShowPun}

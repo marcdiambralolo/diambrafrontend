@@ -396,26 +396,26 @@ export const useGameGenerator = () => {
     }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, state.matchLoading, updateMatchInfo, handleMatchTransition]);
 
     // Sauvegarder la compétition
-    useEffect(() => {
-        const { infomatch, datedebut, matchestermine, allMatchesFinished } = state;
+    // useEffect(() => {
+    //     const { infomatch, datedebut, matchestermine, allMatchesFinished } = state;
         
-        const allMatchesCompleted = infomatch.length > 0 && infomatch.every(m => m.isgameover === true);
+    //     const allMatchesCompleted = infomatch.length > 0 && infomatch.every(m => m.isgameover === true);
         
-        if (allMatchesCompleted && infomatch.length > 0 && !allMatchesFinished && matchestermine) {
-            const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-            const competition: CompetitionInfo = {
-                id: competitionId,
-                matchInfo: infomatch,
-                datedebut: datedebut,
-                idConfig: gameConfig?.id!,
-                consultationId: gameConfig?.id!,
-                datefin: new Date().toISOString()
-            };
+    //     if (allMatchesCompleted && infomatch.length > 0 && !allMatchesFinished && matchestermine) {
+    //         const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    //         const competition: CompetitionInfo = {
+    //             id: competitionId,
+    //             matchInfo: infomatch,
+    //             datedebut: datedebut,
+    //             idConfig: gameConfig?.id!,
+    //             consultationId: gameConfig?.id!,
+    //             datefin: new Date().toISOString()
+    //         };
 
-            addCompetition(competition);
-            setState(prev => ({ ...prev, allMatchesFinished: true }));
-        }
-    }, [state.infomatch, state.datedebut, state.matchestermine, state.allMatchesFinished, addCompetition]);
+    //         addCompetition(competition);
+    //         setState(prev => ({ ...prev, allMatchesFinished: true }));
+    //     }
+    // }, [state.infomatch, state.datedebut, state.matchestermine, state.allMatchesFinished, addCompetition]);
 
     // ============================================================================
     // VALEURS MÉMOISÉES

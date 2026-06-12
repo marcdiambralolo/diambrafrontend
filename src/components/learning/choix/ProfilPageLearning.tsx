@@ -234,7 +234,6 @@ const ProfilPageLearning = () => {
             requiredQuantity={requiredQuantity}
             availableQuantity={availableQuantity}
           />
-
           <TokenCard
             isSufficient={isSufficient}
             requiredQuantity={requiredQuantity}
@@ -243,7 +242,6 @@ const ProfilPageLearning = () => {
             onPlayClick={handlePlayClick}
             isPending={loading}
           />
-
           <PlayButton
             isSufficient={isSufficient}
             onClick={handlePlayClick}

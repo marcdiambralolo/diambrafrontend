@@ -1,18 +1,10 @@
+'use client';
 import { api } from "@/lib/api/client";
-import { CompetitionInfo, Consultation, MatchInfo } from "@/lib/interfaces";
-import { INITIAL_VISIBLE_COUNT, LOAD_MORE_INCREMENT, MESSAGE_DURATION } from "@/lib/learning/constantes";
-import { formatDuration } from "@/lib/learning/functions";
+import { CompetitionInfo, Consultation } from "@/lib/interfaces";
+import { INITIAL_VISIBLE_COUNT, LOAD_MORE_INCREMENT } from "@/lib/learning/constantes";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
-interface ValidationMessage {
-    text: string;
-    type: 'success' | 'error';
-}
+import { useCallback, useMemo, useState, useTransition } from "react";
+import { useMessage } from "./useMessage";
 
 export interface MatchResult {
     matchNumber: number;
@@ -23,20 +15,14 @@ export interface MatchResult {
     rates?: number;
 }
 
-export interface CompetitionSummary {
-    id: string;
-    name: string;
-    startedAt: string;
-    finishedAt?: string;
-    matches: MatchResult[];
-    rawMatches?: MatchInfo[];
-    totalScore: number;
-    datedebut: string;
-    datefin: string;
-    idConfig: string;
-    matchInfo: MatchInfo[];
-    consultationId: string;
+interface MatchesDetails {
+    tpsglobal?: number;
+    score?: number;
+    trouves?: number;
+    rates?: number;
+    isgameover?: boolean;
     timeSpent?: number;
+    validatedAt?: string;
 }
 
 interface LearningStats {
@@ -46,37 +32,21 @@ interface LearningStats {
     totalRates?: number;
     competitionsCount?: number;
     completedAt?: string;
-    matchesDetails?: Array<{
-        tpsglobal?: number;
-        score?: number;
-        trouves?: number;
-        rates?: number;
-        isgameover?: boolean;
-        timeSpent?: number;
-        validatedAt?: string;
-    }>;
+    matchesDetails?: MatchesDetails[];
 }
-
-// ============================================================================
-// CONSTANTES
-// ============================================================================
 
 const MATCH_TYPES: Record<number, string> = {
     0: 'Chiffre',
     1: 'Couleur',
     2: 'Image',
     3: 'Lettre',
-};
+} as const;
 
-const PERMANENT_MESSAGE_DURATION = 10000;
-
-// ============================================================================
-// FONCTIONS UTILITAIRES
-// ============================================================================
+const STORAGE_PREFIX = 'validated_competition_';
 
 export const getMatchType = (tpsglobal?: number): string => {
     if (tpsglobal === undefined) return 'Inconnu';
-    return MATCH_TYPES[tpsglobal] || 'Inconnu';
+    return MATCH_TYPES[tpsglobal] ?? 'Inconnu';
 };
 
 const calculateDuration = (startDate: string, endDate: string): string => {
@@ -96,207 +66,65 @@ const calculateDurationInSeconds = (startDate: string, endDate: string): number 
     return Math.floor((end - start) / 1000);
 };
 
-const adaptCompetitionToLocal = (competition: CompetitionInfo): MatchInfo[] => {
-    return competition.matchInfo.map(match => ({
-        id: match.id,
-        tpsglobal: match.tpsglobal,
-        trouves: match.trouves || 0,
-        rates: match.rates || 0,
-        isgameover: match.isgameover,
-        timeSpent: match.timeSpent ? Number(match.timeSpent) : undefined,
-        datedebut: competition.datedebut,
-        competitionId: competition.id,
-        matchNumber: match.matchNumber,
-        score: match.trouves || 0,
-    }));
+const getValidationStorageKey = (competitionId: string): string => `${STORAGE_PREFIX}${competitionId}`;
+
+const isCompetitionValidated = (competitionId: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(getValidationStorageKey(competitionId)) === 'true';
 };
 
-const computeCompetitionStats = (matches: MatchInfo[]) => {
-    let totalScore = 0;
 
-    const matchResults: MatchResult[] = matches.map((match, idx) => {
-        const score = match.trouves || 0;
-        totalScore += score;
-        return {
-            matchNumber: idx + 1,
-            type: getMatchType(match.tpsglobal),
-            score,
-            timeSpent: match.timeSpent ? Number(match.timeSpent) : undefined,
-            trouves: match.trouves,
-            rates: match.rates,
-        };
-    });
-
-    return {
-        totalScore,
-        matches: matchResults,
-        rawMatches: matches,
-    };
-};
-
-const createCompetitionSummary = (
-    competition: CompetitionInfo,
-    stats: ReturnType<typeof computeCompetitionStats>
-): CompetitionSummary => ({
-    id: competition.id,
-    name: `N°: ${competition.id.slice(-12)}`,
-    startedAt: competition.datedebut,
-    finishedAt: competition.datefin,
-    totalScore: stats.totalScore,
-    matches: stats.matches,
-    rawMatches: stats.rawMatches,
-    datedebut: competition.datedebut,
-    datefin: competition.datefin,
-    idConfig: competition.idConfig,
-    matchInfo: competition.matchInfo,
-    consultationId: competition.consultationId,
+const createCompetitionSummary = (competition: CompetitionInfo): CompetitionInfo => ({
+    ...competition,
+    displayName: `N°: ${competition.id.slice(-12)}`,
+    isValidated: isCompetitionValidated(competition.id),
 });
-
-// ============================================================================
-// HOOK useMessage
-// ============================================================================
-
-const useMessage = () => {
-    const [message, setMessage] = useState<ValidationMessage | null>(null);
-    const timeoutRef = useRef<NodeJS.Timeout>();
-
-    const showMessage = useCallback((text: string, type: 'success' | 'error') => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setMessage({ text, type });
-        timeoutRef.current = setTimeout(() => setMessage(null), MESSAGE_DURATION);
-    }, []);
-
-    const clearMessage = useCallback(() => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setMessage(null);
-    }, []);
-
-    useEffect(() => () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    }, []);
-
-    return { message, showMessage, clearMessage };
-};
-
-// ============================================================================
-// HOOK useCompetitionValidation
-// ============================================================================
-
-export const useCompetitionValidation = (
-    onValidate: (competition: CompetitionSummary) => Promise<boolean>,
-    competition: CompetitionSummary
-) => {
-    const [isLocalValidating, setIsLocalValidating] = useState(false);
-    const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
-    const [isValidated, setIsValidated] = useState(false);
-    const [showPermanentMessage, setShowPermanentMessage] = useState(false);
-
-    useEffect(() => {
-        const storageKey = `validated_competition_${competition.id}`;
-        const alreadyValidated = localStorage.getItem(storageKey) === 'true';
-        setIsValidated(alreadyValidated);
-        if (alreadyValidated) setShowPermanentMessage(true);
-    }, [competition.id]);
-
-    const handleValidate = useCallback(async () => {
-        if (isLocalValidating || !competition.rawMatches?.length || isValidated) return;
-
-        setIsLocalValidating(true);
-        setValidationMessage(null);
-
-        const success = await onValidate(competition);
-
-        if (success) {
-            setValidationMessage({ text: '✅ Compétition validée avec succès !', type: 'success' });
-            setIsValidated(true);
-            localStorage.setItem(`validated_competition_${competition.id}`, 'true');
-            setShowPermanentMessage(true);
-            setTimeout(() => setShowPermanentMessage(false), PERMANENT_MESSAGE_DURATION);
-        } else {
-            setValidationMessage({ text: '❌ Erreur lors de la validation. Veuillez réessayer.', type: 'error' });
-        }
-
-        setIsLocalValidating(false);
-    }, [competition, isLocalValidating, isValidated, onValidate]);
-
-    const handleCloseMessage = useCallback(() => setValidationMessage(null), []);
-    const handleClosePermanentMessage = useCallback(() => setShowPermanentMessage(false), []);
-    const clearValidationStatus = useCallback(() => {
-        localStorage.removeItem(`validated_competition_${competition.id}`);
-        setIsValidated(false);
-        setShowPermanentMessage(false);
-        setValidationMessage(null);
-    }, [competition.id]);
-
-    const formattedStartDate = useMemo(() => new Date(competition.startedAt).toLocaleString(), [competition.startedAt]);
-    const formattedFinishedDate = useMemo(() => competition.finishedAt ? new Date(competition.finishedAt).toLocaleString() : null, [competition.finishedAt]);
-    const totalTimeSpent = useMemo(() => formatDuration(competition.matches.reduce((sum, m) => sum + (m.timeSpent || 0), 0)), [competition.matches]);
-
-    return {
-        isLoading: isLocalValidating,
-        validationMessage,
-        formattedStartDate,
-        formattedFinishedDate,
-        totalTimeSpent,
-        handleValidate,
-        handleCloseMessage,
-        isValidated,
-        showPermanentMessage,
-        handleClosePermanentMessage,
-        clearValidationStatus
-    };
-};
-
-// ============================================================================
-// HOOK useEndGameGenerator
-// ============================================================================
 
 export const useEndGameGenerator = () => {
     const { getAllCompetitions, gameConfig } = useMonEtoileStore();
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+    const [, startTransition] = useTransition();
 
     const competitions = useMemo(() => {
         const allCompetitions = getAllCompetitions();
-        const filtered = allCompetitions.filter(comp => comp.idConfig === gameConfig?.id);
-        
-        return filtered.map(comp => {
-            const localMatches = adaptCompetitionToLocal(comp);
-            const stats = computeCompetitionStats(localMatches);
-            return createCompetitionSummary(comp, stats);
-        }).sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+        return allCompetitions
+            .filter(comp => comp.idConfig === gameConfig?.id)
+            .map(createCompetitionSummary)
+            .sort((a, b) => {
+                if (a.isValidated !== b.isValidated) return a.isValidated ? -1 : 1;
+                return new Date(b.datedebut).getTime() - new Date(a.datedebut).getTime();
+            });
     }, [getAllCompetitions, gameConfig?.id]);
 
-    const handleValidateCompetition = useCallback(async (competition: CompetitionSummary): Promise<boolean> => {
+    const handleValidateCompetition = useCallback(async (competition: CompetitionInfo): Promise<boolean> => {
         if (!competition.consultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
             return false;
         }
 
-        if (!competition.rawMatches?.length) {
+        if (!competition.matchInfo?.length) {
             showValidateMessage('Aucun match à valider', 'error');
             return false;
         }
 
         try {
-            const totalScore = competition.rawMatches.reduce((acc, m) => acc + (m.trouves || 0), 0);
-            const totalTrouves = competition.rawMatches.reduce((acc, m) => acc + (m.trouves || 0), 0);
-            const totalRates = competition.rawMatches.reduce((acc, m) => acc + (m.rates || 0), 0);
-            const startDate = competition.rawMatches[0]?.datedebut || new Date().toISOString();
+            const totalScore = competition.matchInfo.reduce((acc, m) => acc + (m.trouves || 0), 0);
+            const totalTrouves = competition.matchInfo.reduce((acc, m) => acc + (m.trouves || 0), 0);
+            const totalRates = competition.matchInfo.reduce((acc, m) => acc + (m.rates || 0), 0);
+            const startDate = competition.matchInfo[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
-            const duration = calculateDuration(startDate, endDate);
-            const durationInSeconds = calculateDurationInSeconds(startDate, endDate);
 
-            const { data: consultation } = await api.get(`/consultations/${competition.consultationId}`);
-            const dataconsultation = consultation as Consultation;
-            const existingStats = (dataconsultation?.learningStats || {}) as LearningStats;
+            const { data: consultation } = await api.get<Consultation>(`/consultations/${competition.consultationId}`);
+
+            const existingStats = (consultation?.learningStats || {}) as LearningStats;
             const existingMatches = existingStats.matchesDetails || [];
 
             const updatedPayload = {
-                ...dataconsultation,
-                timeSpent: durationInSeconds,
+                ...consultation,
+                timeSpent: calculateDurationInSeconds(startDate, endDate),
                 learningStats: {
-                    totalTime: duration,
+                    totalTime: calculateDuration(startDate, endDate),
                     totalScore: (existingStats.totalScore || 0) + totalScore,
                     totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
                     totalRates: (existingStats.totalRates || 0) + totalRates,
@@ -304,7 +132,7 @@ export const useEndGameGenerator = () => {
                     completedAt: endDate,
                     matchesDetails: [
                         ...existingMatches,
-                        ...competition.rawMatches.map(m => ({
+                        ...competition.matchInfo.map(m => ({
                             tpsglobal: m.tpsglobal,
                             score: m.trouves,
                             trouves: m.trouves,
@@ -327,30 +155,31 @@ export const useEndGameGenerator = () => {
         }
     }, [showValidateMessage]);
 
-    const clearValidateMessage = useCallback(() => showValidateMessage('', 'success'), [showValidateMessage]);
-
-    const hasCompetitions = competitions.length > 0;
-    const competitionList = useMemo(() => {
-        if (!hasCompetitions) return null;
+    const displayList = useMemo(() => {
+        const validatedGame = competitions.find(comp => comp.isValidated);
+        if (validatedGame) return [validatedGame];
         return competitions.slice(0, visibleCount);
-    }, [competitions, visibleCount, hasCompetitions]);
+    }, [competitions, visibleCount]);
+
+    const hasMore = useMemo(() => {
+        return !competitions.some(comp => comp.isValidated) && visibleCount < competitions.length;
+    }, [competitions, visibleCount]);
+
+    const remainingCount = competitions.length - visibleCount;
 
     const handleLoadMore = useCallback(() => {
         startTransition(() => {
             setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
         });
-    }, [competitions.length]);
-
-    const hasMore = visibleCount < competitions.length;
-    const remainingCount = competitions.length - visibleCount;
+    }, [competitions.length, startTransition]);
 
     return {
         handleValidateCompetition,
         handleLoadMore,
-        clearValidateMessage,
-        competitionList,
+        competitionList: displayList,
         hasMore,
         remainingCount,
         validateMessage,
+        displayList
     };
 };

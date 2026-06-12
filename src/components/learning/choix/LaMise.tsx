@@ -1,15 +1,8 @@
 'use client';
 import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { HeaderSection } from '../commons/Features';
-import FixedContent from '../commons/FixedContent';
-
-const GameFinishedCelebration = dynamic(() => import('../commons/GameFinishedCelebration'), {
-  loading: () => <Loader />
-});
 
 const ErrorPage = dynamic(() => import('../commons/Erreur'));
 
@@ -210,57 +203,50 @@ const MarketButton = ({ onClick, isPending }: MarketButtonProps) => (
   </button>
 );
 
-const ProfilPageLearning = () => {
-  const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
-
+const LaMise = () => {
   const {
     handlePlayClick, handleMarketClick,
     isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
   } = useLaMise();
 
-  if (gameIsFinished) return <GameFinishedCelebration />;
   if (error) return <ErrorPage />;
 
   if (loading) return <Loader />;
 
   return (
-    <div className="w-full mx-auto max-w-md px-4 sm:px-0">
-      <div className="flex flex-col items-center justify-center">
-        <HeaderSection />
+    <div className="w-full mx-auto max-w-md px-4 sm:px-0 flex flex-col gap-2 space-y-3 items-center justify-center">
+      <StatusBanner
+        isSufficient={isSufficient}
+        requiredQuantity={requiredQuantity}
+        availableQuantity={availableQuantity}
+      />
 
-        <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
-          <StatusBanner
-            isSufficient={isSufficient}
-            requiredQuantity={requiredQuantity}
-            availableQuantity={availableQuantity}
-          />
-          <TokenCard
-            isSufficient={isSufficient}
-            requiredQuantity={requiredQuantity}
-            availableQuantity={availableQuantity}
-            cardClasses={cardClasses}
-            onPlayClick={handlePlayClick}
-            isPending={loading}
-          />
-          <PlayButton
-            isSufficient={isSufficient}
-            onClick={handlePlayClick}
-            isPending={loading}
-          />
+      <TokenCard
+        isSufficient={isSufficient}
+        requiredQuantity={requiredQuantity}
+        availableQuantity={availableQuantity}
+        cardClasses={cardClasses}
+        onPlayClick={handlePlayClick}
+        isPending={loading}
+      />
 
-          {!isSufficient && (
-            <p className="text-center text-xs text-red-500 dark:text-red-400 animate-pulse">
-              Vous ne disposez pas d&apos;assez de jetons.
-            </p>
-          )}
+      <PlayButton
+        isSufficient={isSufficient}
+        onClick={handlePlayClick}
+        isPending={loading}
+      />
 
-          <MarketButton onClick={handleMarketClick} isPending={loading} />
-        </div>
+      {!isSufficient && (
+        <p className="text-center text-xs text-red-500 dark:text-red-400 animate-pulse">
+          Vous ne disposez pas d&apos;assez de jetons.
+        </p>
+      )}
 
-        <FixedContent />
-      </div>
+      <MarketButton onClick={handleMarketClick} isPending={loading} />
+
+      <div className="w-2 h-2 rounded-full bg-green-400" />
     </div>
   );
 };
 
-export default ProfilPageLearning;
+export default LaMise;

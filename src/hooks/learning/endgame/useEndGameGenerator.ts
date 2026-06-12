@@ -3,8 +3,9 @@ import { api } from "@/lib/api/client";
 import { CompetitionInfo, Consultation } from "@/lib/interfaces";
 import { INITIAL_VISIBLE_COUNT, LOAD_MORE_INCREMENT } from "@/lib/learning/constantes";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useMessage } from "./useMessage";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface MatchResult {
     matchNumber: number;
@@ -43,6 +44,7 @@ const MATCH_TYPES: Record<number, string> = {
 } as const;
 
 const STORAGE_PREFIX = 'validated_competition_';
+const REFETCH_INTERVAL = 5000;
 
 export const getMatchType = (tpsglobal?: number): string => {
     if (tpsglobal === undefined) return 'Inconnu';
@@ -73,32 +75,78 @@ const isCompetitionValidated = (competitionId: string): boolean => {
     return localStorage.getItem(getValidationStorageKey(competitionId)) === 'true';
 };
 
-
-const createCompetitionSummary = (competition: CompetitionInfo): CompetitionInfo => ({
-    ...competition,
-    displayName: `N°: ${competition.id.slice(-12)}`,
-    isValidated: isCompetitionValidated(competition.id),
-});
-
 export const useEndGameGenerator = () => {
-    const { getAllCompetitions, gameConfig } = useMonEtoileStore();
+    const { getAllCompetitions, gameConfig, refreshCompetitions, currentConsultationId, setGameIsFinished } = useMonEtoileStore();
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
+
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
     const [, startTransition] = useTransition();
+    const [refreshKey, setRefreshKey] = useState(0);
+    const isRefreshingRef = useRef(false);
+
+    const refreshData = useCallback(() => {
+        if (isRefreshingRef.current) return;
+        isRefreshingRef.current = true;
+
+        setRefreshKey(prev => prev + 1);
+        if (refreshCompetitions) {
+            refreshCompetitions();
+        }
+
+        setTimeout(() => {
+            isRefreshingRef.current = false;
+        }, 100);
+    }, [refreshCompetitions]);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            refreshData();
+        }, REFETCH_INTERVAL);
+
+        return () => clearInterval(intervalId);
+    }, [refreshData]);
+
+
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key?.startsWith(STORAGE_PREFIX)) {
+                refreshData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [refreshData]);
 
     const competitions = useMemo(() => {
         const allCompetitions = getAllCompetitions();
-        return allCompetitions
+        const filtered = allCompetitions
             .filter(comp => comp.idConfig === gameConfig?.id)
-            .map(createCompetitionSummary)
+            .map(comp => ({
+                ...comp,
+                displayName: `N°: ${comp.id.slice(-12)}`,
+                isValidated: isCompetitionValidated(comp.id),
+            }))
             .sort((a, b) => {
                 if (a.isValidated !== b.isValidated) return a.isValidated ? -1 : 1;
                 return new Date(b.datedebut).getTime() - new Date(a.datedebut).getTime();
             });
-    }, [getAllCompetitions, gameConfig?.id]);
+
+        return filtered;
+    }, [getAllCompetitions, gameConfig?.id, refreshKey]);
+
+
+    const updateLocalCache = useCallback((competitionId: string) => {
+        localStorage.setItem(getValidationStorageKey(competitionId), 'true');
+        refreshData();
+    }, [refreshData]);
+
+    // ============================================================================
+    // VALIDATION D'UNE COMPÉTITION
+    // ============================================================================
 
     const handleValidateCompetition = useCallback(async (competition: CompetitionInfo): Promise<boolean> => {
-        if (!competition.consultationId) {
+        if (!currentConsultationId) {
             showValidateMessage('Aucune consultation en cours', 'error');
             return false;
         }
@@ -115,13 +163,14 @@ export const useEndGameGenerator = () => {
             const startDate = competition.matchInfo[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
 
-            const { data: consultation } = await api.get<Consultation>(`/consultations/${competition.consultationId}`);
-
+            const { data: consultation } = await api.get<Consultation>(`/consultations/${currentConsultationId}`);
             const existingStats = (consultation?.learningStats || {}) as LearningStats;
             const existingMatches = existingStats.matchesDetails || [];
 
             const updatedPayload = {
                 ...consultation,
+                endTime: new Date().toISOString(),
+                status: 'completed',
                 timeSpent: calculateDurationInSeconds(startDate, endDate),
                 learningStats: {
                     totalTime: calculateDuration(startDate, endDate),
@@ -145,15 +194,24 @@ export const useEndGameGenerator = () => {
                 },
             };
 
-            await api.put(`/consultations/${competition.consultationId}`, updatedPayload);
+            await api.put(`/consultations/${currentConsultationId}`, updatedPayload);
+
+            updateLocalCache(competition.id);
             showValidateMessage('Compétition validée avec succès !', 'success');
+            setGameIsFinished(true);
+              const queryClient = useQueryClient();
+              queryClient.invalidateQueries({ queryKey: ['game'] });
             return true;
         } catch (error: any) {
             console.error('Erreur validation:', error);
             showValidateMessage(error?.response?.data?.message || 'Erreur lors de la validation', 'error');
             return false;
         }
-    }, [showValidateMessage]);
+    }, [currentConsultationId, showValidateMessage, updateLocalCache]);
+
+    // ============================================================================
+    // CALCUL DE LA LISTE AFFICHÉE
+    // ============================================================================
 
     const displayList = useMemo(() => {
         const validatedGame = competitions.find(comp => comp.isValidated);
@@ -167,11 +225,19 @@ export const useEndGameGenerator = () => {
 
     const remainingCount = competitions.length - visibleCount;
 
+    // ============================================================================
+    // CHARGEMENT PROGRESSIF
+    // ============================================================================
+
     const handleLoadMore = useCallback(() => {
         startTransition(() => {
             setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
         });
     }, [competitions.length, startTransition]);
+
+    // ============================================================================
+    // RETURN
+    // ============================================================================
 
     return {
         handleValidateCompetition,
@@ -180,6 +246,6 @@ export const useEndGameGenerator = () => {
         hasMore,
         remainingCount,
         validateMessage,
-        displayList
+        refreshData,
     };
 };

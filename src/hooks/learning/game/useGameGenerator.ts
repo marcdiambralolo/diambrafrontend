@@ -1,10 +1,8 @@
 'use client';
-import { api } from '@/lib/api/client';
-import { Case, CompetitionInfo, Consultation, MatchInfo } from '@/lib/interfaces';
+import { Case, CompetitionInfo, MatchInfo } from '@/lib/interfaces';
 import { choix, decoupelimage } from "@/lib/learning/functions";
 import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTimer } from './useTimer';
 
@@ -12,12 +10,7 @@ const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const TRANSITION_DELAY = 100;
 
 export const useGameGenerator = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { gameConfig, addCompetition, } = useMonEtoileStore();
-
-    const consultationIdFromUrl = searchParams.get('idconsultation');
-    const existingConsultationId = consultationIdFromUrl;
+    const { gameConfig, addCompetition, setAfficheGame, currentConsultationId } = useMonEtoileStore();
 
     const [state, setState] = useState({
         tpsglobal: 0,
@@ -46,89 +39,26 @@ export const useGameGenerator = () => {
         state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true),
         [state.infomatch]);
 
-    const updateConsultationWithDuration = useCallback(async (durationInSeconds: number) => {
-        if (!existingConsultationId) {
-            console.warn('Aucun ID de consultation trouvé');
-            return null;
-        }
-
-        try {
-            const { data: existingConsultation } = await api.get(`/consultations/${existingConsultationId}`);
-
-            if (!existingConsultation) {
-                console.warn('Consultation non trouvée');
-                return null;
-            }
-
-            const timeSpentMs = durationInSeconds * 1000;
-
-            const updatedConsultation: Partial<Consultation> = {
-                ...existingConsultation,
-                timeSpent: timeSpentMs.toString(),
-                endTime: new Date().toISOString(),
-                status: 'completed',
-            };
-
-            const { data } = await api.put(`/consultations/${existingConsultationId}`, updatedConsultation);
-
-            console.log(`✅ Consultation mise à jour avec durée: ${durationInSeconds}s`);
-            return data;
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour de la consultation:', error);
-            return null;
-        }
-    }, [existingConsultationId]);
-
-    const createOrUpdateConsultation = useCallback(async (durationInSeconds: number) => {
-        let consultationId = existingConsultationId;
-
-        if (!consultationId) {
-            try {
-                const { data } = await api.post('/consultations', {
-                    configId: gameConfig?.id,
-                    startTime: state.datedebut,
-                    endTime: new Date().toISOString(),
-                    timeSpent: durationInSeconds * 1000,
-                    status: 'completed',
-                });
-                consultationId = (data as Consultation)._id;
-                console.log(`✅ Nouvelle consultation créée avec durée: ${durationInSeconds}s`);
-                return consultationId;
-            } catch (error) {
-                console.error('Erreur lors de la création de la consultation:', error);
-                return null;
-            }
-        }
-
-        await updateConsultationWithDuration(durationInSeconds);
-        return consultationId;
-    }, [existingConsultationId, gameConfig?.id, state.datedebut, updateConsultationWithDuration,]);
-
     const saveFinalResults = useCallback(async () => {
         if (!allMatchesFinished) return;
 
         const totalDurationSeconds = timeElapsed;
-        const consultationId = await createOrUpdateConsultation(totalDurationSeconds);
+        const competitionId = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
-        const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
         const competition: CompetitionInfo = {
             id: competitionId,
             matchInfo: state.infomatch,
             datedebut: state.datedebut,
             idConfig: gameConfig?.id!,
             datefin: new Date().toISOString(),
-            consultationId: consultationId || '',
+            consultationId: currentConsultationId || '',
             timeSpent: totalDurationSeconds,
             name: gameConfig?.id,
             displayName: gameConfig?.id!,
         };
 
         addCompetition(competition);
-
-        console.log(`✅ Compétition terminée - Durée: ${totalDurationSeconds}s - Consultation: ${consultationId || 'non créée'}`);
-
-        return consultationId;
-    }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition, createOrUpdateConsultation]);
+    }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition,]);
 
     const swapCases = useCallback((c1: Case, c2: Case) => {
         const { casesdujeuencours, casesinitiales } = state;
@@ -279,13 +209,9 @@ export const useGameGenerator = () => {
         if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
             updateState({ isGameover: true });
             saveFinalResults();
-
-            const redirectUrl = existingConsultationId
-                ? `/star/learning?retour=game&idconsultation=${existingConsultationId}`
-                : '/star/learning';
-            router.push(redirectUrl);
+            setAfficheGame(false);
         }
-    }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, router, existingConsultationId, updateState]);
+    }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, currentConsultationId, updateState]);
 
     useEffect(() => {
         if (lancementRef.current) return;
@@ -296,14 +222,7 @@ export const useGameGenerator = () => {
 
             try {
                 const matchList = generateMatchList();
-                let piecesImages: string[] = [];
-
-                const hasImageMode = matchList.some(m => m.tpsglobal === 2);
-
-                if (hasImageMode) {
-                    piecesImages = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
-                }
-
+                const piecesImages: string[] = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
                 const updatedMatches = await Promise.all(
                     matchList.map(match => loadMatch(match, gameConfig?.niveau!, piecesImages))
                 );
@@ -339,15 +258,9 @@ export const useGameGenerator = () => {
     const hasCases = totalCount > 0;
 
     return {
-        niveau: gameConfig?.niveau,
-        showPun: state.showPun,
-        tpsglobal: state.tpsglobal,
-        casesdujeuencours: state.casesdujeuencours,
-        casesinitiales: state.casesinitiales,
-        pieces: state.pieces,
-        selectedCase: state.selectedCase,
-        toggleShowPun, lockSelectedCase, selectCase,
-        currentGameType, progression, timeElapsed,
-        lockedCount, totalCount, hasCases,
+        toggleShowPun, lockSelectedCase, selectCase, timeElapsed, currentGameType, progression, lockedCount,
+        totalCount, hasCases, niveau: gameConfig?.niveau, showPun: state.showPun, tpsglobal: state.tpsglobal,
+        casesdujeuencours: state.casesdujeuencours, casesinitiales: state.casesinitiales,
+        pieces: state.pieces, selectedCase: state.selectedCase,
     };
 };

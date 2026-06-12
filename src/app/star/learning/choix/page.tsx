@@ -1,5 +1,5 @@
-import ProfilPageLearning from "@/components/learning/choix/ProfilPageLearning";
+import LaMise from "@/components/learning/choix/LaMise";
 
 export default function PagePrincipale() {
-  return (<ProfilPageLearning />);
+  return (<LaMise />);
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useStatsDataWithCache } from '@/hooks/cache/useStatsDataWithCache';
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -54,6 +55,8 @@ export function useAdminConsultationsPageFinished() {
     if (hasRedirectedRef.current) return;
     hasRedirectedRef.current = true;
     setGameIsFinished(true);
+      const queryClient = useQueryClient();
+      queryClient.invalidateQueries({ queryKey: ['game'] });
   }, [router,]);
 
   useEffect(() => {

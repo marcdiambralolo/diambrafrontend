@@ -7,7 +7,7 @@ import type { Consultation, OfferingAlternative, WalletOffering } from '@/lib/in
 import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
 
 const POT_CONFIG: OfferingAlternative = {
     offeringId: '6945ae01b8af14d5f56cec09',
@@ -37,32 +37,21 @@ export function useLaMise() {
     const router = useRouter();
     const [isPendingNavigation, startNavigationTransition] = useTransition();
 
-    const { gameConfig, getAllCompetitions } = useMonEtoileStore();
+    const { gameConfig, setAfficheChoix, setAfficheGame, setCurrentConsultationId, } = useMonEtoileStore();
+
     const hasRedirectedRef = useRef(false);
+    const isMountedRef = useRef(true);
 
-    const monidjeu = gameConfig?._id || gameConfig?.id || "";
-
-    useEffect(() => {
-        if (hasRedirectedRef.current || !monidjeu) return;
-
-        const allCompetitions = getAllCompetitions();
-        const hasActiveCompetition = allCompetitions.some(
-            competition => competition.idConfig === monidjeu
-        );
-
-        if (hasActiveCompetition) {
-            hasRedirectedRef.current = true;
-            startNavigationTransition(() => {
-                router.push(`/star/learning/startgame?_t=${Date.now()}`);
-            });
-        }
-    }, [monidjeu, getAllCompetitions, router]);
+    const monidjeu = useMemo(
+        () => gameConfig?._id || gameConfig?.id || "",
+        [gameConfig]
+    );
 
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
         queryFn: () => walletService.getUnusedWalletOfferings(),
         staleTime: 30000, // 30s
-        gcTime: 300000,   // 5min
+        gcTime: 1 * 1000,   // 1min
         retry: 2,
         enabled: !!monidjeu,
     });
@@ -104,24 +93,22 @@ export function useLaMise() {
             return consultationId;
         },
         retry: 1,
-        onMutate: () => {
-            hasRedirectedRef.current = false;
-        },
     });
 
     const handlePlayClick = useCallback(async () => {
         if (!isSufficient || isSubmitLoading || isPendingNavigation) return;
 
-        try {
-            const consultationId = await executeSubmit();
-
-            startNavigationTransition(() => {
-                router.push(`/star/learning/startgame/?idconsultation=${consultationId}`);
-            });
-        } catch (err) {
-            console.error('Submission processing failed:', err);
-        }
-    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, router]);
+        startNavigationTransition(async () => {
+            try {
+                const consultationId = await executeSubmit();
+                setAfficheChoix(false);
+                setAfficheGame(true);
+                setCurrentConsultationId(consultationId);
+            } catch (err) {
+                console.error('Submission processing failed:', err);
+            }
+        });
+    }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, setCurrentConsultationId]);
 
     const handleMarketClick = useCallback(() => {
         if (isPendingNavigation || !monidjeu) return;
@@ -131,12 +118,19 @@ export function useLaMise() {
         });
     }, [router, monidjeu, isPendingNavigation]);
 
+    useEffect(() => {
+        isMountedRef.current = true;
+
+        return () => {
+            isMountedRef.current = false;
+            hasRedirectedRef.current = false;
+        };
+    }, []);
+
     return {
         handlePlayClick, handleMarketClick,
-        requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient,
-        cardClasses, loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
-        error: submitError
-            ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission')
-            : null,
+        requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient, cardClasses,
+        loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
+        error: submitError ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission') : null,
     };
 }

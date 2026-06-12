@@ -1,12 +1,8 @@
 'use client';
 import { useGameGenerator } from '@/hooks/learning/game/useGameGenerator';
 import { formatTime } from '@/lib/learning/functions';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
 import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import { memo } from 'react';
-import { HeaderSection } from '../commons/Features';
-import FixedContent from '../commons/FixedContent';
-import GameFinishedCelebration from '../commons/GameFinishedCelebration';
 import { ActionButton, InfoRowGame, ObjectiveCard, Ploader, PloaderFixe } from './Features';
 
 const GameBoard = memo(({ showPun, niveau, casesdujeuencours, casesinitiales, pieces, selectedCase, selectCase, tpsglobal }: any) => (
@@ -95,50 +91,40 @@ const GameInfo = memo(({ currentGameType, niveau }: { currentGameType: string; n
 ));
 
 const TheGame = () => {
-    const gameIsFinished = useMonEtoileStore((state) => state.gameIsFinished);
     const {
         toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, timeElapsed, selectedCase,
         currentGameType, progression, tpsglobal, niveau, showPun, lockedCount, totalCount, hasCases, pieces,
     } = useGameGenerator();
 
-    if (gameIsFinished) { return <GameFinishedCelebration />; }
-
     return (
-        <div className="w-full mx-auto max-w-md pb-20 flex flex-col items-center justify-center">
-            <HeaderSection />
+        <div className="w-full mx-auto max-w-md  flex flex-col items-center justify-center mb-4">
+            <GameBoard
+                showPun={showPun}
+                niveau={niveau}
+                casesdujeuencours={casesdujeuencours}
+                casesinitiales={casesinitiales}
+                pieces={pieces}
+                selectedCase={selectedCase}
+                selectCase={selectCase}
+                tpsglobal={tpsglobal}
+            />
+            <GameControls
+                showPun={showPun}
+                onToggleShowPun={toggleShowPun}
+                onLockSelectedCase={lockSelectedCase}
+                timeElapsed={timeElapsed}
+            />
 
-            <div className="flex flex-col items-center justify-center w-full max-w-md mb-4">
-                <GameBoard
-                    showPun={showPun}
-                    niveau={niveau}
-                    casesdujeuencours={casesdujeuencours}
-                    casesinitiales={casesinitiales}
-                    pieces={pieces}
-                    selectedCase={selectedCase}
-                    selectCase={selectCase}
-                    tpsglobal={tpsglobal}
-                />
-
-                <GameControls
-                    showPun={showPun}
-                    onToggleShowPun={toggleShowPun}
-                    onLockSelectedCase={lockSelectedCase}
-                    timeElapsed={timeElapsed}
-                />
-
-                <div className="mt-4 w-full space-y-3">
-                    {hasCases && (
-                        <ProgressBar
-                            lockedCount={lockedCount}
-                            totalCount={totalCount}
-                            progression={progression}
-                        />
-                    )}
-                    <GameInfo currentGameType={currentGameType} niveau={niveau!} />
-                </div>
+            <div className="mt-4 w-full space-y-3">
+                {hasCases && (
+                    <ProgressBar
+                        lockedCount={lockedCount}
+                        totalCount={totalCount}
+                        progression={progression}
+                    />
+                )}
+                <GameInfo currentGameType={currentGameType} niveau={niveau!} />
             </div>
-
-            <FixedContent />
         </div>
     );
 };

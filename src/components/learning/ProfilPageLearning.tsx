@@ -1,36 +1,69 @@
 'use client';
-import { useStatsDataWithCache } from "@/hooks/cache/useStatsDataWithCache";
-import { COLORS } from "@/lib/learning/constantes";
+import { SKELETON_CLASSES } from "@/lib/learning/constantes";
 import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { Users } from "lucide-react";
-import { memo } from 'react';
-import { FooterSection, HeaderSection, HelpButton } from './commons/Features';
-import { StatCard } from "./commons/FixedContent";
-import Historique from './historique/Historique';
-import Bandeau from './home/Bandeau';
-import FeuilleDeMatch from "./home/FeuilleDematch";
+import dynamic from 'next/dynamic';
+import { Suspense, memo } from 'react';
+import { HeaderSection } from './commons/Features';
+import GameFinishedCelebration from "./commons/GameFinishedCelebration";
+import FixedContent from "./home/FixedContent";
+
+const LaMise = dynamic(
+  () => import('./choix/LaMise'),
+  {
+    loading: () => <div className={SKELETON_CLASSES.choix} />,
+    ssr: false,
+  }
+);
+
+const TheGame = dynamic(
+  () => import('./startgame/ProfilPageLearning'),
+  {
+    loading: () => <div className={SKELETON_CLASSES.game} />,
+    ssr: false,
+  }
+);
+
+const Bandeau = dynamic(
+  () => import('./home/Bandeau'),
+  {
+    loading: () => <div className={SKELETON_CLASSES.bandeau} />,
+    ssr: true,
+  }
+);
+
+const selectAfficheChoix = (state: any) => state.afficheChoix;
+const selectAfficheGame = (state: any) => state.afficheGame;
+const selectGameIsFinished = (state: any) => state.gameIsFinished;
+const selectAfficheStat=(state: any) => state.afficheStat;
 
 const ProfilPageLearning = memo(() => {
-  const { stats } = useStatsDataWithCache();
-  const afficheStat = useMonEtoileStore((state) => state.afficheStat);
+  const afficheChoix = useMonEtoileStore(selectAfficheChoix);
+  const afficheGame = useMonEtoileStore(selectAfficheGame);
+  const gameIsFinished = useMonEtoileStore(selectGameIsFinished);
+const afficheStat = useMonEtoileStore(selectAfficheStat);
+  const showBandeauButton = !afficheChoix && !afficheGame;
 
   return (
     <div className="w-full mx-auto max-w-md mb-8 mt-4">
       <HeaderSection />
-      <Bandeau />
-      <FeuilleDeMatch />
 
-      <div className="fixed-bottom-content w-full space-y-4">
-        {afficheStat && (<StatCard
-          value={stats?.subscribers ?? null}
-          label="Inscrits"
-          icon={<Users className="w-4 h-4" aria-hidden="true" />}
-          color={COLORS.subscribers}
-        />)}
-        <Historique />
-        <FooterSection />
-        <HelpButton />
-      </div>
+      {afficheChoix && (
+        <Suspense fallback={<div className={SKELETON_CLASSES.choix} />}>
+          <LaMise />
+        </Suspense>
+      )}
+
+      {afficheGame && (
+        <Suspense fallback={<div className={SKELETON_CLASSES.game} />}>
+          <TheGame />
+        </Suspense>
+      )}
+
+      {gameIsFinished&& !afficheStat && <GameFinishedCelebration />}
+
+      <Bandeau showButton={showBandeauButton} />
+
+      <FixedContent afficheStats={afficheStat} />
     </div>
   );
 });

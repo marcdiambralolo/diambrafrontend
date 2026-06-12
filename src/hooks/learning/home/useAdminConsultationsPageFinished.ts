@@ -7,10 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const TIME_UPDATE_INTERVAL = 1000;
-const QUERY_STALE_TIME = 30 * 1000;
+const QUERY_STALE_TIME = 10 * 1000; // 10 secondes d'acceptation de cache obsolète
 const RETRY_ATTEMPTS = 2;
-const ONE_HOUR_IN_MS = 1000; //const ONE_HOUR_IN_MS = 60 * 60 * 1000;
-const ONE_MINUTE_IN_MS = 60 * 1000;
+const REFRESH_CONFIG_INTERVAL = 15 * 1000; // On vérifie la config fraîche toutes les 15s
 const LAST_ENDED_REFETCH_INTERVAL = 5000;
 
 interface ExtendedViewState {
@@ -29,16 +28,20 @@ interface ViewStateResult {
 const selectSetGameConfig = (state: any) => state.setGameConfig;
 const selectSetAfficheBanana = (state: any) => state.setAfficheBanana;
 const selectSetAfficheStat = (state: any) => state.setAfficheStat;
+const selectSetAfficheChoix = (state: any) => state.setAfficheChoix;
 
 export function useAdminConsultationsPageFinished() {
   const router = useRouter();
-
   const hasRedirectedRef = useRef(false);
 
   const setGameConfig = useMonEtoileStore(selectSetGameConfig);
   const setAfficheBanana = useMonEtoileStore(selectSetAfficheBanana);
   const setAfficheStat = useMonEtoileStore(selectSetAfficheStat);
-  const getAllCompetitions = useMonEtoileStore((state) => state.getAllCompetitions);
+  const setAfficheChoix = useMonEtoileStore(selectSetAfficheChoix);
+    const setAfficheGame = useMonEtoileStore((state) => state.setAfficheGame);
+  // 💡 CORRECTION 1 : On récupère les compétitions de façon RÉACTIVE.
+  // Dès que le tableau change dans le store, ce hook se ré-exécute.
+  const competitions = useMonEtoileStore((state) => state.competitions || []);
 
   const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
@@ -53,12 +56,9 @@ export function useAdminConsultationsPageFinished() {
       const { data } = await api.get('learning-configurations/current-config');
       return data as LearningConfiguration;
     },
-    staleTime: ONE_HOUR_IN_MS,
-    gcTime: ONE_HOUR_IN_MS + ONE_MINUTE_IN_MS,
-    retry: RETRY_ATTEMPTS,
-    refetchInterval: ONE_HOUR_IN_MS,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: QUERY_STALE_TIME, 
+    refetchInterval: REFRESH_CONFIG_INTERVAL, // Synchro automatique serveur active
+    refetchOnWindowFocus: true, // Revalide si l'utilisateur change d'onglet et revient
     refetchOnMount: true,
   });
 
@@ -147,22 +147,31 @@ export function useAdminConsultationsPageFinished() {
       return;
     }
 
-    const allCompetitions = getAllCompetitions();
-    const hasActiveCompetition = allCompetitions.some(
+    // 💡 CORRECTION 2 : On utilise le tableau réactif issu du store
+    const hasActiveCompetition = competitions.some(
       competition => competition.idConfig === configId
     );
 
     hasRedirectedRef.current = true;
 
-    const targetPath = hasActiveCompetition
-      ? `/star/learning/startgame?_cb=${Date.now()}`
-      : '/star/learning/choix';
-
-    router.push(targetPath);
-  }, [gameConfig, getAllCompetitions, router]);
+    if (!hasActiveCompetition) {
+      setAfficheChoix(true);
+      return;
+    }
+setAfficheGame(true);
+  // 💡 AJOUT : Dépendance sur 'competitions' assurée
+  }, [gameConfig, competitions, setAfficheChoix, router]);
 
   return {
-    viewState: viewStateResult.viewState, isLoading: isConfigLoading, error: isConfigError,
-    demarrerJeu, startDate, gameConfig, lastEndedGame, endDate, refetchLastEnded, refetchConfig
+    viewState: viewStateResult.viewState,
+    isLoading: isConfigLoading,
+    error: isConfigError,
+    demarrerJeu,
+    startDate,
+    gameConfig,
+    lastEndedGame,
+    endDate,
+    refetchLastEnded,
+    refetchConfig
   };
 }

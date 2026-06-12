@@ -40,3 +40,10 @@ export const COUNTDOWN_UPDATE_INTERVAL = 1000;
 
 export const INITIAL_VISIBLE_COUNT = 5;
 export const LOAD_MORE_INCREMENT = 5;
+
+export const SKELETON_CLASSES = {
+  choix: "h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse",
+  game: "h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse",
+  bandeau: "h-40 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse",
+  feuille: "h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse",
+} as const;

@@ -144,7 +144,7 @@ const LoadMoreButton = memo(({ onClick, remainingCount, isLoading }: { onClick: 
 ));
 
 const FeuilleDeMatch = () => {
-    const { handleValidateCompetition, handleLoadMore, competitionList, hasMore, remainingCount, displayList } = useEndGameGenerator();
+    const { handleValidateCompetition, handleLoadMore, competitionList, hasMore, remainingCount, competitionList: displayList } = useEndGameGenerator();
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const handleLoadMoreClick = useCallback(async () => {

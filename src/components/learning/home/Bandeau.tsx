@@ -30,6 +30,7 @@ interface ActiveBannerProps {
     gameConfig: any;
     demarrerJeu: () => void;
     endDate: Date;
+    showButton: boolean;
 }
 
 const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
@@ -106,7 +107,7 @@ const NotStartedBanner = memo(({ startDate }: NotStartedBannerProps) => (
     </div>
 ));
 
-const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate }: ActiveBannerProps) => (
+const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate, showButton }: ActiveBannerProps) => (
     <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-600 p-5 mb-6 shadow-xl">
         <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-3">
@@ -137,7 +138,7 @@ const ActiveBanner = memo(({ gameConfig, demarrerJeu, endDate }: ActiveBannerPro
                 </div>
             </div>
 
-            <GlowButton onClick={demarrerJeu}>🚀 JOUER MAINTENANT</GlowButton>
+            {showButton && <GlowButton onClick={demarrerJeu}>🚀 JOUER MAINTENANT</GlowButton>}          
         </div>
     </div>
 ));
@@ -281,7 +282,11 @@ const EndedBanner = memo(({ lastEndedGame, endDate, proclamationDate }: EndedBan
     );
 });
 
-const Bandeau = () => {
+interface BandeauProps {
+    showButton: boolean;
+}
+
+const Bandeau = ({ showButton }: BandeauProps) => {
     const {
         demarrerJeu, startDate, gameConfig, viewState, lastEndedGame, endDate, isLoading, error,
     } = useAdminConsultationsPageFinished();
@@ -307,6 +312,7 @@ const Bandeau = () => {
                     gameConfig={gameConfig}
                     demarrerJeu={demarrerJeu}
                     endDate={endDate}
+                    showButton={showButton}
                 />
             )}
 

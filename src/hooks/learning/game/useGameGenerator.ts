@@ -55,6 +55,7 @@ export const useGameGenerator = () => {
             timeSpent: totalDurationSeconds,
             name: gameConfig?.id,
             displayName: gameConfig?.id!,
+            niveau: gameConfig?.niveau,
         };
 
         addCompetition(competition);
@@ -193,6 +194,7 @@ export const useGameGenerator = () => {
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
         updateState({ isTransitioning: true });
+
         setState(prev => ({
             ...prev,
             infomatch: prev.infomatch.map((m, idx) =>
@@ -258,7 +260,7 @@ export const useGameGenerator = () => {
     const hasCases = totalCount > 0;
 
     return {
-        toggleShowPun, lockSelectedCase, selectCase, timeElapsed, currentGameType, progression, lockedCount,
+        selectCase, toggleShowPun, lockSelectedCase, timeElapsed, currentGameType, progression, lockedCount,
         totalCount, hasCases, niveau: gameConfig?.niveau, showPun: state.showPun, tpsglobal: state.tpsglobal,
         casesdujeuencours: state.casesdujeuencours, casesinitiales: state.casesinitiales,
         pieces: state.pieces, selectedCase: state.selectedCase,

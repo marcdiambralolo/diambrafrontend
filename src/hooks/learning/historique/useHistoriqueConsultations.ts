@@ -33,20 +33,6 @@ interface DuplicateInfo {
   totalTimeSpent: number;
 }
 
-interface UseHistoriqueConsultationsReturn {
-  loading: boolean;
-  error: string | null;
-  sortedConsultations: Consultation[];
-  duplicateMap: Map<string, DuplicateInfo>;
-  hasConsultations: boolean;
-  stats: Stats | undefined;
-  timeSpentStats: TimeSpentStats;
-  formattedStartDate: string;
-  formattedEndDate: string;
-  edition: Edition | undefined;
-  refetch: () => Promise<void>;
-}
-
 const extractSecondsFromTimeSpent = (timeSpent: string | undefined): number => {
   if (!timeSpent) return 0;
 
@@ -85,7 +71,7 @@ const isValidTimeSpent = (consultation: Consultation): boolean => {
   return extractSecondsFromTimeSpent(timeSpent) > 0;
 };
 
-export function useHistoriqueConsultations(): UseHistoriqueConsultationsReturn {
+export function useHistoriqueConsultations() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [sortedConsultations, setSortedConsultations] = useState<Consultation[]>([]);
   const [duplicateMap, setDuplicateMap] = useState<Map<string, DuplicateInfo>>(new Map());
@@ -230,6 +216,6 @@ export function useHistoriqueConsultations(): UseHistoriqueConsultationsReturn {
 
   return {
     refetch, loading, error, sortedConsultations, duplicateMap, hasConsultations, stats,
-     timeSpentStats, formattedStartDate,    formattedEndDate, edition,
+    timeSpentStats, formattedStartDate, formattedEndDate, edition,
   };
 }

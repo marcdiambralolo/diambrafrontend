@@ -6,7 +6,7 @@ import { memo } from 'react';
 import { ActionButton, InfoRowGame, ObjectiveCard, Ploader, PloaderFixe } from './Features';
 
 const GameBoard = memo(({ showPun, niveau, casesdujeuencours, casesinitiales, pieces, selectedCase, selectCase, tpsglobal }: any) => (
-    <div className="w-full max-w-md text-center mb-4">
+    <div className="w-full max-w-md text-center mb-2">
         {showPun ? (
             <PloaderFixe niveau={niveau} casesun={casesinitiales} pieces={pieces} />
         ) : (
@@ -23,7 +23,7 @@ const GameBoard = memo(({ showPun, niveau, casesdujeuencours, casesinitiales, pi
 ));
 
 const GameControls = memo(({ showPun, onToggleShowPun, onLockSelectedCase, timeElapsed }: any) => (
-    <div className="flex flex-col items-center justify-center w-full mt-4">
+    <div className="flex flex-col items-center justify-center w-full">
         <h2 className="text-xs font-bold text-blue-700 mb-3 tracking-wide">
             {showPun ? "👤 Plateau P1 (Référence)" : "🕹️ Plateau P2"}
         </h2>
@@ -41,7 +41,7 @@ const GameControls = memo(({ showPun, onToggleShowPun, onLockSelectedCase, timeE
                 <ActionButton
                     onClick={onLockSelectedCase}
                     variant="primary"
-                    ariaLabel="Ajuster la sélection"
+                    ariaLabel="Ajuster la sélection."
                 >
                     Ajuster
                 </ActionButton>
@@ -115,7 +115,7 @@ const TheGame = () => {
                 timeElapsed={timeElapsed}
             />
 
-            <div className="mt-4 w-full space-y-3">
+            <div className="mt-2 w-full space-y-2">
                 {hasCases && (
                     <ProgressBar
                         lockedCount={lockedCount}

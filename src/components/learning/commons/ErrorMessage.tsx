@@ -1,10 +1,8 @@
 'use client';
-
-import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
 import React, { memo, useCallback, useEffect, useRef, useState, type ComponentPropsWithoutRef } from 'react';
 
-// === Types améliorés ===
 type ErrorType = 'error' | 'warning' | 'info' | 'offline';
 type Size = 'sm' | 'md' | 'lg';
 type Variant = 'default' | 'minimal' | 'fullscreen';
@@ -34,7 +32,6 @@ interface ErrorConfig {
   defaultTitle: string;
 }
 
-// === Constants (optimisées avec as const) ===
 const ERROR_CONFIGS: Record<ErrorType, ErrorConfig> = {
   error: {
     icon: <AlertCircle className="w-6 h-6" aria-hidden="true" />,
@@ -80,11 +77,10 @@ const SIZE_CLASSES: Record<Size, string> = {
   lg: 'p-6 text-lg'
 } as const;
 
-const BASE_CONTAINER_STYLES = "rounded-2xl border transition-all duration-200";
+const BASE_CONTAINER_STYLES = "rounded-2xl border";
 const BASE_ICON_STYLES = "rounded-full p-3 mb-4";
-const BASE_BUTTON_STYLES = "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transform-gpu";
+const BASE_BUTTON_STYLES = "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
-// === Hook personnalisé optimisé ===
 interface UseErrorHandlerReturn {
   handleRetry: (onRetry?: () => void | Promise<void>) => Promise<void>;
   isRetrying: boolean;
@@ -148,7 +144,6 @@ export const useErrorHandler = (autoRetryCount: number = 0): UseErrorHandlerRetu
   };
 };
 
-// === Sous-composants optimisés ===
 const RetryButton = memo(function RetryButton({
   onClick,
   isRetrying
@@ -187,8 +182,6 @@ const RetryButton = memo(function RetryButton({
     </button>
   );
 });
-
-RetryButton.displayName = 'RetryButton';
 
 const ActionButtons = memo(function ActionButtons({
   showRetryButton,
@@ -252,9 +245,6 @@ const ActionButtons = memo(function ActionButtons({
   );
 });
 
-ActionButtons.displayName = 'ActionButtons';
-
-// === Composant principal optimisé ===
 const ErrorMessage = memo(function ErrorMessage({
   message,
   description,
@@ -274,10 +264,9 @@ const ErrorMessage = memo(function ErrorMessage({
   const config = ERROR_CONFIGS[type];
   const { handleRetry, isRetrying, retryCount, shouldAutoRetry, clearRetryTimeout } = useErrorHandler(autoRetryCount);
 
-  // Auto-retry effect
   useEffect(() => {
     if (shouldAutoRetry && onRetry && !isRetrying) {
-      const delay = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff with max 10s
+      const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
       const timer = setTimeout(() => {
         handleRetry(onRetry);
       }, delay);
@@ -297,7 +286,6 @@ const ErrorMessage = memo(function ErrorMessage({
     handleRetry(onRetry);
   }, [handleRetry, onRetry]);
 
-  // Fullscreen variant
   if (variant === 'fullscreen') {
     return (
       <div className={cn(
@@ -316,7 +304,6 @@ const ErrorMessage = memo(function ErrorMessage({
     );
   }
 
-  // Minimal variant
   if (variant === 'minimal') {
     return (
       <div
@@ -342,7 +329,6 @@ const ErrorMessage = memo(function ErrorMessage({
     );
   }
 
-  // Default variant
   return (
     <div
       className={cn(
@@ -395,9 +381,6 @@ const ErrorMessage = memo(function ErrorMessage({
   );
 });
 
-ErrorMessage.displayName = 'ErrorMessage';
-
-// === ErrorBoundary optimisé ===
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -420,14 +403,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    // Log error to monitoring service in production
     if (process.env.NODE_ENV === 'production') {
-      // Envoyer à votre service d'erreur (Sentry, LogRocket, etc.)
       console.error('ErrorBoundary caught:', { error, errorInfo });
     } else {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
-    
+
     this.props.onError?.(error, errorInfo);
   }
 

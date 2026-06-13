@@ -61,6 +61,7 @@ export const createMatch = (ordre: number, tpsglobal: number, matchId: string): 
         numeromatch: matchId,
         entite: parseInt(matchId) % 9 || 0,
         tpsglobal,
+        combinaisons: [],  
     };
 };
 

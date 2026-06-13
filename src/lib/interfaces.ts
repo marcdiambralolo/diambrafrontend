@@ -406,6 +406,7 @@ export interface MatchResult {
 }
 
 export interface MatchInfo {
+  combinaisons: string[];
   id?: string;
   timeSpent?: number;
   matchNumber?: number;
@@ -428,6 +429,7 @@ export interface MatchInfo {
 }
 
 export interface CompetitionInfo {
+    niveau: any;
   id: string;
   datedebut: string;
   datefin: string;

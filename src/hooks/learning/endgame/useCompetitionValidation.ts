@@ -1,6 +1,6 @@
 'use client';
-import { CompetitionInfo } from "@/lib/interfaces";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CompetitionInfo } from "@/lib/interfaces";
 
 interface ValidationMessage {
     text: string;

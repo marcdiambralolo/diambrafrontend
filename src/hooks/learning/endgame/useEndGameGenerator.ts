@@ -14,26 +14,29 @@ export interface MatchResult {
     timeSpent?: number;
     trouves?: number;
     rates?: number;
+    niveau?: number;
+    combinaisons?: string[];
 }
 
-interface MatchesDetails {
+interface MatchDetailPayload {
     tpsglobal?: number;
     score?: number;
     trouves?: number;
     rates?: number;
     isgameover?: boolean;
     timeSpent?: number;
-    validatedAt?: string;
+    niveau?: number;
+    combinaisons?: string[];
 }
 
-interface LearningStats {
+interface LearningStatsPayload {
     totalTime?: string;
-    totalScore?: number;
+    averageScore?: number;
+    completedAt?: string;
+    totalMatches?: number;
     totalTrouves?: number;
     totalRates?: number;
-    competitionsCount?: number;
-    completedAt?: string;
-    matchesDetails?: MatchesDetails[];
+    matchesDetails?: MatchDetailPayload[];
 }
 
 const MATCH_TYPES: Record<number, string> = {
@@ -76,7 +79,15 @@ const isCompetitionValidated = (competitionId: string): boolean => {
 };
 
 export const useEndGameGenerator = () => {
-    const { getAllCompetitions, gameConfig, refreshCompetitions, currentConsultationId, setGameIsFinished } = useMonEtoileStore();
+    const queryClient = useQueryClient();
+    const {
+        getAllCompetitions,
+        gameConfig,
+        refreshCompetitions,
+        currentConsultationId,
+        setGameIsFinished
+    } = useMonEtoileStore();
+
     const { message: validateMessage, showMessage: showValidateMessage } = useMessage();
 
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -99,13 +110,9 @@ export const useEndGameGenerator = () => {
     }, [refreshCompetitions]);
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            refreshData();
-        }, REFETCH_INTERVAL);
-
+        const intervalId = setInterval(refreshData, REFETCH_INTERVAL);
         return () => clearInterval(intervalId);
     }, [refreshData]);
-
 
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
@@ -113,14 +120,13 @@ export const useEndGameGenerator = () => {
                 refreshData();
             }
         };
-
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, [refreshData]);
 
     const competitions = useMemo(() => {
         const allCompetitions = getAllCompetitions();
-        const filtered = allCompetitions
+        return allCompetitions
             .filter(comp => comp.idConfig === gameConfig?.id)
             .map(comp => ({
                 ...comp,
@@ -131,19 +137,12 @@ export const useEndGameGenerator = () => {
                 if (a.isValidated !== b.isValidated) return a.isValidated ? -1 : 1;
                 return new Date(b.datedebut).getTime() - new Date(a.datedebut).getTime();
             });
-
-        return filtered;
     }, [getAllCompetitions, gameConfig?.id, refreshKey]);
-
 
     const updateLocalCache = useCallback((competitionId: string) => {
         localStorage.setItem(getValidationStorageKey(competitionId), 'true');
         refreshData();
     }, [refreshData]);
-
-    // ============================================================================
-    // VALIDATION D'UNE COMPÉTITION
-    // ============================================================================
 
     const handleValidateCompetition = useCallback(async (competition: CompetitionInfo): Promise<boolean> => {
         if (!currentConsultationId) {
@@ -160,25 +159,31 @@ export const useEndGameGenerator = () => {
             const totalScore = competition.matchInfo.reduce((acc, m) => acc + (m.trouves || 0), 0);
             const totalTrouves = competition.matchInfo.reduce((acc, m) => acc + (m.trouves || 0), 0);
             const totalRates = competition.matchInfo.reduce((acc, m) => acc + (m.rates || 0), 0);
+            const totalMatches = competition.matchInfo.length;
+            const averageScore = totalMatches > 0 ? Math.round(totalScore / totalMatches) : 0;
+
             const startDate = competition.matchInfo[0]?.datedebut || new Date().toISOString();
             const endDate = new Date().toISOString();
+            const totalTimeSeconds = calculateDurationInSeconds(startDate, endDate);
 
             const { data: consultation } = await api.get<Consultation>(`/consultations/${currentConsultationId}`);
-            const existingStats = (consultation?.learningStats || {}) as LearningStats;
+            const existingStats = (consultation?.learningStats || {}) as LearningStatsPayload;
             const existingMatches = existingStats.matchesDetails || [];
 
             const updatedPayload = {
                 ...consultation,
-                endTime: new Date().toISOString(),
                 status: 'completed',
-                timeSpent: calculateDurationInSeconds(startDate, endDate),
+                gameEndDate: new Date().toISOString(),
+                totalTimeSeconds: totalTimeSeconds,
+                finalScore: totalScore,
+                matchesCompleted: totalMatches,
                 learningStats: {
                     totalTime: calculateDuration(startDate, endDate),
-                    totalScore: (existingStats.totalScore || 0) + totalScore,
+                    averageScore: averageScore,
+                    completedAt: endDate,
+                    totalMatches: (existingStats.totalMatches || 0) + totalMatches,
                     totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
                     totalRates: (existingStats.totalRates || 0) + totalRates,
-                    competitionsCount: (existingStats.competitionsCount || 0) + 1,
-                    completedAt: endDate,
                     matchesDetails: [
                         ...existingMatches,
                         ...competition.matchInfo.map(m => ({
@@ -188,7 +193,7 @@ export const useEndGameGenerator = () => {
                             rates: m.rates,
                             isgameover: m.isgameover,
                             timeSpent: m.timeSpent,
-                            validatedAt: endDate,
+                            niveau: competition.niveau,
                         }))
                     ],
                 },
@@ -198,20 +203,18 @@ export const useEndGameGenerator = () => {
 
             updateLocalCache(competition.id);
             showValidateMessage('Compétition validée avec succès !', 'success');
+
             setGameIsFinished(true);
-              const queryClient = useQueryClient();
-              queryClient.invalidateQueries({ queryKey: ['game'] });
+            queryClient.invalidateQueries({ queryKey: ['game'] });
+
             return true;
         } catch (error: any) {
             console.error('Erreur validation:', error);
+            console.log(error)
             showValidateMessage(error?.response?.data?.message || 'Erreur lors de la validation', 'error');
             return false;
         }
-    }, [currentConsultationId, showValidateMessage, updateLocalCache]);
-
-    // ============================================================================
-    // CALCUL DE LA LISTE AFFICHÉE
-    // ============================================================================
+    }, [currentConsultationId, showValidateMessage, updateLocalCache, queryClient, setGameIsFinished]);
 
     const displayList = useMemo(() => {
         const validatedGame = competitions.find(comp => comp.isValidated);
@@ -225,19 +228,11 @@ export const useEndGameGenerator = () => {
 
     const remainingCount = competitions.length - visibleCount;
 
-    // ============================================================================
-    // CHARGEMENT PROGRESSIF
-    // ============================================================================
-
     const handleLoadMore = useCallback(() => {
         startTransition(() => {
             setVisibleCount(prev => Math.min(prev + LOAD_MORE_INCREMENT, competitions.length));
         });
     }, [competitions.length, startTransition]);
-
-    // ============================================================================
-    // RETURN
-    // ============================================================================
 
     return {
         handleValidateCompetition,

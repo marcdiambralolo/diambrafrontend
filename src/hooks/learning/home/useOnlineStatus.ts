@@ -5,7 +5,7 @@ export function useOnlineStatus() {
 
   const onlineStatus = useMemo(() => ({
     text: isOnline ? "🛠️ En Ligne" : "❌ Hors Ligne",
-    color: isOnline ? "orange" : "gray"
+    color: isOnline ? "orange" : "red"
   }), [isOnline]);
 
   useEffect(() => {

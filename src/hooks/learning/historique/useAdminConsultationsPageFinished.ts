@@ -52,5 +52,5 @@ export function useAdminConsultationsPageFinished() {
     return () => { isMountedRef.current = false; };
   }, [fetchData]);
 
-  return { activeEdition, consultations, };
+  return { activeEdition, consultations, error };
 }

@@ -38,7 +38,7 @@ export function useAdminConsultationsPageFinished() {
   const setAfficheBanana = useMonEtoileStore(selectSetAfficheBanana);
   const setAfficheStat = useMonEtoileStore(selectSetAfficheStat);
   const setAfficheChoix = useMonEtoileStore(selectSetAfficheChoix);
-    const setAfficheGame = useMonEtoileStore((state) => state.setAfficheGame);
+  const setAfficheGame = useMonEtoileStore((state) => state.setAfficheGame);
   // 💡 CORRECTION 1 : On récupère les compétitions de façon RÉACTIVE.
   // Dès que le tableau change dans le store, ce hook se ré-exécute.
   const competitions = useMonEtoileStore((state) => state.competitions || []);
@@ -56,7 +56,7 @@ export function useAdminConsultationsPageFinished() {
       const { data } = await api.get('learning-configurations/current-config');
       return data as LearningConfiguration;
     },
-    staleTime: QUERY_STALE_TIME, 
+    staleTime: QUERY_STALE_TIME,
     refetchInterval: REFRESH_CONFIG_INTERVAL, // Synchro automatique serveur active
     refetchOnWindowFocus: true, // Revalide si l'utilisateur change d'onglet et revient
     refetchOnMount: true,
@@ -147,7 +147,6 @@ export function useAdminConsultationsPageFinished() {
       return;
     }
 
-    // 💡 CORRECTION 2 : On utilise le tableau réactif issu du store
     const hasActiveCompetition = competitions.some(
       competition => competition.idConfig === configId
     );
@@ -158,8 +157,8 @@ export function useAdminConsultationsPageFinished() {
       setAfficheChoix(true);
       return;
     }
-setAfficheGame(true);
-  // 💡 AJOUT : Dépendance sur 'competitions' assurée
+    
+    setAfficheGame(true);
   }, [gameConfig, competitions, setAfficheChoix, router]);
 
   return {

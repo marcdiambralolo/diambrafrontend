@@ -4,7 +4,7 @@ import { useMonEtoileStore } from "@/lib/store/monetoile.store";
 import dynamic from 'next/dynamic';
 import { Suspense, memo } from 'react';
 import { HeaderSection } from './commons/Features';
-import GameFinishedCelebration from "./commons/GameFinishedCelebration";
+import DashBoard from "./home/DashBoard";
 import FixedContent from "./home/FixedContent";
 
 const LaMise = dynamic(
@@ -23,25 +23,14 @@ const TheGame = dynamic(
   }
 );
 
-const Bandeau = dynamic(
-  () => import('./home/Bandeau'),
-  {
-    loading: () => <div className={SKELETON_CLASSES.bandeau} />,
-    ssr: true,
-  }
-);
-
 const selectAfficheChoix = (state: any) => state.afficheChoix;
 const selectAfficheGame = (state: any) => state.afficheGame;
-const selectGameIsFinished = (state: any) => state.gameIsFinished;
-const selectAfficheStat=(state: any) => state.afficheStat;
+const selectAfficheStat = (state: any) => state.afficheStat;
 
 const ProfilPageLearning = memo(() => {
   const afficheChoix = useMonEtoileStore(selectAfficheChoix);
   const afficheGame = useMonEtoileStore(selectAfficheGame);
-  const gameIsFinished = useMonEtoileStore(selectGameIsFinished);
-const afficheStat = useMonEtoileStore(selectAfficheStat);
-  const showBandeauButton = !afficheChoix && !afficheGame;
+  const afficheStat = useMonEtoileStore(selectAfficheStat);
 
   return (
     <div className="w-full mx-auto max-w-md mb-8 mt-4">
@@ -52,17 +41,13 @@ const afficheStat = useMonEtoileStore(selectAfficheStat);
           <LaMise />
         </Suspense>
       )}
-
       {afficheGame && (
         <Suspense fallback={<div className={SKELETON_CLASSES.game} />}>
           <TheGame />
         </Suspense>
       )}
 
-      {gameIsFinished&& !afficheStat && <GameFinishedCelebration />}
-
-      <Bandeau showButton={showBandeauButton} />
-
+      <DashBoard />
       <FixedContent afficheStats={afficheStat} />
     </div>
   );

@@ -2,9 +2,7 @@
 import Loader from '@/app/loading';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from 'lucide-react';
-import dynamic from 'next/dynamic';
-
-const ErrorPage = dynamic(() => import('../commons/Erreur'));
+import ErrorMessage from '../commons/ErrorMessage';
 
 const STATUS_BANNER_CONFIG = {
   sufficient: {
@@ -209,7 +207,7 @@ const LaMise = () => {
     isSufficient, loading, requiredQuantity, error, availableQuantity, cardClasses,
   } = useLaMise();
 
-  if (error) return <ErrorPage />;
+  if (error) return <ErrorMessage />;
 
   if (loading) return <Loader />;
 
@@ -220,7 +218,6 @@ const LaMise = () => {
         requiredQuantity={requiredQuantity}
         availableQuantity={availableQuantity}
       />
-
       <TokenCard
         isSufficient={isSufficient}
         requiredQuantity={requiredQuantity}
@@ -229,7 +226,6 @@ const LaMise = () => {
         onPlayClick={handlePlayClick}
         isPending={loading}
       />
-
       <PlayButton
         isSufficient={isSufficient}
         onClick={handlePlayClick}

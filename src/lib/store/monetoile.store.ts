@@ -6,7 +6,7 @@ import { persist } from 'zustand/middleware';
 
 // ============================================================================
 // CONSTANTES
-// ============================================================================
+//=============================================================================
 
 const MAX_COMPETITIONS = 10;
 const STORAGE_NAME = 'monetoile-store';
@@ -14,6 +14,24 @@ const STORAGE_NAME = 'monetoile-store';
 // ============================================================================
 // TYPES
 // ============================================================================
+
+interface StoredMatchInfo {
+    id?: string;
+    tpsglobal?: number;
+    trouves?: number;
+    rates?: number;
+    isgameover?: boolean;
+    timeSpent?: number;
+    matchNumber?: number;
+    niveau?: number;           // ✅ Ajout du niveau
+    numeromatch?: string;      // ✅ Ajout du numéro de match
+    datedebut?: string | null; // ✅ Ajout de la date de début
+    datefin?: string | null;   // ✅ Ajout de la date de fin
+    combinaisons?: string[];   // ✅ Ajout des combinaisons
+    score?: number; 
+    numordrep?: number;
+    entite?: number;
+}
 
 interface StoredCompetition {
     id: string;
@@ -24,15 +42,8 @@ interface StoredCompetition {
     timeSpent: number;
     displayName?: string;
     isValidated?: boolean;
-    matchInfo: Array<{
-        id?: string;
-        tpsglobal?: number;
-        trouves?: number;
-        rates?: number;
-        isgameover?: boolean;
-        timeSpent?: number;
-        matchNumber?: number;
-    }>;
+    niveau?: number;           // ✅ Ajout du niveau global de la compétition
+    matchInfo: StoredMatchInfo[];
 }
 
 interface MonEtoileStore {
@@ -40,7 +51,7 @@ interface MonEtoileStore {
     gameConfig: LearningConfiguration | null;
     currentMatchInfo: MatchInfo[];
     competitions: CompetitionInfo[];
-    competitionsVersion: number; // ✅ Pour forcer les re-rendus
+    competitionsVersion: number;
     currentConsultationId: string | null;
     gameStarted: boolean;
     jeuAcommencer: boolean;
@@ -71,7 +82,7 @@ interface MonEtoileStore {
     getAllCompetitions: () => CompetitionInfo[];
     getLatestCompetitions: (limit?: number) => CompetitionInfo[];
     addMultipleCompetitions: (newCompetitions: CompetitionInfo[]) => void;
-    refreshCompetitions: () => void; // ✅ Forcer le rafraîchissement
+    refreshCompetitions: () => void;
     updateCompetitionValidation: (id: string, isValidated: boolean) => void;
 
     // Actions - UI
@@ -114,6 +125,7 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
     timeSpent: competition.timeSpent || 0,
     displayName: competition.displayName,
     isValidated: competition.isValidated,
+    niveau: competition.niveau, // ✅ Compression du niveau
     matchInfo: competition.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,
@@ -122,6 +134,17 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
         isgameover: match.isgameover,
         timeSpent: match.timeSpent,
         matchNumber: match.matchNumber,
+        niveau: match.niveau,           // ✅ Ajout
+        numeromatch: match.numeromatch, // ✅ Ajout
+        datedebut: match.datedebut,     // ✅ Ajout
+        datefin: match.datefin,         // ✅ Ajout
+        combinaisons: match.combinaisons || [], // ✅ Ajout
+        score: match.score,
+        pieces: match.pieces,
+        listeCaseOpLab: match.listeCaseOpLab,
+        listeCaseOpLabInitiale: match.listeCaseOpLabInitiale,
+        numordrep: match.numordrep,
+        entite: match.entite,
     })),
 });
 
@@ -134,6 +157,7 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => ({
     timeSpent: stored.timeSpent,
     displayName: stored.displayName || `N°: ${stored.id.slice(-12)}`,
     isValidated: stored.isValidated || false,
+    niveau: stored.niveau, // ✅ Décompression du niveau
     matchInfo: stored.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,
@@ -142,10 +166,14 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => ({
         isgameover: match.isgameover || false,
         timeSpent: match.timeSpent,
         matchNumber: match.matchNumber || 0,
-        score: match.trouves || 0,
-        listeCaseOpLab: [],
-        listeCaseOpLabInitiale: [],
-        pieces: [],
+        score: match.score || 0,
+        niveau: match.niveau,                          // ✅ Ajout
+        numeromatch: match.numeromatch || '',          // ✅ Ajout
+        datedebut: match.datedebut || null,            // ✅ Ajout
+        datefin: match.datefin || null,                // ✅ Ajout
+        combinaisons: match.combinaisons || [],        // ✅ Ajout
+        numordrep: match.numordrep || 0,
+        entite: match.entite || 0,
     })),
 });
 
@@ -280,14 +308,12 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 });
             },
 
-            // ✅ Rafraîchissement forcé
             refreshCompetitions: () => {
                 set(state => ({
                     competitionsVersion: state.competitionsVersion + 1
                 }));
             },
 
-            // ✅ Mise à jour de la validation d'une compétition
             updateCompetitionValidation: (id, isValidated) => {
                 set(state => ({
                     competitions: state.competitions.map(comp =>

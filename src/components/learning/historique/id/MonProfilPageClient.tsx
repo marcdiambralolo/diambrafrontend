@@ -4,8 +4,8 @@ import { useHistoriqueConsultations } from "@/hooks/learning/historique/useHisto
 import { cx, formatEditionDate } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { ArrowLeft, Calendar, CheckCircle, Globe, History, Timer, Trophy, UserRound } from "lucide-react";
-import { memo } from "react";
-import ErrorPage from "../../commons/Erreur";
+import { memo } from "react"; 
+import ErrorMessage from "../../commons/ErrorMessage";
 
 interface StatsCardProps {
   icon: React.ReactNode;
@@ -101,7 +101,7 @@ function HistoriquePageClientImpl() {
 
   if (loading) { return <Loader />; }
 
-  if (error) { return (<ErrorPage />); }
+  if (error) { return (<ErrorMessage />); }
 
   return (
     <div className="max-w-4xl mx-auto px-3 py-4 sm:px-4 sm:py-8">

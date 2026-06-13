@@ -131,6 +131,6 @@ export function useLaMise() {
         handlePlayClick, handleMarketClick,
         requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient, cardClasses,
         loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
-        error: submitError ? getCategoryErrorMessage(submitError, 'Erreur lors de la soumission') : null,
+        error: submitError ? getCategoryErrorMessage(submitError, 'Erreur inconnue') : null,
     };
 }

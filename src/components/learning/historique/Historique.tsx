@@ -28,7 +28,6 @@ const computeRankingFromConsultations = (consultations: any[]) => {
         const clientId = consultation.clientId?._id;
         if (!clientId) continue;
 
-        // 🔥 Conversion du timeSpent (ex: "159 sec" → 159)
         const timeSpentSeconds = parseTimeToSeconds(consultation.timeSpent);
         const existing = bestTimesByUser.get(clientId);
 

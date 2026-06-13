@@ -56,10 +56,6 @@ const BASE_BUTTON_STYLES = cn(
     'transform-gpu'
 );
 
-/**
- * GlowButton - Bouton avec effet de brillance
- * @component
- */
 export const GlowButton = memo(function GlowButton({
     children,
     onClick,
@@ -102,12 +98,6 @@ export const GlowButton = memo(function GlowButton({
     );
 });
 
-GlowButton.displayName = 'GlowButton';
-
-/**
- * NeonButton - Bouton avec effet néon
- * @component
- */
 export const NeonButton = memo(function NeonButton({
     children,
     onClick,
@@ -144,10 +134,6 @@ export const NeonButton = memo(function NeonButton({
     );
 });
 
-/**
- * CardButton - Bouton avec effet carte 3D
- * @component
- */
 export const CardButton = memo(function CardButton({
     children,
     onClick,
@@ -176,6 +162,7 @@ export const CardButton = memo(function CardButton({
         >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
             <div className="absolute inset-0 rounded-xl border border-white/20" />
+
             <span className="relative flex items-center justify-center gap-2">
                 {children}
             </span>
@@ -183,10 +170,6 @@ export const CardButton = memo(function CardButton({
     );
 });
 
-/**
- * WaveButton - Bouton avec effet vague
- * @component
- */
 export const WaveButton = memo(function WaveButton({
     children,
     onClick,
@@ -223,10 +206,6 @@ export const WaveButton = memo(function WaveButton({
     );
 });
 
-/**
- * ParticleButton - Bouton avec effet particules
- * @component
- */
 export const ParticleButton = memo(function ParticleButton({
     children,
     onClick,
@@ -263,10 +242,6 @@ export const ParticleButton = memo(function ParticleButton({
     );
 });
 
-/**
- * SimpleButton - Bouton simple et épuré
- * @component
- */
 export const SimpleButton = memo(function SimpleButton({
     children,
     onClick,
@@ -303,7 +278,6 @@ export const SimpleButton = memo(function SimpleButton({
     );
 });
 
-// === Export par défaut amélioré ===
 const ButtonComponents = {
     GlowButton,
     NeonButton,
@@ -315,4 +289,4 @@ const ButtonComponents = {
 
 export default ButtonComponents;
 
-export type { BaseButtonProps, GlowButtonProps, Variant, Size };
+export type { BaseButtonProps, GlowButtonProps, Size, Variant };

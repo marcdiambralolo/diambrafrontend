@@ -2,7 +2,6 @@ import { api } from "@/lib/api/client";
 import { GameConfiguration } from "@/lib/interfaces";
 import { useQuery } from "@tanstack/react-query";
  
-// hooks/game/useGame.ts
 export function useGameConfig() {
   return useQuery<GameConfiguration>({
     queryKey: ['game', 'config'],

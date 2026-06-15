@@ -1,19 +1,9 @@
-// lib/store/monetoile.store.ts
-
 import { CompetitionInfo, LearningConfiguration, MatchInfo } from '@/lib/interfaces';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// ============================================================================
-// CONSTANTES
-//=============================================================================
-
 const MAX_COMPETITIONS = 10;
 const STORAGE_NAME = 'monetoile-store';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface StoredMatchInfo {
     id?: string;
@@ -28,7 +18,7 @@ interface StoredMatchInfo {
     datedebut?: string | null; // ✅ Ajout de la date de début
     datefin?: string | null;   // ✅ Ajout de la date de fin
     combinaisons?: string[];   // ✅ Ajout des combinaisons
-    score?: number; 
+    score?: number;
     numordrep?: number;
     entite?: number;
 }
@@ -189,10 +179,6 @@ const isStorageNearLimit = (): boolean => {
     }
 };
 
-// ============================================================================
-// ÉTAT INITIAL
-// ============================================================================
-
 const INITIAL_STATE = {
     gameConfig: null,
     currentMatchInfo: [] as MatchInfo[],
@@ -211,10 +197,6 @@ const INITIAL_STATE = {
     afficheChoix: false,
     afficheGame: false,
 };
-
-// ============================================================================
-// STORE
-// ============================================================================
 
 export const useMonEtoileStore = create<MonEtoileStore>()(
     persist(

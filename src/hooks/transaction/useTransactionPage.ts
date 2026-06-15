@@ -1,5 +1,5 @@
 import { useRouter, useSearchParams } from "next/navigation";
-import { api } from "@/lib/api/client"; 
+import { api } from "@/lib/api/client";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 export const PAYMENT_METHODS = [
@@ -57,7 +57,6 @@ export function useTransactionPage() {
 
     const hasInitiatedPayment = useRef(false);
     const verificationAttempts = useRef(0);
-
     const transactionId = searchParams?.get("transactionId");
     const tokenPay = searchParams?.get("tokenPay");
     const status = searchParams?.get("status");
@@ -224,17 +223,8 @@ export function useTransactionPage() {
     };
 
     return {
-        transaction,
-        isLoading,
-        error,
-        paymentStatus,
-        paymentError,
-        selectedPaymentMethod,
-        setSelectedPaymentMethod,
-        initiatePayment,
-        handleRetry,
-        totalAmount: transaction?.totalAmount || 0,
-        consultationId,
-        router,
+        setSelectedPaymentMethod, initiatePayment, handleRetry,
+        transaction, isLoading, error, consultationId, router, paymentError, selectedPaymentMethod,
+        paymentStatus, totalAmount: transaction?.totalAmount || 0,
     };
 }

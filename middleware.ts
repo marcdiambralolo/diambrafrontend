@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// ─── JWT helpers (edge-compatible, no Node.js APIs) ────────────────────────
 type DecodedToken = {
   exp: number;
   role?: string;
@@ -63,7 +62,6 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-// ─── Middleware ──────────────────────────────────────────────────────────────
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const token = request.cookies.get('monetoile_access_token')?.value;

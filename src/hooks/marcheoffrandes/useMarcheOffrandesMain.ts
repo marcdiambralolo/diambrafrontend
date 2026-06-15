@@ -64,7 +64,6 @@ export function useMarcheOffrandesMain() {
     [cart]
   );
 
-
   const addToCart = useCallback((offering: Offering) => {
     setCart((prev) => {
       const uniqueId = offering._id || offering.id;
@@ -108,7 +107,7 @@ export function useMarcheOffrandesMain() {
   }, []);
 
   const getRedirectUrl = (monjeu: string | undefined, retour: string | null): string => {
-    if (retour === 'learning') return '/star/learning/choix';
+    if (retour === 'learning') return '/star/learning';
     if (monjeu) return `/star/choix/${monjeu}`;
     return '/star/profil';
   };
@@ -124,7 +123,7 @@ export function useMarcheOffrandesMain() {
     await sleep(400);
 
     try {
-      await sleep(200); // Petit délai pour l'UX
+      await sleep(200);
 
       setSimulationStep("validating");
       await sleep(200);
@@ -189,15 +188,6 @@ export function useMarcheOffrandesMain() {
       }
 
       setSimulationStep("success");
-
-      const qs = new URLSearchParams();
-      const query = qs.toString();
-      let walletUrl = `/star/profil${query ? `?${query}` : ""}`;
-      if (monjeu) {
-        walletUrl = `/star/choix/${monjeu}`;
-      }
-
-      //  const transactionIdParam = `transactionId=${encodeURIComponent(transactionId)}`;
 
       const searchParams = new URLSearchParams(window.location.search);
       const retour = searchParams.get('retour');

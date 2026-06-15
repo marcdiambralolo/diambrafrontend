@@ -63,8 +63,7 @@ export function useNotificationsPage({ page = 1, limit = 20, filter: initialFilt
 
   return {
     filter, filteredNotifications: data?.notifications || [], showSettings, isLoading,
-    unreadCount: data?.unreadCount || 0,
+    unreadCount: data?.unreadCount || 0, handleNotificationClick, handleDelete,
     setFilter, markAllAsRead: markAllAsReadMutation.mutateAsync, setShowSettings,
-    handleNotificationClick, handleDelete,
   };
 }

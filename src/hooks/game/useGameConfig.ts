@@ -23,9 +23,7 @@ export type ToastItem = {
 };
 
 export type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
-
 export type DateLike = Date | string | number | null | undefined;
-
 export const DEFAULT_FORM_STATUS: ConfigStatus = 'pending';
 
 export const statusConfig: Record<ConfigStatus,
@@ -221,7 +219,6 @@ export function useGameConfig() {
 
       const [currentPage, setCurrentPage] = useState(1);
     
-      // Calcul de la pagination
       const totalPages = Math.max(1, Math.ceil(configs.length / ITEMS_PER_PAGE));
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;

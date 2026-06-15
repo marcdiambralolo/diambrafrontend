@@ -185,7 +185,6 @@ export interface GameConfiguration {
   status: 'pending' | 'active' | 'ended' | 'cancelled';
 }
 
-
 export interface LearningConfiguration {
   id?: string;
   _id?: string;
@@ -229,7 +228,6 @@ export interface FormData {
   gender?: string;
 }
 
-
 export interface Winner {
   country: string;
   consultationId: string;
@@ -244,8 +242,6 @@ export interface Winner {
   createdAt: string;
   rank: number;
 }
-
-
 
 export interface ActiveEdition {
   id: string;
@@ -263,8 +259,6 @@ export interface WinnersData {
   totalDisordered: number;
   totalWinners: number;
 }
-
-
 
 export interface StatisticsData {
   totalConsultations: number;
@@ -345,7 +339,6 @@ export interface EditionInfo {
   winningCombination: string | null;
 }
 
-
 export interface ReportMetric {
   label: string;
   value: string | number;
@@ -360,7 +353,6 @@ export interface DateRange {
   label: string;
   icon?: string;
 }
-
 
 export interface Case {
   numordrep?: number;
@@ -379,8 +371,6 @@ export interface Case {
   mode?: boolean;
 }
 
-
-
 export interface MenuItem {
   title: string;
   icon: React.ReactNode;
@@ -397,12 +387,12 @@ export interface TimeLeft {
 }
 
 export interface MatchResult {
-    matchNumber: number;
-    type: string;
-    score: number;
-    timeSpent?: number;
-    trouves?: number;
-    rates?: number;
+  matchNumber: number;
+  type: string;
+  score: number;
+  timeSpent?: number;
+  trouves?: number;
+  rates?: number;
 }
 
 export interface MatchInfo {
@@ -429,7 +419,7 @@ export interface MatchInfo {
 }
 
 export interface CompetitionInfo {
-    niveau: any;
+  niveau: any;
   id: string;
   datedebut: string;
   datefin: string;
@@ -440,7 +430,6 @@ export interface CompetitionInfo {
   name?: string;
   matches?: MatchResult[];
   totalScore?: number;
-  isValidated?: boolean; 
-   
-    displayName: string;
+  isValidated?: boolean;
+  displayName: string;
 }

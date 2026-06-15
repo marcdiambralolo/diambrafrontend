@@ -19,7 +19,6 @@ const initialForm: FormData = {
   secretCode: "",
 };
 
-
 const validateForm = (form: FormData): FormErrors => {
   const errors: FormErrors = {};
 
@@ -150,16 +149,7 @@ export function useSlide4SectionDoors() {
   }, [router]);
 
   return {
-    handleChange,
-    handleReset,
-    handleSubmit,
-    apiError,
-    errors,
-    form,
-    setForm, // ✅ Ajout de setForm
-    countryOptions,
-    submitClass,
-    cancelClass,
-    isSubmitting
+    handleChange, setForm, handleReset, handleSubmit,
+    apiError, errors, form, countryOptions, submitClass, cancelClass, isSubmitting
   };
 }

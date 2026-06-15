@@ -307,9 +307,10 @@ const FeuilleDeMatch = memo(() => {
     );
 });
 
-const FixedContent = memo(({ afficheStats }: { afficheStats: boolean }) => {
+const FixedContent = memo(( ) => {
     const { stats, isLoading, isError } = useStatsDataWithCache();
     const competitions = useMonEtoileStore((state: any) => state.competitions || []);
+  const afficheStat = useMonEtoileStore(((state) => state.afficheStat));
 
     const validatedCount = useMemo(
         () => competitions.filter((c: CompetitionInfo) => c.isValidated).length,
@@ -323,7 +324,7 @@ const FixedContent = memo(({ afficheStats }: { afficheStats: boolean }) => {
         <div className="fixed-bottom-content w-full space-y-4">
             <FeuilleDeMatch key={`feuille-${validatedCount}`} />
 
-            {afficheStats && (
+            {afficheStat && (
                 <StatCard
                     value={stats?.subscribers ?? null}
                     label="Inscrits"

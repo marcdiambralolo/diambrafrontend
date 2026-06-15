@@ -212,7 +212,7 @@ const LaMise = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="w-full mx-auto max-w-md px-4 sm:px-0 flex flex-col gap-2 space-y-3 items-center justify-center">
+    <div className="w-full mx-auto max-w-md px-4 flex flex-col gap-2 space-y-3 items-center justify-center">
       <StatusBanner
         isSufficient={isSufficient}
         requiredQuantity={requiredQuantity}

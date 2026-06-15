@@ -91,7 +91,7 @@ export function useHeaderState() {
     if (hasRole(Role.ADMIN) || hasRole(Role.SUPER_ADMIN)) {
       return { text: 'Admin ⚡', label: 'Admin' };
     }
-    return { text: 'Premium ⭐', label: 'Joueur Premium' };
+    return { text: 'Premium ⭐', label: 'Premium' };
   }, [hasRole]);
 
   const navItems = useMemo(() => [

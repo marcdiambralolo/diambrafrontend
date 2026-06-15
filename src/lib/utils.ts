@@ -18,7 +18,5 @@ function flattenValues(values: readonly unknown[]): unknown[] {
 }
 
 export function cn(...args: unknown[]): string {
-  return flattenValues(args)
-    .filter(Boolean)
-    .join(' ');
+  return flattenValues(args).filter(Boolean).join(' ');
 }

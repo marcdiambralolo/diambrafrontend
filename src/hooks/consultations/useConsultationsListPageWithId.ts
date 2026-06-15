@@ -60,11 +60,7 @@ export function useConsultationsListPageWithId() {
   const myConsultations = useMemo(() => state.data, [state.data]);
 
   return {
-    consultations: myConsultations,
-    loading: state.loading,
-    gamesCount: myConsultations.length,
-    error: state.error,
-    gameId,
-    edition: state.edition,
+    gameId, consultations: myConsultations, loading: state.loading,
+    gamesCount: myConsultations.length, error: state.error, edition: state.edition,
   };
 }

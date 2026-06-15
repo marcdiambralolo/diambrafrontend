@@ -29,7 +29,7 @@ export function useConsultationsListPage(): UseConsultationsListPageReturn {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  
+
   // Ref pour éviter les appels multiples
   const isMountedRef = useRef(true);
   const isLoadingRef = useRef(false);
@@ -58,14 +58,14 @@ export function useConsultationsListPage(): UseConsultationsListPageReturn {
   // Fonction pour charger les données initiales
   const loadInitialData = useCallback(async () => {
     if (isLoadingRef.current) return;
-    
+
     isLoadingRef.current = true;
     setLoading(true);
     setError(null);
-    
+
     try {
       const firstPage = await fetchPage(1);
-      
+
       if (isMountedRef.current) {
         setConsultations(firstPage.consultations);
         setTotal(firstPage.total);
@@ -88,12 +88,12 @@ export function useConsultationsListPage(): UseConsultationsListPageReturn {
   // Fonction pour charger plus de données (infinite scroll)
   const loadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore || loading) return;
-    
+
     setIsLoadingMore(true);
-    
+
     try {
       const nextPage = await fetchPage(currentPage);
-      
+
       if (isMountedRef.current) {
         setConsultations(prev => [...prev, ...nextPage.consultations]);
         setHasMore(consultations.length + nextPage.consultations.length < total);
@@ -120,21 +120,15 @@ export function useConsultationsListPage(): UseConsultationsListPageReturn {
   useEffect(() => {
     isMountedRef.current = true;
     loadInitialData();
-    
+
     return () => {
       isMountedRef.current = false;
     };
   }, [loadInitialData]);
 
   return {
-    loading,
-    consultationsglobaux: consultations,
-    historyCount: consultations.length,
-    total,
-    error,
-    hasMore,
-    isLoadingMore,
-    loadMore,
-    refresh,
+    consultationsglobaux: consultations, historyCount: consultations.length,
+    total, loading, error, hasMore, isLoadingMore,
+    loadMore, refresh,
   };
 }

@@ -20,13 +20,13 @@ export function useConsultationsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-       const { user } = useAuth();
-    const processedData = useMemo(() => processUserData(user), [user]);
-   
-    const prenoms = safeTrim(user?.prenoms);
-    const nom = safeTrim(user?.nom); 
-    const fullName = prenoms || nom ? `${prenoms}${prenoms && nom ? " " : ""}${nom}` : "Profil";
-    const dateNaissanceLabel = user?.dateNaissance ? formatDateFR(coerceIsoDate(user.dateNaissance)) : "—";
+  const { user } = useAuth();
+  const processedData = useMemo(() => processUserData(user), [user]);
+
+  const prenoms = safeTrim(user?.prenoms);
+  const nom = safeTrim(user?.nom);
+  const fullName = prenoms || nom ? `${prenoms}${prenoms && nom ? " " : ""}${nom}` : "Profil";
+  const dateNaissanceLabel = user?.dateNaissance ? formatDateFR(coerceIsoDate(user.dateNaissance)) : "—";
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -65,23 +65,19 @@ export function useConsultationsListPage() {
       const aIsActive = aStart <= now && aEnd >= now && a.status === 'active';
       const bIsActive = bStart <= now && bEnd >= now && b.status === 'active';
 
-      // Priorité 1: Les éditions en cours passent en premier
       if (aIsActive && !bIsActive) return -1;
       if (!aIsActive && bIsActive) return 1;
 
-      // Priorité 2: Les éditions à venir (non commencées)
       const aIsUpcoming = aStart > now;
       const bIsUpcoming = bStart > now;
 
       if (aIsUpcoming && !bIsUpcoming) return -1;
       if (!aIsUpcoming && bIsUpcoming) return 1;
 
-      // Priorité 3: Pour les éditions terminées, tri par date de fin décroissante (plus récente d'abord)
       if (!aIsActive && !bIsActive && !aIsUpcoming && !bIsUpcoming) {
         return new Date(b.endDate).getTime() - new Date(a.endDate).getTime();
       }
 
-      // Priorité 4: Tri par date de début décroissante
       return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
   }, [editions]);

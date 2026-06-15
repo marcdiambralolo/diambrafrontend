@@ -84,7 +84,6 @@ export async function clearServiceWorkerCache(): Promise<void> {
 export async function getCacheSize(): Promise<number> {
   if (typeof navigator === 'undefined') return 0;
 
-  // Méthode rapide via StorageManager
   if ('storage' in navigator && 'estimate' in navigator.storage) {
     try {
       const estimate = await navigator.storage.estimate();
@@ -92,7 +91,6 @@ export async function getCacheSize(): Promise<number> {
     } catch { /* fallback */ }
   }
 
-  // Fallback : compter les entrées (sans lire les blobs)
   if (!('caches' in window)) return 0;
   try {
     const names = await caches.keys();

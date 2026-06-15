@@ -121,7 +121,7 @@ export function useTermsSections(): TermsSection[] {
         <p>
           Nous protégeons vos données conformément aux réglementations. Consultez notre{' '}
           <CacheLink href="/privacy" className="text-purple-600 hover:underline font-semibold">
-            politique de confidentialité
+            politique de confidentialité.
           </CacheLink>.
         </p>
       ),

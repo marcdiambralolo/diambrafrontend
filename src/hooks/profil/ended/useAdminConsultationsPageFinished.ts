@@ -28,7 +28,6 @@ export function useAdminConsultationsPageFinished() {
   const [isEndingGame, setIsEndingGame] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Mettre à jour l'heure actuelle toutes les secondes
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentTime(new Date());
@@ -99,13 +98,11 @@ export function useAdminConsultationsPageFinished() {
     [showNotStarted, startDate]
   );
 
-  // 🔥 Fonction unique pour rafraîchir toutes les données
   const refreshAllData = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
 
     try {
-      // Récupérer les données des consultations terminées
       const [consultationsResponse, lastEndedResponse] = await Promise.all([
         api.get('/consultations/ended-game', {
           params: { page: 1, limit: ITEMS_PER_PAGE },
@@ -137,7 +134,6 @@ export function useAdminConsultationsPageFinished() {
     }
   }, [isRefreshing]);
 
-  // 🔥 Fonction pour terminer l'édition dans le backend
   const endGameInBackend = useCallback(async () => {
     if (!gameConfig?._id || isEndingGame || endGameCalledRef.current) return;
 
@@ -225,26 +221,10 @@ export function useAdminConsultationsPageFinished() {
   }, [showActive, gameStarted, hasNotStartedEdition]);
 
   return {
-    handleOpenGame,
-    handleEndMatch,
-    handleRefresh,
-    isLoading: loading || statsLoading || configLoading,
-    startDate,
-    endDate,
-    error: error || configError,
-    hasWinners,
-    winningCombination,
-    hasNotStartedEdition,
-    showEnded,
-    showNotStarted,
-    stats,
-    gameConfig,
-    consultations,
-    activeEdition,
-    winners,
-    statistics,
-    lastEndedGame,
-    gameStarted,
-    currentTime,
+    handleOpenGame, handleEndMatch, handleRefresh,
+    isLoading: loading || statsLoading || configLoading, error: error || configError,
+    startDate, endDate, hasWinners, winningCombination, hasNotStartedEdition, showEnded,
+    showNotStarted, stats, gameConfig, consultations, activeEdition, winners,
+    statistics, lastEndedGame, gameStarted, currentTime,
   };
 }

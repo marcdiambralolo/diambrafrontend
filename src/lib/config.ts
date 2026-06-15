@@ -25,7 +25,6 @@ export const config = {
     dashboard: '/star/profil',
     adminDashboard: '/admin',
   },
-
   pagination: {
     defaultLimit: 10,
     maxLimit: 100,

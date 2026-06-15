@@ -77,16 +77,8 @@ export function useEditionManager() {
     }, [refreshTrigger, fetchLastEndedGame]);
 
     return {
-        gameConfig,
-        startDate,
-        endDate,
-        lastEndedGame,
-        loadingLastEnded: configLoading || loadingLastEnded,
-        isGameActive,
-        isGameEnded,
-        isGameNotStarted,
-        showEnded,
-        affichebanner,
-        handleEndMatch,
+        handleEndMatch, loadingLastEnded: configLoading || loadingLastEnded, gameConfig,
+        startDate, endDate, lastEndedGame, isGameActive, isGameEnded, isGameNotStarted,
+        showEnded, affichebanner,
     };
 }

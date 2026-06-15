@@ -4,7 +4,9 @@ const DEFAULT_TTL = 60 * 10; // 10 minutes
 
 export async function getCache(key: string): Promise<any | null> {
   const val = await redis.get(key);
+
   if (!val) return null;
+
   try {
     return JSON.parse(val);
   } catch {

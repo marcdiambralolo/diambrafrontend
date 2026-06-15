@@ -80,10 +80,7 @@ export function useWalletManagement(potConfig: OfferingAlternative) {
     }, []);
 
     return {
-        walletState: state,
-        availableQuantity,
-        isSufficient,
-        clearError,
-        updateWalletState,
+        walletState: state, availableQuantity, isSufficient,
+        clearError, updateWalletState,
     };
 }

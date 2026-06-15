@@ -12,7 +12,6 @@ export function useNotificationSound(url: string) {
     }
   }, [url]);
 
-  // Débloque l'audio sur Safari/iOS après la première interaction utilisateur
   useEffect(() => {
     if (typeof window === 'undefined' || !audioRef.current) return;
     if (unlockedRef.current) return;

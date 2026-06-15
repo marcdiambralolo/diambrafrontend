@@ -61,7 +61,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     let isMounted = true;
 
-    // Détection de route publique (login, register, logout)
     const isPublicRoute = () => {
       if (typeof window === 'undefined') return false;
       const publicRoutes = ['/auth/login', '/auth/register', '/auth/logout'];

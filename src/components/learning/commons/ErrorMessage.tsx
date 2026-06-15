@@ -199,7 +199,7 @@ const ActionButtons = memo(function ActionButtons({
   handleRetryClick: () => void;
 }) {
   const handleHomeClick = useCallback(() => {
-    window.location.href = '/';
+    window.location.href = '/star/learning';
   }, []);
 
   const handleBackClick = useCallback(() => {
@@ -404,9 +404,9 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     if (process.env.NODE_ENV === 'production') {
-      console.error('ErrorBoundary caught:', { error, errorInfo });
+      console.error('ErrorBoundary caught :', { error, errorInfo });
     } else {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error('ErrorBoundary caught an error :', error, errorInfo);
     }
 
     this.props.onError?.(error, errorInfo);

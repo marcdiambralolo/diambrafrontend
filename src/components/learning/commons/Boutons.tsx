@@ -47,8 +47,7 @@ const SIZE_STYLES: Record<Size, string> = {
 } as const;
 
 const BASE_BUTTON_STYLES = cn(
-    'relative font-bold rounded-xl',
-    'text-white shadow-md',
+    'relative font-bold rounded-xl text-white shadow-md',
     'transition-all duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
     'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -162,7 +161,6 @@ export const CardButton = memo(function CardButton({
         >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
             <div className="absolute inset-0 rounded-xl border border-white/20" />
-
             <span className="relative flex items-center justify-center gap-2">
                 {children}
             </span>

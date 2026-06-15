@@ -234,13 +234,23 @@ export const useEndGameGenerator = () => {
         });
     }, [competitions.length, startTransition]);
 
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    const handleLoadMoreClick = useCallback(async () => {
+        if (isLoadingMore) return;
+        setIsLoadingMore(true);
+        try {
+            await handleLoadMore();
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [handleLoadMore, isLoadingMore]);
+
+    const hasValidatedGame = displayList?.some(c => c.isValidated);
+
     return {
-        handleValidateCompetition,
-        handleLoadMore,
-        competitionList: displayList,
-        hasMore,
-        remainingCount,
-        validateMessage,
-        refreshData,
+        handleValidateCompetition, refreshData, handleLoadMoreClick,
+        competitionList: displayList, hasMore, remainingCount, validateMessage,
+        isLoadingMore, hasValidatedGame,
     };
 };

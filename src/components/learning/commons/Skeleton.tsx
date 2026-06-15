@@ -306,8 +306,6 @@ export const withSkeleton = <P extends object>(
     return <Component {...(props as P)} />;
   });
 
-  WithSkeleton.displayName = `WithSkeleton(${Component.displayName || Component.name})`;
-
   return WithSkeleton;
 };
 

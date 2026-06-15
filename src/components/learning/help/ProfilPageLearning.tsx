@@ -1,22 +1,21 @@
 'use client';
+import { APP_NAME } from "@/lib/learning/constantes";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Lightbulb, X, Zap } from "lucide-react";
-import { FooterSection  } from "../commons/Features";
 import { memo, startTransition, useCallback, useMemo, useState, useTransition } from 'react';
-import { APP_NAME } from "@/lib/learning/constantes";
+import { FooterSection } from "../commons/Features";
 
- const HeaderSection = memo(() => (
-    <div className="flex flex-col items-center justify-center mt-2 mb-2">
-        <h1 className="text-xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-            {APP_NAME}
-        </h1>
-
-        <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
-            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
-            <div className="w-8 h-px bg-gradient-to-r from-transparent via-pink-500 to-transparent" />
-        </div>
+const HeaderSection = memo(() => (
+  <div className="flex flex-col items-center justify-center mt-2 mb-2">
+    <h1 className="text-xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+      {APP_NAME}
+    </h1>
+    <div className="flex items-center justify-center gap-2 mt-2">
+      <div className="w-8 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+      <div className="w-8 h-px bg-gradient-to-r from-transparent via-pink-500 to-transparent" />
     </div>
+  </div>
 ));
 
 const HELP_SECTIONS = [
@@ -372,7 +371,7 @@ const HelpPage = memo(function HelpPage() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
+    <div className="container mx-auto px-4 max-w-md">
       <HeaderSection />
       <HelpPanel onClose={handleCloseHelp} />
       <div className="mt-6">

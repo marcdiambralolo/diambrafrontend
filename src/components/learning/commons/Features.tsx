@@ -1,10 +1,10 @@
 'use client';
 import { useCommon } from '@/hooks/learning/home/useCommon';
-import { APP_NAME, CURRENT_YEAR, MESSAGE_DURATION, STATUS_CONFIG } from "@/lib/learning/constantes";
+import { formatNumber } from "@/lib/functions";
+import { CURRENT_YEAR, MESSAGE_DURATION, STATUS_CONFIG } from "@/lib/learning/constantes";
 import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo } from 'react';
-import { formatNumber } from "@/lib/functions";
 
 interface StatCardProps {
     value: number | null;
@@ -15,6 +15,7 @@ interface StatCardProps {
 
 export const StatCard = memo(({ value, label, icon, color }: StatCardProps) => {
     const formattedValue = value !== null ? formatNumber(value) : '--';
+    
 
     return (
         <button
@@ -70,7 +71,7 @@ export const FooterSection = memo(() => {
         </footer>
     );
 });
- 
+
 export const HelpButton = memo(() => {
     const router = useRouter();
 

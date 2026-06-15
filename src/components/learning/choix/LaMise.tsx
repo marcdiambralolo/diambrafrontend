@@ -1,8 +1,8 @@
 'use client';
 import Loader from '@/app/loading';
+import ErrorMessage from '@/components/learning/commons/ErrorMessage';
 import { useLaMise } from '@/hooks/learning/lamise/useLaMise';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Circle, Coins, Gift, ShoppingBag } from 'lucide-react';
-import ErrorMessage from '../commons/ErrorMessage';
 
 const STATUS_BANNER_CONFIG = {
   sufficient: {
@@ -208,7 +208,6 @@ const LaMise = () => {
   } = useLaMise();
 
   if (error) return <ErrorMessage />;
-
   if (loading) return <Loader />;
 
   return (
@@ -239,7 +238,6 @@ const LaMise = () => {
       )}
 
       <MarketButton onClick={handleMarketClick} isPending={loading} />
-
       <div className="w-2 h-2 rounded-full bg-green-400" />
     </div>
   );

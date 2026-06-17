@@ -13,7 +13,7 @@ const NextEditionInfo = memo(() => (
         <div className="flex items-center justify-center gap-2 text-white/90 text-xs">
             <Calendar className="w-3 h-3" />
             <span>Prochaine édition :</span>
-            <span className="font-bold">Dans quelques jours</span>
+            <span className="font-bold">Dans quelques jours.</span>
         </div>
     </div>
 ));

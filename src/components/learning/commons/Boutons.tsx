@@ -51,8 +51,7 @@ const BASE_BUTTON_STYLES = cn(
     'transition-all duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
     'disabled:opacity-50 disabled:cursor-not-allowed',
-    'active:scale-[0.98]',
-    'transform-gpu'
+    'active:scale-[0.98] transform-gpu'
 );
 
 export const GlowButton = memo(function GlowButton({
@@ -265,8 +264,7 @@ export const SimpleButton = memo(function SimpleButton({
                 'hover:bg-blue-700 hover:scale-[1.02]',
                 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
                 'active:scale-[0.98]',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
-                'transform-gpu',
+                'disabled:opacity-50 disabled:cursor-not-allowed transform-gpu',
                 className
             )}
             {...props}

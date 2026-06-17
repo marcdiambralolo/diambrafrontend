@@ -1,7 +1,7 @@
 'use client';
 import Loader from "@/app/loading";
 import { useAdminConsultationsPageFinished } from "@/hooks/learning/home/useAdminConsultationsPageFinished";
-import { useMonEtoileStore } from "@/lib/store/monetoile.store";
+import { useDiambraStore } from "@/lib/store/diambra.store";
 import { Award, History } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import CacheLink from "../../commons/CacheLink";
@@ -14,9 +14,9 @@ import ResultsAvailableBanner from "./ResultsAvailableBanner";
 import ResultsWaitingBanner from "./ResultsWaitingBanner";
 
 interface GameCompletionState {
-    isCompletelyFinished: boolean;      // Jeu totalement terminé (proclamation passée)
-    isWaitingForProclamation: boolean;  // En attente de la proclamation
-    isProclamationPassed: boolean;      // Proclamation déjà passée
+    isCompletelyFinished: boolean;
+    isWaitingForProclamation: boolean;
+    isProclamationPassed: boolean;
 }
 
 interface GameState {
@@ -26,34 +26,25 @@ interface GameState {
 }
 
 const useGameCompletionLogic = () => {
-    const gameIsFinished = useMonEtoileStore(((state: any) => state.gameIsFinished));
-    const afficheStat = useMonEtoileStore(((state: any) => state.afficheStat));
-    const afficheBanana = useMonEtoileStore(((state: any) => state.afficheBanana));
-    const afficheChoix = useMonEtoileStore(((state: any) => state.afficheChoix));
-    const afficheGame = useMonEtoileStore(((state: any) => state.afficheGame));
-    const setGameIsFinished = useMonEtoileStore(((state: any) => state.setGameIsFinished));
-    const setAfficheChoix = useMonEtoileStore(((state: any) => state.setAfficheChoix));
-    const setAfficheGame = useMonEtoileStore(((state: any) => state.setAfficheGame));
-    const resetGameState = useMonEtoileStore(((state: any) => state.resetGameState));
+    const gameIsFinished = useDiambraStore((state: any) => state.gameIsFinished);
+    const afficheStat = useDiambraStore((state: any) => state.afficheStat);
+    const afficheBanana = useDiambraStore((state: any) => state.afficheBanana);
+    const afficheChoix = useDiambraStore((state: any) => state.afficheChoix);
+    const afficheGame = useDiambraStore((state: any) => state.afficheGame);
+    const setGameIsFinished = useDiambraStore((state: any) => state.setGameIsFinished);
+    const setAfficheChoix = useDiambraStore((state: any) => state.setAfficheChoix);
+    const setAfficheGame = useDiambraStore((state: any) => state.setAfficheGame);
+    const resetGameState = useDiambraStore((state: any) => state.resetGameState);
 
     const isEditionEnCours = afficheChoix || afficheGame;
 
-    /**
-     * Nettoie complètement l'état du jeu après proclamation des résultats
-     */
     const completeGameCleanup = useCallback(() => {
-        // Réinitialiser tous les états de jeu
         if (gameIsFinished) setGameIsFinished(false);
         if (afficheChoix) setAfficheChoix(false);
         if (afficheGame) setAfficheGame(false);
-
-        // Optionnel: appel à une fonction de reset global si disponible
         if (resetGameState) resetGameState();
     }, [gameIsFinished, afficheChoix, afficheGame, setGameIsFinished, setAfficheChoix, setAfficheGame, resetGameState]);
 
-    /**
-     * Détermine l'état de complétion du jeu en fonction des dates
-     */
     const getGameCompletionState = useCallback((
         proclamationDate: Date | null,
         endDate: Date | null
@@ -68,120 +59,60 @@ const useGameCompletionLogic = () => {
         const isWaitingForProclamation = hasProclamation && now < proclamationMs && hasEndDatePassed;
         const isCompletelyFinished = isProclamationPassed;
 
-        return {
-            isCompletelyFinished,
-            isWaitingForProclamation,
-            isProclamationPassed
-        };
+        return { isCompletelyFinished, isWaitingForProclamation, isProclamationPassed };
     }, []);
 
-    /**
-     * Détermine quel bannière afficher
-     */
     const getGameState = useCallback((
         completionState: GameCompletionState,
         viewState: any,
         hasGameConfig: boolean
     ): GameState => {
-        // Priorité 1: Résultats disponibles (proclamation passée)
         if (completionState.isProclamationPassed) {
-            return {
-                status: 'results_available',
-                canUserPlay: false,
-                showGameFinishedBanner: false
-            };
+            return { status: 'results_available', canUserPlay: false, showGameFinishedBanner: false };
         }
 
-        // Priorité 2: En attente de proclamation
         if (completionState.isWaitingForProclamation) {
-            return {
-                status: 'waiting_proclamation',
-                canUserPlay: false,
-                showGameFinishedBanner: false
-            };
+            return { status: 'waiting_proclamation', canUserPlay: false, showGameFinishedBanner: false };
         }
 
-        // Priorité 3: Édition terminée sans date de proclamation
         if (viewState.isEnded && !hasGameConfig) {
-            return {
-                status: 'ended_no_proclamation',
-                canUserPlay: false,
-                showGameFinishedBanner: false
-            };
+            return { status: 'ended_no_proclamation', canUserPlay: false, showGameFinishedBanner: false };
         }
 
-        // Priorité 4: Jeu utilisateur terminé mais pas encore complètement fini
         const shouldShowGameFinished = gameIsFinished && !isEditionEnCours && !afficheStat && !afficheBanana;
 
         if (shouldShowGameFinished) {
-            return {
-                status: 'active',
-                canUserPlay: false,
-                showGameFinishedBanner: true
-            };
+            return { status: 'active', canUserPlay: false, showGameFinishedBanner: true };
         }
 
-        // État normal selon viewState
         if (viewState.isEmpty) {
-            return {
-                status: 'no_competition',
-                canUserPlay: false,
-                showGameFinishedBanner: false
-            };
+            return { status: 'no_competition', canUserPlay: false, showGameFinishedBanner: false };
         }
 
         if (viewState.isNotStarted) {
-            return {
-                status: 'not_started',
-                canUserPlay: false,
-                showGameFinishedBanner: false
-            };
+            return { status: 'not_started', canUserPlay: false, showGameFinishedBanner: false };
         }
 
         if (viewState.isActive && !completionState.isWaitingForProclamation) {
-            return {
-                status: 'active',
-                canUserPlay: !isEditionEnCours,
-                showGameFinishedBanner: false
-            };
+            return { status: 'active', canUserPlay: !isEditionEnCours, showGameFinishedBanner: false };
         }
 
-        return {
-            status: 'no_competition',
-            canUserPlay: false,
-            showGameFinishedBanner: false
-        };
+        return { status: 'no_competition', canUserPlay: false, showGameFinishedBanner: false };
     }, [gameIsFinished, isEditionEnCours, afficheStat, afficheBanana]);
 
-    return {
-        completeGameCleanup,
-        getGameCompletionState,
-        getGameState,
-        isEditionEnCours
-    };
+    return { completeGameCleanup, getGameCompletionState, getGameState, isEditionEnCours };
 };
 
 const DashBoard = memo(() => {
-    const afficheChoix = useMonEtoileStore(((state: any) => state.afficheChoix));
-    const afficheGame = useMonEtoileStore(((state: any) => state.afficheGame));
+    const afficheChoix = useDiambraStore((state: any) => state.afficheChoix);
+    const afficheGame = useDiambraStore((state: any) => state.afficheGame);
     const [hasCleanedUp, setHasCleanedUp] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+    const { completeGameCleanup, getGameCompletionState, getGameState, isEditionEnCours } = useGameCompletionLogic();
 
     const {
-        completeGameCleanup,
-        getGameCompletionState,
-        getGameState,
-        isEditionEnCours
-    } = useGameCompletionLogic();
-
-    const {
-        demarrerJeu,
-        startDate,
-        gameConfig,
-        viewState,
-        lastEndedGame,
-        endDate,
-        isLoading,
-        error
+        demarrerJeu, startDate, gameConfig, viewState, lastEndedGame, endDate, isLoading, error,
     } = useAdminConsultationsPageFinished();
 
     const proclamationDate = useMemo(
@@ -189,13 +120,11 @@ const DashBoard = memo(() => {
         [gameConfig?.proclamationDate]
     );
 
-    // Calculer l'état de complétion
     const completionState = useMemo(
         () => getGameCompletionState(proclamationDate, endDate || null),
         [proclamationDate, endDate, getGameCompletionState]
     );
 
-    // Nettoyage automatique quand la proclamation est passée
     useEffect(() => {
         if (completionState.isCompletelyFinished && !hasCleanedUp) {
             setHasCleanedUp(true);
@@ -203,7 +132,12 @@ const DashBoard = memo(() => {
         }
     }, [completionState.isCompletelyFinished, completeGameCleanup, hasCleanedUp]);
 
-    // Obtenir l'état actuel du jeu
+    useEffect(() => {
+        if (!isLoading && isInitialLoad) {
+            setIsInitialLoad(false);
+        }
+    }, [isLoading, isInitialLoad]);
+
     const gameState = useMemo(
         () => getGameState(completionState, viewState, !!gameConfig),
         [completionState, viewState, gameConfig, getGameState]
@@ -214,20 +148,23 @@ const DashBoard = memo(() => {
     if (isLoading) return <Loader />;
     if (error) return <ErrorMessage />;
 
-    // Rendu basé sur l'état déterminé
     switch (gameState.status) {
         case 'results_available':
-            return <ResultsAvailableBanner
-                lastEndedGame={lastEndedGame}
-                onGameCompletelyFinished={completeGameCleanup}
-            />;
+            return (
+                <ResultsAvailableBanner
+                    lastEndedGame={lastEndedGame}
+                    onGameCompletelyFinished={completeGameCleanup}
+                />
+            );
 
         case 'waiting_proclamation':
             if (proclamationDate) {
-                return <ResultsWaitingBanner
-                    proclamationDate={proclamationDate}
-                    onFinish={() => { }}
-                />;
+                return (
+                    <ResultsWaitingBanner
+                        proclamationDate={proclamationDate}
+                        onFinish={() => { }}
+                    />
+                );
             }
             break;
 
@@ -287,7 +224,6 @@ const DashBoard = memo(() => {
             break;
     }
 
-    // Fallback
     return <NoCompetitionBanner />;
 });
 

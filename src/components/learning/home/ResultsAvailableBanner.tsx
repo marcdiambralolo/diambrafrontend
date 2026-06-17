@@ -12,9 +12,7 @@ const ResultsAvailableBanner = memo(({
     onGameCompletelyFinished?: () => void;
 }) => {
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
-    const endGameDate = lastEndedGame
-        ? new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR')
-        : null;
+    const endGameDate = lastEndedGame ? new Date(lastEndedGame.endgameDate).toLocaleDateString('fr-FR') : null;
 
     useEffect(() => {
         if (onGameCompletelyFinished && !hasTriggeredFinish) {

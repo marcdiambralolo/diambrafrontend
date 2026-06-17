@@ -1,176 +1,222 @@
 'use client';
 import { api } from '@/lib/api/client';
-import { LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
+import { CompetitionInfo, LastEndedGame, LastEndedResponse, LearningConfiguration } from '@/lib/interfaces';
+import { useDiambraStore } from '@/lib/store/diambra.store';
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 const TIME_UPDATE_INTERVAL = 1000;
-const QUERY_STALE_TIME = 10 * 1000; // 10 secondes d'acceptation de cache obsolète
+const QUERY_STALE_TIME = 10 * 1000;
 const RETRY_ATTEMPTS = 2;
-const REFRESH_CONFIG_INTERVAL = 15 * 1000; // On vérifie la config fraîche toutes les 15s
+const REFRESH_CONFIG_INTERVAL = 15 * 1000;
 const LAST_ENDED_REFETCH_INTERVAL = 5000;
 
 interface ExtendedViewState {
-  isEnded: boolean;
-  isActive: boolean;
-  isNotStarted: boolean;
-  isEmpty: boolean;
+    isEnded: boolean;
+    isActive: boolean;
+    isNotStarted: boolean;
+    isEmpty: boolean;
 }
 
 interface ViewStateResult {
-  viewState: ExtendedViewState;
-  shouldShowBanana: boolean;
-  shouldShowStat: boolean;
+    viewState: ExtendedViewState;
+    shouldShowBanana: boolean;
+    shouldShowStat: boolean;
 }
 
-const selectSetGameConfig = (state: any) => state.setGameConfig;
-const selectSetAfficheBanana = (state: any) => state.setAfficheBanana;
-const selectSetAfficheStat = (state: any) => state.setAfficheStat;
-const selectSetAfficheChoix = (state: any) => state.setAfficheChoix;
+const selectors = {
+    setGameConfig: (state: any) => state.setGameConfig,
+    setAfficheBanana: (state: any) => state.setAfficheBanana,
+    setAfficheStat: (state: any) => state.setAfficheStat,
+    setAfficheChoix: (state: any) => state.setAfficheChoix,
+    setAfficheGame: (state: any) => state.setAfficheGame,
+    competitions: (state: any) => state.competitions || [],
+    currentGameConfig: (state: any) => state.gameConfig,
+    isGameConfigLoaded: (state: any) => state.isGameConfigLoaded,
+    setIsGameConfigLoaded: (state: any) => state.setIsGameConfigLoaded,
+} as const;
 
 export function useAdminConsultationsPageFinished() {
-  const router = useRouter();
-  const hasRedirectedRef = useRef(false);
+    const [isPending, startTransition] = useTransition();
 
-  const setGameConfig = useMonEtoileStore(selectSetGameConfig);
-  const setAfficheBanana = useMonEtoileStore(selectSetAfficheBanana);
-  const setAfficheStat = useMonEtoileStore(selectSetAfficheStat);
-  const setAfficheChoix = useMonEtoileStore(selectSetAfficheChoix);
-  const setAfficheGame = useMonEtoileStore((state) => state.setAfficheGame);
-  // 💡 CORRECTION 1 : On récupère les compétitions de façon RÉACTIVE.
-  // Dès que le tableau change dans le store, ce hook se ré-exécute.
-  const competitions = useMonEtoileStore((state) => state.competitions || []);
+    const hasRedirectedRef = useRef(false);
+    const initialLoadDoneRef = useRef(false);
+    const isMountedRef = useRef(true);
 
-  const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
+    const setGameConfig = useDiambraStore(selectors.setGameConfig);
+    const setAfficheBanana = useDiambraStore(selectors.setAfficheBanana);
+    const setAfficheStat = useDiambraStore(selectors.setAfficheStat);
+    const setAfficheChoix = useDiambraStore(selectors.setAfficheChoix);
+    const setAfficheGame = useDiambraStore(selectors.setAfficheGame);
+    const competitions = useDiambraStore(selectors.competitions);
+    const storedGameConfig = useDiambraStore(selectors.currentGameConfig);
+    const isGameConfigLoaded = useDiambraStore(selectors.isGameConfigLoaded);
+    const setIsGameConfigLoaded = useDiambraStore(selectors.setIsGameConfigLoaded);
 
-  const {
-    data: gameConfig = null,
-    isLoading: isConfigLoading,
-    isError: isConfigError,
-    refetch: refetchConfig
-  } = useQuery<LearningConfiguration | null>({
-    queryKey: ['game', 'config'],
-    queryFn: async () => {
-      const { data } = await api.get('learning-configurations/current-config');
-      return data as LearningConfiguration;
-    },
-    staleTime: QUERY_STALE_TIME,
-    refetchInterval: REFRESH_CONFIG_INTERVAL, // Synchro automatique serveur active
-    refetchOnWindowFocus: true, // Revalide si l'utilisateur change d'onglet et revient
-    refetchOnMount: true,
-  });
+    const [currentTimestamp, setCurrentTimestamp] = useState<number>(() => Date.now());
 
-  useEffect(() => {
-    if (gameConfig) {
-      setGameConfig(gameConfig);
-    }
-  }, [gameConfig, setGameConfig]);
+    const {
+        data: fetchedGameConfig = null,
+        isLoading: isConfigLoading,
+        isError: isConfigError,
+        refetch: refetchConfig,
+        isSuccess: isConfigSuccess,
+        error: configError,
+    } = useQuery<LearningConfiguration | null>({
+        queryKey: ['game', 'config'],
+        queryFn: async () => {
+            const { data } = await api.get<LearningConfiguration>('learning-configurations/current-config');
+            return data;
+        },
+        staleTime: QUERY_STALE_TIME,
+        refetchInterval: REFRESH_CONFIG_INTERVAL,
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        retry: RETRY_ATTEMPTS,
+        gcTime: 1000 * 60 * 5, // 5 minutes de cache
+    });
 
-  const {
-    data: lastEndedGame = null,
-    refetch: refetchLastEnded
-  } = useQuery<LastEndedGame | null>({
-    queryKey: ['game', 'last-ended'],
-    queryFn: async () => {
-      const { data } = await api.get<LastEndedResponse>('/learning-configurations/last-ended');
-      return data?.hasEndedEdition ? data.configuration : null;
-    },
-    staleTime: QUERY_STALE_TIME,
-    refetchInterval: LAST_ENDED_REFETCH_INTERVAL,
-    refetchOnWindowFocus: false,
-  });
+    const effectiveGameConfig = useMemo((): LearningConfiguration | null => {
+        // if (storedGameConfig && isGameConfigLoaded) {
+        //     const isGameEnded = storedGameConfig.status === 'ended';
+        //     const hasProclamation = !!storedGameConfig.proclamationDate;
+        //     const isProclamationPassed = hasProclamation &&
+        //         new Date(storedGameConfig.proclamationDate!).getTime() <= Date.now();
 
-  useEffect(() => {
-    const intervalId = setInterval(() => setCurrentTimestamp(Date.now()), TIME_UPDATE_INTERVAL);
-    return () => clearInterval(intervalId);
-  }, []);
+        //     const isCompletelyFinished = isGameEnded && (!hasProclamation || isProclamationPassed);
 
-  const { startDate, endDate } = useMemo(() => ({
-    startDate: gameConfig?.startgameDate ? new Date(gameConfig.startgameDate) : null,
-    endDate: gameConfig?.endgameDate ? new Date(gameConfig.endgameDate) : null,
-  }), [gameConfig?.startgameDate, gameConfig?.endgameDate]);
+        //     if (!isCompletelyFinished) {
+        //         return storedGameConfig;
+        //     }
+        // }
 
-  const viewStateResult = useMemo((): ViewStateResult => {
-    if (!gameConfig) {
-      return {
-        viewState: { isEnded: false, isActive: false, isNotStarted: false, isEmpty: true },
-        shouldShowBanana: false,
-        shouldShowStat: false
-      };
-    }
+        return fetchedGameConfig;
+    }, [storedGameConfig, fetchedGameConfig, isGameConfigLoaded]);
 
-    const startMs = startDate?.getTime() || 0;
-    const endMs = endDate?.getTime() || 0;
+    const {
+        data: lastEndedGame = null,
+        refetch: refetchLastEnded,
+    } = useQuery<LastEndedGame | null>({
+        queryKey: ['game', 'last-ended'],
+        queryFn: async () => {
+            const { data } = await api.get<LastEndedResponse>('/learning-configurations/last-ended');
+            return data?.hasEndedEdition ? data.configuration : null;
+        },
+        staleTime: QUERY_STALE_TIME,
+        refetchInterval: LAST_ENDED_REFETCH_INTERVAL,
+        refetchOnWindowFocus: false,
+        retry: RETRY_ATTEMPTS,
+        gcTime: 1000 * 60 * 5,
+    });
 
-    const isGameActive = gameConfig.isActive === true &&
-      gameConfig.status === 'active' &&
-      startMs > 0 && endMs > 0 &&
-      currentTimestamp >= startMs && currentTimestamp <= endMs;
+    useEffect(() => {
+        if (fetchedGameConfig && !isGameConfigLoaded && isConfigSuccess && isMountedRef.current) {
+            startTransition(() => {
+                setGameConfig(fetchedGameConfig);
+                setIsGameConfigLoaded(true);
+                initialLoadDoneRef.current = true;
+            });
+        }
+    }, [fetchedGameConfig, isGameConfigLoaded, isConfigSuccess, setGameConfig, setIsGameConfigLoaded]);
 
-    const isGameEnded = gameConfig.status === 'ended' || (endMs > 0 && currentTimestamp > endMs);
-    const isGameNotStarted = gameConfig.status === 'pending' || (startMs > 0 && currentTimestamp < startMs);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (isMountedRef.current) {
+                setCurrentTimestamp(Date.now());
+            }
+        }, TIME_UPDATE_INTERVAL);
 
-    const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
-    const showActive = isGameActive && !isGameEnded;
-    const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
+        return () => {
+            clearInterval(intervalId);
+            isMountedRef.current = false;
+        };
+    }, []);
 
-    const viewState = {
-      isEnded: showEnded,
-      isActive: !showEnded && showActive,
-      isNotStarted: !showEnded && !showActive && showNotStarted,
-      isEmpty: false
-    };
+    const { startDate, endDate } = useMemo(() => ({
+        startDate: effectiveGameConfig?.startgameDate
+            ? new Date(effectiveGameConfig.startgameDate)
+            : null,
+        endDate: effectiveGameConfig?.endgameDate
+            ? new Date(effectiveGameConfig.endgameDate)
+            : null,
+    }), [effectiveGameConfig?.startgameDate, effectiveGameConfig?.endgameDate]);
+
+    const viewStateResult = useMemo((): ViewStateResult => {
+        if (!effectiveGameConfig) {
+            return {
+                viewState: { isEnded: false, isActive: false, isNotStarted: false, isEmpty: true },
+                shouldShowBanana: false,
+                shouldShowStat: false
+            };
+        }
+
+        const startMs = startDate?.getTime() || 0;
+        const endMs = endDate?.getTime() || 0;
+        const now = currentTimestamp;
+
+        const isGameActive = effectiveGameConfig.isActive === true &&
+            effectiveGameConfig.status === 'active' &&
+            startMs > 0 && endMs > 0 &&
+            now >= startMs && now <= endMs;
+
+        const isGameEnded = effectiveGameConfig.status === 'ended' ||
+            (endMs > 0 && now > endMs);
+
+        const isGameNotStarted = effectiveGameConfig.status === 'pending' ||
+            (startMs > 0 && now < startMs);
+
+        const showEnded = isGameEnded || (!isGameActive && !isGameNotStarted && !!lastEndedGame);
+        const showActive = isGameActive && !isGameEnded;
+        const showNotStarted = isGameNotStarted && !isGameActive && !isGameEnded;
+
+        const viewState = {
+            isEnded: showEnded,
+            isActive: !showEnded && showActive,
+            isNotStarted: !showEnded && !showActive && showNotStarted,
+            isEmpty: false
+        };
+
+        return {
+            viewState,
+            shouldShowBanana: !viewState.isEnded && !viewState.isActive &&
+                !viewState.isNotStarted && !viewState.isEmpty,
+            shouldShowStat: !viewState.isEmpty
+        };
+    }, [effectiveGameConfig, startDate, endDate, currentTimestamp, lastEndedGame]);
+
+    useEffect(() => {
+        startTransition(() => {
+            setAfficheBanana(viewStateResult.shouldShowBanana);
+        });
+    }, [viewStateResult.shouldShowBanana, setAfficheBanana]);
+
+    useEffect(() => {
+        startTransition(() => {
+            setAfficheStat(viewStateResult.shouldShowStat);
+        });
+    }, [viewStateResult.shouldShowStat, setAfficheStat]);
+
+    const demarrerJeu = useCallback(() => {
+        if (hasRedirectedRef.current || isPending) return;
+        const configId = effectiveGameConfig?._id || effectiveGameConfig?.id;
+        const hasActiveCompetition = competitions.some(
+            (competition: CompetitionInfo) => competition.idConfig === configId
+        );
+
+        hasRedirectedRef.current = true;
+
+        startTransition(() => {
+            if (!hasActiveCompetition) {
+                setAfficheChoix(true);
+            } else {
+                setAfficheGame(true);
+            }
+        });
+    }, [effectiveGameConfig, competitions, setAfficheChoix, setAfficheGame, isPending]);
 
     return {
-      viewState,
-      shouldShowBanana: !viewState.isEnded && !viewState.isActive && !viewState.isNotStarted && !viewState.isEmpty,
-      shouldShowStat: !viewState.isEmpty
+        demarrerJeu, startDate, gameConfig: effectiveGameConfig, viewState: viewStateResult.viewState,
+        lastEndedGame, endDate, isLoading: isConfigLoading || (!isGameConfigLoaded && !fetchedGameConfig),
+        error: isConfigError ? configError : null,
     };
-  }, [gameConfig, startDate, endDate, currentTimestamp, lastEndedGame]);
-
-  useEffect(() => {
-    setAfficheBanana(viewStateResult.shouldShowBanana);
-  }, [viewStateResult.shouldShowBanana, setAfficheBanana]);
-
-  useEffect(() => {
-    setAfficheStat(viewStateResult.shouldShowStat);
-  }, [viewStateResult.shouldShowStat, setAfficheStat]);
-
-  const demarrerJeu = useCallback(() => {
-    if (hasRedirectedRef.current) return;
-
-    const configId = gameConfig?._id || gameConfig?.id;
-    if (!configId) {
-      router.push('/star/learning/choix');
-      return;
-    }
-
-    const hasActiveCompetition = competitions.some(
-      competition => competition.idConfig === configId
-    );
-
-    hasRedirectedRef.current = true;
-
-    if (!hasActiveCompetition) {
-      setAfficheChoix(true);
-      return;
-    }
-    
-    setAfficheGame(true);
-  }, [gameConfig, competitions, setAfficheChoix, router]);
-
-  return {
-    viewState: viewStateResult.viewState,
-    isLoading: isConfigLoading,
-    error: isConfigError,
-    demarrerJeu,
-    startDate,
-    gameConfig,
-    lastEndedGame,
-    endDate,
-    refetchLastEnded,
-    refetchConfig
-  };
 }

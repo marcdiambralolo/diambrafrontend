@@ -299,10 +299,12 @@ export const withSkeleton = <P extends object>(
   Component: React.ComponentType<P>,
   skeletonProps: SkeletonProps = {}
 ) => {
+
   const WithSkeleton = memo(({ isLoading, ...props }: P & { isLoading?: boolean }) => {
     if (isLoading) {
       return <Skeleton {...skeletonProps} />;
     }
+
     return <Component {...(props as P)} />;
   });
 

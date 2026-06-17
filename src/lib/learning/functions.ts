@@ -1,4 +1,5 @@
 import { toSafeDate } from "./configUtils";
+import { MATCH_TYPES } from "./constantes";
 import { DateLike } from "./interface";
 
 export const dst = (date: Date): string => {
@@ -182,3 +183,37 @@ export function formatDateFR(value: DateLike): string {
 export function isValidDate(value: unknown): value is Date {
   return value instanceof Date && !Number.isNaN(value.getTime());
 }
+
+
+export const getMatchType = (tpsglobal?: number): string => {
+    if (tpsglobal === undefined) return 'Inconnu';
+    return MATCH_TYPES[tpsglobal] ?? 'Inconnu';
+};
+
+export const calculateDuration = (startDate: string, endDate: string): string => {
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    const diffInSeconds = Math.floor((end - start) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds}s`;
+    const minutes = Math.floor(diffInSeconds / 60);
+    const seconds = diffInSeconds % 60;
+    return `${minutes}m ${seconds}s`;
+};
+
+export const calculateDurationInSeconds = (startDate: string, endDate: string): number => {
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    return Math.floor((end - start) / 1000);
+};
+
+export const formatCompetitionDate = (dateStr?: string): string => {
+    if (!dateStr) return 'Non définie';
+    try {
+        const date = new Date(dateStr);
+        return isNaN(date.getTime()) ? 'Date invalide' : date.toLocaleString();
+    } catch {
+        return 'Date invalide';
+    }
+};
+ 

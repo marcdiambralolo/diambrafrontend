@@ -1,5 +1,5 @@
 'use client';
-import { formatDateTime } from "@/lib/functions";
+import { formatDateTime, getLabelAbbr } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { TIME_UNITS } from "@/lib/learning/constantes";
 import { Gift, Medal, Sparkles } from "lucide-react";
@@ -25,13 +25,6 @@ interface CountdownTimerProps {
     onFinish: () => void;
     variant?: TimerVariant;
 }
-
-const getLabelAbbr = (label: string): string => {
-    if (label === 'heures') return 'h';
-    if (label === 'minutes') return 'm';
-    if (label === 'secondes') return 's';
-    return label[0];
-};
 
 const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -95,7 +88,6 @@ const ResultsWaitingBanner = memo(({ proclamationDate, onFinish }: { proclamatio
                 </p>
                 <p className="text-purple-200 text-xs mt-1">Préparation des résultats en cours...</p>
             </div>
-
             <div className="text-center">
                 <p className="text-purple-200 text-xs mb-2 flex items-center justify-center gap-1">
                     <Gift className="w-3 h-3" />

@@ -1,6 +1,6 @@
 'use client';
-import { CalendarX } from "lucide-react";
 import { memo } from 'react';
+import { CalendarX } from "lucide-react";
 
 const NoCompetitionBanner = memo(() => (
     <div className="w-full rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 p-6 mb-6 shadow-xl border border-slate-800">

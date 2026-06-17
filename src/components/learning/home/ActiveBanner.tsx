@@ -1,9 +1,10 @@
 'use client';
-import { TimeLeft } from "@/lib/interfaces";
+import { LearningConfiguration, TimeLeft } from "@/lib/interfaces";
 import { TIME_UNITS } from "@/lib/learning/constantes";
 import { Trophy } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from 'react';
 import { GlowButton } from "../commons/Boutons";
+import { getLabelAbbr } from "@/lib/functions";
 
 const TIMER_VARIANTS = {
     default: {
@@ -27,19 +28,12 @@ interface CountdownTimerProps {
 }
 
 interface ActiveBannerProps {
-    gameConfig: any;
+    gameConfig: LearningConfiguration;
     demarrerJeu: () => void;
     endDate: Date;
     showButton: boolean;
     onFinish: () => void;
 }
-
-const getLabelAbbr = (label: string): string => {
-    if (label === 'heures') return 'h';
-    if (label === 'minutes') return 'm';
-    if (label === 'secondes') return 's';
-    return label[0];
-};
 
 const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });

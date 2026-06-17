@@ -1,4 +1,4 @@
-import { DateLike, User } from "./interfaces";
+import { ConfigStatus, DateLike, User } from "./interfaces";
 
 export const formatDate = (date: string | Date | undefined | null) => {
   if (!date) return '';
@@ -322,4 +322,23 @@ export function buildIsoDate(day: string, month: string, year: string) {
     testDate.getDate() === Number(day);
 
   return isValid ? normalized : "";
+}
+
+export const getLabelAbbr = (label: string): string => {
+  if (label === 'heures') return 'h';
+  if (label === 'minutes') return 'm';
+  if (label === 'secondes') return 's';
+  return label[0];
+};
+
+export function normalizeStatus(value: unknown): ConfigStatus {
+  if (
+    value === 'pending' ||
+    value === 'active' ||
+    value === 'ended' ||
+    value === 'cancelled'
+  ) {
+    return value;
+  }
+  return 'pending';
 }

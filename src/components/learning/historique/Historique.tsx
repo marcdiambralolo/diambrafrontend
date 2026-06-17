@@ -39,11 +39,9 @@ const computeRankingFromConsultations = (consultations: any[]) => {
                 firstName: consultation.clientId?.firstName || '',
                 lastName: consultation.clientId?.lastName || '',
                 phone: consultation.clientId?.phone || '',
-                email: consultation.clientId?.email || '',
                 country: consultation.clientId?.country || 'Côte d\'Ivoire',
                 timeSpent: timeSpentSeconds,
                 timeSpentFormatted: formatTimeFromSeconds(timeSpentSeconds),
-                combination: consultation.combinaison,
                 createdAt: consultation.createdAt,
             });
         }
@@ -68,7 +66,7 @@ const WinningInfoCard = ({ fastestTimeFormatted, totalParticipants }: { fastestT
         <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-4">
                 <Trophy className="w-4 h-4" />
-                
+
                 <span className="text-xs font-bold uppercase tracking-wider">🏆 Meilleur temps</span>
                 <Award className="w-4 h-4" />
             </div>
@@ -245,6 +243,7 @@ function Historique() {
             {activeEdition && (<>
                 <EditionCard activeEdition={activeEdition} />
                 <TitleSection />
+
                 <WinnersSection consultations={consultations} />
                 <ParticipationsSection consultations={consultations} activeEditionId={activeEdition?.id} />
             </>)}

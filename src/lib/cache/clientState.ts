@@ -1,6 +1,6 @@
 'use client';
 import { useAuthStore } from '@/lib/store/auth.store';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
+import { useDiambraStore } from '@/lib/store/diambra.store';
 import { clearPersistedQueryCache, queryClient } from './queryClient';
 import { clearIndexedDbCache } from './indexedDB';
 
@@ -37,7 +37,7 @@ export async function clearClientApplicationState() {
   useAuthStore.getState().logout();
 
   try {
-    useMonEtoileStore.persist.clearStorage();
+    useDiambraStore.persist.clearStorage();
   } catch {
     // noop
   }

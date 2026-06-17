@@ -70,26 +70,6 @@ const ProgressBar = memo(({ lockedCount, totalCount, progression }: { lockedCoun
     </div>
 ));
 
-const GameInfo = memo(({ currentGameType, niveau }: { currentGameType: string; niveau: number }) => (
-    <>
-        <ObjectiveCard />
-        <InfoRowGame
-            icon={<TrophyOutlined />}
-            iconBg="bg-yellow-100 dark:bg-yellow-900/30"
-            iconColor="text-yellow-600 dark:text-yellow-400"
-            label="JEU EN COURS"
-            value={currentGameType}
-        />
-        <InfoRowGame
-            icon={<BarChartOutlined />}
-            iconBg="bg-green-100 dark:bg-green-900/30"
-            iconColor="text-green-600 dark:text-green-400"
-            label="NIVEAU DU JEU"
-            value={niveau ?? "N/A"}
-        />
-    </>
-));
-
 const TheGame = () => {
     const {
         toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, timeElapsed, selectedCase,
@@ -123,7 +103,21 @@ const TheGame = () => {
                         progression={progression}
                     />
                 )}
-                <GameInfo currentGameType={currentGameType} niveau={niveau!} />
+                <ObjectiveCard />
+                <InfoRowGame
+                    icon={<TrophyOutlined />}
+                    iconBg="bg-yellow-100 dark:bg-yellow-900/30"
+                    iconColor="text-yellow-600 dark:text-yellow-400"
+                    label="JEU EN COURS"
+                    value={currentGameType}
+                />
+                <InfoRowGame
+                    icon={<BarChartOutlined />}
+                    iconBg="bg-green-100 dark:bg-green-900/30"
+                    iconColor="text-green-600 dark:text-green-400"
+                    label="NIVEAU DU JEU"
+                    value={niveau ?? "N/A"}
+                />
             </div>
         </div>
     );

@@ -1,10 +1,9 @@
 'use client';
 import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
-import { api } from '@/lib/api/client';
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
-import type { Consultation, OfferingAlternative, WalletOffering } from '@/lib/interfaces';
-import { useMonEtoileStore } from '@/lib/store/monetoile.store';
+import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
+import { useDiambraStore } from '@/lib/store/diambra.store';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
@@ -37,7 +36,7 @@ export function useLaMise() {
     const router = useRouter();
     const [isPendingNavigation, startNavigationTransition] = useTransition();
 
-    const { gameConfig, setAfficheChoix, setAfficheGame, setCurrentConsultationId, } = useMonEtoileStore();
+    const { gameConfig, setAfficheChoix, setAfficheGame, setCurrentConsultationId, } = useDiambraStore();
 
     const hasRedirectedRef = useRef(false);
     const isMountedRef = useRef(true);
@@ -50,8 +49,8 @@ export function useLaMise() {
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
         queryFn: () => walletService.getUnusedWalletOfferings(),
-        staleTime: 30000, // 30s
-        gcTime: 1 * 1000,   // 1min
+        staleTime: 1000,
+        gcTime: 1000,
         retry: 2,
         enabled: !!monidjeu,
     });
@@ -64,10 +63,6 @@ export function useLaMise() {
 
     const { mutateAsync: executeSubmit, isPending: isSubmitLoading, error: submitError } = useMutation<string, Error, void>({
         mutationFn: async () => {
-            if (!monidjeu) {
-                throw new Error('Game configuration not found');
-            }
-
             const consultationId = await createCategoryConsultation(monidjeu);
             if (!consultationId) {
                 throw new Error('Impossible de créer la compétition');
@@ -79,16 +74,13 @@ export function useLaMise() {
             }]);
 
             if (!consumeRes.success) {
-                throw new Error(consumeRes.message || 'Erreur lors de la consommation');
+                throw new Error(consumeRes.message || 'Erreur lors de la consommation du jeton');
             }
 
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_TRANSACTIONS] }),
                 queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS] }),
             ]);
-
-            const { data: consultationData } = await api.get<Consultation>(`/consultations/${consultationId}`);
-            await api.put(`/consultations/${consultationId}`, consultationData);
 
             return consultationId;
         },

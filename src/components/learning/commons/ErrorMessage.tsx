@@ -163,8 +163,7 @@ const RetryButton = memo(function RetryButton({
         BASE_BUTTON_STYLES,
         "bg-gradient-to-r from-blue-500 to-indigo-500 text-white",
         "hover:from-blue-600 hover:to-indigo-600",
-        "focus:ring-blue-400",
-        "shadow-md"
+        "focus:ring-blue-400 shadow-md"
       )}
       aria-busy={isRetrying}
     >
@@ -218,8 +217,7 @@ const ActionButtons = memo(function ActionButtons({
           className={cn(
             BASE_BUTTON_STYLES,
             "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
-            "hover:bg-gray-200 dark:hover:bg-gray-700",
-            "focus:ring-gray-400"
+            "hover:bg-gray-200 dark:hover:bg-gray-700 focus:ring-gray-400"
           )}
         >
           <ChevronLeft className="w-4 h-4" aria-hidden="true" />

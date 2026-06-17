@@ -3,7 +3,6 @@ import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { generateLetterPairs } from '@/lib/learning/functions';
 import { TrophyOutlined } from '@ant-design/icons';
-import { motion } from 'framer-motion';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
@@ -200,10 +199,11 @@ export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
     label: string;
     value: string | number;
 }) => (
-    <motion.div whileHover={{ x: 5 }} className={INFO_CARD_STYLES}>
+    <div className={INFO_CARD_STYLES}>
         <div className={`p-1 ${iconBg} rounded-lg`}>
             <div className={iconColor}>{icon}</div>
         </div>
+        
         <div className="flex-1">
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
                 {label}
@@ -212,7 +212,7 @@ export const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
                 {value}
             </p>
         </div>
-    </motion.div>
+    </div>
 ));
 
 interface ActionButtonProps {
@@ -229,9 +229,7 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
     };
 
     return (
-        <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.06 }}
+        <button
             onClick={onClick}
             className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
             aria-label={ariaLabel}
@@ -239,6 +237,6 @@ export const ActionButton = memo(({ onClick, children, variant, ariaLabel }: Act
             tabIndex={0}
         >
             {children}
-        </motion.button>
+        </button>
     );
 }); 

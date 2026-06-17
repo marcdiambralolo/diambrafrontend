@@ -47,3 +47,6 @@ export const SKELETON_CLASSES = {
   bandeau: "h-40 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse",
   feuille: "h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse",
 } as const;
+
+export const ITEMS_PER_PAGE = 10;
+ 

@@ -347,13 +347,11 @@ const HelpPanel = memo(function HelpPanel({ onClose }: { onClose: () => void }) 
 
         <div className="p-4 overflow-y-auto">
           <BackButton onClick={handleClose} isPending={isPending} />
-
           <HelpHeader />
 
           <div className="space-y-4">
             {sections}
           </div>
-
           <QuickTipsCard />
         </div>
       </div>

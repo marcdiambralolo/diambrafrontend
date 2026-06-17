@@ -1,5 +1,5 @@
 'use client';
-import { formatDateTime } from "@/lib/functions";
+import { formatDateTime, getLabelAbbr } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { TIME_UNITS } from "@/lib/learning/constantes";
 import { Clock, Hourglass } from "lucide-react";
@@ -30,13 +30,6 @@ interface NotStartedBannerProps {
     startDate: Date;
     onFinish: () => void;
 }
-
-const getLabelAbbr = (label: string): string => {
-    if (label === 'heures') return 'h';
-    if (label === 'minutes') return 'm';
-    if (label === 'secondes') return 's';
-    return label[0];
-};
 
 const CountdownTimer = memo(({ targetDate, onFinish, variant = 'default' }: CountdownTimerProps) => {
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -92,7 +85,6 @@ const NotStartedBanner = memo(({ startDate, onFinish }: NotStartedBannerProps) =
                 <div className="rounded-full bg-white/20 p-2">
                     <Hourglass className="w-6 h-6 text-white" aria-hidden="true" />
                 </div>
-
                 <div>
                     <p className="text-white font-bold">Préparez-vous !</p>
                     <p className="text-white/80 text-xs">La competition demarre bientôt</p>

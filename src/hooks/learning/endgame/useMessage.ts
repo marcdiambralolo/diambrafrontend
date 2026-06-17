@@ -13,9 +13,7 @@ export const useMessage = () => {
     }, []);
 
     useEffect(() => {
-        return () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        };
+        return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
     }, []);
 
     return { message, showMessage };

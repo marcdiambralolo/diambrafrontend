@@ -13,11 +13,11 @@ interface StoredMatchInfo {
     isgameover?: boolean;
     timeSpent?: number;
     matchNumber?: number;
-    niveau?: number;           // ✅ Ajout du niveau
-    numeromatch?: string;      // ✅ Ajout du numéro de match
-    datedebut?: string | null; // ✅ Ajout de la date de début
-    datefin?: string | null;   // ✅ Ajout de la date de fin
-    combinaisons?: string[];   // ✅ Ajout des combinaisons
+    niveau?: number;
+    numeromatch?: string;
+    datedebut?: string | null;
+    datefin?: string | null;
+    combinaisons?: string[];
     score?: number;
     numordrep?: number;
     entite?: number;
@@ -32,13 +32,14 @@ interface StoredCompetition {
     timeSpent: number;
     displayName?: string;
     isValidated?: boolean;
-    niveau?: number;           // ✅ Ajout du niveau global de la compétition
+    niveau?: number;
     matchInfo: StoredMatchInfo[];
 }
 
 interface MonEtoileStore {
     // État
     gameConfig: LearningConfiguration | null;
+    isGameConfigLoaded: boolean; // ✅ NOUVEAU: Indique si la config a été chargée initialement
     currentMatchInfo: MatchInfo[];
     competitions: CompetitionInfo[];
     competitionsVersion: number;
@@ -57,6 +58,8 @@ interface MonEtoileStore {
 
     // Actions - Configuration
     setGameConfig: (config: LearningConfiguration | null) => void;
+    setIsGameConfigLoaded: (loaded: boolean) => void; // ✅ NOUVELLE ACTION
+    resetGameConfig: () => void; // ✅ NOUVELLE ACTION: Réinitialise la config
 
     // Actions - Matchs
     setCurrentMatchInfo: (matches: MatchInfo[]) => void;
@@ -115,7 +118,7 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
     timeSpent: competition.timeSpent || 0,
     displayName: competition.displayName,
     isValidated: competition.isValidated,
-    niveau: competition.niveau, // ✅ Compression du niveau
+    niveau: competition.niveau,
     matchInfo: competition.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,
@@ -124,15 +127,12 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
         isgameover: match.isgameover,
         timeSpent: match.timeSpent,
         matchNumber: match.matchNumber,
-        niveau: match.niveau,           // ✅ Ajout
-        numeromatch: match.numeromatch, // ✅ Ajout
-        datedebut: match.datedebut,     // ✅ Ajout
-        datefin: match.datefin,         // ✅ Ajout
-        combinaisons: match.combinaisons || [], // ✅ Ajout
+        niveau: match.niveau,
+        numeromatch: match.numeromatch,
+        datedebut: match.datedebut,
+        datefin: match.datefin,
+        combinaisons: match.combinaisons || [],
         score: match.score,
-        pieces: match.pieces,
-        listeCaseOpLab: match.listeCaseOpLab,
-        listeCaseOpLabInitiale: match.listeCaseOpLabInitiale,
         numordrep: match.numordrep,
         entite: match.entite,
     })),
@@ -147,7 +147,7 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => ({
     timeSpent: stored.timeSpent,
     displayName: stored.displayName || `N°: ${stored.id.slice(-12)}`,
     isValidated: stored.isValidated || false,
-    niveau: stored.niveau, // ✅ Décompression du niveau
+    niveau: stored.niveau,
     matchInfo: stored.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,
@@ -157,11 +157,11 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => ({
         timeSpent: match.timeSpent,
         matchNumber: match.matchNumber || 0,
         score: match.score || 0,
-        niveau: match.niveau,                          // ✅ Ajout
-        numeromatch: match.numeromatch || '',          // ✅ Ajout
-        datedebut: match.datedebut || null,            // ✅ Ajout
-        datefin: match.datefin || null,                // ✅ Ajout
-        combinaisons: match.combinaisons || [],        // ✅ Ajout
+        niveau: match.niveau,
+        numeromatch: match.numeromatch || '',
+        datedebut: match.datedebut || null,
+        datefin: match.datefin || null,
+        combinaisons: match.combinaisons || [],
         numordrep: match.numordrep || 0,
         entite: match.entite || 0,
     })),
@@ -179,8 +179,13 @@ const isStorageNearLimit = (): boolean => {
     }
 };
 
+// ============================================================================
+// ÉTAT INITIAL
+// ============================================================================
+
 const INITIAL_STATE = {
     gameConfig: null,
+    isGameConfigLoaded: false, // ✅ NOUVEAU: Initialisé à false
     currentMatchInfo: [] as MatchInfo[],
     competitions: [] as CompetitionInfo[],
     competitionsVersion: 0,
@@ -198,15 +203,36 @@ const INITIAL_STATE = {
     afficheGame: false,
 };
 
-export const useMonEtoileStore = create<MonEtoileStore>()(
+// ============================================================================
+// STORE
+// ============================================================================
+
+export const useDiambraStore = create<MonEtoileStore>()(
     persist(
         (set, get) => ({
             ...INITIAL_STATE,
 
+            // ========================================================================
             // Configuration
-            setGameConfig: (config) => set({ gameConfig: config }),
+            // ========================================================================
 
+            setGameConfig: (config) => set({ 
+                gameConfig: config,
+                // Si on set une config, on la marque comme chargée
+                isGameConfigLoaded: config !== null 
+            }),
+
+            setIsGameConfigLoaded: (loaded) => set({ isGameConfigLoaded: loaded }),
+
+            resetGameConfig: () => set({ 
+                gameConfig: null, 
+                isGameConfigLoaded: false 
+            }),
+
+            // ========================================================================
             // Matchs
+            // ========================================================================
+
             setCurrentMatchInfo: (matches) => set({ currentMatchInfo: matches }),
 
             appendMatchInfo: (match) => set(state => ({
@@ -227,7 +253,10 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 return get().currentMatchInfo.find(match => match.tpsglobal === tpsglobal);
             },
 
+            // ========================================================================
             // Compétitions
+            // ========================================================================
+
             addCompetition: (competition) => {
                 set(state => {
                     const exists = state.competitions.some(c => c.id === competition.id);
@@ -305,7 +334,10 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 }));
             },
 
+            // ========================================================================
             // UI
+            // ========================================================================
+
             setAfficheBanana: (value) => set({ afficheBanana: value }),
             setAfficheStat: (value) => set({ afficheStat: value }),
             setAfficheChoix: (value) => set({ afficheChoix: value }),
@@ -340,10 +372,12 @@ export const useMonEtoileStore = create<MonEtoileStore>()(
                 const compressedCompetitions = state.competitions.map(compressCompetition);
                 return {
                     gameConfig: state.gameConfig,
+                    isGameConfigLoaded: state.isGameConfigLoaded, // ✅ Persistance du flag
                     competitions: compressedCompetitions,
                     afficheBanana: state.afficheBanana,
                     afficheStat: state.afficheStat,
                     gameIsFinished: state.gameIsFinished,
+                    currentConsultationId: state.currentConsultationId,
                 };
             },
             onRehydrateStorage: () => (state) => {

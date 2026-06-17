@@ -1,268 +1,60 @@
 'use client';
-import { Case, CompetitionInfo, MatchInfo } from '@/lib/interfaces';
-import { choix, decoupelimage } from "@/lib/learning/functions";
-import { createInitialCases, createMatch, createPlayableCases, getTotalCases, shuffleArray } from "@/lib/learning/services/game.service";
-import { useMonEtoileStore } from "@/lib/store/monetoile.store";
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTimer } from './useTimer';
+import { GameState } from '@/lib/learning/interface';
+import { useDiambraStore } from "@/lib/store/diambra.store";
+import { useCallback, useEffect, useState } from 'react';
+import useGameActions from './useGameActions';
+import useGameMetrics from './useGameMetrics';
+import useMatchManagement from './useMatchManagement';
 
-const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
-const TRANSITION_DELAY = 100;
-
-export const useGameGenerator = () => {
-    const { gameConfig, addCompetition, setAfficheGame, currentConsultationId } = useMonEtoileStore();
-
-    const [state, setState] = useState({
+const useGameState = () => {
+    const [state, setState] = useState<GameState>({
         tpsglobal: 0,
-        casesdujeuencours: [] as Case[],
-        casesinitiales: [] as Case[],
-        pieces: [] as string[],
-        selectedCase: null as Case | null,
+        casesdujeuencours: [],
+        casesinitiales: [],
+        pieces: [],
+        selectedCase: null,
         datedebut: "",
         start: false,
         showPun: false,
         matchEnCours: -1,
-        infomatch: [] as MatchInfo[],
+        infomatch: [],
         isGameover: false,
         isTransitioning: false,
     });
 
-    const lancementRef = useRef(false);
-    const isLoadingMatch = useRef(false);
-    const timeElapsed = useTimer(state.start);
-
-    const updateState = useCallback((updates: Partial<typeof state>) => {
+    const updateState = useCallback((updates: Partial<GameState>) => {
         setState(prev => ({ ...prev, ...updates }));
     }, []);
 
-    const allMatchesFinished = useMemo(() =>
-        state.infomatch.length > 0 && state.infomatch.every(m => m.isgameover === true),
-        [state.infomatch]);
+    return { state, setState, updateState };
+};
 
-    const saveFinalResults = useCallback(async () => {
-        if (!allMatchesFinished) return;
-
-        const totalDurationSeconds = timeElapsed;
-        const competitionId = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-
-        const competition: CompetitionInfo = {
-            id: competitionId,
-            matchInfo: state.infomatch,
-            datedebut: state.datedebut,
-            idConfig: gameConfig?.id!,
-            datefin: new Date().toISOString(),
-            consultationId: currentConsultationId || '',
-            timeSpent: totalDurationSeconds,
-            name: gameConfig?.id,
-            displayName: gameConfig?.id!,
-            niveau: gameConfig?.niveau,
-        };
-
-        addCompetition(competition);
-    }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition,]);
-
-    const swapCases = useCallback((c1: Case, c2: Case) => {
-        const { casesdujeuencours, casesinitiales } = state;
-        if (!c1 || !c2 || casesinitiales.length === 0) return;
-
-        const index1 = casesdujeuencours.findIndex(c => c.id === c1.id);
-        const index2 = casesdujeuencours.findIndex(c => c.id === c2.id);
-        if (index1 === -1 || index2 === -1 || index1 >= casesinitiales.length || index2 >= casesinitiales.length) return;
-
-        setState(prev => ({
-            ...prev,
-            casesdujeuencours: prev.casesdujeuencours.map((c, idx) => {
-                if (idx === index1) {
-                    const newTxt = c2.txt;
-                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
-                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
-                }
-                if (idx === index2) {
-                    const newTxt = c1.txt;
-                    const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
-                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
-                }
-                return c;
-            }),
-        }));
-    }, [state]);
-
-    const selectCase = useCallback((c: Case | null) => {
-        if (!c || c.isLocked) return updateState({ selectedCase: null });
-        if (!state.selectedCase) return updateState({ selectedCase: c });
-        swapCases(state.selectedCase, c);
-        updateState({ selectedCase: null });
-    }, [state.selectedCase, swapCases, updateState]);
-
-    const lockSelectedCase = useCallback(() => {
-        const { selectedCase, casesdujeuencours, casesinitiales } = state;
-        if (!selectedCase || casesinitiales.length === 0) return updateState({ selectedCase: null });
-
-        const index = casesdujeuencours.findIndex(c => c.id === selectedCase.id);
-        if (index === -1 || index >= casesinitiales.length) return updateState({ selectedCase: null });
-        if (selectedCase.txt !== casesinitiales[index]?.txt) return updateState({ selectedCase: null });
-
-        updateState({
-            casesdujeuencours: casesdujeuencours.map(c =>
-                c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c
-            ),
-            selectedCase: null,
-        });
-    }, [state, updateState]);
-
-    const shuffleUnlockedCases = useCallback(() => {
-        setState(prev => {
-            const shuffled = [...prev.casesdujeuencours];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                if (shuffled[i].isLocked) continue;
-                let j = Math.floor(Math.random() * (i + 1));
-                let attempts = 0;
-                while (shuffled[j].isLocked && attempts < shuffled.length) {
-                    j = Math.floor(Math.random() * (i + 1));
-                    attempts++;
-                }
-                if (!shuffled[j].isLocked && i !== j) {
-                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-                }
-            }
-            return { ...prev, casesdujeuencours: shuffled };
-        });
-    }, []);
-
-    const toggleShowPun = useCallback(() => {
-        setState(prev => ({ ...prev, showPun: !prev.showPun, selectedCase: null }));
-        if (!state.showPun) shuffleUnlockedCases();
-    }, [state.showPun, shuffleUnlockedCases]);
-
-    const chargerMatch = useCallback((matchData: MatchInfo) => {
-        if (!matchData) return;
-        updateState({
-            tpsglobal: matchData.tpsglobal ?? 0,
-            casesdujeuencours: matchData.listeCaseOpLab ?? [],
-            casesinitiales: matchData.listeCaseOpLabInitiale ?? [],
-            pieces: matchData.pieces ?? [],
-            selectedCase: null,
-            showPun: false,
-        });
-    }, [updateState]);
-
-    const generateMatchList = useCallback((): MatchInfo[] => {
-        const matchId = gameConfig?.numeromatch || "123456789";
-        return GLOBAL_GAME_ORDER.map((type, index) => createMatch(type, index, matchId));
-    }, [gameConfig?.numeromatch]);
-
-    const loadMatch = useCallback(async (match: MatchInfo, niveau: number, piecesImages: string[]): Promise<MatchInfo> => {
-        const totalCases = getTotalCases(match.tpsglobal!, niveau);
-        const gridSize = niveau * niveau;
-        const seed = parseInt(match.numeromatch!) + 7;
-
-        let availableCases = Array.from({ length: totalCases }, (_, i) => i.toString());
-
-        if (match.tpsglobal !== 2) {
-            availableCases = shuffleArray(availableCases, seed);
-        }
-
-        const selectedCases = availableCases.slice(0, gridSize);
-        let shuffledCases = shuffleArray([...selectedCases], seed);
-
-        match.listeCaseOpLab = createPlayableCases(shuffledCases, selectedCases, match);
-        match.listeCaseOpLabInitiale = createInitialCases(selectedCases, match);
-        match.pieces = piecesImages;
-
-        return match;
-    }, []);
+export const useGameGenerator = () => {
+    const { gameConfig } = useDiambraStore();
+    const { state, setState, updateState } = useGameState();
+    const { selectCase, toggleShowPun, lockSelectedCase } = useGameActions(state, setState, updateState);
+    const { timeElapsed } = useMatchManagement(state, setState, updateState);
+    const metrics = useGameMetrics(state);
 
     useEffect(() => {
         if (!state.start) updateState({ start: true });
     }, [state.start, updateState]);
 
-    useEffect(() => {
-        const { matchEnCours, infomatch } = state;
-        if (matchEnCours === -1 || !infomatch[matchEnCours] || isLoadingMatch.current) return;
-
-        isLoadingMatch.current = true;
-        chargerMatch(infomatch[matchEnCours]);
-        setTimeout(() => {
-            isLoadingMatch.current = false;
-            updateState({ isTransitioning: false });
-        }, TRANSITION_DELAY);
-    }, [state.matchEnCours, state.infomatch, chargerMatch, updateState]);
-
-    useEffect(() => {
-        const { casesdujeuencours, isTransitioning, matchEnCours, infomatch } = state;
-        if (casesdujeuencours.length === 0 || isTransitioning) return;
-        if (!casesdujeuencours.every(c => c.isLocked)) return;
-
-        updateState({ isTransitioning: true });
-
-        setState(prev => ({
-            ...prev,
-            infomatch: prev.infomatch.map((m, idx) =>
-                idx === matchEnCours ? { ...m, isgameover: true, trouves: (m.trouves || 0) + prev.casesdujeuencours.filter(c => c.isLocked).length } : m
-            ),
-        }));
-
-        if (matchEnCours + 1 < infomatch.length) {
-            updateState({ matchEnCours: matchEnCours + 1, showPun: false, selectedCase: null });
-        }
-    }, [state.casesdujeuencours, state.isTransitioning, state.matchEnCours, state.infomatch, updateState]);
-
-    useEffect(() => {
-        if (allMatchesFinished && state.infomatch.length > 0 && !state.isGameover) {
-            updateState({ isGameover: true });
-            saveFinalResults();
-            setAfficheGame(false);
-        }
-    }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, currentConsultationId, updateState]);
-
-    useEffect(() => {
-        if (lancementRef.current) return;
-        lancementRef.current = true;
-
-        const lancerJeu = async () => {
-            updateState({ start: false, isTransitioning: false });
-
-            try {
-                const matchList = generateMatchList();
-                const piecesImages: string[] = await decoupelimage("/ephotoquatorze.jpg", gameConfig?.niveau!);
-                const updatedMatches = await Promise.all(
-                    matchList.map(match => loadMatch(match, gameConfig?.niveau!, piecesImages))
-                );
-
-                updateState({
-                    infomatch: updatedMatches,
-                    datedebut: new Date().toISOString(),
-                    matchEnCours: 0,
-                });
-                if (updatedMatches[0]) chargerMatch(updatedMatches[0]);
-            } catch (error) {
-                console.error("Erreur:", error);
-            } finally {
-                lancementRef.current = false;
-            }
-        };
-
-        lancerJeu();
-    }, [gameConfig?.niveau, generateMatchList, loadMatch, chargerMatch, updateState]);
-
-    const currentGameType = useMemo(() => {
-        const { infomatch, matchEnCours } = state;
-        if (!infomatch?.length || matchEnCours === undefined || !infomatch[matchEnCours]) return "Aucun match en cours";
-        return choix(infomatch[matchEnCours].tpsglobal || 0);
-    }, [state.infomatch, state.matchEnCours]);
-
-    const progression = state.casesdujeuencours.length > 0
-        ? (state.casesdujeuencours.filter(c => c.isLocked).length / state.casesdujeuencours.length) * 100
-        : 0;
-
-    const lockedCount = state.casesdujeuencours.filter(c => c.isLocked).length;
-    const totalCount = state.casesdujeuencours.length;
-    const hasCases = totalCount > 0;
-
     return {
-        selectCase, toggleShowPun, lockSelectedCase, timeElapsed, currentGameType, progression, lockedCount,
-        totalCount, hasCases, niveau: gameConfig?.niveau, showPun: state.showPun, tpsglobal: state.tpsglobal,
-        casesdujeuencours: state.casesdujeuencours, casesinitiales: state.casesinitiales,
-        pieces: state.pieces, selectedCase: state.selectedCase,
+        toggleShowPun, lockSelectedCase, selectCase, timeElapsed,
+        casesdujeuencours: state.casesdujeuencours,
+        casesinitiales: state.casesinitiales,
+        pieces: state.pieces,
+        selectedCase: state.selectedCase,
+        showPun: state.showPun,
+        tpsglobal: state.tpsglobal,
+        niveau: gameConfig?.niveau,
+        currentGameType: metrics.currentGameType,
+        progression: metrics.progression,
+        lockedCount: metrics.lockedCount,
+        totalCount: metrics.totalCount,
+        hasCases: metrics.hasCases,
     };
 };
+
+export default useGameGenerator;

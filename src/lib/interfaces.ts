@@ -1,4 +1,14 @@
 export type DateLike = Date | string | number | null | undefined;
+export type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
+
+export interface StatusConfigItem {
+    color: string;
+    bg: string;
+    text: string;
+    border: string;
+    icon: string;
+    label: string;
+}
 
 export interface Offering {
   createdAt?: string | Date;

@@ -4,7 +4,7 @@ import { useHistoriqueConsultations } from "@/hooks/learning/historique/useHisto
 import { cx, formatEditionDate } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
 import { ArrowLeft, Calendar, CheckCircle, Globe, History, Timer, Trophy, UserRound } from "lucide-react";
-import { memo } from "react"; 
+import { memo } from "react";
 import ErrorMessage from "../../commons/ErrorMessage";
 
 interface StatsCardProps {
@@ -81,7 +81,6 @@ const ConsultationCard = memo(({
           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {timeSpent}
           </div>
-
           {isDuplicate && (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shadow-md">
               <CheckCircle className="w-3 h-3" />
@@ -96,8 +95,9 @@ const ConsultationCard = memo(({
 
 function HistoriquePageClientImpl() {
   const {
-    loading, error, sortedConsultations, duplicateMap, hasConsultations,
-    stats, formattedStartDate, formattedEndDate, edition } = useHistoriqueConsultations();
+    loading, error, sortedConsultations, duplicateMap, hasConsultations, formattedEndDate,
+    stats, formattedStartDate, edition
+  } = useHistoriqueConsultations();
 
   if (loading) { return <Loader />; }
 
@@ -187,8 +187,6 @@ function HistoriquePageClientImpl() {
   );
 }
 
-const HistoriquePageClient = memo(HistoriquePageClientImpl);
-
-HistoriquePageClient.displayName = 'HistoriquePageClient';
+const HistoriquePageClient = memo(HistoriquePageClientImpl); 
 
 export default HistoriquePageClient;

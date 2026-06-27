@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 const MAX_COMPETITIONS = 10;
-const STORAGE_NAME = 'monetoile-store';
+const STORAGE_NAME = 'diambra-store';
 
 interface StoredMatchInfo {
     id?: string;
@@ -371,7 +371,7 @@ export const useDiambraStore = create<MonEtoileStore>()(
             partialize: (state) => {
                 const compressedCompetitions = state.competitions.map(compressCompetition);
                 return {
-                    gameConfig: state.gameConfig,
+                    // gameConfig: state.gameConfig,
                     isGameConfigLoaded: state.isGameConfigLoaded, // ✅ Persistance du flag
                     competitions: compressedCompetitions,
                     afficheBanana: state.afficheBanana,

@@ -1,3 +1,5 @@
+import { OfferingAlternative } from "../interfaces";
+
 export const APP_NAME = "DIAMBRA LEARNING";
 export const APP_DESCRIPTION = "DIAMBRA LEARNING";
 export const CURRENT_YEAR = new Date().getFullYear();
@@ -49,4 +51,14 @@ export const SKELETON_CLASSES = {
 } as const;
 
 export const ITEMS_PER_PAGE = 10;
+
+export const MISE_INITIALE: OfferingAlternative = {
+    offeringId: '6945ae01b8af14d5f56cec09',
+    quantity: 1,
+    name: 'JETON DIAMBRA',
+    price: 200,
+    createdAt: '',
+    updatedAt: '',
+    _id: '69ada22a910a174365e2a216',
+} as const;
  

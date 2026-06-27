@@ -3,8 +3,9 @@ import { useDiambraStore } from "@/lib/store/diambra.store";
 import { memo } from 'react';
 import LaMise from "./choix/LaMise";
 import DashBoard from "./home/DashBoard";
-import FixedContent, { HeaderSection } from "./home/FixedContent";
 import TheGame from "./startgame/ProfilPageLearning";
+import { HeaderSection } from "./home/fixedcontent/HeaderSection";
+import FixedContent from "./home/fixedcontent/FixedContent";
 
 const ProfilPageLearning = memo(() => {
   const afficheChoix = useDiambraStore((state) => state.afficheChoix);

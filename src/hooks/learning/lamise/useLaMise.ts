@@ -3,20 +3,11 @@ import { createCategoryConsultation, getCategoryErrorMessage } from '@/hooks/cat
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
+import { MISE_INITIALE } from '@/lib/learning/constantes';
 import { useDiambraStore } from '@/lib/store/diambra.store';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
-
-const POT_CONFIG: OfferingAlternative = {
-    offeringId: '6945ae01b8af14d5f56cec09',
-    quantity: 1,
-    name: 'JETON DIAMBRA',
-    price: 200,
-    createdAt: '',
-    updatedAt: '',
-    _id: '69ada22a910a174365e2a216',
-} as const;
 
 const BASE_CLASSES = "w-full flex items-center gap-4 p-2 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden group";
 const INSUFFICIENT_CLASSES = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60 cursor-not-allowed";
@@ -30,7 +21,7 @@ const getOfferingId = (alternative: OfferingAlternative): string => {
     return offeringId as string;
 };
 
-const CONFIG_OFFERING_ID = getOfferingId(POT_CONFIG);
+const CONFIG_OFFERING_ID = getOfferingId(MISE_INITIALE);
 
 export function useLaMise() {
     const router = useRouter();
@@ -38,13 +29,10 @@ export function useLaMise() {
 
     const { gameConfig, setAfficheChoix, setAfficheGame, setCurrentConsultationId, } = useDiambraStore();
 
+    const monidjeu = useMemo(() => gameConfig?._id || gameConfig?.id || "", [gameConfig]);
+
     const hasRedirectedRef = useRef(false);
     const isMountedRef = useRef(true);
-
-    const monidjeu = useMemo(
-        () => gameConfig?._id || gameConfig?.id || "",
-        [gameConfig]
-    );
 
     const { data: walletOfferings = [], isLoading: isWalletLoading } = useQuery<WalletOffering[]>({
         queryKey: [QUERY_KEYS.WALLET_UNUSED_OFFERINGS],
@@ -57,7 +45,7 @@ export function useLaMise() {
 
     const targetOffering = walletOfferings.find(w => w.offeringId === CONFIG_OFFERING_ID);
     const availableQuantity = targetOffering?.quantity ?? 0;
-    const isSufficient = availableQuantity >= POT_CONFIG.quantity;
+    const isSufficient = availableQuantity >= MISE_INITIALE.quantity;
 
     const cardClasses = `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`;
 
@@ -70,7 +58,7 @@ export function useLaMise() {
 
             const consumeRes = await walletService.validateConsultationOfferings(consultationId, [{
                 offeringId: CONFIG_OFFERING_ID,
-                quantity: POT_CONFIG.quantity,
+                quantity: MISE_INITIALE.quantity,
             }]);
 
             if (!consumeRes.success) {
@@ -102,8 +90,7 @@ export function useLaMise() {
         });
     }, [isSufficient, isSubmitLoading, isPendingNavigation, executeSubmit, setCurrentConsultationId]);
 
-    const handleMarketClick = useCallback(() => {
-        if (isPendingNavigation || !monidjeu) return;
+    const handleMarketClick = useCallback(() => { 
 
         startNavigationTransition(() => {
             router.push(`/star/marcheoffrandes?retour=learning&monjeu=${monidjeu}`);
@@ -121,7 +108,7 @@ export function useLaMise() {
 
     return {
         handlePlayClick, handleMarketClick,
-        requiredQuantity: POT_CONFIG.quantity, availableQuantity, isSufficient, cardClasses,
+        requiredQuantity: MISE_INITIALE.quantity, availableQuantity, isSufficient, cardClasses,
         loading: isWalletLoading || isSubmitLoading || isPendingNavigation,
         error: submitError ? getCategoryErrorMessage(submitError, 'Erreur inconnue') : null,
     };

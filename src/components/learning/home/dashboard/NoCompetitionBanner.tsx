@@ -2,7 +2,7 @@
 import { memo } from 'react';
 import { CalendarX } from "lucide-react";
 
-const NoCompetitionBanner = memo(() => (
+const NoCompetitionBanner = () => (
     <div className="w-full rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 p-6 mb-6 shadow-xl border border-slate-800">
         <div className="flex flex-col items-center text-center gap-4">
             <div className="rounded-full bg-slate-700/50 p-3">
@@ -17,6 +17,6 @@ const NoCompetitionBanner = memo(() => (
             </div>
         </div>
     </div>
-));
+);
 
-export default NoCompetitionBanner;
+export default memo(NoCompetitionBanner);

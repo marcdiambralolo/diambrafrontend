@@ -1,5 +1,5 @@
 'use client';
-import { useCommon } from '@/hooks/learning/home/useCommon';
+import { useOnlineStatus } from '@/hooks/learning/home/useOnlineStatus';
 import { CURRENT_YEAR, STATUS_CONFIG } from "@/lib/learning/constantes";
 import { memo, useMemo } from 'react';
 
@@ -12,7 +12,7 @@ export const StatusBadge = memo(({ text, color }: { text: string; color: string 
 ));
 
 export const FooterSection = memo(() => {
-    const { onlineStatus } = useCommon();
+    const onlineStatus = useOnlineStatus();
     const status = useMemo(() =>
         onlineStatus ? STATUS_CONFIG.online : STATUS_CONFIG.offline,
         [onlineStatus]

@@ -2,12 +2,12 @@ export type DateLike = Date | string | number | null | undefined;
 export type ConfigStatus = 'pending' | 'active' | 'ended' | 'cancelled';
 
 export interface StatusConfigItem {
-    color: string;
-    bg: string;
-    text: string;
-    border: string;
-    icon: string;
-    label: string;
+  color: string;
+  bg: string;
+  text: string;
+  border: string;
+  icon: string;
+  label: string;
 }
 
 export interface Offering {
@@ -442,4 +442,24 @@ export interface CompetitionInfo {
   totalScore?: number;
   isValidated?: boolean;
   displayName: string;
+}
+
+
+export interface GameCompletionState {
+  isCompletelyFinished: boolean;
+  isWaitingForProclamation: boolean;
+  isProclamationPassed: boolean;
+}
+
+export interface GameState {
+  status: 'no_competition' | 'not_started' | 'active'   | 'results_available' | 'ended_no_proclamation';
+  canUserPlay: boolean;
+  showGameFinishedBanner: boolean;
+}
+
+export interface ExtendedViewState {
+  isEnded: boolean;
+  isActive: boolean;
+  isNotStarted: boolean;
+  isEmpty: boolean;
 }

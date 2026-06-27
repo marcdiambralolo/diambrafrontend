@@ -47,7 +47,7 @@ const SIZE_STYLES: Record<Size, string> = {
 } as const;
 
 const BASE_BUTTON_STYLES = cn(
-    'relative font-bold rounded-xl text-white shadow-md',
+    'relative text-white font-bold rounded-xl  shadow-md',
     'transition-all duration-200',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
     'disabled:opacity-50 disabled:cursor-not-allowed',

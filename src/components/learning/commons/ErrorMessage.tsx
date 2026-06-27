@@ -37,7 +37,7 @@ const ERROR_CONFIGS: Record<ErrorType, ErrorConfig> = {
     icon: <AlertCircle className="w-6 h-6" aria-hidden="true" />,
     bgGradient: "from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30",
     borderColor: "border-red-200 dark:border-red-800",
-    iconBg: "bg-red-100 dark:bg-red-900/40",
+    iconBg: "bg-red-200 dark:bg-red-900/40",
     iconColor: "text-red-600 dark:text-red-400",
     titleColor: "text-red-800 dark:text-red-300",
     defaultTitle: "Une erreur est survenue"

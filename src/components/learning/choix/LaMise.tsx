@@ -40,7 +40,7 @@ const LaMise = () => {
       />
 
       {!isSufficient && (
-        <p className="text-center text-xs text-red-500 dark:text-red-400">
+        <p className="text-center text-xs text-red-600 dark:text-red-400">
           Vous ne disposez pas d&apos;assez de jetons.
         </p>
       )}

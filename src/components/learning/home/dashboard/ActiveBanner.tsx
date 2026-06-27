@@ -91,18 +91,7 @@ const ActiveBanner = ({
 
                 {/* Compte à rebours avec alerte visuelle */}
                 <div className="text-center w-full">
-                    <p className="text-white/80 text-xs mb-2 flex items-center justify-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Temps restant
-                    </p>
                     
-                    {countdown !== null && countdown !== undefined && (
-                        <div className={`text-2xl font-bold text-white mb-2 transition-colors duration-300 ${
-                            countdown < 60 ? 'text-yellow-300 animate-pulse' : ''
-                        }`}>
-                            {Math.floor(countdown / 60)}m {countdown % 60}s
-                        </div>
-                    )}
                     
                     <CountdownTimer targetDate={endDate} onFinish={onFinish} />
                 </div>

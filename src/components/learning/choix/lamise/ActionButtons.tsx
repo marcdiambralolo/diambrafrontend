@@ -12,7 +12,7 @@ export const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButton
     const isEnabled = isSufficient && !isPending;
 
     const buttonClasses = `
-    w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2
+    w-full h-12 rounded-xl text-sm font-bold  flex items-center justify-center gap-2
     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
     ${isEnabled
             ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-md cursor-pointer"

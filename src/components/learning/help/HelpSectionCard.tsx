@@ -57,7 +57,7 @@ export const HelpSectionCard = memo(function HelpSectionCard({ section, priority
         <div
             className={cn(
                 "bg-white dark:bg-gray-800/50 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700",
-                priority && "ring-2 ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10"
+                priority && "ring-2 ring-blue-200 dark:ring-blue-600 bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10"
             )}
         >
             <div className="flex items-start gap-3 mb-3">

@@ -19,7 +19,6 @@ export const TokenCard = memo(({
     onPlayClick,
     isPending
 }: TokenCardProps) => {
-    const missingTokens = requiredQuantity - availableQuantity;
     const isEnabled = isSufficient && !isPending;
 
     return (
@@ -49,7 +48,6 @@ export const TokenCard = memo(({
                         Jetons requis : <strong className="text-gray-800 dark:text-gray-200">{requiredQuantity}</strong>
                     </span>
                 </div>
-
                 <div className={`flex items-center mt-2 gap-2 text-xs ${isSufficient ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                     <Gift className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
                     <span>
@@ -57,12 +55,6 @@ export const TokenCard = memo(({
                     </span>
                 </div>
             </div>
-
-            {!isSufficient && (
-                <div className="px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-xs font-bold flex-shrink-0">
-                    -{missingTokens}
-                </div>
-            )}
         </button>
     );
 });

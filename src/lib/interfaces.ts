@@ -455,6 +455,7 @@ export interface GameState {
   status: 'no_competition' | 'not_started' | 'active'   | 'results_available' | 'ended_no_proclamation';
   canUserPlay: boolean;
   showGameFinishedBanner: boolean;
+  countdown: number | null;
 }
 
 export interface ExtendedViewState {
@@ -462,4 +463,33 @@ export interface ExtendedViewState {
   isActive: boolean;
   isNotStarted: boolean;
   isEmpty: boolean;
+}
+
+
+// types/game.types.ts
+export interface GameCase {
+  id: string;
+  value: string | number;
+  isLocked: boolean;
+  isSelected: boolean;
+  position: number;
+}
+
+export interface GridProps {
+  cases: GameCase[];
+  columns: number;
+  renderCase: (caseItem: GameCase, index: number) => React.ReactNode;
+  className?: string;
+}
+
+export interface CaseProps {
+  caseItem: GameCase;
+  size?: number | string;
+  onClick?: (caseItem: GameCase) => void;
+  isSelected?: boolean;
+  isLocked?: boolean;
+  content?: React.ReactNode;
+  style?: React.CSSProperties;
+  className?: string;
+  ariaLabel?: string;
 }

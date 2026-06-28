@@ -1,19 +1,40 @@
 'use client';
-import { memo, useEffect, useState } from 'react';
-import { History, Trophy } from "lucide-react";
-import { LastEndedGame } from "@/lib/interfaces";
-import { BannerInfo } from './BannerInfo';
 import CacheLink from '@/components/commons/CacheLink';
+import { useLastEndedGame } from '@/hooks/learning/home/useLastEndedGame';
+import { LastEndedGame } from "@/lib/interfaces";
+import { History, Trophy } from "lucide-react";
+import { memo, useEffect, useState } from 'react';
+ 
+interface BannerInfoProps {
+    endGameDate: string | null;
+}
+
+export const BannerInfo = memo(function BannerInfo({ endGameDate }: BannerInfoProps) {
+
+    return (
+        <div className="text-center">
+            <p className="text-white font-bold text-xl">Résultats officiels disponibles !</p>
+            <p className="text-white/80 text-sm mt-1">
+                {endGameDate ? `Édition terminée le ${endGameDate}` : 'Merci pour votre participation'}
+            </p>
+
+            <p className="text-yellow-300 text-xs mt-2 font-semibold">
+                ✓ Compétition officiellement clôturée
+            </p>
+        </div>
+    );
+});
 
 interface ResultsAvailableBannerProps {
-    lastEndedGame: LastEndedGame | null;
+    
     onGameCompletelyFinished?: () => void;
 }
 
 const ResultsAvailableBanner = ({
-    lastEndedGame,
+   
     onGameCompletelyFinished
 }: ResultsAvailableBannerProps) => {
+      const { lastEndedGame, isLoading: isLastEndedLoading } = useLastEndedGame();
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
 
     const endGameDate = lastEndedGame
@@ -32,7 +53,6 @@ const ResultsAvailableBanner = ({
             <div className="flex flex-col items-center gap-4">
                 <Trophy className="w-16 h-16 text-yellow-300" aria-hidden="true" />
                 <BannerInfo endGameDate={endGameDate} />
-
                 <CacheLink
                     href="/star/learning/historique/1779760200000"
                     className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/20 rounded-xl text-white text-sm font-semibold"

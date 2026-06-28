@@ -57,9 +57,9 @@ interface TimeUpBannerProps {
 // COMPTEUR À REBOURS
 // ============================================================================
 
-const CountdownTimer = memo(({ 
-    targetDate, 
-    onFinish, 
+const CountdownTimer = memo(({
+    targetDate,
+    onFinish,
     variant = 'default',
     compact = false,
     showSeconds = true
@@ -246,8 +246,8 @@ interface ResultsAvailableBannerProps {
     };
 }
 
-const ResultsAvailableBanner = memo(({ 
-    lastEndedGame, 
+const ResultsAvailableBanner = memo(({
+    lastEndedGame,
     onGameCompletelyFinished,
     stats = {}
 }: ResultsAvailableBannerProps) => {
@@ -321,11 +321,11 @@ ResultsAvailableBanner.displayName = 'ResultsAvailableBanner';
 // EXPORTS
 // ============================================================================
 
-export { 
-    CountdownTimer, 
-    NotStartedBanner, 
-    TimeUpBanner, 
-    ResultsAvailableBanner 
+export {
+    CountdownTimer,
+    NotStartedBanner,
+    TimeUpBanner,
+    ResultsAvailableBanner
 };
 
 export default NotStartedBanner;

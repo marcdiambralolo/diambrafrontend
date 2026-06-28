@@ -39,7 +39,7 @@ interface StoredCompetition {
 interface MonEtoileStore {
     // État
     gameConfig: LearningConfiguration | null;
-    isGameConfigLoaded: boolean; // ✅ NOUVEAU: Indique si la config a été chargée initialement
+   // isGameConfigLoaded: boolean; // ✅ NOUVEAU: Indique si la config a été chargée initialement
     currentMatchInfo: MatchInfo[];
     competitions: CompetitionInfo[];
     competitionsVersion: number;
@@ -58,7 +58,7 @@ interface MonEtoileStore {
 
     // Actions - Configuration
     setGameConfig: (config: LearningConfiguration | null) => void;
-    setIsGameConfigLoaded: (loaded: boolean) => void; // ✅ NOUVELLE ACTION
+  //  setIsGameConfigLoaded: (loaded: boolean) => void; // ✅ NOUVELLE ACTION
     resetGameConfig: () => void; // ✅ NOUVELLE ACTION: Réinitialise la config
 
     // Actions - Matchs
@@ -219,14 +219,14 @@ export const useDiambraStore = create<MonEtoileStore>()(
             setGameConfig: (config) => set({ 
                 gameConfig: config,
                 // Si on set une config, on la marque comme chargée
-                isGameConfigLoaded: config !== null 
+               // isGameConfigLoaded: config !== null 
             }),
 
-            setIsGameConfigLoaded: (loaded) => set({ isGameConfigLoaded: loaded }),
+           // setIsGameConfigLoaded: (loaded) => set({ isGameConfigLoaded: loaded }),
 
             resetGameConfig: () => set({ 
                 gameConfig: null, 
-                isGameConfigLoaded: false 
+               // isGameConfigLoaded: false 
             }),
 
             // ========================================================================
@@ -372,7 +372,7 @@ export const useDiambraStore = create<MonEtoileStore>()(
                 const compressedCompetitions = state.competitions.map(compressCompetition);
                 return {
                     // gameConfig: state.gameConfig,
-                    isGameConfigLoaded: state.isGameConfigLoaded, // ✅ Persistance du flag
+                   // isGameConfigLoaded: state.isGameConfigLoaded, // ✅ Persistance du flag
                     competitions: compressedCompetitions,
                     afficheBanana: state.afficheBanana,
                     afficheStat: state.afficheStat,

@@ -55,12 +55,8 @@ export const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQua
                         </span>
                     )}
                 </div>
-
                 <p className={`text-xs ${config.textColor} mt-0.5`}>
                     {message}
-                    {!isSufficient && (
-                        <strong className="ml-1 text-red-600 dark:text-red-400">{missingTokens}</strong>
-                    )}
                 </p>
             </div>
         </div>

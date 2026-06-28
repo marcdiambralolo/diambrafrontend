@@ -1,11 +1,10 @@
 'use client';
 import { useCompetitionValidation } from "@/hooks/learning/endgame/useCompetitionValidation";
-import { useEndGameGenerator } from "@/hooks/learning/endgame/useEndGameGenerator";
 import { CompetitionInfo } from "@/lib/interfaces";
 import { NO_DATA_PLACEHOLDER } from "@/lib/learning/constantes";
 import { formatDuration } from "@/lib/learning/functions";
 import { Calendar, CheckCircle, ChevronDown, Loader2, Send, Trophy } from "lucide-react";
-import { memo, useEffect, useMemo, useCallback } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 
 // Constantes
 const TOAST_POSITION = "fixed top-4 left-1/2 -translate-x-1/2 z-50";

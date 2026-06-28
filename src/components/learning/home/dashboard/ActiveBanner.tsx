@@ -1,14 +1,15 @@
 'use client';
-import { memo, useEffect, useState } from 'react';
-import { Trophy, History, Clock, AlertCircle } from "lucide-react";
 import { LearningConfiguration } from "@/lib/interfaces";
+import { AlertCircle, History, Trophy } from "lucide-react";
+import Link from 'next/link';
+import { memo, useEffect, useState } from 'react';
+import { GlowButton } from '../../commons/Boutons';
 import { CountdownTimer } from './CountdownTimer';
 import { GameStatsGrid } from './GameStatsGrid';
-import { GlowButton } from '../../commons/Boutons';
-import Link from 'next/link';
+import { useDiambraStore } from "@/lib/store/diambra.store";
 
 interface ActiveBannerProps {
-    gameConfig: LearningConfiguration;
+ 
     demarrerJeu: () => void;
     endDate: Date;
     showButton: boolean;
@@ -17,21 +18,20 @@ interface ActiveBannerProps {
     isTimeUp?: boolean;
 }
 
-const ActiveBanner = ({ 
-    gameConfig, 
-    demarrerJeu, 
-    endDate, 
-    showButton, 
+const ActiveBanner = ({
+   
+    demarrerJeu,
+    endDate,
+    showButton,
     onFinish,
     countdown,
     isTimeUp = false
 }: ActiveBannerProps) => {
+        const { gameConfig } = useDiambraStore();
     const [showHistory, setShowHistory] = useState(false);
 
-    // Si le temps est écoulé, afficher directement l'historique
     useEffect(() => {
         if (isTimeUp) {
-            // Petit délai pour la transition
             const timer = setTimeout(() => {
                 setShowHistory(true);
             }, 500);
@@ -39,7 +39,6 @@ const ActiveBanner = ({
         }
     }, [isTimeUp]);
 
-    // Si le temps est écoulé, afficher la vue historique
     if (isTimeUp || showHistory) {
         return (
             <div className="w-full rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-600 p-6 mb-6 shadow-xl animate-in fade-in duration-500">
@@ -47,13 +46,13 @@ const ActiveBanner = ({
                     <div className="rounded-full bg-white/20 p-4">
                         <Trophy className="w-12 h-12 text-yellow-300" aria-hidden="true" />
                     </div>
-                    
+
                     <h2 className="text-2xl font-bold text-white">🏆 Édition terminée !</h2>
-                    
+
                     <p className="text-white/80 text-sm max-w-xs">
                         Le jeu est terminé. Consultez vos résultats et votre historique.
                     </p>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-3 mt-2 w-full max-w-xs">
                         <Link
                             href="/star/learning/historique"
@@ -62,7 +61,7 @@ const ActiveBanner = ({
                             <History className="w-5 h-5" />
                             Voir l'historique
                         </Link>
-                        
+
                         <button
                             onClick={onFinish}
                             className="flex items-center justify-center gap-2 bg-white/20 text-white font-bold py-3 px-6 rounded-xl hover:bg-white/30 transition-all"
@@ -75,7 +74,6 @@ const ActiveBanner = ({
         );
     }
 
-    // Vue normale du jeu actif
     return (
         <div className="w-full rounded-3xl bg-gradient-to-br from-yellow-600 to-red-400 p-5 mb-6 shadow-xl">
             <div className="flex flex-col items-center gap-3">
@@ -89,14 +87,11 @@ const ActiveBanner = ({
                     </div>
                 </div>
 
-                {/* Compte à rebours avec alerte visuelle */}
                 <div className="text-center w-full">
-                    
-                    
                     <CountdownTimer targetDate={endDate} onFinish={onFinish} />
                 </div>
 
-                <GameStatsGrid gameConfig={gameConfig} />
+                <GameStatsGrid gameConfig={gameConfig!} />
 
                 {showButton && countdown !== 0 && (
                     <GlowButton onClick={demarrerJeu} variant="success" size="lg">

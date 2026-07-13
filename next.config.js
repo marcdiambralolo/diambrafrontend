@@ -20,7 +20,7 @@ function getApiUploadPattern() {
 const apiUploadPattern = getApiUploadPattern();
 
 const nextConfig = {
-    // Cache busting : buildId unique à chaque build
+    // Cache busting : buildId unique à chaque build exact
     generateBuildId: async () => {
       return crypto.randomBytes(8).toString('hex');
     },

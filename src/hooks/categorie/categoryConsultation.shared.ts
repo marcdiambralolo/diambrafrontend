@@ -1,4 +1,5 @@
 import { api } from "@/lib/api/client";
+import { useDiambraStore } from "@/lib/store/diambra.store";
 
 export type ConsultationCreateResponse = {
     consultation?: {
@@ -21,6 +22,7 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
 }
 
 export async function createCategoryConsultation(monidjeu: string): Promise<string> {
+    const gameConfig = useDiambraStore.getState().gameConfig;
     const payload: Record<string, unknown> = {
         idjeu: monidjeu,
     };

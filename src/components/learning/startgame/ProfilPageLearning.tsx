@@ -3,7 +3,6 @@ import { useGameGenerator } from '@/hooks/learning/game/useGameGenerator';
 import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
-import { useDiambraStore } from '@/lib/store/diambra.store';
 import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';

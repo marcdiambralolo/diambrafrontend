@@ -1,8 +1,8 @@
-'use client';
-import { memo } from 'react';
 import { APP_NAME } from "@/lib/learning/constantes";
+import { memo } from "react";
 
 export const HeaderSection = memo(function HeaderSection() {
+
     return (
         <div className="flex flex-col items-center justify-center mt-2 mb-2">
             <h1 className="text-xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">

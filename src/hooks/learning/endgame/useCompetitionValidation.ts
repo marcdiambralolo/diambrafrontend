@@ -13,319 +13,294 @@ import { useMessage } from "./useMessage";
 // ============================================
 // Constantes
 // ============================================
-
 const PERMANENT_MESSAGE_DURATION = 10000;
 const STORAGE_PREFIX = 'validated_competition_';
 const STORAGE_KEY = (competitionId: string): string => `${STORAGE_PREFIX}${competitionId}`;
 
 // ============================================
-// Types
+// Types & Utilitaires
 // ============================================
-
 interface ValidationMessage {
-    text: string;
-    type: 'success' | 'error';
+  text: string;
+  type: 'success' | 'error';
 }
 
 interface CompetitionStats {
-    totalScore: number;
-    totalTrouves: number;
-    totalRates: number;
-    averageScore: number;
+  totalScore: number;
+  totalTrouves: number;
+  totalRates: number;
+  averageScore: number;
 }
- 
 
+// Optimisé : Un seul passage (reduce) au lieu de 3 parcours consécutifs du tableau
 const calculateCompetitionStats = (competition: CompetitionInfo): CompetitionStats => {
-    const matches = competition.matchInfo || [];
-    const totalMatches = matches.length;
+  const matches = competition.matchInfo || [];
+  const totalMatches = matches.length;
 
-    if (totalMatches === 0) {
-        return { totalScore: 0, totalTrouves: 0, totalRates: 0, averageScore: 0 };
-    }
+  if (totalMatches === 0) {
+    return { totalScore: 0, totalTrouves: 0, totalRates: 0, averageScore: 0 };
+  }
 
-    const totalScore = matches.reduce((acc, m) => acc + (m.trouves || 0), 0);
-    const totalTrouves = matches.reduce((acc, m) => acc + (m.trouves || 0), 0);
-    const totalRates = matches.reduce((acc, m) => acc + (m.rates || 0), 0);
-    const averageScore = Math.round(totalScore / totalMatches);
+  const stats = matches.reduce((acc, m) => {
+    const trouves = m.trouves || 0;
+    acc.totalScore += trouves;
+    acc.totalTrouves += trouves;
+    acc.totalRates += (m.rates || 0);
+    return acc;
+  }, { totalScore: 0, totalTrouves: 0, totalRates: 0 });
 
-    return { totalScore, totalTrouves, totalRates, averageScore };
+  return {
+    ...stats,
+    averageScore: Math.round(stats.totalScore / totalMatches)
+  };
 };
 
 const getStoredValidationStatus = (competitionId: string): boolean => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem(STORAGE_KEY(competitionId)) === 'true';
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(STORAGE_KEY(competitionId)) === 'true';
 };
 
 // ============================================
-// Hook principal
+// Hook Principal
 // ============================================
+export const useCompetitionValidation = (competition: CompetitionInfo) => {
+  // États
+  const [isLocalValidating, setIsLocalValidating] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
+  const [isValidated, setIsValidated] = useState(() => getStoredValidationStatus(competition.id));
+  const [showPermanentMessage, setShowPermanentMessage] = useState(() => getStoredValidationStatus(competition.id));
 
-export const useCompetitionValidation = (competition: CompetitionInfo)    => {
-    // États
-    const [isLocalValidating, setIsLocalValidating] = useState(false);
-    const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
-    const [isValidated, setIsValidated] = useState(() => getStoredValidationStatus(competition.id));
-    const [showPermanentMessage, setShowPermanentMessage] = useState(() => getStoredValidationStatus(competition.id));
+  // Refs
+  const permanentMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
-    // Refs
-    const permanentMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const isMountedRef = useRef(true);
+  // Hooks tierces
+  const queryClient = useQueryClient();
+  const { showMessage } = useMessage();
+  const { updateLocalCache } = useCompetitionStorage();
 
-    // Hooks
-    const queryClient = useQueryClient();
-    const { currentConsultationId, setGameIsFinished } = useDiambraStore();
-    const { showMessage } = useMessage();
-    const { updateLocalCache } = useCompetitionStorage();
+  // 1. Extraction sélective de Zustand pour stopper les re-renders en cascade
+  const currentConsultationId = useDiambraStore((state) => state.currentConsultationId);
+  const setGameIsFinished = useDiambraStore((state) => state.setGameIsFinished);
 
-    // ============================================
-    // Effets
-    // ============================================
+  // ============================================
+  // Effets
+  // ============================================
 
-    // Nettoyage des timeouts et refs
-    useEffect(() => {
-        return () => {
-            isMountedRef.current = false;
-            if (permanentMessageTimeoutRef.current) {
-                clearTimeout(permanentMessageTimeoutRef.current);
-                permanentMessageTimeoutRef.current = null;
-            }
-        };
-    }, []);
+  // Nettoyage des timeouts et statuts de montage
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (permanentMessageTimeoutRef.current) {
+        clearTimeout(permanentMessageTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    // Synchronisation multi-onglets
-    useEffect(() => {
-        const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === STORAGE_KEY(competition.id) && isMountedRef.current) {
-                const newValue = e.newValue === 'true';
-                setIsValidated(newValue);
-                setShowPermanentMessage(newValue);
-            }
-        };
+  // Synchronisation multi-onglets
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY(competition.id) && isMountedRef.current) {
+        const newValue = e.newValue === 'true';
+        setIsValidated(newValue);
+        setShowPermanentMessage(newValue);
+      }
+    };
 
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, [competition.id]);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [competition.id]);
 
-    // Persistance automatique du statut
-    useEffect(() => {
-        if (isValidated) {
-            localStorage.setItem(STORAGE_KEY(competition.id), 'true');
-        }
-    }, [isValidated, competition.id]);
+  // Persistance automatique du statut
+  useEffect(() => {
+    if (isValidated) {
+      localStorage.setItem(STORAGE_KEY(competition.id), 'true');
+    }
+  }, [isValidated, competition.id]);
 
-    // ============================================
-    // Fonctions de validation
-    // ============================================
+  // ============================================
+  // Fonctions de validation
+  // ============================================
 
-    const validateCompetition = useCallback(async (competition: CompetitionInfo): Promise<boolean> => {
-        // Validations préliminaires
-        // if (!currentConsultationId) {
-        //     showMessage('Aucune consultation en cours', 'error');
-        //     return false;
-        // }
+  const validateCompetition = useCallback(async (comp: CompetitionInfo): Promise<boolean> => {
+    try {
+      const { totalScore, totalTrouves, totalRates, averageScore } = calculateCompetitionStats(comp);
+      const startDate = comp.matchInfo[0]?.datedebut || new Date().toISOString();
+      const endDate = new Date().toISOString();
+      const totalTimeSeconds = calculateDurationInSeconds(startDate, endDate);
 
-        // if (!competition.matchInfo?.length) {
-        //     showMessage('Aucun match à valider', 'error');
-        //     return false;
-        // }
- 
-        try {
-            // 1. Calcul des statistiques
-            const { totalScore, totalTrouves, totalRates, averageScore } = calculateCompetitionStats(competition);
-            const startDate = competition.matchInfo[0]?.datedebut || new Date().toISOString();
-            const endDate = new Date().toISOString();
-            const totalTimeSeconds = calculateDurationInSeconds(startDate, endDate);
+      const targetConsultationId = currentConsultationId || '12345678';
+      const { data: consultation } = await api.get<Consultation>(`/consultations/${targetConsultationId}`);
+      
+      const existingStats = (consultation?.learningStats || {}) as LearningStatsPayload;
+      const existingMatches = existingStats.matchesDetails || [];
 
-            // 2. Récupération de la consultation existante
-            const { data: consultation } = await api.get<Consultation>(`/consultations/${currentConsultationId||'12345678'}`);
-            const existingStats = (consultation?.learningStats || {}) as LearningStatsPayload;
-            const existingMatches = existingStats.matchesDetails || [];
+      const updatedPayload = {
+        ...consultation,
+        status: 'completed' as const,
+        gameEndDate: endDate,
+        totalTimeSeconds,
+        finalScore: totalScore,
+        matchesCompleted: comp.matchInfo.length,
+        learningStats: {
+          totalTime: calculateDuration(startDate, endDate),
+          averageScore,
+          completedAt: endDate,
+          totalMatches: (existingStats.totalMatches || 0) + comp.matchInfo.length,
+          totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
+          totalRates: (existingStats.totalRates || 0) + totalRates,
+          matchesDetails: [
+            ...existingMatches,
+            ...comp.matchInfo.map(m => ({
+              tpsglobal: m.tpsglobal,
+              score: m.trouves,
+              trouves: m.trouves,
+              rates: m.rates,
+              isgameover: m.isgameover,
+              timeSpent: m.timeSpent,
+              niveau: comp.niveau,
+            }))
+          ],
+        },
+      };
 
-            // 3. Construction du payload
-            const updatedPayload = {
-                ...consultation,
-                status: 'completed' as const,
-                gameEndDate: endDate,
-                totalTimeSeconds,
-                finalScore: totalScore,
-                matchesCompleted: competition.matchInfo.length,
-                learningStats: {
-                    totalTime: calculateDuration(startDate, endDate),
-                    averageScore,
-                    completedAt: endDate,
-                    totalMatches: (existingStats.totalMatches || 0) + competition.matchInfo.length,
-                    totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
-                    totalRates: (existingStats.totalRates || 0) + totalRates,
-                    matchesDetails: [
-                        ...existingMatches,
-                        ...competition.matchInfo.map(m => ({
-                            tpsglobal: m.tpsglobal,
-                            score: m.trouves,
-                            trouves: m.trouves,
-                            rates: m.rates,
-                            isgameover: m.isgameover,
-                            timeSpent: m.timeSpent,
-                            niveau: competition.niveau,
-                        }))
-                    ],
-                },
-            };
+      await api.put(`/consultations/${targetConsultationId}`, updatedPayload);
 
-            // 4. Sauvegarde
-            const response = await api.put(`/consultations/${currentConsultationId}`, updatedPayload);
-            console.log('✅ Validation réussie:', response.data);
+      updateLocalCache(comp.id);
+      showMessage('Compétition validée avec succès !', 'success');
+      setGameIsFinished(true);
 
-            // 5. Mise à jour du cache local
-            updateLocalCache(competition.id);
-            showMessage('Compétition validée avec succès !', 'success');
-            setGameIsFinished(true);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['game'] }),
+        queryClient.invalidateQueries({ queryKey: ['consultation', targetConsultationId] }),
+        queryClient.invalidateQueries({ queryKey: ['competitions'] }),
+      ]);
 
-            // 6. Invalidation du cache React Query
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['game'] }),
-                queryClient.invalidateQueries({ queryKey: ['consultation', currentConsultationId] }),
-                queryClient.invalidateQueries({ queryKey: ['competitions'] }),
-            ]);
+      return true;
+    } catch (error: any) {
+      console.error('❌ Erreur validation:', error);
+      if (error?.response?.status === 404) {
+        showMessage('Consultation introuvable. Veuillez rafraîchir la page.', 'error');
+      } else if (error?.response?.status === 409) {
+        showMessage('Cette compétition a déjà été validée.', 'error');
+      } else {
+        const errorMessage = error?.response?.data?.message || 'Erreur lors de la validation';
+        showMessage(errorMessage, 'error');
+      }
+      return false;
+    }
+  }, [currentConsultationId, showMessage, updateLocalCache, queryClient, setGameIsFinished]);
 
-            return true;
-        } catch (error: any) {
-            console.error('❌ Erreur validation:', error);
-            
-            // Gestion des erreurs spécifiques
-            if (error?.response?.status === 404) {
-                showMessage('Consultation introuvable. Veuillez rafraîchir la page.', 'error');
-            } else if (error?.response?.status === 409) {
-                showMessage('Cette compétition a déjà été validée.', 'error');
-            } else {
-                const errorMessage = error?.response?.data?.message || 'Erreur lors de la validation';
-                showMessage(errorMessage, 'error');
-            }
-            
-            return false;
-        }
-    }, [currentConsultationId, showMessage, updateLocalCache, queryClient, setGameIsFinished]);
+  // ============================================
+  // Gestionnaires d'événements
+  // ============================================
 
-    // ============================================
-    // Gestionnaires d'événements
-    // ============================================
+  const handleValidate = useCallback(async () => {
+    if (isLocalValidating) return;
 
-    const handleValidate = useCallback(async () => {
-     
-        // Guard clauses
-        if (isLocalValidating) {
-            console.log('⏳ Validation déjà en cours...');
-            return;
-        }
+    if (!competition.matchInfo?.length) {
+      showMessage('Aucun match à valider', 'error');
+      return;
+    }
 
-        if (!competition.matchInfo?.length) {
-            showMessage('Aucun match à valider', 'error');
-            return;
-        }
+    if (isValidated) {
+      showMessage('Cette compétition a déjà été validée', 'success');
+      return;
+    }
 
-        if (isValidated) {
-            showMessage('Cette compétition a déjà été validée', 'success');
-            return;
-        }
+    setIsLocalValidating(true);
+    setValidationMessage(null);
 
-        setIsLocalValidating(true);
-        setValidationMessage(null);
+    try {
+      const success = await validateCompetition(competition);
 
-        try {
-            const success = await validateCompetition(competition);
-        
-
-            if (success && isMountedRef.current) {
-                // Succès
-                setValidationMessage({
-                    text: '✅ Compétition validée avec succès !',
-                    type: 'success'
-                });
-                setIsValidated(true);
-                setShowPermanentMessage(true);
-
-                // Gestion du timeout pour le message permanent
-                if (permanentMessageTimeoutRef.current) {
-                    clearTimeout(permanentMessageTimeoutRef.current);
-                }
-
-                permanentMessageTimeoutRef.current = setTimeout(() => {
-                    if (isMountedRef.current) {
-                        setShowPermanentMessage(false);
-                    }
-                }, PERMANENT_MESSAGE_DURATION);
-            } else if (isMountedRef.current) {
-                // Échec
-                setValidationMessage({
-                    text: '❌ Erreur lors de la validation. Veuillez réessayer.',
-                    type: 'error'
-                });
-            }
-        } catch (error) {
-            if (isMountedRef.current) {
-                setValidationMessage({
-                    text: '❌ Une erreur inattendue est survenue.',
-                    type: 'error'
-                });
-            }
-        } finally {
-            if (isMountedRef.current) {
-                setIsLocalValidating(false);
-            }
-        }
-    }, [competition, isLocalValidating, isValidated, validateCompetition, showMessage]);
-
-    const clearValidationStatus = useCallback(() => {
-        const storageKey = STORAGE_KEY(competition.id);
-        localStorage.removeItem(storageKey);
-        setIsValidated(false);
-        setShowPermanentMessage(false);
-        setValidationMessage(null);
+      if (success && isMountedRef.current) {
+        setValidationMessage({
+          text: '✅ Compétition validée avec succès !',
+          type: 'success'
+        });
+        setIsValidated(true);
+        setShowPermanentMessage(true);
 
         if (permanentMessageTimeoutRef.current) {
-            clearTimeout(permanentMessageTimeoutRef.current);
-            permanentMessageTimeoutRef.current = null;
+          clearTimeout(permanentMessageTimeoutRef.current);
         }
-    }, [competition.id]);
 
-    const handleCloseMessage = useCallback(() => {
-        setValidationMessage(null);
-    }, []);
+        permanentMessageTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            setShowPermanentMessage(false);
+          }
+        }, PERMANENT_MESSAGE_DURATION);
+      } else if (isMountedRef.current) {
+        setValidationMessage({
+          text: '❌ Erreur lors de la validation. Veuillez réessayer.',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
+        setValidationMessage({
+          text: '❌ Une erreur inattendue est survenue.',
+          type: 'error'
+        });
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsLocalValidating(false);
+      }
+    }
+  }, [competition, isLocalValidating, isValidated, validateCompetition, showMessage]);
 
-    const handleClosePermanentMessage = useCallback(() => {
-        setShowPermanentMessage(false);
-        clearValidationStatus();
-    }, [clearValidationStatus]);
+  const clearValidationStatus = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY(competition.id));
+    setIsValidated(false);
+    setShowPermanentMessage(false);
+    setValidationMessage(null);
 
-    // ============================================
-    // Mémorisation des valeurs dérivées
-    // ============================================
+    if (permanentMessageTimeoutRef.current) {
+      clearTimeout(permanentMessageTimeoutRef.current);
+      permanentMessageTimeoutRef.current = null;
+    }
+  }, [competition.id]);
 
-    const formattedStartDate = useMemo(
-        () => formatCompetitionDate(competition.datedebut),
-        [competition.datedebut]
-    );
+  const handleCloseMessage = useCallback(() => {
+    setValidationMessage(null);
+  }, []);
 
-    const formattedFinishedDate = useMemo(
-        () => competition.datefin ? formatCompetitionDate(competition.datefin) : null,
-        [competition.datefin]
-    );
+  const handleClosePermanentMessage = useCallback(() => {
+    setShowPermanentMessage(false);
+    clearValidationStatus();
+  }, [clearValidationStatus]);
 
-    // ============================================
-    // Retour
-    // ============================================
+  // Valeurs dérivées
+  const formattedStartDate = useMemo(() => formatCompetitionDate(competition.datedebut), [competition.datedebut]);
+  const formattedFinishedDate = useMemo(() => competition.datefin ? formatCompetitionDate(competition.datefin) : null, [competition.datefin]);
 
-    return {
-        handleCloseMessage,
-        handleClosePermanentMessage,
-        handleValidate,
-        isLoading: isLocalValidating,
-        isValidated,
-        validationMessage,
-        formattedStartDate,
-        showPermanentMessage,
-        formattedFinishedDate,
-        clearValidationStatus,
-    };
+  // Retour entièrement mémorisé
+  return useMemo(() => ({
+    handleCloseMessage,
+    handleClosePermanentMessage,
+    handleValidate,
+    isLoading: isLocalValidating,
+    isValidated,
+    validationMessage,
+    formattedStartDate,
+    showPermanentMessage,
+    formattedFinishedDate,
+    clearValidationStatus,
+  }), [
+    handleCloseMessage,
+    handleClosePermanentMessage,
+    handleValidate,
+    isLocalValidating,
+    isValidated,
+    validationMessage,
+    formattedStartDate,
+    showPermanentMessage,
+    formattedFinishedDate,
+    clearValidationStatus
+  ]);
 };
 
 export default useCompetitionValidation;

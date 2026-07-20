@@ -23,8 +23,8 @@ function getSafeTime(value?: string | null): number {
   return Number.isFinite(time) ? time : 0;
 }
 
-function isWalletTab(value: string | null): value is WalletTab {
-  return WALLET_TABS.includes(value as WalletTab);
+function isWalletTab(value: string | null | undefined): value is WalletTab {
+  return value != null && WALLET_TABS.includes(value as WalletTab);
 }
 
 function computeStats(transactions: any[]): Stats {
@@ -39,7 +39,7 @@ function computeStats(transactions: any[]): Stats {
 
 export function useWalletPageWithCache() {
   const searchParams = useSearchParams();
-  const tabFromUrl = searchParams?.get('tab');
+  const tabFromUrl = searchParams?.get('tab') ?? null;
   const [activeTab, setActiveTab] = useState<WalletTab>('unused-offerings');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [isRefreshing, setIsRefreshing] = useState(false);

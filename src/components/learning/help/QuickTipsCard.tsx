@@ -1,7 +1,7 @@
 'use client';
-import { memo, useMemo } from 'react';
-import { Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Zap } from "lucide-react";
+import { memo, useMemo } from 'react';
 
 const QUICK_TIPS = [
     { icon: "⏰", title: "Prenez votre temps", description: "Mémorisez bien le plateau P1 avant de commencement", color: "amber" as const },

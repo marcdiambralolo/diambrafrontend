@@ -6,11 +6,13 @@ import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
 import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-
+import EmptyState from './components/EmptyState';
+import InfoRowGame from './components/InfoRowGame';
+import ObjectiveCard from './components/ObjectiveCard';
+import ProgressBar from './components/ProgressBar';
 
 const GRID_BASE_STYLES = "w-full grid";
 const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";
-const INFO_CARD_STYLES = "flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-200";
 
 const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
     const caseRef = useRef<HTMLDivElement>(null);
@@ -170,53 +172,8 @@ const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCase, piec
             {renderedCases}
         </div>
     );
-});
-
-const EmptyState = memo(({ message }: { message: string }) => (
-    <div className="text-center text-gray-600 py-8">{message}</div>
-));
-
-const ObjectiveCard = memo(() => (
-    <div className="relative group">
-        <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400" />
-            <div className="p-2">
-                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 rounded-xl p-1">
-                    <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow-md">
-                        <TrophyOutlined className="text-xxs text-white" />
-                    </div>
-                    <p className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">
-                        Objectif : Réorganisez P2 pour qu'il corresponde à P1!
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-));
-
-const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
-    icon: React.ReactNode;
-    iconBg: string;
-    iconColor: string;
-    label: string;
-    value: string | number;
-}) => (
-    <div className={INFO_CARD_STYLES}>
-        <div className={`p-1 ${iconBg} rounded-lg`}>
-            <div className={iconColor}>{icon}</div>
-        </div>
-
-        <div className="flex-1">
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
-                {label}
-            </p>
-            <p className="font-semibold text-gray-800 dark:text-gray-200">
-                {value}
-            </p>
-        </div>
-    </div>
-));
-
+}); 
+ 
 interface ActionButtonProps {
     onClick: () => void;
     children: React.ReactNode;
@@ -293,21 +250,7 @@ const GameControls = memo(({ showPun, onToggleShowPun, onLockSelectedCase, timeE
     </div>
 ));
 
-const ProgressBar = memo(({ lockedCount, totalCount, progression }: { lockedCount: number; totalCount: number; progression: number }) => (
-    <div className="mt-2">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>Progression</span>
-            <span>{lockedCount}/{totalCount}</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-                className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progression}%` }}
-            />
-        </div>
-    </div>
-));
-
+ 
 const TheGame = () => {
  
     const {

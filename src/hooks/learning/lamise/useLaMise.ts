@@ -1,5 +1,5 @@
 'use client';
-import { createCategoryConsultation, getCategoryErrorMessage, } from '@/hooks/categorie/categoryConsultation.shared';
+import { createCategoryConsultationLearning, getCategoryErrorMessage } from '@/hooks/categorie/categoryConsultation.shared';
 import { walletService } from '@/lib/api/services/wallet.service';
 import { QUERY_KEYS, queryClient } from '@/lib/cache/queryClient';
 import type { OfferingAlternative, WalletOffering } from '@/lib/interfaces';
@@ -41,6 +41,7 @@ async function getAvailableQuantity(): Promise<number> {
 
 export function useLaMise() {
     const router = useRouter();
+
     const [isPendingNavigation, startNavigationTransition] = useTransition();
 
     const { gameConfig, setAfficheChoix, setAfficheGame, setCurrentConsultationId, } = useDiambraStore();
@@ -78,7 +79,7 @@ export function useLaMise() {
                 throw new Error('Identifiant du jeu introuvable');
             }
 
-            const consultationId = await createCategoryConsultation(monidjeu);
+            const consultationId = await createCategoryConsultationLearning(monidjeu);
 
             if (!consultationId) {
                 throw new Error('Impossible de créer la compétition');
@@ -117,7 +118,6 @@ export function useLaMise() {
                 }),
             ]);
 
-            // Optionnel si des Server Components dépendent du wallet
             router.refresh();
         },
     });

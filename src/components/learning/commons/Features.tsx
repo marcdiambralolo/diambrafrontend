@@ -3,7 +3,7 @@ import { useOnlineStatus } from '@/hooks/learning/home/useOnlineStatus';
 import { CURRENT_YEAR, STATUS_CONFIG } from "@/lib/learning/constantes";
 import { memo, useMemo } from 'react';
 
-export const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
+const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
     <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg ${color === 'red' ? 'bg-red-500' : 'bg-green-500'
         } text-white flex items-center gap-2`}>
         <div className="w-1.5 h-1.5 bg-white rounded-full" />

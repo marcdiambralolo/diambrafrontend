@@ -14,8 +14,8 @@ const LaMise = () => {
   } = useLaMise();
 
   if (error) return <ErrorMessage />;
-  if (loading) return <Loader />;
 
+  if (loading) return <Loader />;
 
   return (
     <div className="w-full mx-auto max-w-md px-4 flex flex-col gap-2 space-y-3 items-center justify-center">

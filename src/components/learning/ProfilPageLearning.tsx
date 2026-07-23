@@ -19,8 +19,8 @@ const ContentRenderer = memo(({ showChoix, showGame }: ContentRendererProps) => 
 });
 
 const ProfilPageLearning = memo(() => {
-  const afficheChoix = useDiambraStore((state) => state.afficheChoix);
   const afficheGame = useDiambraStore((state) => state.afficheGame);
+  const afficheChoix = useDiambraStore((state) => state.afficheChoix);
 
   const hasContent = afficheChoix || afficheGame;
 

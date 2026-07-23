@@ -78,7 +78,7 @@ export const HelpSectionCard = memo(function HelpSectionCard({ section, priority
                     )}
                 </div>
             </div>
-            <div className="pl-14">
+            <div className="pl-12">
                 {content}
             </div>
         </div>

@@ -14,7 +14,7 @@ const STATUS_BANNER_CONFIG = {
         title: "Prêt à valider"
     },
     insufficient: {
-        bgGradient: "from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
+        bgGradient: "from-red-60 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20",
         borderColor: "border-red-300 dark:border-red-800",
         iconBg: "bg-red-100 dark:bg-red-900/40",
         iconColor: "text-red-600 dark:text-red-400",

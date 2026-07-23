@@ -1,5 +1,5 @@
 'use client';
-import { ChevronRight, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronRight, ShoppingBag } from 'lucide-react';
 import { memo } from 'react';
 
 interface PlayButtonProps {

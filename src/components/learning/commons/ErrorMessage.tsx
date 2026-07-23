@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { AlertCircle, AlertTriangle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
+import { AlertTriangle, AlertCircle, ChevronLeft, Home, RefreshCw, WifiOff } from 'lucide-react';
 import React, { memo, useCallback, useEffect, useRef, useState, type ComponentPropsWithoutRef } from 'react';
 
 type ErrorType = 'error' | 'warning' | 'info' | 'offline';

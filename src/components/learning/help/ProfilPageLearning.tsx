@@ -2,8 +2,8 @@
 import { APP_NAME } from "@/lib/learning/constantes";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Lightbulb, X } from "lucide-react";
-import { memo, useCallback, useMemo, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { memo, useCallback, useMemo, useTransition } from 'react';
 import { FooterSection } from "../commons/Features";
 import { HelpSectionCard, type HelpSection } from './HelpSectionCard';
 import { QuickTipsCard } from './QuickTipsCard';

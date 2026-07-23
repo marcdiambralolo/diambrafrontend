@@ -57,70 +57,14 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: 🔍 Diagnostic et correction de la structure
-        id: structure
-        run: |
-          echo "📂 Structure du projet :"
-          ls -la
-          echo ""
-          
-          echo "📂 Contenu de src/ :"
-          if [ -d "src" ]; then
-            ls -la src/
-          fi
-          echo ""
-          
-          # Vérifier si le dossier pages/ est vide ou inutile
-          if [ -d "src/pages" ] && [ -d "src/app" ]; then
-            echo "🔍 Vérification du contenu de pages/ :"
-            if [ -z "$(ls -A src/pages 2>/dev/null)" ]; then
-              echo "📁 Le dossier pages/ est vide. Suppression car vous utilisez App Router."
-              rm -rf src/pages
-              echo "✅ Dossier pages/ supprimé"
-            else
-              echo "📁 Le dossier pages/ contient des fichiers."
-              echo "   Si vous utilisez App Router, vous pouvez supprimer ce dossier."
-              echo "   Pour conserver les deux routers, ajoutez un fichier _document.tsx"
-            fi
-          fi
-          
-          # Vérifier la présence de layout.tsx (signe qu'on utilise App Router)
-          if [ -d "src/app" ] && [ -f "src/app/layout.tsx" ]; then
-            echo "✅ App Router détecté (layout.tsx présent)"
-          fi
-
-      - name: 🔨 Build du projet (avec débogage)
+      - name: 🔨 Build du projet
         id: build
         run: |
-          echo "🔨 Build avec débogage..."
-          if ! npm run build -- --debug-prerender; then
-            echo "⚠️ Build échoué. Tentative de correction..."
-            
-            # Si l'erreur est liée à _document, créer un fichier minimal
-            if [ -d "src/pages" ] && [ ! -f "src/pages/_document.tsx" ] && [ ! -f "src/pages/_document.js" ]; then
-              echo "📝 Création d'un fichier _document.tsx minimal..."
-              mkdir -p src/pages
-              cat > src/pages/_document.tsx << 'EOF'
-              import { Html, Head, Main, NextScript } from 'next/document'
-
-              export default function Document() {
-                return (
-                  <Html lang="fr">
-                    <Head />
-                    <body>
-                      <Main />
-                      <NextScript />
-                    </body>
-                  </Html>
-                )
-              }
-              EOF
-              echo "✅ Fichier _document.tsx créé"
-            fi
-            
-            # Nouvelle tentative de build
-            echo "🔨 Nouvelle tentative de build..."
-            npm run build -- --debug-prerender
+          echo "🔨 Build du projet..."
+          if ! npm run build; then
+            echo "⚠️ Build échoué. Nettoyage du cache et nouvelle tentative..."
+            rm -rf .next
+            npm run build
           fi
         env:
           NEXT_PUBLIC_SITE_URL: https://diambra.net
@@ -194,36 +138,6 @@ jobs:
             git fetch origin
             git checkout main || git checkout master
             git pull origin main || git pull origin master
-            
-            # Vérification de la structure
-            echo "📂 Vérification de la structure du projet :"
-            ls -la
-            if [ -d "src" ]; then
-              echo "📂 Contenu de src/ :"
-              ls -la src/
-            fi
-            
-            # Correction automatique si pages/ existe mais pas _document
-            if [ -d "src/pages" ] && [ ! -f "src/pages/_document.tsx" ] && [ ! -f "src/pages/_document.js" ]; then
-              echo "📝 Création de _document.tsx manquant..."
-              mkdir -p src/pages
-              cat > src/pages/_document.tsx << 'EOF'
-              import { Html, Head, Main, NextScript } from 'next/document'
-
-              export default function Document() {
-                return (
-                  <Html lang="fr">
-                    <Head />
-                    <body>
-                      <Main />
-                      <NextScript />
-                    </body>
-                  </Html>
-                )
-              }
-              EOF
-              echo "✅ _document.tsx créé"
-            fi
             
             # Nettoyage du cache npm si nécessaire
             if [ -f "package-lock.json" ]; then
@@ -332,4 +246,3 @@ jobs:
         run: |
           echo "❌ Le déploiement a échoué !"
           echo "Vérifiez les logs ci-dessus pour plus de détails."
-          echo "🔍 Erreur de build détectée. Utilisez --debug-prerender pour plus d'informations."

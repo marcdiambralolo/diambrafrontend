@@ -46,16 +46,31 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: 📦 Installation des dépendances avec legacy peer deps
+      - name: 📦 Installation des dépendances
         run: npm install --legacy-peer-deps
 
-      - name: 🔨 Build du projet
+      - name: 🧪 Vérification TypeScript et lint
         run: |
-          npm run build || npm run build -- --no-lint
+          npm run lint || echo "⚠️ Linting ignoré"
+          if [ -f "package.json" ] && grep -q '"type-check"' package.json; then
+            npm run type-check
+          fi
+        continue-on-error: true
+
+      - name: 🔨 Build du projet (avec débogage)
+        id: build
+        run: |
+          echo "🔨 Tentative de build avec débogage..."
+          if ! npm run build -- --debug-prerender; then
+            echo "⚠️ Build échoué. Suppression du cache .next et nouvelle tentative..."
+            rm -rf .next
+            npm run build -- --debug-prerender
+          fi
         env:
           NEXT_PUBLIC_SITE_URL: https://diambra.net
+          NEXT_TELEMETRY_DISABLED: 1
 
-      - name: 📊 Création du bundle d'analyse (optionnel)
+      - name: 📊 Analyse du bundle (optionnel)
         run: |
           npm run build -- --analyze || echo "Analyse non disponible"
         continue-on-error: true
@@ -121,8 +136,8 @@ jobs:
             # Git pull
             echo "📥 Récupération du code depuis GitHub..."
             git fetch origin
-            git checkout main
-            git pull origin main
+            git checkout main || git checkout master
+            git pull origin main || git pull origin master
             
             # Nettoyage du cache npm si nécessaire
             if [ -f "package-lock.json" ]; then
@@ -134,13 +149,13 @@ jobs:
             echo "📦 Installation des dépendances..."
             npm install --legacy-peer-deps
             
-            # Build du projet
+            # Build du projet avec vérification des erreurs
             echo "🔨 Build du projet..."
-            npm run build || {
-              echo "⚠️ Build échoué, tentative avec nettoyage..."
-              rm -rf .next
+            if ! npm run build; then
+              echo "⚠️ Build échoué, tentative avec nettoyage du cache..."
+              rm -rf .next node_modules/.cache
               npm run build
-            }
+            fi
             
             # Configuration du port (évite les conflits)
             export PORT=$NEXT_PORT
@@ -148,10 +163,10 @@ jobs:
             # Gestion du processus PM2
             echo "🔄 Gestion du processus PM2..."
             if pm2 list | grep -q "$PM2_NAME"; then
-              echo "Restart de l'application..."
+              echo "🔄 Restart de l'application..."
               pm2 restart "$PM2_NAME" --update-env
             else
-              echo "Démarrage de l'application..."
+              echo "🚀 Démarrage de l'application..."
               pm2 start npm --name "$PM2_NAME" -- start -- --port $NEXT_PORT
             fi
             
@@ -180,7 +195,7 @@ jobs:
           command_timeout: 2m
           script: |
             # Vérification que l'application tourne
-            sleep 5
+            sleep 10
             if pm2 list | grep -q "diambrafrontend.*online"; then
               echo "✅ L'application est en ligne !"
               pm2 logs diambrafrontend --lines 10 --nostream
@@ -226,8 +241,9 @@ jobs:
             
             echo "🧹 Nettoyage terminé"
 
-      - name: 📢 Notification d'échec (optionnel)
+      - name: 📢 Notification d'échec
         if: failure()
         run: |
           echo "❌ Le déploiement a échoué !"
           echo "Vérifiez les logs ci-dessus pour plus de détails."
+          echo "🔍 Erreur de build détectée. Utilisez --debug-prerender pour plus d'informations."

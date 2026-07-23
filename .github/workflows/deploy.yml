@@ -101,20 +101,20 @@ jobs:
               echo "📝 Création d'un fichier _document.tsx minimal..."
               mkdir -p src/pages
               cat > src/pages/_document.tsx << 'EOF'
-          import { Html, Head, Main, NextScript } from 'next/document'
-          
-          export default function Document() {
-            return (
-              <Html lang="fr">
-                <Head />
-                <body>
-                  <Main />
-                  <NextScript />
-                </body>
-              </Html>
-            )
-          }
-          EOF
+              import { Html, Head, Main, NextScript } from 'next/document'
+
+              export default function Document() {
+                return (
+                  <Html lang="fr">
+                    <Head />
+                    <body>
+                      <Main />
+                      <NextScript />
+                    </body>
+                  </Html>
+                )
+              }
+              EOF
               echo "✅ Fichier _document.tsx créé"
             fi
             
@@ -208,20 +208,20 @@ jobs:
               echo "📝 Création de _document.tsx manquant..."
               mkdir -p src/pages
               cat > src/pages/_document.tsx << 'EOF'
-          import { Html, Head, Main, NextScript } from 'next/document'
-          
-          export default function Document() {
-            return (
-              <Html lang="fr">
-                <Head />
-                <body>
-                  <Main />
-                  <NextScript />
-                </body>
-              </Html>
-            )
-          }
-          EOF
+              import { Html, Head, Main, NextScript } from 'next/document'
+
+              export default function Document() {
+                return (
+                  <Html lang="fr">
+                    <Head />
+                    <body>
+                      <Main />
+                      <NextScript />
+                    </body>
+                  </Html>
+                )
+              }
+              EOF
               echo "✅ _document.tsx créé"
             fi
             

@@ -3,7 +3,7 @@ import { useAdminConsultationsPageFinished } from "@/hooks/learning/home/useAdmi
 import { memo } from 'react';
 import ActiveBanner from "./ActiveBanner";
 import NoCompetitionBanner from "./NoCompetitionBanner";
-import NotStartedBanner, { ResultsAvailableBanner } from "./NotStartedBanner";
+import NotStartedBanner from "./NotStartedBanner";
 
 type GameStatus = 'results_available' | 'no_competition' | 'not_started' | 'ended_no_proclamation' | 'active';
 
@@ -27,9 +27,6 @@ const DashboardContent = memo(({
   onCompleteGameCleanup,
 }: DashboardContentProps) => {
   switch (status) {
-    case 'results_available':
-      return <ResultsAvailableBanner onGameCompletelyFinished={onCompleteGameCleanup} />;
-
     case 'no_competition':
       return <NoCompetitionBanner />;
 
@@ -57,6 +54,7 @@ const DashboardContent = memo(({
           />
         );
       }
+      
       return <NoCompetitionBanner />;
 
     default:

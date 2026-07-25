@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Case, MatchInfo } from "../interfaces";
 
 export type DateLike = Date | string | number | null | undefined;
@@ -53,4 +54,20 @@ export interface GameState {
     infomatch: MatchInfo[];
     isGameover: boolean;
     isTransitioning: boolean;
+}
+
+export interface Winner {
+  nom: ReactNode;
+  prenoms: ReactNode;
+  consultationId: string;
+  clientId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  country: string;
+  timeSpent: number;
+  timeSpentFormatted: string;
+  createdAt: string;
+  rank: number;
 }

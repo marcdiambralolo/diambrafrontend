@@ -3,16 +3,13 @@ import { useGameGenerator } from '@/hooks/learning/game/useGameGenerator';
 import { Case } from '@/lib/interfaces';
 import { colorReference, Theme } from "@/lib/learning/data";
 import { formatTime, generateLetterPairs } from '@/lib/learning/functions';
-import { BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import Image from "next/image";
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import ActionButton from './components/ActionButton';
 import EmptyState from './components/EmptyState';
-import InfoRowGame from './components/InfoRowGame';
-import ObjectiveCard from './components/ObjectiveCard';
-import ProgressBar from './components/ProgressBar';
+import GameInfo from './components/GameInfo';
 
 const GRID_BASE_STYLES = "w-full grid";
-const BUTTON_BASE_STYLES = "px-6 py-2 font-semibold rounded-xl shadow-md transition-all duration-300";
 
 const Unecase = memo(({ tpsglobal, txt, onClick, isSelected, isLocked, size, mode, pieces }: Case & { pieces: string[] }) => {
     const caseRef = useRef<HTMLDivElement>(null);
@@ -172,32 +169,6 @@ const Ploader = memo(({ tpsglobal, niveau, cases, selectedCase, selectCase, piec
             {renderedCases}
         </div>
     );
-}); 
- 
-interface ActionButtonProps {
-    onClick: () => void;
-    children: React.ReactNode;
-    variant: 'primary' | 'secondary';
-    ariaLabel: string;
-}
-
-const ActionButton = memo(({ onClick, children, variant, ariaLabel }: ActionButtonProps) => {
-    const variantStyles = {
-        primary: "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white",
-        secondary: "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-    };
-
-    return (
-        <button
-            onClick={onClick}
-            className={`${BUTTON_BASE_STYLES} ${variantStyles[variant]}`}
-            aria-label={ariaLabel}
-            role="button"
-            tabIndex={0}
-        >
-            {children}
-        </button>
-    );
 });
 
 const GameBoard = memo(({ showPun, niveau, casesdujeuencours, casesinitiales, pieces, selectedCase, selectCase, tpsglobal }: any) => (
@@ -250,14 +221,11 @@ const GameControls = memo(({ showPun, onToggleShowPun, onLockSelectedCase, timeE
     </div>
 ));
 
- 
 const TheGame = () => {
- 
     const {
         toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales, timeElapsed, selectedCase,
         currentGameType, progression, tpsglobal, niveau, showPun, lockedCount, totalCount, hasCases, pieces,
     } = useGameGenerator();
- 
 
     return (
         <div className="w-full mx-auto max-w-md  flex flex-col items-center justify-center mb-4">
@@ -277,31 +245,14 @@ const TheGame = () => {
                 onLockSelectedCase={lockSelectedCase}
                 timeElapsed={timeElapsed}
             />
-
-            <div className="mt-2 w-full space-y-2">
-                {hasCases && (
-                    <ProgressBar
-                        lockedCount={lockedCount}
-                        totalCount={totalCount}
-                        progression={progression}
-                    />
-                )}
-                <ObjectiveCard />
-                <InfoRowGame
-                    icon={<TrophyOutlined />}
-                    iconBg="bg-yellow-100 dark:bg-yellow-900/30"
-                    iconColor="text-yellow-600 dark:text-yellow-400"
-                    label="JEU EN COURS"
-                    value={currentGameType}
-                />
-                <InfoRowGame
-                    icon={<BarChartOutlined />}
-                    iconBg="bg-green-100 dark:bg-green-900/30"
-                    iconColor="text-green-600 dark:text-green-400"
-                    label="NIVEAU DU JEU"
-                    value={niveau ?? "N/A"}
-                />
-            </div>
+            <GameInfo
+                currentGameType={currentGameType}
+                progression={progression}
+                niveau={niveau!}
+                lockedCount={lockedCount}
+                totalCount={totalCount}
+                hasCases={hasCases}
+            />
         </div>
     );
 };

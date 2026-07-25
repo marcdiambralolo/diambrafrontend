@@ -1,15 +1,13 @@
 'use client';
-import { LearningConfiguration } from "@/lib/interfaces";
+import { useDiambraStore } from "@/lib/store/diambra.store";
 import { AlertCircle, History, Trophy } from "lucide-react";
 import Link from 'next/link';
 import { memo, useEffect, useState } from 'react';
 import { GlowButton } from '../../commons/Boutons';
 import { CountdownTimer } from './CountdownTimer';
 import { GameStatsGrid } from './GameStatsGrid';
-import { useDiambraStore } from "@/lib/store/diambra.store";
 
 interface ActiveBannerProps {
- 
     demarrerJeu: () => void;
     endDate: Date;
     showButton: boolean;
@@ -19,7 +17,6 @@ interface ActiveBannerProps {
 }
 
 const ActiveBanner = ({
-   
     demarrerJeu,
     endDate,
     showButton,
@@ -27,7 +24,7 @@ const ActiveBanner = ({
     countdown,
     isTimeUp = false
 }: ActiveBannerProps) => {
-        const { gameConfig } = useDiambraStore();
+    const { gameConfig } = useDiambraStore();
     const [showHistory, setShowHistory] = useState(false);
 
     useEffect(() => {
@@ -99,7 +96,6 @@ const ActiveBanner = ({
                     </GlowButton>
                 )}
 
-                {/* Indicateur de fin proche */}
                 {countdown !== null && countdown! < 300 && countdown! > 0 && (
                     <div className="flex items-center gap-2 text-yellow-200 text-xs animate-pulse">
                         <AlertCircle className="w-3 h-3" />

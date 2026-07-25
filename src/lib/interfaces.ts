@@ -117,7 +117,11 @@ export interface Consultation {
   _id: string;
   userId: string;
   clientId?: {
+    nom: string;
+    prenoms: string;
     _id: string;
+    phone?:string;
+    email?: string;
     username: string;
     country: string;
   };

@@ -5,17 +5,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const ITEMS_PER_PAGE = 10000;
 
-const isValidTimeSpent = (consultation: Consultation): boolean => {
-  const timeSpent = consultation?.timeSpent;
-  if (!timeSpent) return false;
-
-  const numericMatch = timeSpent.match(/(\d+(?:\.\d+)?)/);
-  if (!numericMatch) return false;
-
-  const numericValue = parseFloat(numericMatch[1]);
-  return !isNaN(numericValue) && numericValue > 0;
-};
-
 export function useAdminConsultationsPageFinished() {
   const isMountedRef = useRef(true);
 
@@ -31,7 +20,7 @@ export function useAdminConsultationsPageFinished() {
       });
 
       if (isMountedRef.current) {
-        const validConsultations = (data?.consultations || []).filter(isValidTimeSpent);
+        const validConsultations = (data?.consultations || []);
         setConsultations(validConsultations);
         setActiveEdition(data?.activeEdition || null);
         setError(null);

@@ -1,5 +1,5 @@
 'use client';
-import { Circle, CheckCircle2, Coins, Gift } from 'lucide-react';
+import { CheckCircle2, Circle, Coins, Gift } from 'lucide-react';
 import { memo } from 'react';
 
 interface TokenCardProps {

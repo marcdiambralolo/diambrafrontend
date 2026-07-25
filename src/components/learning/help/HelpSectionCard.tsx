@@ -1,6 +1,6 @@
 'use client';
-import { memo, useMemo } from 'react';
 import { cn } from "@/lib/utils";
+import { memo, useMemo } from 'react';
 
 const BADGE_COLORS = {
     blue: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",

@@ -1,5 +1,4 @@
 import { api } from "@/lib/api/client";
-import { useDiambraStore } from "@/lib/store/diambra.store";
 
 export type ConsultationCreateResponse = {
     consultation?: {
@@ -66,43 +65,32 @@ export async function createCategoryConsultationLearning(
         country?: string;
         clientId?: string;
         gameStartDate?: Date;
-        initialLearningStats?: {
-            totalTime?: string;
-            averageScore?: number;
-            totalMatches?: number;
-            totalTrouves?: number;
-            totalRates?: number;
-        };
     }
 ): Promise<string> {
-    
-
     // Construire le payload avec toutes les données Learning
     const payload: Record<string, unknown> = {
         idjeu: monidjeu,
-        status: options?.status || 'pending',
+        status: 'pending',
         tpsglobal: options?.tpsglobal || 0,
         niveau: options?.niveau || 0,
-        country: options?.country || null,
-   
-        gameStartDate:   new Date(),
-        timeSpent: '0',
-        
+        gameStartDate: new Date(),
+        timeSpent: '0.0s',
+
         // Initialiser les statistiques Learning
         learningStats: {
-            totalTime: options?.initialLearningStats?.totalTime || '0',
-            averageScore: options?.initialLearningStats?.averageScore || 0,
-            totalMatches: options?.initialLearningStats?.totalMatches || 0,
-            totalTrouves: options?.initialLearningStats?.totalTrouves || 0,
-            totalRates: options?.initialLearningStats?.totalRates || 0,
+            totalTime: '0',
+            averageScore: 0,
+            totalMatches: 0,
+            totalTrouves: 0,
+            totalRates: 0,
             matchesDetails: [],
         },
-        
+
         // Initialiser les autres champs Learning
         finalScore: 0,
         totalTimeSeconds: 0,
         matchesCompleted: 0,
-        gameEndDate:  new Date(),
+        gameEndDate: new Date(),
     };
 
     try {
@@ -142,31 +130,10 @@ export async function createCategoryConsultationLearningWithMatches(
         combinaisons?: string[];
     }> = []
 ): Promise<string> {
-    // Calculer les statistiques agrégées à partir des matchs
-    const totalMatches = matchDetails.length;
-    const totalTrouves = matchDetails.reduce((sum, match) => sum + (match.trouves || 0), 0);
-    const totalRates = matchDetails.reduce((sum, match) => sum + (match.rates || 0), 0);
-    const totalScore = matchDetails.reduce((sum, match) => sum + (match.score || 0), 0);
-    const averageScore = totalMatches > 0 ? totalScore / totalMatches : 0;
-    
-    // Calculer le temps total en secondes
-    const totalTimeSeconds = matchDetails.reduce((sum, match) => sum + (match.timeSpent || 0), 0);
-    const totalTime = `${Math.floor(totalTimeSeconds / 60)}m ${totalTimeSeconds % 60}s`;
-
-    // Créer la consultation avec les matchs
     return createCategoryConsultationLearning(monidjeu, {
         tpsglobal: matchDetails[0]?.tpsglobal || 0,
         niveau: matchDetails[0]?.niveau || 0,
-        initialLearningStats: {
-            totalTime,
-            averageScore,
-            totalMatches,
-            totalTrouves,
-            totalRates,
-        },
-        // Ajouter les matchs details
-        // Note: Ceci nécessite que le backend accepte les matchsDetails dans la requête
-        // Vous devrez peut-être adapter le backend pour accepter cette donnée
+        status: 'pending',
     });
 }
 

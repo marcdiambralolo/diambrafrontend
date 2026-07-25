@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { useCallback, memo, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { memo, useCallback, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 type Variant = 'primary' | 'secondary' | 'success' | 'danger';
 type Size = 'sm' | 'md' | 'lg';

@@ -1,5 +1,4 @@
 'use client';
-
 import { api } from "@/lib/api/client";
 import { CompetitionInfo, Consultation } from "@/lib/interfaces";
 import { calculateDuration, calculateDurationInSeconds, formatCompetitionDate } from "@/lib/learning/functions";
@@ -10,16 +9,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useCompetitionStorage from "./useCompetitionStorage";
 import { useMessage } from "./useMessage";
 
-// ============================================
-// Constantes
-// ============================================
 const PERMANENT_MESSAGE_DURATION = 10000;
 const STORAGE_PREFIX = 'validated_competition_';
 const STORAGE_KEY = (competitionId: string): string => `${STORAGE_PREFIX}${competitionId}`;
 
-// ============================================
-// Types & Utilitaires
-// ============================================
 interface ValidationMessage {
   text: string;
   type: 'success' | 'error';
@@ -30,28 +23,56 @@ interface CompetitionStats {
   totalTrouves: number;
   totalRates: number;
   averageScore: number;
+  totalMatches: number;
+  totalTimeGlobal: number;
+  completedMatches: number;
+  successRate: number;
 }
 
-// Optimisé : Un seul passage (reduce) au lieu de 3 parcours consécutifs du tableau
 const calculateCompetitionStats = (competition: CompetitionInfo): CompetitionStats => {
   const matches = competition.matchInfo || [];
   const totalMatches = matches.length;
 
   if (totalMatches === 0) {
-    return { totalScore: 0, totalTrouves: 0, totalRates: 0, averageScore: 0 };
+    return {
+      totalScore: 0,
+      totalTrouves: 0,
+      totalRates: 0,
+      averageScore: 0,
+      totalMatches: 0,
+      totalTimeGlobal: 0,
+      completedMatches: 0,
+      successRate: 0
+    };
   }
 
   const stats = matches.reduce((acc, m) => {
     const trouves = m.trouves || 0;
+    const rates = m.rates || 0;
+
     acc.totalScore += trouves;
     acc.totalTrouves += trouves;
-    acc.totalRates += (m.rates || 0);
+    acc.totalRates += rates;
+    acc.totalTimeGlobal += m.tpsglobal || 0;
+    if (m.isgameover) acc.completedMatches += 1;
+
     return acc;
-  }, { totalScore: 0, totalTrouves: 0, totalRates: 0 });
+  }, {
+    totalScore: 0,
+    totalTrouves: 0,
+    totalRates: 0,
+    totalTimeGlobal: 0,
+    completedMatches: 0
+  });
+
+  const totalAttempts = stats.totalTrouves + stats.totalRates;
+  const successRate = totalAttempts > 0 ? Math.round((stats.totalTrouves / totalAttempts) * 100) : 0;
 
   return {
     ...stats,
-    averageScore: Math.round(stats.totalScore / totalMatches)
+    totalMatches,
+    averageScore: Math.round(stats.totalScore / totalMatches),
+    successRate
   };
 };
 
@@ -60,34 +81,23 @@ const getStoredValidationStatus = (competitionId: string): boolean => {
   return localStorage.getItem(STORAGE_KEY(competitionId)) === 'true';
 };
 
-// ============================================
-// Hook Principal
-// ============================================
 export const useCompetitionValidation = (competition: CompetitionInfo) => {
-  // États
   const [isLocalValidating, setIsLocalValidating] = useState(false);
   const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
   const [isValidated, setIsValidated] = useState(() => getStoredValidationStatus(competition.id));
   const [showPermanentMessage, setShowPermanentMessage] = useState(() => getStoredValidationStatus(competition.id));
 
-  // Refs
   const permanentMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
-  // Hooks tierces
   const queryClient = useQueryClient();
   const { showMessage } = useMessage();
   const { updateLocalCache } = useCompetitionStorage();
 
-  // 1. Extraction sélective de Zustand pour stopper les re-renders en cascade
   const currentConsultationId = useDiambraStore((state) => state.currentConsultationId);
   const setGameIsFinished = useDiambraStore((state) => state.setGameIsFinished);
 
-  // ============================================
-  // Effets
-  // ============================================
 
-  // Nettoyage des timeouts et statuts de montage
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -98,7 +108,6 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
     };
   }, []);
 
-  // Synchronisation multi-onglets
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY(competition.id) && isMountedRef.current) {
@@ -112,78 +121,96 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [competition.id]);
 
-  // Persistance automatique du statut
   useEffect(() => {
     if (isValidated) {
       localStorage.setItem(STORAGE_KEY(competition.id), 'true');
     }
   }, [isValidated, competition.id]);
 
-  // ============================================
-  // Fonctions de validation
-  // ============================================
-
   const validateCompetition = useCallback(async (comp: CompetitionInfo): Promise<boolean> => {
     try {
-      const { totalScore, totalTrouves, totalRates, averageScore } = calculateCompetitionStats(comp);
-      const startDate = comp.matchInfo[0]?.datedebut || new Date().toISOString();
-      const endDate = new Date().toISOString();
+      const stats = calculateCompetitionStats(comp);
+
+      const startDate = comp.matchInfo[0]?.datedebut || comp.datedebut || new Date().toISOString();
+      const endDate = comp.datefin || new Date().toISOString();
       const totalTimeSeconds = calculateDurationInSeconds(startDate, endDate);
 
       const targetConsultationId = currentConsultationId || '12345678';
       const { data: consultation } = await api.get<Consultation>(`/consultations/${targetConsultationId}`);
-      
+
       const existingStats = (consultation?.learningStats || {}) as LearningStatsPayload;
       const existingMatches = existingStats.matchesDetails || [];
 
+      const matchesDetails = comp.matchInfo.map(m => ({
+        tpsglobal: m.tpsglobal || 0,
+        score: m.trouves || 0,
+        trouves: m.trouves || 0,
+        rates: m.rates || 0,
+        timeSpent: comp.timeSpent || 0,
+        isgameover: m.isgameover || false,
+        niveau: comp.niveau || 0,
+        combinaisons: m.combinaisons || [],
+        matchNumber: m.matchNumber,
+        numeromatch: m.numeromatch,
+        numordrep: m.numordrep,
+        entite: m.entite
+      }));
+
+      // Calcul du temps total en format string
+      const totalTimeFormatted = calculateDuration(startDate, endDate);
+
+      // Construction du payload complet
       const updatedPayload = {
         ...consultation,
         status: 'completed' as const,
         gameEndDate: endDate,
         totalTimeSeconds,
-        finalScore: totalScore,
+        timeSpent: totalTimeSeconds|| 0,
+        finalScore: stats.totalScore,
         matchesCompleted: comp.matchInfo.length,
+        niveau: comp.niveau || 0,
+        tpsglobal: comp.matchInfo[0]?.tpsglobal || 0,
         learningStats: {
-          totalTime: calculateDuration(startDate, endDate),
-          averageScore,
+          totalTime: totalTimeFormatted,
+          averageScore: stats.averageScore,
           completedAt: endDate,
           totalMatches: (existingStats.totalMatches || 0) + comp.matchInfo.length,
-          totalTrouves: (existingStats.totalTrouves || 0) + totalTrouves,
-          totalRates: (existingStats.totalRates || 0) + totalRates,
+          totalTrouves: (existingStats.totalTrouves || 0) + stats.totalTrouves,
+          totalRates: (existingStats.totalRates || 0) + stats.totalRates,
           matchesDetails: [
             ...existingMatches,
-            ...comp.matchInfo.map(m => ({
-              tpsglobal: m.tpsglobal,
-              score: m.trouves,
-              trouves: m.trouves,
-              rates: m.rates,
-              isgameover: m.isgameover,
-              timeSpent: m.timeSpent,
-              niveau: comp.niveau,
-            }))
+            ...matchesDetails
           ],
         },
       };
 
+      // Envoi de la mise à jour
       await api.put(`/consultations/${targetConsultationId}`, updatedPayload);
 
+      // Mise à jour du cache local
       updateLocalCache(comp.id);
       showMessage('Compétition validée avec succès !', 'success');
       setGameIsFinished(true);
 
+      // Invalidation des requêtes
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['game'] }),
         queryClient.invalidateQueries({ queryKey: ['consultation', targetConsultationId] }),
         queryClient.invalidateQueries({ queryKey: ['competitions'] }),
+        queryClient.invalidateQueries({ queryKey: ['leaderboard'] }),
       ]);
 
       return true;
     } catch (error: any) {
       console.error('❌ Erreur validation:', error);
+
+      // Gestion des erreurs spécifiques
       if (error?.response?.status === 404) {
         showMessage('Consultation introuvable. Veuillez rafraîchir la page.', 'error');
       } else if (error?.response?.status === 409) {
         showMessage('Cette compétition a déjà été validée.', 'error');
+      } else if (error?.response?.status === 422) {
+        showMessage('Données invalides. Vérifiez les informations de la compétition.', 'error');
       } else {
         const errorMessage = error?.response?.data?.message || 'Erreur lors de la validation';
         showMessage(errorMessage, 'error');
@@ -192,15 +219,17 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
     }
   }, [currentConsultationId, showMessage, updateLocalCache, queryClient, setGameIsFinished]);
 
-  // ============================================
-  // Gestionnaires d'événements
-  // ============================================
-
   const handleValidate = useCallback(async () => {
     if (isLocalValidating) return;
 
     if (!competition.matchInfo?.length) {
       showMessage('Aucun match à valider', 'error');
+      return;
+    }
+
+    const allMatchesComplete = competition.matchInfo.every(m => m.isgameover === true);
+    if (!allMatchesComplete) {
+      showMessage('Tous les matches doivent être terminés avant la validation', 'error');
       return;
     }
 
@@ -216,8 +245,9 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
       const success = await validateCompetition(competition);
 
       if (success && isMountedRef.current) {
+        const stats = calculateCompetitionStats(competition);
         setValidationMessage({
-          text: '✅ Compétition validée avec succès !',
+          text: `✅ Compétition validée ! Score: ${stats.totalScore} pts, Taux: ${stats.successRate}%`,
           type: 'success'
         });
         setIsValidated(true);
@@ -270,36 +300,58 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
 
   const handleClosePermanentMessage = useCallback(() => {
     setShowPermanentMessage(false);
-    clearValidationStatus();
-  }, [clearValidationStatus]);
+  }, []);
 
-  // Valeurs dérivées
+  const competitionStats = useMemo(() => calculateCompetitionStats(competition), [competition]);
   const formattedStartDate = useMemo(() => formatCompetitionDate(competition.datedebut), [competition.datedebut]);
   const formattedFinishedDate = useMemo(() => competition.datefin ? formatCompetitionDate(competition.datefin) : null, [competition.datefin]);
 
-  // Retour entièrement mémorisé
+  const allMatchesCompleted = useMemo(() => {
+    return competition.matchInfo?.every(m => m.isgameover === true) ?? false;
+  }, [competition.matchInfo]);
+
   return useMemo(() => ({
+    // Handlers
     handleCloseMessage,
     handleClosePermanentMessage,
     handleValidate,
+    clearValidationStatus,
+
+    // États
     isLoading: isLocalValidating,
     isValidated,
     validationMessage,
-    formattedStartDate,
     showPermanentMessage,
+
+    // Données formatées
+    formattedStartDate,
     formattedFinishedDate,
-    clearValidationStatus,
+
+    // Statistiques de la compétition
+    stats: competitionStats,
+    allMatchesCompleted,
+
+    // Informations supplémentaires
+    totalMatches: competition.matchInfo?.length || 0,
+    timeSpent: competition.timeSpent,
+    niveau: competition.niveau,
+
   }), [
     handleCloseMessage,
     handleClosePermanentMessage,
     handleValidate,
+    clearValidationStatus,
     isLocalValidating,
     isValidated,
     validationMessage,
-    formattedStartDate,
     showPermanentMessage,
+    formattedStartDate,
     formattedFinishedDate,
-    clearValidationStatus
+    competitionStats,
+    allMatchesCompleted,
+    competition.matchInfo?.length,
+    competition.timeSpent,
+    competition.niveau,
   ]);
 };
 

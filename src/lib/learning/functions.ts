@@ -216,4 +216,6 @@ export const formatCompetitionDate = (dateStr?: string): string => {
         return 'Date invalide';
     }
 };
+
+
  

@@ -67,9 +67,7 @@ export function useLaMise() {
     const isSufficient = availableQuantity >= REQUIRED_QUANTITY;
 
     const cardClasses = useMemo(
-        () =>
-            `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES
-            }`,
+        () => `${BASE_CLASSES} ${isSufficient ? SUFFICIENT_CLASSES : INSUFFICIENT_CLASSES}`,
         [isSufficient]
     );
 

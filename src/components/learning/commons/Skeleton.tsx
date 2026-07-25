@@ -1,5 +1,5 @@
 'use client';
-import { memo, CSSProperties, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, memo, useEffect, useMemo, useState } from 'react';
 
 interface SkeletonProps {
   height?: string | number;

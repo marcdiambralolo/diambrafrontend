@@ -26,7 +26,7 @@ export const FooterSection = memo(() => {
                 <StatusBadge text={status.text} color={status.color} />
             </div>
 
-            <p className="text-white mt-2">DIAMBRA CORPORATION</p>
+            <p className="text-white mt-2">Diambra Corporation</p>
         </footer>
     );
 }); 

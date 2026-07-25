@@ -1,6 +1,6 @@
 'use client';
-import { memo } from 'react';
 import { LearningConfiguration } from "@/lib/interfaces";
+import { memo } from 'react';
 
 interface GameStatsGridProps {
     gameConfig: LearningConfiguration;

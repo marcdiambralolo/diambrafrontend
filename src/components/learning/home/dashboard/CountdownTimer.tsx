@@ -1,8 +1,8 @@
 'use client';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { getLabelAbbr } from "@/lib/functions";
 import { TimeLeft } from "@/lib/interfaces";
 import { TIME_UNITS } from "@/lib/learning/constantes";
-import { getLabelAbbr } from "@/lib/functions";
+import { memo, useCallback, useEffect, useState } from 'react';
 
 const TIMER_VARIANTS = {
     default: {

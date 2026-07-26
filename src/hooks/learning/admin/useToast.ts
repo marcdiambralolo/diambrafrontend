@@ -18,7 +18,6 @@ export function useToast() {
 
         setToasts(prev => [...prev, newToast]);
 
-        // Auto-remove after 3 seconds
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== id));
         }, 3000);

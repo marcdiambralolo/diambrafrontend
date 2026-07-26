@@ -13,10 +13,8 @@ export function EditionPeriod({ startDate, endDate }: EditionPeriodProps) {
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30">
                 <Calendar className="w-5 h-5 text-purple-600" />
             </div>
+
             <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Période de l'édition de jeu
-                </p>
                 <div className="pt-2">
                     <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                         <span>{startDate}</span>

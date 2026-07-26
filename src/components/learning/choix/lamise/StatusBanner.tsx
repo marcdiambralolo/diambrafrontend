@@ -45,15 +45,9 @@ export const StatusBanner = memo(({ isSufficient, requiredQuantity, availableQua
             <div className={`rounded-full ${config.iconBg} p-2 flex-shrink-0`}>
                 <Icon className={`w-5 h-5 ${config.iconColor}`} aria-hidden="true" />
             </div>
-
             <div className="flex-1">
                 <div className={`text-sm font-semibold ${config.titleColor} flex items-center gap-2`}>
                     {config.title}
-                    {isSufficient && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200">
-                            OK
-                        </span>
-                    )}
                 </div>
                 <p className={`text-xs ${config.textColor} mt-0.5`}>
                     {message}

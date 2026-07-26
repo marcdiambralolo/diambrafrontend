@@ -20,10 +20,9 @@ const LoadMoreButton = memo(({ onClick, remainingCount, isLoading }: LoadMoreBut
         ) : (
             <ChevronDown className="w-4 h-4" />
         )}
+
         {isLoading ? 'Chargement...' : `Voir plus (${remainingCount} restantes)`}
     </button>
 ));
-
-LoadMoreButton.displayName = 'LoadMoreButton';
 
 export default LoadMoreButton;

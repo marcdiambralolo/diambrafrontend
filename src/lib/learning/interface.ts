@@ -71,3 +71,21 @@ export interface Winner {
   createdAt: string;
   rank: number;
 }
+
+export interface CompetitionInfo {
+ 
+ displayName: string;
+ isValidated: boolean;
+ niveau: any;
+ id: string;
+ datedebut: string;
+ datefin: string;
+ idConfig: string;
+ matchInfo: MatchInfo[];
+ consultationId: string;
+ timeSpent?: number;
+ name?: string;
+ matches?: MatchResult[];
+ totalScore?: number;
+ 
+}

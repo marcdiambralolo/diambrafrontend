@@ -1,6 +1,7 @@
 "use client";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
+import { formatRelativeDate, formatTimeFromSeconds, parseTimeToSeconds } from "@/lib/learning/functions";
 import { Calendar, CheckCircle, Globe, Timer, UserRound } from "lucide-react";
 import { memo } from "react";
 
@@ -11,41 +12,6 @@ interface ConsultationCardProps {
     duplicateCount?: number;
     rank?: number;
 }
-
-const parseTimeToSeconds = (timeStr: string): number => {
-    if (!timeStr) return 0;
-
-    if (/^\d+$/.test(timeStr)) {
-        return parseInt(timeStr, 10);
-    }
-
-    const match = timeStr.match(/(\d+(?:\.\d+)?)\s*(?:sec|s)?/i);
-    return match ? parseFloat(match[1]) : 0;
-};
-
-const formatTimeFromSeconds = (seconds: number): string => {
-    if (seconds < 60) return `${seconds} sec`;
-    const minutes = Math.floor(seconds / 60);
-    const restSeconds = seconds % 60;
-    if (restSeconds === 0) return `${minutes} min`;
-    return `${minutes} min ${restSeconds} sec`;
-};
-
-const formatRelativeDate = (dateStr: string): string => {
-    if (!dateStr) return 'Date inconnue';
-    try {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch {
-        return dateStr;
-    }
-};
 
 const ConsultationCard = memo(({
     consultation,

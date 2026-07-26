@@ -19,7 +19,7 @@ function HistoriquePageClientImpl() {
 
   return (
     <div className="max-w-4xl mx-auto px-3 py-4 sm:px-4 sm:py-8">
-      <div className="text-center mb-6">
+      <div className="text-center">
         <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 dark:bg-purple-900/30 px-4 py-1.5 mb-4">
           <Trophy className="w-4 h-4 text-yellow-500" />
           <span className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
@@ -36,9 +36,6 @@ function HistoriquePageClientImpl() {
                 <Calendar className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Période de l'édition de jeu
-                </p>
                 <div className="pt-2">
                   <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                     <span>{formattedStartDate}</span>
@@ -75,6 +72,7 @@ function HistoriquePageClientImpl() {
 }
 
 const HistoriquePageClient = memo(HistoriquePageClientImpl);
+
 HistoriquePageClient.displayName = 'HistoriquePageClient';
 
 export default HistoriquePageClient;

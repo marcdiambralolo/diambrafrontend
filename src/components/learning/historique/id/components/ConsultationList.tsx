@@ -18,7 +18,7 @@ export function ConsultationList({
     }
 
     return (
-        <div className="space-y-4 space-x-4">
+        <div className="grid grid-cols-1  gap-4 md:gap-6">
             {rankedConsultations.map((consultation, index) => {
                 const comb = consultation.combinaison || '????';
                 const duplicateInfo = duplicateMap.get(comb);

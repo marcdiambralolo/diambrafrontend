@@ -13,6 +13,7 @@ const StatusBadge = memo(({ text, color }: { text: string; color: string }) => (
 
 export const FooterSection = memo(() => {
     const onlineStatus = useOnlineStatus();
+
     const status = useMemo(() =>
         onlineStatus ? STATUS_CONFIG.online : STATUS_CONFIG.offline,
         [onlineStatus]
@@ -25,7 +26,6 @@ export const FooterSection = memo(() => {
                 <span>© {CURRENT_YEAR}</span>
                 <StatusBadge text={status.text} color={status.color} />
             </div>
-
             <p className="text-white mt-2">Diambra Corporation</p>
         </footer>
     );

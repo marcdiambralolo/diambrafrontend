@@ -14,7 +14,6 @@ const InfoRowGame = memo(({ icon, iconBg, iconColor, label, value }: {
         <div className={`p-1 ${iconBg} rounded-lg`}>
             <div className={iconColor}>{icon}</div>
         </div>
-
         <div className="flex-1">
             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
                 {label}

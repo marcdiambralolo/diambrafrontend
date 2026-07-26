@@ -54,7 +54,7 @@ const DashboardContent = memo(({
           />
         );
       }
-      
+
       return <NoCompetitionBanner />;
 
     default:

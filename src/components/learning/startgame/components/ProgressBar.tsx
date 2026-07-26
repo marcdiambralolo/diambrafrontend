@@ -7,6 +7,7 @@ const ProgressBar = memo(({ lockedCount, totalCount, progression }: { lockedCoun
             <span>Progression</span>
             <span>{lockedCount}/{totalCount}</span>
         </div>
+
         <div className="w-full bg-gray-200 rounded-full h-2">
             <div
                 className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
@@ -14,6 +15,6 @@ const ProgressBar = memo(({ lockedCount, totalCount, progression }: { lockedCoun
             />
         </div>
     </div>
-)); 
+));
 
 export default ProgressBar;

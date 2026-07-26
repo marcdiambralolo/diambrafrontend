@@ -2,10 +2,10 @@
 import { ConfigStatus, LearningConfiguration, StatusConfigItem } from '@/lib/interfaces';
 import { generateNumeromatch } from '@/lib/learning/configUtils';
 import { ITEMS_PER_PAGE } from '@/lib/learning/constantes';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useConfigApi } from './useConfigApi';
 import { usePagination } from './usePagination';
-import { useToast } from './useToast'; 
+import { useToast } from './useToast';
 
 export const statusConfig: Record<ConfigStatus, StatusConfigItem> = {
     pending: {
@@ -115,52 +115,11 @@ export function useLearningConfig() {
     }, [loadConfigs]);
 
     return {
-        configs,
-        loading: isLoading || isPending,
-        error,
-        editingId,
-        isCreating,
-        isPending,
-        currentPage,
-        totalPages,
-        paginatedConfigs: paginatedItems,
-        setCurrentPage,
-        setEditingId,
-        setIsCreating,
-        handleCreate,
-        handleUpdate,
-        handleDelete,
-        refreshConfigs,
-        setConfigs
+        loading: isLoading || isPending, paginatedConfigs: paginatedItems,
+        error, configs, editingId, isCreating, isPending, currentPage, totalPages,
+        setCurrentPage, setEditingId, setIsCreating,
+        handleCreate, handleUpdate, handleDelete, refreshConfigs, setConfigs
     };
-}
-
-interface ConfigStats {
-    total: number;
-    active: number;
-    pending: number;
-    ended: number;
-    cancelled: number;
-    activePercentage: number;
-}
-
-export function useConfigStats(configs: LearningConfiguration[]): ConfigStats {
-    return useMemo(() => {
-        const total = configs.length;
-        const active = configs.filter(c => c.status === 'active').length;
-        const pending = configs.filter(c => c.status === 'pending').length;
-        const ended = configs.filter(c => c.status === 'ended').length;
-        const cancelled = configs.filter(c => c.status === 'cancelled').length;
-
-        return {
-            total,
-            active,
-            pending,
-            ended,
-            cancelled,
-            activePercentage: total > 0 ? (active / total) * 100 : 0,
-        };
-    }, [configs]);
 }
 
 export { useLearningConfig as default };

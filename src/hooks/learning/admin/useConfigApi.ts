@@ -1,19 +1,9 @@
-
 import { api } from '@/lib/api/client';
 import { LearningConfiguration } from '@/lib/interfaces';
 import { normalizeConfigDates } from '@/lib/learning/configUtils';
 import { useState, useCallback } from 'react';
 
-interface UseConfigApiReturn {
-    fetchConfigurations: () => Promise<LearningConfiguration[]>;
-    createConfiguration: (data: Partial<LearningConfiguration>) => Promise<LearningConfiguration | null>;
-    updateConfiguration: (id: string, data: Partial<LearningConfiguration>) => Promise<LearningConfiguration | null>;
-    deleteConfiguration: (id: string) => Promise<boolean>;
-    isLoading: boolean;
-    error: string | null;
-}
-
-export function useConfigApi(): UseConfigApiReturn {
+export function useConfigApi() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

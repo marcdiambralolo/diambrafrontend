@@ -186,36 +186,84 @@ export function isValidDate(value: unknown): value is Date {
 
 
 export const getMatchType = (tpsglobal?: number): string => {
-    if (tpsglobal === undefined) return 'Inconnu';
-    return MATCH_TYPES[tpsglobal] ?? 'Inconnu';
+  if (tpsglobal === undefined) return 'Inconnu';
+  return MATCH_TYPES[tpsglobal] ?? 'Inconnu';
 };
 
 export const calculateDuration = (startDate: string, endDate: string): string => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
-    const diffInSeconds = Math.floor((end - start) / 1000);
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+  const diffInSeconds = Math.floor((end - start) / 1000);
 
-    if (diffInSeconds < 60) return `${diffInSeconds}s`;
-    const minutes = Math.floor(diffInSeconds / 60);
-    const seconds = diffInSeconds % 60;
-    return `${minutes}m ${seconds}s`;
+  if (diffInSeconds < 60) return `${diffInSeconds}s`;
+  const minutes = Math.floor(diffInSeconds / 60);
+  const seconds = diffInSeconds % 60;
+  return `${minutes}m ${seconds}s`;
 };
 
 export const calculateDurationInSeconds = (startDate: string, endDate: string): number => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
-    return Math.floor((end - start) / 1000);
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+  return Math.floor((end - start) / 1000);
 };
 
 export const formatCompetitionDate = (dateStr?: string): string => {
-    if (!dateStr) return 'Non définie';
-    try {
-        const date = new Date(dateStr);
-        return isNaN(date.getTime()) ? 'Date invalide' : date.toLocaleString();
-    } catch {
-        return 'Date invalide';
-    }
+  if (!dateStr) return 'Non définie';
+  try {
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? 'Date invalide' : date.toLocaleString();
+  } catch {
+    return 'Date invalide';
+  }
 };
 
+export const parseTimeToSeconds = (timeStr: string): number => {
+  if (!timeStr) return 0;
 
- 
+  if (/^\d+$/.test(timeStr)) {
+    return parseInt(timeStr, 10);
+  }
+
+  const match = timeStr.match(/(\d+(?:\.\d+)?)\s*(?:sec|s)?/i);
+  return match ? parseFloat(match[1]) : 0;
+};
+
+export const formatTimeFromSeconds = (seconds: number): string => {
+  if (seconds < 60) return `${seconds} sec`;
+  const minutes = Math.floor(seconds / 60);
+  const restSeconds = seconds % 60;
+  if (restSeconds === 0) return `${minutes} min`;
+  return `${minutes} min ${restSeconds} sec`;
+};
+
+export const formatRelativeDate = (dateStr: string): string => {
+  if (!dateStr) return 'Date inconnue';
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
+export const formatDateHistorique = (dateStr: string): string => {
+  if (!dateStr) return 'Date inconnue';
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return dateStr;
+  }
+}; 

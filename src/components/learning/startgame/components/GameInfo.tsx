@@ -24,7 +24,9 @@ const GameInfo = ({ currentGameType, progression, niveau, lockedCount, totalCoun
                     progression={progression}
                 />
             )}
+
             <ObjectiveCard />
+
             <InfoRowGame
                 icon={<TrophyOutlined />}
                 iconBg="bg-yellow-100 dark:bg-yellow-900/30"

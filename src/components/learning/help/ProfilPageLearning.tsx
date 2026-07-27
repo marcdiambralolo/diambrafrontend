@@ -191,10 +191,10 @@ const HelpPage = () => {
   }, [router]);
 
   return (
-    <div className="container mx-auto px-2 max-w-md">
+    <div className="container mx-auto max-w-md">
       <HeaderSection />
       <HelpPanel onClose={handleCloseHelp} />
-      <div className="mt-6">
+      <div className="mt-4">
         <FooterSection />
       </div>
     </div>

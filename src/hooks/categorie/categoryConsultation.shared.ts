@@ -29,11 +29,6 @@ export function getCategoryErrorMessage(error: unknown, fallback: string): strin
     return fallback;
 }
 
-/**
- * Crée une consultation standard pour un jeu
- * @param monidjeu - ID du jeu
- * @returns ID de la consultation créée
- */
 export async function createCategoryConsultation(monidjeu: string): Promise<string> {
     const payload: Record<string, unknown> = {
         idjeu: monidjeu,
@@ -50,33 +45,16 @@ export async function createCategoryConsultation(monidjeu: string): Promise<stri
     return consultationId;
 }
 
-/**
- * Crée une consultation Learning avec toutes les options disponibles
- * @param monidjeu - ID du jeu (obligatoire)
- * @param options - Options supplémentaires pour la consultation Learning
- * @returns ID de la consultation créée
- */
 export async function createCategoryConsultationLearning(
-    monidjeu: string,
-    options?: {
-        tpsglobal?: number;
-        niveau?: number;
-        status?: 'pending' | 'in_progress' | 'completed' | 'abandoned';
-        country?: string;
-        clientId?: string;
-        gameStartDate?: Date;
-    }
+    monidjeu: string
 ): Promise<string> {
-    // Construire le payload avec toutes les données Learning
     const payload: Record<string, unknown> = {
         idjeu: monidjeu,
         status: 'pending',
-        tpsglobal: options?.tpsglobal || 0,
-        niveau: options?.niveau || 0,
+        tpsglobal: 0,
+        niveau: 0,
         gameStartDate: new Date(),
-        timeSpent: '0.0s',
-
-        // Initialiser les statistiques Learning
+        timeSpent: '0',
         learningStats: {
             totalTime: '0',
             averageScore: 0,
@@ -85,8 +63,6 @@ export async function createCategoryConsultationLearning(
             totalRates: 0,
             matchesDetails: [],
         },
-
-        // Initialiser les autres champs Learning
         finalScore: 0,
         totalTimeSeconds: 0,
         matchesCompleted: 0,
@@ -111,37 +87,6 @@ export async function createCategoryConsultationLearning(
     }
 }
 
-/**
- * Crée une consultation Learning avec des matchs détaillés
- * @param monidjeu - ID du jeu
- * @param matchDetails - Détails des matchs à initialiser
- * @returns ID de la consultation créée
- */
-export async function createCategoryConsultationLearningWithMatches(
-    monidjeu: string,
-    matchDetails: Array<{
-        tpsglobal?: number;
-        score?: number;
-        trouves?: number;
-        rates?: number;
-        timeSpent?: number;
-        isgameover?: boolean;
-        niveau?: number;
-        combinaisons?: string[];
-    }> = []
-): Promise<string> {
-    return createCategoryConsultationLearning(monidjeu, {
-        tpsglobal: matchDetails[0]?.tpsglobal || 0,
-        niveau: matchDetails[0]?.niveau || 0,
-        status: 'pending',
-    });
-}
-
-/**
- * Met à jour une consultation Learning existante
- * @param consultationId - ID de la consultation
- * @param updates - Mises à jour à appliquer
- */
 export async function updateCategoryConsultationLearning(
     consultationId: string,
     updates: {
@@ -180,11 +125,6 @@ export async function updateCategoryConsultationLearning(
     }
 }
 
-/**
- * Termine une consultation Learning avec les résultats finaux
- * @param consultationId - ID de la consultation
- * @param results - Résultats finaux
- */
 export async function completeCategoryConsultationLearning(
     consultationId: string,
     results: {

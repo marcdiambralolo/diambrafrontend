@@ -112,7 +112,7 @@ const WinnersSection = memo(function WinnersSection({
                 totalParticipants={ranking.totalParticipants}
             />
             <Podium winners={ranking.winners.slice(0, 3)} />
-            <WinnersList winners={ranking.winners} />
+            <WinnersList winners={ranking.winners.slice(0, 3)} />
         </div>
     );
 });

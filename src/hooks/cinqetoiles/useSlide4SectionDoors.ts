@@ -43,6 +43,7 @@ const validateForm = (form: FormData): FormErrors => {
 export function useSlide4SectionDoors() {
   const searchParams = useSearchParams();
   const monjeu = searchParams?.get("monjeu");
+  const retour = searchParams?.get("retour");
   const countryOptions = useMemo(() => RUBRIQUE_COUNTRY_OPTIONS, []);
 
   const submitClass = useMemo(
@@ -128,11 +129,14 @@ export function useSlide4SectionDoors() {
 
       if (response.data.success && response.data.user) {
         updateUser(response.data.user);
-        if (monjeu) {
-          router.push(`/star/choix/${monjeu}`);
-        } else {
-          router.push(`/star/profil`);
-        }
+        if (retour === "learning") {
+          router.push(`/star/learning`);
+        } else
+          if (monjeu) {
+            router.push(`/star/choix/${monjeu}`);
+          } else {
+            router.push(`/star/profil`);
+          }
       } else {
         setApiError(response.data.error || "Une erreur est survenue");
       }

@@ -23,7 +23,7 @@ const useGameActions = (
                 if (idx === index1) {
                     const newTxt = c2.txt;
                     const shouldLock = prev.casesinitiales[idx]?.txt === newTxt;
-                    return { ...c, txt: newTxt, isLocked: shouldLock, isSelected: false };
+                    return { ...c, txt: newTxt, isLocked: false, isSelected: false };
                 }
                 if (idx === index2) {
                     const newTxt = c1.txt;

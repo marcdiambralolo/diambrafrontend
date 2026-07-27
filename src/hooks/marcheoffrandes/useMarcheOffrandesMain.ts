@@ -201,7 +201,7 @@ export function useMarcheOffrandesMain() {
       if (user && user.secretCode) {
         router.push(redirectUrl);
       } else {
-        router.push(`/star/profil/doors?monjeu=${monjeu}`);
+        router.push(`/star/profil/doors?retour=${retour}&transactionId=${transactionId}&monjeu=${monjeu}`);
       }
 
     } catch (err: unknown) {

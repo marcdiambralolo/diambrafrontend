@@ -88,7 +88,7 @@ const TopCard = ({ title, icon, items, color }: any) => (
 
 export default function ConsultationsPage() {
   const { consultations, loading, error, isRefreshing, activeEdition, handleRefresh } = useAdminConsultationsPageFinished();
-console.log('ConsultationsPageClientEnded consultations:', consultations);
+
   const stats = useMemo(() => {
     if (!consultations.length) return null;
 

@@ -5,16 +5,19 @@ import CompetitionHeader from './CompetitionHeader';
 import CompetitionStats from './CompetitionStats';
 import MessageToast from './MessageToast';
 import PermanentSuccessMessage from './PermanentSuccessMessage';
-import { CompetitionInfo } from '@/lib/learning/interface';
+import { CompetitionInfo, User } from '@/lib/interfaces';
+//import { CompetitionInfo } from '@/lib/learning/interface';
 
 interface CompetitionDetailsProps {
   competition: CompetitionInfo;
   priority?: boolean;
+  user:User | null; // Ajout de la propriété user
 }
 
 const CompetitionDetails = memo(function CompetitionDetails({
   competition,
   priority = false,
+  user,
 }: CompetitionDetailsProps) {
   const {
     handleCloseMessage, handleClosePermanentMessage, handleValidate,
@@ -49,6 +52,7 @@ const CompetitionDetails = memo(function CompetitionDetails({
           finishedDate={formattedFinishedDate ?? ''}
           timeSpent={competition.timeSpent}
           punChangeCount={competition.punChangeCount}
+          user={user} // Passer l'utilisateur à CompetitionStats
         />
       </div>
     </div>

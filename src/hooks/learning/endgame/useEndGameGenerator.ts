@@ -1,12 +1,16 @@
 'use client';
+import { processUserData } from '@/lib/functions';
+import { useAuth } from '@/lib/hooks';
 import { useDiambraStore } from "@/lib/store/diambra.store";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import useCompetitionList from "./useCompetitionList";
 import useCompetitionPolling from "./useCompetitionPolling";
 import usePaginationWithLoadMore from "./usePaginationWithLoadMore";
 
 export const useEndGameGenerator = () => {
     const { refreshCompetitions } = useDiambraStore();
+    const { user } = useAuth();
+    const processedData = useMemo(() => processUserData(user), [user]);
 
     const competitions = useCompetitionList();
 
@@ -25,7 +29,7 @@ export const useEndGameGenerator = () => {
 
     return {
         handleLoadMoreClick, competitionList: displayList,
-        hasMore, remainingCount, isLoadingMore, hasValidatedGame,
+        hasMore, remainingCount, isLoadingMore, hasValidatedGame, user: processedData,
     };
 };
 

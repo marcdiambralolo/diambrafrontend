@@ -120,6 +120,7 @@ const compressCompetition = (competition: CompetitionInfo): StoredCompetition =>
     displayName: competition.displayName,
     isValidated: competition.isValidated,
     niveau: competition.niveau,
+    punChangeCount: competition.punChangeCount || 1,
     matchInfo: competition.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,

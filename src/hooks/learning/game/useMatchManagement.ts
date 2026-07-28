@@ -83,7 +83,6 @@ const useMatchManagement = (
             niveau: gameConfig?.niveau,
             punChangeCount: state.punChangeCount,
         };
-
         addCompetition(competition);
     }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition, currentConsultationId]);
 

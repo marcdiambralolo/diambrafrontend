@@ -446,7 +446,7 @@ export interface CompetitionInfo {
   totalScore?: number;
   isValidated?: boolean;
   displayName: string;
-  punChangeCount: number;
+  punChangeCount: number;  
 }
 
 
@@ -462,39 +462,4 @@ export interface GameState {
   showGameFinishedBanner: boolean;
   countdown: number | null;
 }
-
-export interface ExtendedViewState {
-  isEnded: boolean;
-  isActive: boolean;
-  isNotStarted: boolean;
-  isEmpty: boolean;
-}
-
-
-// types/game.types.ts
-export interface GameCase {
-  id: string;
-  value: string | number;
-  isLocked: boolean;
-  isSelected: boolean;
-  position: number;
-}
-
-export interface GridProps {
-  cases: GameCase[];
-  columns: number;
-  renderCase: (caseItem: GameCase, index: number) => React.ReactNode;
-  className?: string;
-}
-
-export interface CaseProps {
-  caseItem: GameCase;
-  size?: number | string;
-  onClick?: (caseItem: GameCase) => void;
-  isSelected?: boolean;
-  isLocked?: boolean;
-  content?: React.ReactNode;
-  style?: React.CSSProperties;
-  className?: string;
-  ariaLabel?: string;
-}
+ 

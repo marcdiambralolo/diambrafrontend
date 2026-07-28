@@ -33,9 +33,8 @@ const useGameState = () => {
 export const useGameGenerator = () => {
     const { gameConfig } = useDiambraStore();
     const { state, setState, updateState } = useGameState();
-    const { selectCase, toggleShowPun, lockSelectedCase } = useGameActions(state, setState, updateState);
-    const { timeElapsed } = useMatchManagement(state, setState, updateState);
-    const metrics = useGameMetrics(state);
+
+
 
     const isFirstRender = useRef<boolean>(true);
 
@@ -56,6 +55,10 @@ export const useGameGenerator = () => {
     useEffect(() => {
         if (!state.start) updateState({ start: true });
     }, [state.start, updateState]);
+
+    const { selectCase, toggleShowPun, lockSelectedCase } = useGameActions(state, setState, updateState);
+    const { timeElapsed } = useMatchManagement(state, setState, updateState);
+    const metrics = useGameMetrics(state);
 
     return {
         toggleShowPun, lockSelectedCase, selectCase, timeElapsed,

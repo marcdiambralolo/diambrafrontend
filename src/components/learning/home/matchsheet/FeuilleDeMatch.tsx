@@ -6,7 +6,7 @@ import LoadMoreButton from "./LoadMoreButton";
 
 const FeuilleDeMatch = memo(() => {
     const {
-        handleLoadMoreClick, competitionList, hasMore, remainingCount, isLoadingMore, hasValidatedGame,
+        handleLoadMoreClick, competitionList, hasMore, remainingCount, isLoadingMore, hasValidatedGame,user,
     } = useEndGameGenerator();
 
     return (
@@ -17,6 +17,7 @@ const FeuilleDeMatch = memo(() => {
                         key={competition.id}
                         competition={competition}
                         priority={idx === 0}
+                        user={user}
                     />
                 ))}
                 {!hasValidatedGame && hasMore && (

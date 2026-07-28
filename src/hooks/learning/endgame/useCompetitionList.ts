@@ -35,6 +35,7 @@ const useCompetitionList = () => {
 
     return useMemo(() => {
         const allCompetitions = getAllCompetitions();
+
         return allCompetitions
             .filter(comp => comp.idConfig === gameConfig?.id)
             .map(comp => ({

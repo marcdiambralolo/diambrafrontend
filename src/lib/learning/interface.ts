@@ -6,19 +6,7 @@ export type DateLike = Date | string | number | null | undefined;
 export interface ValidationMessage {
   text: string;
   type: 'success' | 'error';
-}
-
-export interface MatchResult {
-    matchNumber: number;
-    type: string;
-    score: number;
-    timeSpent?: number;
-    trouves?: number;
-    rates?: number;
-    niveau?: number;
-    combinaisons?: string[];
-}
-
+} 
 
 export interface MatchDetailPayload {
     tpsglobal?: number;
@@ -71,23 +59,4 @@ export interface Winner {
   timeSpentFormatted: string;
   createdAt: string;
   rank: number;
-}
-
-export interface CompetitionInfo {
- 
- displayName: string;
- isValidated: boolean;
- niveau: any;
- id: string;
- datedebut: string;
- datefin: string;
- idConfig: string;
- matchInfo: MatchInfo[];
- consultationId: string;
- timeSpent?: number;
- name?: string;
- matches?: MatchResult[];
- totalScore?: number;
- punChangeCount: number;
- 
 }

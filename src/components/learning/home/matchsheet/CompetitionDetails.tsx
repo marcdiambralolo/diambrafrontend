@@ -48,7 +48,7 @@ const CompetitionDetails = memo(function CompetitionDetails({
           startDate={formattedStartDate}
           finishedDate={formattedFinishedDate ?? ''}
           timeSpent={competition.timeSpent}
-          niveau={competition.niveau}
+          punChangeCount={competition.punChangeCount}
         />
       </div>
     </div>

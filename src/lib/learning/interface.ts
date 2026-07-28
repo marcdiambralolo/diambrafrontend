@@ -54,6 +54,7 @@ export interface GameState {
     infomatch: MatchInfo[];
     isGameover: boolean;
     isTransitioning: boolean;
+    punChangeCount: number;
 }
 
 export interface Winner {
@@ -87,5 +88,6 @@ export interface CompetitionInfo {
  name?: string;
  matches?: MatchResult[];
  totalScore?: number;
+ punChangeCount: number;
  
 }

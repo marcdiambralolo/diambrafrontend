@@ -29,7 +29,7 @@ const useMatchManagement = (
             casesinitiales: matchData.listeCaseOpLabInitiale ?? [],
             pieces: matchData.pieces ?? [],
             selectedCase: null,
-            showPun: false,
+            showPun: true,
         });
     }, [updateState]);
 
@@ -81,6 +81,7 @@ const useMatchManagement = (
             name: gameConfig?.id,
             displayName: gameConfig?.id!,
             niveau: gameConfig?.niveau,
+            punChangeCount: state.punChangeCount,
         };
 
         addCompetition(competition);
@@ -105,6 +106,7 @@ const useMatchManagement = (
                     datedebut: new Date().toISOString(),
                     matchEnCours: 0,
                 });
+
                 if (updatedMatches[0]) chargerMatch(updatedMatches[0]);
             } catch (error) {
                 console.error("Erreur:", error);
@@ -156,9 +158,7 @@ const useMatchManagement = (
         }
     }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, setAfficheGame, updateState]);
 
-    return {
-        chargerMatch, timeElapsed, allMatchesFinished,
-    };
+    return { chargerMatch, timeElapsed, allMatchesFinished, };
 };
 
 export default useMatchManagement;

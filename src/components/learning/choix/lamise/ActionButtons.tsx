@@ -2,36 +2,47 @@
 import { ArrowRight, ChevronRight, ShoppingBag } from 'lucide-react';
 import { memo } from 'react';
 
-interface PlayButtonProps {
-    isSufficient: boolean;
-    onClick: () => void;
-    isPending: boolean;
+interface ButtonSpinnerProps {
+    className?: string;
 }
 
-export const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButtonProps) => {
-    const isEnabled = isSufficient && !isPending;
+const ButtonSpinner = ({ className = 'border-white' }: ButtonSpinnerProps) => (
+    <div
+        className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${className}`}
+        aria-hidden="true"
+    />
+);
 
-    const buttonClasses = `
-    w-full rounded-xl text-sm h-12 font-bold  flex items-center justify-center gap-2
-    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed
-    ${isEnabled
-            ? "bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-md cursor-pointer"
-            : "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
-        }
-  `;
+interface PlayButtonProps {
+    isSufficient: boolean;
+    isPending: boolean;
+    onClick: () => void;
+}
+
+export const PlayButton = memo(({ isSufficient, isPending, onClick }: PlayButtonProps) => {
+    const isEnabled = isSufficient && !isPending;
 
     return (
         <button
             type="button"
             onClick={onClick}
             disabled={!isEnabled}
-            className={buttonClasses}
             aria-busy={isPending}
-            aria-label="Jouer maintenant"
+            aria-label={isPending ? 'Chargement en cours...' : 'Jouer maintenant'}
+            className={`
+        w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        disabled:cursor-not-allowed
+        ${isEnabled
+                    ? 'bg-gradient-to-r from-[#2E5AA6] via-[#3A6BB8] to-[#4F83D1] text-white shadow-md active:scale-[0.99] cursor-pointer'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 opacity-60'
+                }
+      `}
         >
             {isPending ? (
                 <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" aria-hidden="true" />
+                    <ButtonSpinner className="border-white" />
                     <span>Chargement...</span>
                 </>
             ) : (
@@ -44,9 +55,11 @@ export const PlayButton = memo(({ isSufficient, onClick, isPending }: PlayButton
     );
 });
 
+PlayButton.displayName = 'PlayButton';
+
 interface MarketButtonProps {
-    onClick: () => void;
     isPending: boolean;
+    onClick: () => void;
 }
 
 export const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => (
@@ -54,13 +67,20 @@ export const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => 
         type="button"
         onClick={onClick}
         disabled={isPending}
-        className="w-full h-11 mt-2 mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6] dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Acquérir des jetons"
         aria-busy={isPending}
+        aria-label={isPending ? 'Chargement en cours...' : 'Acquérir des jetons'}
+        className="
+      w-full h-11 my-2 flex items-center justify-center gap-2 rounded-xl border-2 
+      border-[#DDE7FA] bg-[#EEF4FF] text-sm font-semibold text-[#2E5AA6]
+      dark:border-[#2E5AA6]/45 dark:bg-[#0F1C3F]/35 dark:text-[#9BC2FF]
+      transition-all duration-200
+      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed
+    "
     >
         {isPending ? (
             <>
-                <div className="w-4 h-4 border-2 border-[#2E5AA6] border-t-transparent rounded-full" aria-hidden="true" />
+                <ButtonSpinner className="border-[#2E5AA6] dark:border-[#9BC2FF]" />
                 <span>Chargement en cours...</span>
             </>
         ) : (
@@ -72,3 +92,5 @@ export const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => 
         )}
     </button>
 ));
+
+MarketButton.displayName = 'MarketButton';

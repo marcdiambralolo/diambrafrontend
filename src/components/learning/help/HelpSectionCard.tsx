@@ -1,13 +1,7 @@
 'use client';
 import { cn } from "@/lib/utils";
 import { memo, useMemo } from 'react';
-
-const BADGE_COLORS = {
-    blue: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-    purple: "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
-    green: "bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-    amber: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-} as const;
+import { BADGE_COLORS } from "./constant";
 
 type BadgeColor = keyof typeof BADGE_COLORS;
 

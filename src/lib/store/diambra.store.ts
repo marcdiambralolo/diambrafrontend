@@ -34,6 +34,7 @@ interface StoredCompetition {
     isValidated?: boolean;
     niveau?: number;
     matchInfo: StoredMatchInfo[];
+    punChangeCount?: number;
 }
 
 interface MonEtoileStore {
@@ -148,6 +149,7 @@ const decompressCompetition = (stored: StoredCompetition): CompetitionInfo => ({
     displayName: stored.displayName || `N°: ${stored.id.slice(-12)}`,
     isValidated: stored.isValidated || false,
     niveau: stored.niveau,
+    punChangeCount: stored.punChangeCount || 0,
     matchInfo: stored.matchInfo.map(match => ({
         id: match.id,
         tpsglobal: match.tpsglobal,

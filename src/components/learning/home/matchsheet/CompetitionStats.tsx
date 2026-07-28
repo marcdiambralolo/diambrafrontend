@@ -8,14 +8,14 @@ interface CompetitionStatsProps {
     startDate: string;
     finishedDate: string;
     timeSpent?: number;
-    niveau?: number;
+    punChangeCount: number;
 }
 
 const CompetitionStats = memo(function CompetitionStats({
     startDate,
     finishedDate,
     timeSpent,
-    niveau,
+    punChangeCount
 }: CompetitionStatsProps) {
     const getElapsedTime = () => {
         if (!startDate || !finishedDate) return null;
@@ -58,10 +58,10 @@ const CompetitionStats = memo(function CompetitionStats({
                     icon={<Clock className="w-3.5 h-3.5" />}
                 />
             )}
-            {niveau !== undefined && (
+            {punChangeCount !== undefined && (
                 <InfoRow
-                    label="Niveau"
-                    value={niveau}
+                    label="Nombre de vues"
+                    value={punChangeCount}
                     icon={<BarChart3 className="w-3.5 h-3.5" />}
                 />
             )}

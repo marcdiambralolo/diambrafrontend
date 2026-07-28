@@ -2,20 +2,7 @@
 import { cn } from "@/lib/utils";
 import { Zap } from "lucide-react";
 import { memo, useMemo } from 'react';
-
-const QUICK_TIPS = [
-    { icon: "⏰", title: "Prenez votre temps", description: "Mémorisez bien le plateau P1 avant de commencement", color: "amber" as const },
-    { icon: "🎯", title: "Commencez facile", description: "Essayez d'abord les niveaux 2×2 ou 3×3", color: "blue" as const },
-    { icon: "💪", title: "Pratiquez régulièrement", description: "L'entraînement améliore vos performances", color: "green" as const },
-    { icon: "⚡", title: "Mode automatique", description: "Pour un défi chronométré plus intense", color: "purple" as const }
-] as const;
-
-const GRADIENT_COLORS = {
-    amber: "from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20",
-    blue: "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20",
-    green: "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20",
-    purple: "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
-} as const;
+import { GRADIENT_COLORS, QUICK_TIPS } from "./constant";
 
 export const QuickTipsCard = memo(function QuickTipsCard() {
     const tips = useMemo(() =>
@@ -54,6 +41,7 @@ export const QuickTipsCard = memo(function QuickTipsCard() {
                     Conseils pratiques
                 </h3>
             </div>
+
             <div className="grid grid-cols-2 gap-2">
                 {tips}
             </div>

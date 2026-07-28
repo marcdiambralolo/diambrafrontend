@@ -446,6 +446,7 @@ export interface CompetitionInfo {
   totalScore?: number;
   isValidated?: boolean;
   displayName: string;
+  punChangeCount: number;
 }
 
 

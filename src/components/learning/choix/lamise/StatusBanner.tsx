@@ -86,5 +86,3 @@ export const StatusBanner = memo(
         );
     }
 );
-
-StatusBanner.displayName = 'StatusBanner';

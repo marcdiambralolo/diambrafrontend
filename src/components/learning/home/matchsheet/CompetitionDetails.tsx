@@ -6,12 +6,11 @@ import CompetitionStats from './CompetitionStats';
 import MessageToast from './MessageToast';
 import PermanentSuccessMessage from './PermanentSuccessMessage';
 import { CompetitionInfo, User } from '@/lib/interfaces';
-//import { CompetitionInfo } from '@/lib/learning/interface';
 
 interface CompetitionDetailsProps {
   competition: CompetitionInfo;
   priority?: boolean;
-  user:User | null; // Ajout de la propriété user
+  user: User | null;
 }
 
 const CompetitionDetails = memo(function CompetitionDetails({
@@ -32,6 +31,7 @@ const CompetitionDetails = memo(function CompetitionDetails({
       {!isValidated && (
         <MessageToast message={validationMessage} onClose={handleCloseMessage} />
       )}
+
       <div className="p-3 space-y-3">
         <CompetitionHeader
           name={competition.displayName ?? ''}

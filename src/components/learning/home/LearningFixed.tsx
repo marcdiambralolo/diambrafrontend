@@ -10,7 +10,7 @@ import FeuilleDeMatch from "./matchsheet/FeuilleDeMatch";
 const LearningFixed = memo(() => {
 
   return (
-    <footer className="fixed-bottom-content w-full mx-auto max-w-md space-y-4">
+    <footer className="fixed-bottom-content w-full mx-auto max-w-md space-y-4 space-x-2">
       <Horloge />
       <FeuilleDeMatch />
       <StatsSection />

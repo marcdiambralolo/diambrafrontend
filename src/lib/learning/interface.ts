@@ -59,4 +59,24 @@ export interface Winner {
   timeSpentFormatted: string;
   createdAt: string;
   rank: number;
+  nombredevues: number;
+}
+
+export interface Edition {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface DuplicateInfo {
+  count: number;
+  isDuplicate: boolean;
+  totalTimeSpent: number;
+}
+
+export interface GameStats {
+  completedPlayers?: number;
+  totalTimeSpent: number;
+  averageTimeSpent: number;
+  fastestTime: number;
+  fastestTimeFormatted: string;
 }

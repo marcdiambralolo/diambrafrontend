@@ -7,8 +7,8 @@ import GameInfo from './components/GameInfo';
 const TheGame = () => {
     const {
         toggleShowPun, lockSelectedCase, selectCase, casesdujeuencours, casesinitiales,
-        timeElapsed, selectedCase, currentGameType, progression, tpsglobal,
-        niveau, showPun, lockedCount, totalCount, hasCases, pieces,punChangeCount,
+        timeElapsed, selectedCase, currentGameType, progression, tpsglobal, niveau,
+        showPun, lockedCount, totalCount, hasCases, pieces, punChangeCount,
     } = useGameGenerator();
 
     return (

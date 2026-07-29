@@ -1,16 +1,12 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { memo, useCallback } from 'react';
+import { useHelp } from '@/hooks/learning/help/useHelp';
+import { memo } from 'react';
 import { FooterSection } from "../commons/Features";
 import HeaderSection from "./HeaderSection";
 import HelpPanel from "./HelpPanel";
 
 const HelpPage = () => {
-  const router = useRouter();
-
-  const handleCloseHelp = useCallback(() => {
-    router.back();
-  }, [router]);
+  const { handleCloseHelp } = useHelp();
 
   return (
     <div className="container mx-auto max-w-md">

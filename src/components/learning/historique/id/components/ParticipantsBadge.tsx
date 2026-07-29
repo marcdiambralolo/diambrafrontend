@@ -11,7 +11,7 @@ export function ParticipantsBadge({ count }: ParticipantsBadgeProps) {
             <Medal className="w-4 h-4 text-purple-600" />
 
             <span className="text-xs font-bold text-purple-700 dark:text-purple-300">
-                {count} participants
+                {count} participant(s)
             </span>
         </div>
     );

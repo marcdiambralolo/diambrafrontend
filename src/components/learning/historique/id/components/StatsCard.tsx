@@ -29,6 +29,4 @@ const StatsCard = memo(({ icon, label, value, color, subtitle }: StatsCardProps)
     </div>
 ));
 
-StatsCard.displayName = 'StatsCard';
-
 export default StatsCard;

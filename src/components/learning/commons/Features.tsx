@@ -32,8 +32,6 @@ const StatusBadge = memo(({ text, color }: StatusBadgeProps) => {
     );
 });
 
-StatusBadge.displayName = 'StatusBadge';
-
 export const FooterSection = memo(() => {
     const isOnline = useOnlineStatus();
     const status = isOnline ? STATUS_CONFIG.online : STATUS_CONFIG.offline;
@@ -56,5 +54,3 @@ export const FooterSection = memo(() => {
         </footer>
     );
 });
-
-FooterSection.displayName = 'FooterSection';

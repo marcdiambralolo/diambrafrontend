@@ -55,8 +55,6 @@ export const PlayButton = memo(({ isSufficient, isPending, onClick }: PlayButton
     );
 });
 
-PlayButton.displayName = 'PlayButton';
-
 interface MarketButtonProps {
     isPending: boolean;
     onClick: () => void;
@@ -92,5 +90,3 @@ export const MarketButton = memo(({ onClick, isPending }: MarketButtonProps) => 
         )}
     </button>
 ));
-
-MarketButton.displayName = 'MarketButton';

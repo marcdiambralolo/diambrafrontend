@@ -33,7 +33,7 @@ const GameInfo = ({
                 label="NOMBRE DE VUES"
                 value={punChangeCount}
             />
-            
+
             {hasCases && (
                 <ProgressBar
                     lockedCount={lockedCount}

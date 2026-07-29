@@ -1,6 +1,6 @@
 "use client";
 import Loader from "@/app/loading";
-import { useHistoriqueConsultations } from "@/hooks/learning/historique/useHistoriqueConsultations";
+import {  useHistoriqueConsultations } from "@/hooks/learning/historique/useHistoriqueConsultations";
 import { memo } from "react";
 import ErrorMessage from "../../commons/ErrorMessage";
 import { BackButton } from "./components/BackButton";
@@ -8,12 +8,13 @@ import { ConsultationList } from "./components/ConsultationList";
 import EditionBadge from "./components/EditionBadge";
 import EditionHeader from "./components/EditionHeader";
 import { StatisticsSection } from "./components/StatisticsSection";
+import { Edition } from "@/lib/learning/interface";
 
 interface HistoriquePageData {
   isLoading: boolean;
   hasError: boolean;
   hasConsultations: boolean;
-  edition: any;
+  edition: Edition | undefined;
   startDate: string;
   endDate: string;
   participantsCount?: number;
@@ -25,16 +26,8 @@ interface HistoriquePageData {
 
 const useHistoriquePageData = (): HistoriquePageData => {
   const {
-    handleGoBack,
-    loading,
-    error,
-    duplicateMap,
-    hasConsultations,
-    formattedEndDate,
-    formattedStartDate,
-    edition,
-    advancedStats,
-    rankedConsultations,
+    handleGoBack, loading, error, duplicateMap, hasConsultations, formattedEndDate,
+    formattedStartDate, edition, advancedStats, rankedConsultations,
   } = useHistoriqueConsultations();
 
   return {
@@ -51,7 +44,6 @@ const useHistoriquePageData = (): HistoriquePageData => {
     onGoBack: handleGoBack,
   };
 };
-
 
 function HistoriquePageClientImpl() {
   const data = useHistoriquePageData();
@@ -86,13 +78,12 @@ function HistoriquePageClientImpl() {
       />
 
       <StatisticsSection advancedStats={data.advancedStats} />
+
       <BackButton onClick={data.onGoBack} />
     </div>
   );
 }
 
 const HistoriquePageClient = memo(HistoriquePageClientImpl);
-
-HistoriquePageClient.displayName = 'HistoriquePageClient';
 
 export default HistoriquePageClient;

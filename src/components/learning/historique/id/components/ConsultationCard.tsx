@@ -1,8 +1,8 @@
 "use client";
+import { useConsultationCard } from "@/hooks/learning/historique/useConsultationCard";
 import { cx } from "@/lib/functions";
 import type { Consultation } from "@/lib/interfaces";
-import { formatRelativeDate, formatTimeFromSeconds, parseTimeToSeconds } from "@/lib/learning/functions";
-import { Calendar, CheckCircle, Globe, Timer, UserRound } from "lucide-react";
+import { Calendar, CheckCircle, Eye, Globe, Timer, UserRound, } from "lucide-react";
 import { memo } from "react";
 
 interface ConsultationCardProps {
@@ -13,94 +13,124 @@ interface ConsultationCardProps {
     rank?: number;
 }
 
-const ConsultationCard = memo(({
-    consultation,
-    isDuplicate = false,
-    duplicateCount = 0,
-    rank
-}: ConsultationCardProps) => {
-    const client = consultation.clientId;
-    const nomJoueur = client?.username || 'Anonyme';
-    const country = client?.country || "Côte d'Ivoire";
-    const timeSpent = consultation.timeSpent || '0';
-    const relativeDate = formatRelativeDate(consultation.createdAt);
+const ConsultationCard = memo(
+    ({
+        consultation,
+        isDuplicate = false,
+        duplicateCount = 0,
+        rank,
+    }: ConsultationCardProps) => {
+        const {
+            nomJoueur, country, relativeDate, formattedTime, nombredevues, medal,
+        } = useConsultationCard(consultation, rank);
 
-    const timeInSeconds = parseTimeToSeconds(timeSpent);
-    const formattedTime = formatTimeFromSeconds(timeInSeconds);
-
-    const getMedal = (rank?: number) => {
-        if (!rank) return null;
-        if (rank === 1) return { emoji: '🥇', color: 'text-yellow-500' };
-        if (rank === 2) return { emoji: '🥈', color: 'text-gray-400' };
-        if (rank === 3) return { emoji: '🥉', color: 'text-amber-600' };
-        return { emoji: `#${rank}`, color: 'text-gray-400' };
-    };
-
-    const medal = getMedal(rank);
-
-    return (
-        <article
-            className={cx(
-                "group relative overflow-hidden rounded-xl p-4 m-4 mt-2 space-x-4 space-y-4",
-                "bg-white dark:bg-gray-800",
-                "border border-gray-100 dark:border-gray-700",
-                "shadow-md hover:shadow-xl",
-                "transition-all duration-200 hover:scale-[1.01]",
-                rank === 1 && "ring-2 ring-yellow-500 ring-offset-2 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20",
-                rank === 2 && "ring-2 ring-gray-400 ring-offset-2 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-950/20 dark:to-slate-950/20",
-                rank === 3 && "ring-2 ring-amber-600 ring-offset-2 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20",
-                isDuplicate && "ring-2 ring-green-500 ring-offset-2 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20"
-            )}
-        >
-            <div className="relative z-10 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
-                                <UserRound className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="text-sm font-semibold truncate">{nomJoueur}</span>
+        return (
+            <article
+                className={cx(
+                    "group relative overflow-hidden rounded-2xl p-4 my-3 transition-all duration-300",
+                    "bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800",
+                    "shadow-sm hover:shadow-lg hover:-translate-y-0.5",
+                    rank === 1 &&
+                    "border-amber-300/60 dark:border-amber-500/30 bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/30 dark:from-amber-950/20 dark:via-gray-900 dark:to-yellow-950/10",
+                    rank === 2 &&
+                    "border-slate-300/60 dark:border-slate-600/30 bg-gradient-to-br from-slate-50/80 via-white to-gray-50/30 dark:from-slate-900/40 dark:via-gray-900 dark:to-slate-950/10",
+                    rank === 3 &&
+                    "border-amber-600/40 dark:border-amber-700/30 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/30 dark:from-amber-950/20 dark:via-gray-900 dark:to-orange-950/10",
+                    isDuplicate &&
+                    "border-emerald-300/60 dark:border-emerald-600/30 bg-gradient-to-br from-emerald-50/60 via-white to-green-50/20 dark:from-emerald-950/20 dark:via-gray-900 dark:to-green-950/10"
+                )}
+            >
+                <div className="relative z-10 flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 shrink-0">
+                                <UserRound className="w-4 h-4" />
                             </div>
 
-                            {medal && (
-                                <span className={`text-sm font-bold ${medal.color}`}>
-                                    {medal.emoji}
-                                </span>
-                            )}
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                                        {nomJoueur}
+                                    </h4>
+                                    {medal && (
+                                        <span
+                                            className={cx("inline-flex items-center text-xs font-bold px-1.5 py-0.5 rounded-md",
+                                                medal.color
+                                            )}
+                                            title={`Rang #${rank}`}
+                                        >
+                                            {medal.emoji}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="flex items-center gap-1">
-                                <Timer className="w-3 h-3 flex-shrink-0" />
-                                {formattedTime}
-                            </span>
-
-                            <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3 flex-shrink-0" />
-                                {relativeDate}
-                            </span>
-
-                            {country && (
-                                <span className="flex items-center gap-1">
-                                    <Globe className="w-3 h-3 flex-shrink-0" />
-                                    {country}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
                         {isDuplicate && (
-                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-bold shadow-md">
-                                <CheckCircle className="w-3 h-3" />
-                                {duplicateCount > 1 ? `x${duplicateCount}` : 'Doublon'}
+                            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20 shrink-0">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                                <span>
+                                    {duplicateCount > 1 ? `x${duplicateCount}` : "Doublon"}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                        <div className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                            <Timer className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[10px] uppercase font-semibold text-gray-400 dark:text-gray-500 leading-none">
+                                    Temps
+                                </span>
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-0.5">
+                                    {formattedTime}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                            <Eye className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[10px] uppercase font-semibold text-gray-400 dark:text-gray-500 leading-none">
+                                    Vues
+                                </span>
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-0.5">
+                                    {nombredevues}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                            <Calendar className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[10px] uppercase font-semibold text-gray-400 dark:text-gray-500 leading-none">
+                                    Date
+                                </span>
+                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-0.5">
+                                    {relativeDate}
+                                </span>
+                            </div>
+                        </div>
+
+                        {country && (
+                            <div className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                                <Globe className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-[10px] uppercase font-semibold text-gray-400 dark:text-gray-500 leading-none">
+                                        Pays
+                                    </span>
+                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-0.5">
+                                        {country}
+                                    </span>
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
-        </article>
-    );
-});
-
-ConsultationCard.displayName = 'ConsultationCard';
+            </article>
+        );
+    }
+);
 
 export default ConsultationCard;

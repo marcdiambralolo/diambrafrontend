@@ -10,11 +10,13 @@ import { StatCard } from './StatCard';
 
 export const StatsSection = memo(function StatsSection() {
   const afficheStat = useDiambraStore((state) => state.afficheStat);
+
   const { stats, isLoading, error } = useStatsDataWithCache();
 
   if (!afficheStat) return null;
 
   if (error) return <ErrorMessage />;
+
   if (isLoading) return <Loader />;
 
   const subscriberCount = stats?.subscribers ?? 0;

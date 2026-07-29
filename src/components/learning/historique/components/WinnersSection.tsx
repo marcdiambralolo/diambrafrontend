@@ -61,6 +61,7 @@ const computeRankingFromConsultations = (consultations: Consultation[]): Ranking
                 timeSpentFormatted: formatTimeFromSeconds(timeSpentSeconds),
                 createdAt: consultation.createdAt,
                 rank: 0,
+                nombredevues: consultation.nombredevues || 0,
             });
         }
     }

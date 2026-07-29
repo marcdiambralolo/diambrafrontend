@@ -14,8 +14,7 @@ const BackButton = memo(({ onClick, isPending }: { onClick: () => void; isPendin
             "flex items-center justify-center gap-2",
             "focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2",
             "hover:from-purple-100 hover:to-purple-200",
-            "dark:hover:from-purple-800/30 dark:hover:to-purple-700/30",
-            "hover:shadow-md",
+            "dark:hover:from-purple-800/30 dark:hover:to-purple-700/30 hover:shadow-md",
             isPending && "opacity-50 cursor-not-allowed"
         )}
         type="button"

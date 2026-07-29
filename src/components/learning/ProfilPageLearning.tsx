@@ -27,13 +27,11 @@ const ProfilPageLearning = memo(() => {
   return (
     <div className="w-full mx-auto max-w-md mb-8 mt-4">
       <HeaderSection />
-
       {hasContent && (
         <div className="mt-4">
           <ContentRenderer showChoix={afficheChoix} showGame={afficheGame} />
         </div>
       )}
-
       <LearningFixed />
     </div>
   );

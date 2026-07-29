@@ -14,6 +14,4 @@ const DateRange = memo(({ startDate, endDate }: DateRangeProps) => (
     </div>
 ));
 
-DateRange.displayName = 'DateRange';
-
 export default DateRange;

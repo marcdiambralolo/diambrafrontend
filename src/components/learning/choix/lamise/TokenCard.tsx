@@ -22,7 +22,6 @@ export const TokenCard = memo(
     }: TokenCardProps) => {
         const isEnabled = isSufficient && !isPending;
 
-        // Invalidation textuelle claire pour les lecteurs d'écran
         const ariaLabel = isPending
             ? 'Traitement en cours...'
             : isSufficient
@@ -70,7 +69,6 @@ export const TokenCard = memo(
                             </strong>
                         </span>
                     </div>
-
                     <div
                         className={`flex items-center mt-1.5 gap-2 text-xs ${isSufficient
                             ? 'text-green-600 dark:text-green-400'
@@ -88,5 +86,3 @@ export const TokenCard = memo(
         );
     }
 );
-
-TokenCard.displayName = 'TokenCard';

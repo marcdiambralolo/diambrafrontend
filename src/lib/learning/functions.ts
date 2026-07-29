@@ -266,4 +266,45 @@ export const formatDateHistorique = (dateStr: string): string => {
   } catch {
     return dateStr;
   }
-}; 
+};
+
+const TIME_PATTERNS = [
+  { regex: /(\d+)\s*h/, multiplier: 3600 },
+  { regex: /(\d+)\s*m/, multiplier: 60 },
+  { regex: /(\d+)\s*s/, multiplier: 1 },
+  { regex: /^(\d+)$/, multiplier: 1 }
+] as const;
+
+export const extractSecondsFromTimeSpent = (timeSpent: string | undefined): number => {
+  if (!timeSpent) return 0;
+
+  if (/^\d+$/.test(timeSpent)) {
+    return parseInt(timeSpent, 10);
+  }
+
+  let totalSeconds = 0;
+  for (const { regex, multiplier } of TIME_PATTERNS) {
+    const match = timeSpent.match(regex);
+    if (match) {
+      totalSeconds += parseInt(match[1], 10) * multiplier;
+    }
+  }
+
+  return totalSeconds;
+};
+
+export const formatSecondsToTime = (seconds: number): string => {
+  if (seconds === 0) return '0s';
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const parts: string[] = [];
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+
+  return parts.join(' ');
+};
+ 

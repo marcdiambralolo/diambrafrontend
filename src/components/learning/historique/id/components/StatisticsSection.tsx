@@ -1,8 +1,8 @@
 "use client";
 import { Users, Clock, Award } from "lucide-react";
 import StatsCard from "./StatsCard";
-import { formatTimeFromSeconds } from "@/hooks/learning/historique/useHistoriqueConsultations";
-
+import { formatTimeFromSeconds } from "@/lib/learning/functions";
+ 
 interface StatisticsSectionProps {
     advancedStats: any;
 }

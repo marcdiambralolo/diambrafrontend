@@ -25,6 +25,7 @@ export function useAdminConsultationsPageFinished() {
         setActiveEdition(data?.activeEdition || null);
         setError(null);
       }
+
     } catch (err: any) {
       if (isMountedRef.current) {
         console.error('Erreur:', err);
@@ -41,5 +42,5 @@ export function useAdminConsultationsPageFinished() {
     return () => { isMountedRef.current = false; };
   }, [fetchData]);
 
-  return { activeEdition, consultations, error };
+  return { activeEdition, consultations, error, loading, refetch: fetchData };
 }

@@ -67,7 +67,10 @@ const useMatchManagement = (
     const saveFinalResults = useCallback(async () => {
         if (!allMatchesFinished) return;
 
-        const totalDurationSeconds = timeElapsed;
+        const dateFin = new Date();
+        const dateDebut = state.datedebut ? new Date(state.datedebut) : dateFin;
+        const totalDurationSeconds = Math.max(0, Math.round((dateFin.getTime() - dateDebut.getTime()) / 1000));
+
         const competitionId = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
         const competition: CompetitionInfo = {
@@ -75,7 +78,7 @@ const useMatchManagement = (
             matchInfo: state.infomatch,
             datedebut: state.datedebut,
             idConfig: gameConfig?.id!,
-            datefin: new Date().toISOString(),
+            datefin: dateFin.toISOString(),
             consultationId: currentConsultationId || '',
             timeSpent: totalDurationSeconds,
             name: gameConfig?.id,
@@ -84,7 +87,7 @@ const useMatchManagement = (
             punChangeCount: state.punChangeCount,
         };
         addCompetition(competition);
-    }, [allMatchesFinished, timeElapsed, state.infomatch, state.datedebut, gameConfig?.id, addCompetition, currentConsultationId]);
+    }, [allMatchesFinished, state.infomatch, state.datedebut, state.punChangeCount, gameConfig?.id, gameConfig?.niveau, addCompetition, currentConsultationId]);
 
     useEffect(() => {
         if (lancementRef.current) return;
@@ -123,6 +126,7 @@ const useMatchManagement = (
 
         isLoadingMatch.current = true;
         chargerMatch(infomatch[matchEnCours]);
+
         setTimeout(() => {
             isLoadingMatch.current = false;
             updateState({ isTransitioning: false });
@@ -135,7 +139,6 @@ const useMatchManagement = (
         if (!casesdujeuencours.every(c => c.isLocked)) return;
 
         updateState({ isTransitioning: true });
-
         setState(prev => ({
             ...prev,
             infomatch: prev.infomatch.map((m, idx) =>
@@ -157,7 +160,7 @@ const useMatchManagement = (
         }
     }, [allMatchesFinished, state.infomatch, state.isGameover, saveFinalResults, setAfficheGame, updateState]);
 
-    return { chargerMatch, timeElapsed, allMatchesFinished, };
+    return { chargerMatch, timeElapsed, allMatchesFinished };
 };
 
 export default useMatchManagement;

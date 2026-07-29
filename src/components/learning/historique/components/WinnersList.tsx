@@ -1,11 +1,9 @@
 'use client';
 import { Winner } from "@/lib/learning/interface";
 import { Trophy } from "lucide-react";
-import { useState } from 'react';
 import ParticipantCard from "./ParticipantCard";
 
 const WinnersList = ({ winners }: { winners: Winner[] }) => {
-    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     if (!winners?.length) return null;
 
@@ -26,8 +24,6 @@ const WinnersList = ({ winners }: { winners: Winner[] }) => {
                     <ParticipantCard
                         key={winner.consultationId}
                         winner={winner}
-                        isExpanded={expandedId === winner.consultationId}
-                        onToggle={() => setExpandedId(expandedId === winner.consultationId ? null : winner.consultationId)}
                     />
                 ))}
             </div>

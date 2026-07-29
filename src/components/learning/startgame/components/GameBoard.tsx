@@ -24,6 +24,4 @@ const GameBoard = memo(({ showPun, niveau, casesdujeuencours, casesinitiales, pi
     </div>
 ));
 
-GameBoard.displayName = 'GameBoard';
-
 export default GameBoard;

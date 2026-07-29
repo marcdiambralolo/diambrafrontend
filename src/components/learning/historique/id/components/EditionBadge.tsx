@@ -9,8 +9,6 @@ const EditionBadge = memo(() => (
             Édition terminée
         </span>
     </div>
-));
-
-EditionBadge.displayName = 'EditionBadge';
+)); 
 
 export default EditionBadge;

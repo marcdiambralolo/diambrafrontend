@@ -120,7 +120,7 @@ export interface Consultation {
     nom: string;
     prenoms: string;
     _id: string;
-    phone?:string;
+    phone?: string;
     email?: string;
     username: string;
     country: string;
@@ -133,6 +133,7 @@ export interface Consultation {
   timeSpent: string;
   idjeu: string | GameConfiguration;
   edition: any;
+  nombredevues:number;
   [key: string]: unknown;
 }
 
@@ -446,7 +447,7 @@ export interface CompetitionInfo {
   totalScore?: number;
   isValidated?: boolean;
   displayName: string;
-  punChangeCount: number;  
+  punChangeCount: number;
 }
 
 
@@ -457,9 +458,8 @@ export interface GameCompletionState {
 }
 
 export interface GameState {
-  status: 'no_competition' | 'not_started' | 'active'   | 'results_available' | 'ended_no_proclamation';
+  status: 'no_competition' | 'not_started' | 'active' | 'results_available' | 'ended_no_proclamation';
   canUserPlay: boolean;
   showGameFinishedBanner: boolean;
   countdown: number | null;
 }
- 

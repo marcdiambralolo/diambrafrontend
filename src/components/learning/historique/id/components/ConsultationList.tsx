@@ -20,7 +20,7 @@ export function ConsultationList({
     return (
         <div className="grid grid-cols-1  gap-4 md:gap-6">
             {rankedConsultations.map((consultation, index) => {
-                const comb = consultation.combinaison || '????';
+                const comb = consultation.timeSpent || '0';
                 const duplicateInfo = duplicateMap.get(comb);
                 const isDuplicate = duplicateInfo?.isDuplicate || false;
                 const duplicateCount = duplicateInfo?.count || 0;

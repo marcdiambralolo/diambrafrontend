@@ -67,10 +67,16 @@ const useGameActions = (
                     updatedCases = shuffleUnlocked(updatedCases);
                 }
 
+                // Compter les cases verrouillées
+                const lockedCount = updatedCases.filter((c) => c.isLocked).length;
+
+                // Afficher P2 uniquement si une nouvelle case vient d'être verrouillée ET qu'on a un multiple de 2
+                const isEveryTwoLocked = isDestinationLocked && lockedCount > 0 && lockedCount % 2 === 0;
+
                 return {
                     ...prev,
                     casesdujeuencours: updatedCases,
-                    showPun: isDestinationLocked ? true : prev.showPun,
+                    showPun: isEveryTwoLocked ? true : prev.showPun,
                 };
             });
         },
@@ -98,12 +104,17 @@ const useGameActions = (
         if (selectedCase.txt !== casesinitiales[index]?.txt)
             return updateState({ selectedCase: null });
 
+        const updatedCases = casesdujeuencours.map((c) =>
+            c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c
+        );
+
+        const lockedCount = updatedCases.filter((c) => c.isLocked).length;
+        const isEveryTwoLocked = lockedCount > 0 && lockedCount % 2 === 0;
+
         updateState({
-            casesdujeuencours: casesdujeuencours.map((c) =>
-                c.id === selectedCase.id ? { ...c, isLocked: true, isSelected: false } : c
-            ),
+            casesdujeuencours: updatedCases,
             selectedCase: null,
-            showPun: true,
+            showPun: isEveryTwoLocked ? true : state.showPun,
         });
     }, [state, updateState]);
 

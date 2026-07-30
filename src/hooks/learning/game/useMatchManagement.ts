@@ -9,7 +9,7 @@ import { useTimer } from './useTimer';
 
 const GLOBAL_GAME_ORDER = [0, 3, 1, 2] as const;
 const TRANSITION_DELAY = 100;
-const DEFAULT_IMAGE_PATH = "/ephotoquatorze.jpg";
+const DEFAULT_IMAGE_PATH = "/ephotosept.jpg";
 
 const useMatchManagement = (
     state: GameState,

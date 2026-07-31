@@ -16,7 +16,7 @@ const HelpHeaderGradient = memo(({ onClose }: { onClose: () => void }) => (
         </button>
         <div className="absolute bottom-4 left-5">
             <h2 className="text-xl font-bold text-white">Centre d&apos;aide</h2>
-            <p className="text-xs text-white/90">Tout ce que vous devez savoir sur DIAMBRA LEARNING</p>
+            <p className="text-xs text-white/90">Tout ce que vous devez savoir sur DIAMBRA PUZZLE</p>
         </div>
     </div>
 ));

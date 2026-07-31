@@ -1,7 +1,7 @@
 import { OfferingAlternative } from "../interfaces";
 
-export const APP_NAME = "DIAMBRA LEARNING";
-export const APP_DESCRIPTION = "DIAMBRA LEARNING";
+export const APP_NAME = "DIAMBRA PUZZLE";
+export const APP_DESCRIPTION = "DIAMBRA PUZZLE";
 export const CURRENT_YEAR = new Date().getFullYear();
 
 export const TIME_UNITS = [

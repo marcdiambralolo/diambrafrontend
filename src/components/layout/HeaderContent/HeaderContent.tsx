@@ -224,48 +224,29 @@ export function ScrollProgressBar({ scrollY, progressWidth }: ScrollProgressBarP
 }
 
 export function HeaderLogo() {
-
   return (
-    <CacheLink href="/star/profil" className="flex items-center gap-2 sm:gap-2.5 group">
+    <CacheLink href="/star/profil" className="flex items-center gap-2.5 group">
       <motion.div
-        whileHover={{ rotate: 360, scale: 1.08 }}
-        transition={{ duration: 0.6, type: "spring" }}
-        className="relative"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        className="relative flex items-center justify-center overflow-hidden py-1 px-2 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm"
       >
-        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2E5AA6] via-[#4F83D1] to-[#244A8A] p-[2px] shadow-xl shadow-[#2E5AA6]/35 sm:h-12 sm:w-12">
-          <div className="w-full h-full rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-            <Image
-              src="/logo.png"
-              alt="Diambra"
-              width={36}
-              height={36}
-              className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-              priority
-            />
-          </div>
+        {/* Conteneur adapté aux proportions rectangulaires (128x36) */}
+        <div className="relative h-9 w-36 sm:h-12 sm:w-48 flex items-center justify-center">
+          <Image
+            src="/logolearning.png"
+            alt="Diambra"
+            width={986}
+            height={241}
+            className="w-full h-full object-contain"
+            priority
+          />
         </div>
 
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.4, 0.8, 0.4]
-          }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-          className="absolute inset-0 -z-10 rounded-xl bg-[#4F83D1] opacity-40 blur-lg"
-        />
+        {/* Effet d'éclat lumineux discret au survol (Glow) */}
+        <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-[#2E5AA6]/20 via-[#4F83D1]/20 to-[#244A8A]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" />
       </motion.div>
-
-      <div className="hidden sm:block">
-        <h1 className="flex items-center gap-1.5 bg-gradient-to-r from-[#244A8A] via-[#2E5AA6] to-[#4F83D1] bg-clip-text text-lg font-black text-transparent sm:text-xl">
-          Diambra
-        </h1>
-      </div>
-
-      <div className="sm:hidden">
-        <h1 className="bg-gradient-to-r from-[#244A8A] to-[#4F83D1] bg-clip-text text-base font-black text-transparent">
-          Diambra
-        </h1>
-      </div>
     </CacheLink>
   );
 }

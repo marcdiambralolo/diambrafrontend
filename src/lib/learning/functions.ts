@@ -307,4 +307,18 @@ export const formatSecondsToTime = (seconds: number): string => {
 
   return parts.join(' ');
 };
+
+
+export const formatToHMS = (totalSeconds: number): string => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const parts: string[] = [];
+    parts.push(`${hours}h`);
+    parts.push(`${minutes.toString().padStart(2, '0')}mn`);
+    parts.push(`${seconds.toString().padStart(2, '0')}s`);
+
+    return parts.join(' ');
+};
  

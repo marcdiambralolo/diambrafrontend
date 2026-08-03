@@ -1,5 +1,5 @@
 import { Consultation } from "@/lib/interfaces";
-import { formatRelativeDate, formatTimeFromSeconds, parseTimeToSeconds } from "@/lib/learning/functions";
+import { formatRelativeDate, formatTimeFromSeconds, formatToHMS, parseTimeToSeconds } from "@/lib/learning/functions";
 
 export function useConsultationCard(consultation: Consultation, rank?: number) {
     const client = consultation.clientId;
@@ -8,7 +8,7 @@ export function useConsultationCard(consultation: Consultation, rank?: number) {
     const timeSpent = consultation.timeSpent || '0';
     const relativeDate = formatRelativeDate(consultation.createdAt);
     const timeInSeconds = parseTimeToSeconds(timeSpent);
-    const formattedTime = formatTimeFromSeconds(timeInSeconds);
+    const formattedTime = formatToHMS(timeInSeconds);
     const nombredevues = consultation.nombredevues || 0;
 
     const getMedal = (rank?: number) => {

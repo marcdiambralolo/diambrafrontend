@@ -18,9 +18,9 @@ const InfoRow = memo(function InfoRow({ label, value, highlight = false, icon }:
                 {label}:
             </span>
             <span
-                className={`text-xs sm:text-sm font-mono ${highlight
-                    ? 'text-purple-600 dark:text-purple-400 font-bold'
-                    : 'text-gray-900 dark:text-gray-100'
+                className={`font-mono transition-all ${highlight
+                    ? 'text-red-800 dark:text-red-400 font-bold text-2xl sm:text-2xl'
+                    : 'text-xs sm:text-sm text-gray-900 dark:text-gray-100'
                     }`}
             >
                 {value ?? NO_DATA_PLACEHOLDER}

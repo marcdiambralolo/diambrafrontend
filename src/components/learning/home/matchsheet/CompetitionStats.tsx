@@ -1,9 +1,9 @@
 'use client';
-import { formatDuration } from '@/lib/learning/functions';
 import { BarChart3, Calendar, Clock, Phone, User as UserIcon } from 'lucide-react';
 import { memo } from 'react';
 import InfoRow from './InfoRow';
 import { User } from '@/lib/interfaces';
+import { formatToHMS } from '@/lib/learning/functions';
 
 interface CompetitionStatsProps {
     startDate: string;
@@ -13,6 +13,9 @@ interface CompetitionStatsProps {
     showUserInfo?: boolean;
     user: User | null;
 }
+
+// Fonction pour convertir un nombre total de secondes en "Xh Ym Zs"
+
 
 const CompetitionStats = memo(function CompetitionStats({
     startDate,
@@ -31,8 +34,10 @@ const CompetitionStats = memo(function CompetitionStats({
 
         if (Number.isNaN(start) || Number.isNaN(end)) return null;
 
-        const diff = Math.floor((end - start) / 1000);
-        return diff < 0 ? 'Négatif' : formatDuration(diff);
+        const diffSeconds = Math.floor((end - start) / 1000);
+        if (diffSeconds < 0) return 'Négatif';
+
+        return formatToHMS(diffSeconds);
     };
 
     const elapsedTime = getElapsedTime();
@@ -79,14 +84,7 @@ const CompetitionStats = memo(function CompetitionStats({
                         highlight
                         icon={<span aria-hidden="true">⏱️</span>}
                     />
-                )}
-                {timeSpent !== undefined && (
-                    <InfoRow
-                        label="Temps total"
-                        value={`${timeSpent}s`}
-                        icon={<Clock className="w-3.5 h-3.5" />}
-                    />
-                )}
+                )}                
                 {punChangeCount !== undefined && (
                     <InfoRow
                         label="Nombre de vues"

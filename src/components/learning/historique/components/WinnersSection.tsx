@@ -6,6 +6,7 @@ import EmptyState from './EmptyState';
 import Podium from './Podium';
 import WinnersList from './WinnersList';
 import WinningInfoCard from './WinningInfoCard';
+import { formatToHMS } from '@/lib/learning/functions';
 
 interface Ranking {
     winners: Winner[];
@@ -58,7 +59,7 @@ const computeRankingFromConsultations = (consultations: Consultation[]): Ranking
                 prenoms: client.prenoms || '',
                 country: client.country || "Côte d'Ivoire",
                 timeSpent: timeSpentSeconds,
-                timeSpentFormatted: formatTimeFromSeconds(timeSpentSeconds),
+                timeSpentFormatted: formatToHMS( timeSpentSeconds),
                 createdAt: consultation.createdAt,
                 rank: 0,
                 nombredevues: consultation.nombredevues || 0,

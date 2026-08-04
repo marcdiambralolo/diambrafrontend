@@ -1,20 +1,20 @@
 'use client';
 import { useCallback, useState } from "react";
 
-const STORAGE_PREFIX = 'validated_competition_';
-
-const getValidationStorageKey = (competitionId: string): string => `${STORAGE_PREFIX}${competitionId}`;
+// Clé unique globale pour ne garder qu'une seule compétition validée
+const ACTIVE_VALIDATED_GAME_KEY = 'active_validated_competition_id';
 
 const isCompetitionValidated = (competitionId: string): boolean => {
     if (typeof window === 'undefined') return false;
-    return localStorage.getItem(getValidationStorageKey(competitionId)) === 'true';
+    return localStorage.getItem(ACTIVE_VALIDATED_GAME_KEY) === competitionId;
 };
 
 const useCompetitionStorage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
 
     const updateLocalCache = useCallback((competitionId: string) => {
-        localStorage.setItem(getValidationStorageKey(competitionId), 'true');
+        // Enregistre la nouvelle compétition validée (écrase l'ancienne)
+        localStorage.setItem(ACTIVE_VALIDATED_GAME_KEY, competitionId);
         setRefreshKey(prev => prev + 1);
     }, []);
 
@@ -23,7 +23,9 @@ const useCompetitionStorage = () => {
     }, []);
 
     return {
-        refreshKey, updateLocalCache, isCompetitionValidated: isCompetitionValidatedMemo,
+        refreshKey, 
+        updateLocalCache, 
+        isCompetitionValidated: isCompetitionValidatedMemo,
     };
 };
 

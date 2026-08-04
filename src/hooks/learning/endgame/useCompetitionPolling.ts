@@ -1,7 +1,8 @@
 'use client';
 import { useCallback, useEffect, useRef } from "react";
 
-const STORAGE_PREFIX = 'validated_competition_';
+// Clé unique globale alignée avec les autres hooks
+const ACTIVE_VALIDATED_GAME_KEY = 'active_validated_competition_id';
 const REFETCH_INTERVAL = 1000;
 const DEBOUNCE_DELAY = 100;
 
@@ -32,7 +33,8 @@ const useCompetitionPolling = (onRefresh: () => void) => {
 
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key?.startsWith(STORAGE_PREFIX)) {
+            // Déclenche le rafraîchissement uniquement si la clé de compétition validée a changé
+            if (e.key === ACTIVE_VALIDATED_GAME_KEY) {
                 refreshData();
             }
         };

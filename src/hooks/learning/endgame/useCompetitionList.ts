@@ -2,21 +2,20 @@
 import { useDiambraStore } from "@/lib/store/diambra.store";
 import { useCallback, useMemo, useState } from "react";
 
-const STORAGE_PREFIX = 'validated_competition_';
+// Clé unique globale alignée avec useCompetitionValidation
+const ACTIVE_VALIDATED_GAME_KEY = 'active_validated_competition_id';
 
 const isCompetitionValidated = (competitionId: string): boolean => {
     if (typeof window === 'undefined') return false;
-    return localStorage.getItem(getValidationStorageKey(competitionId)) === 'true';
+    return localStorage.getItem(ACTIVE_VALIDATED_GAME_KEY) === competitionId;
 };
-
-const getValidationStorageKey = (competitionId: string): string =>
-    `${STORAGE_PREFIX}${competitionId}`;
 
 const useCompetitionStorage = () => {
     const [refreshKey, setRefreshKey] = useState(0);
 
     const updateLocalCache = useCallback((competitionId: string) => {
-        localStorage.setItem(getValidationStorageKey(competitionId), 'true');
+        // Enregistre uniquement l'ID de cette compétition comme compétition validée
+        localStorage.setItem(ACTIVE_VALIDATED_GAME_KEY, competitionId);
         setRefreshKey(prev => prev + 1);
     }, []);
 
@@ -25,7 +24,9 @@ const useCompetitionStorage = () => {
     }, []);
 
     return {
-        refreshKey, updateLocalCache, isCompetitionValidated: isCompetitionValidatedMemo,
+        refreshKey,
+        updateLocalCache,
+        isCompetitionValidated: isCompetitionValidatedMemo,
     };
 };
 

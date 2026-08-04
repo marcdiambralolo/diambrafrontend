@@ -5,13 +5,14 @@ import { calculateDuration, calculateDurationInSeconds, formatCompetitionDate } 
 import { LearningStatsPayload } from "@/lib/learning/interface";
 import { useDiambraStore } from "@/lib/store/diambra.store";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useCompetitionStorage from "./useCompetitionStorage";
 import { useMessage } from "./useMessage";
 
 const PERMANENT_MESSAGE_DURATION = 10000;
-const STORAGE_PREFIX = 'validated_competition_';
-const STORAGE_KEY = (competitionId: string): string => `${STORAGE_PREFIX}${competitionId}`;
+// Clé unique globale dans le localStorage pour s'assurer qu'un seul jeu est validé à la fois
+const ACTIVE_VALIDATED_GAME_KEY = 'active_validated_competition_id';
 
 interface ValidationMessage {
   text: string;
@@ -78,10 +79,12 @@ const calculateCompetitionStats = (competition: CompetitionInfo): CompetitionSta
 
 const getStoredValidationStatus = (competitionId: string): boolean => {
   if (typeof window === 'undefined') return false;
-  return localStorage.getItem(STORAGE_KEY(competitionId)) === 'true';
+  // Vérifie si la compétition sauvegardée correspond à la compétition courante
+  return localStorage.getItem(ACTIVE_VALIDATED_GAME_KEY) === competitionId;
 };
 
 export const useCompetitionValidation = (competition: CompetitionInfo) => {
+  const router = useRouter();
   const [isLocalValidating, setIsLocalValidating] = useState(false);
   const [validationMessage, setValidationMessage] = useState<ValidationMessage | null>(null);
   const [isValidated, setIsValidated] = useState(() => getStoredValidationStatus(competition.id));
@@ -97,7 +100,6 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
   const currentConsultationId = useDiambraStore((state) => state.currentConsultationId);
   const setGameIsFinished = useDiambraStore((state) => state.setGameIsFinished);
 
-
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -110,22 +112,17 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY(competition.id) && isMountedRef.current) {
-        const newValue = e.newValue === 'true';
-        setIsValidated(newValue);
-        setShowPermanentMessage(newValue);
+      if (e.key === ACTIVE_VALIDATED_GAME_KEY && isMountedRef.current) {
+        const activeId = e.newValue;
+        const isCurrentValidated = activeId === competition.id;
+        setIsValidated(isCurrentValidated);
+        setShowPermanentMessage(isCurrentValidated);
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [competition.id]);
-
-  useEffect(() => {
-    if (isValidated) {
-      localStorage.setItem(STORAGE_KEY(competition.id), 'true');
-    }
-  }, [isValidated, competition.id]);
 
   const validateCompetition = useCallback(async (comp: CompetitionInfo): Promise<boolean> => {
     try {
@@ -156,17 +153,15 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
         entite: m.entite
       }));
 
-      // Calcul du temps total en format string
       const totalTimeFormatted = calculateDuration(startDate, endDate);
 
-      // Construction du payload complet
       const updatedPayload = {
         ...consultation,
         status: 'completed' as const,
-        nombredevues:comp.punChangeCount,
+        nombredevues: comp.punChangeCount,
         gameEndDate: endDate,
         totalTimeSeconds,
-        timeSpent: totalTimeSeconds|| 0,
+        timeSpent: totalTimeSeconds || 0,
         finalScore: stats.totalScore,
         matchesCompleted: comp.matchInfo.length,
         niveau: comp.niveau || 0,
@@ -185,15 +180,15 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
         },
       };
 
-      // Envoi de la mise à jour
       await api.put(`/consultations/${targetConsultationId}`, updatedPayload);
 
-      // Mise à jour du cache local
+      // Enregistre SEULEMENT l'ID de ce jeu validé dans le LocalStorage
+      localStorage.setItem(ACTIVE_VALIDATED_GAME_KEY, comp.id);
+
       updateLocalCache(comp.id);
       showMessage('Compétition validée avec succès !', 'success');
       setGameIsFinished(true);
 
-      // Invalidation des requêtes
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['game'] }),
         queryClient.invalidateQueries({ queryKey: ['consultation', targetConsultationId] }),
@@ -201,11 +196,12 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
         queryClient.invalidateQueries({ queryKey: ['leaderboard'] }),
       ]);
 
+      
+
       return true;
     } catch (error: any) {
       console.error('❌ Erreur validation:', error);
 
-      // Gestion des erreurs spécifiques
       if (error?.response?.status === 404) {
         showMessage('Consultation introuvable. Veuillez rafraîchir la page.', 'error');
       } else if (error?.response?.status === 409) {
@@ -218,7 +214,7 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
       }
       return false;
     }
-  }, [currentConsultationId, showMessage, updateLocalCache, queryClient, setGameIsFinished]);
+  }, [currentConsultationId, showMessage, updateLocalCache, queryClient, setGameIsFinished, router]);
 
   const handleValidate = useCallback(async () => {
     if (isLocalValidating) return;
@@ -269,6 +265,9 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
           type: 'error'
         });
       }
+
+      // Rafraîchissement de la page via le router Next.js
+      router.refresh();
     } catch (error) {
       if (isMountedRef.current) {
         setValidationMessage({
@@ -284,7 +283,9 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
   }, [competition, isLocalValidating, isValidated, validateCompetition, showMessage]);
 
   const clearValidationStatus = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY(competition.id));
+    if (localStorage.getItem(ACTIVE_VALIDATED_GAME_KEY) === competition.id) {
+      localStorage.removeItem(ACTIVE_VALIDATED_GAME_KEY);
+    }
     setIsValidated(false);
     setShowPermanentMessage(false);
     setValidationMessage(null);
@@ -312,27 +313,22 @@ export const useCompetitionValidation = (competition: CompetitionInfo) => {
   }, [competition.matchInfo]);
 
   return useMemo(() => ({
-    // Handlers
     handleCloseMessage,
     handleClosePermanentMessage,
     handleValidate,
     clearValidationStatus,
 
-    // États
     isLoading: isLocalValidating,
     isValidated,
     validationMessage,
     showPermanentMessage,
 
-    // Données formatées
     formattedStartDate,
     formattedFinishedDate,
 
-    // Statistiques de la compétition
     stats: competitionStats,
     allMatchesCompleted,
 
-    // Informations supplémentaires
     totalMatches: competition.matchInfo?.length || 0,
     timeSpent: competition.timeSpent,
     niveau: competition.niveau,

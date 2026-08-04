@@ -24,12 +24,12 @@ export const useEndGameGenerator = () => {
 
     const {
         handleLoadMoreClick,
-        displayList, hasMore, remainingCount, hasValidatedGame, isLoadingMore,
+        displayList, hasMore, remainingCount, isLoadingMore,
     } = usePaginationWithLoadMore(competitions);
 
     return {
         handleLoadMoreClick, competitionList: displayList,
-        hasMore, remainingCount, isLoadingMore, hasValidatedGame, user: processedData,
+        hasMore, remainingCount, isLoadingMore, user: processedData,
     };
 };
 

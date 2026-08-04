@@ -13,6 +13,7 @@ const shuffleUnlocked = (cases: Case[]): Case[] => {
             j = Math.floor(Math.random() * (i + 1));
             attempts++;
         }
+
         if (!shuffled[j].isLocked && i !== j) {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
@@ -67,10 +68,8 @@ const useGameActions = (
                     updatedCases = shuffleUnlocked(updatedCases);
                 }
 
-                // Compter les cases verrouillées
                 const lockedCount = updatedCases.filter((c) => c.isLocked).length;
 
-                // Afficher P2 uniquement si une nouvelle case vient d'être verrouillée ET qu'on a un multiple de 2
                 const isEveryTwoLocked = isDestinationLocked && lockedCount > 0 && lockedCount % 2 === 0;
 
                 return {

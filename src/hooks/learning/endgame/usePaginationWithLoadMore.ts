@@ -9,20 +9,16 @@ const usePaginationWithLoadMore = <T extends { isValidated?: boolean }>(
 ) => {
     const [visibleCount, setVisibleCount] = useState(initialCount);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     const [, startTransition] = useTransition();
 
-    const hasValidatedGame = items.some(item => item.isValidated);
-
     const displayList = useMemo(() => {
-        if (hasValidatedGame) {
-            return items.filter(item => item.isValidated);
-        }
         return items.slice(0, visibleCount);
-    }, [items, visibleCount, hasValidatedGame]);
+    }, [items, visibleCount]);
 
     const hasMore = useMemo(() => {
-        return !hasValidatedGame && visibleCount < items.length;
-    }, [hasValidatedGame, visibleCount, items.length]);
+        return visibleCount < items.length;
+    }, [visibleCount, items.length]);
 
     const remainingCount = items.length - visibleCount;
 
@@ -44,7 +40,7 @@ const usePaginationWithLoadMore = <T extends { isValidated?: boolean }>(
     }, [handleLoadMore, isLoadingMore]);
 
     return {
-        displayList, hasMore, remainingCount, hasValidatedGame, isLoadingMore,
+        displayList, hasMore, remainingCount, isLoadingMore,
         handleLoadMoreClick, resetPagination: () => setVisibleCount(initialCount),
     };
 };

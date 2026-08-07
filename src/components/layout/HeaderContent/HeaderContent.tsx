@@ -4,66 +4,10 @@ import NotificationBell from '@/components/layout/HeaderContent/NotificationBell
 import { useHeaderState } from '@/hooks/commons/useHeaderState';
 import type { MotionValue } from 'framer-motion';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Crown, LogOut, LucideIcon, Menu, Moon, Settings, Sparkles, Sun, User, X } from 'lucide-react';
+import { ChevronDown, Crown, LogOut, LucideIcon, Menu, Moon, Settings, Sun, User, X } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import MobileMenu from './MobileMenu';
-
-interface ThemeToggleButtonProps {
-  theme: string | undefined;
-  toggleTheme: () => void;
-  mounted: boolean;
-}
-
-export function ThemeToggleButton({ theme, toggleTheme, mounted }: ThemeToggleButtonProps) {
-  if (!mounted) return null;
-
-  return (
-    <motion.button
-      onClick={toggleTheme}
-      whileHover={{ scale: 1.05, rotate: 180 }}
-      whileTap={{ scale: 0.95 }}
-      className="relative rounded-xl bg-gradient-to-br from-[#EEF4FF] to-[#DDE7FA] p-2.5 
-               dark:from-[#0F1C3F]/70 dark:to-[#162A56]/70
-               border-2 border-[#DDE7FA] dark:border-[#2E5AA6]/40
-               hover:shadow-lg hover:shadow-[#2E5AA6]/20 dark:hover:shadow-[#2E5AA6]/35
-               transition-all duration-300 group"
-      aria-label="Toggle theme"
-    >
-      <AnimatePresence mode="wait">
-        {theme === 'dark' ? (
-          <motion.div
-            key="sun"
-            initial={{ rotate: -90, opacity: 0, scale: 0 }}
-            animate={{ rotate: 0, opacity: 1, scale: 1 }}
-            exit={{ rotate: 90, opacity: 0, scale: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Sun className="w-5 h-5 text-yellow-500" />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="moon"
-            initial={{ rotate: 90, opacity: 0, scale: 0 }}
-            animate={{ rotate: 0, opacity: 1, scale: 1 }}
-            exit={{ rotate: -90, opacity: 0, scale: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Moon className="h-5 w-5 text-[#2E5AA6]" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <motion.div
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.6, 0.3]
-        }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className={`absolute inset-0 -z-10 rounded-xl blur-md ${theme === 'dark' ? 'bg-yellow-400' : 'bg-[#4F83D1]'}`}
-      />
-    </motion.button>
-  );
-}
 
 interface MobileHeaderActionsProps {
   theme: string | undefined;
@@ -408,7 +352,6 @@ export default function HeaderContent() {
             <HeaderLogo />
             <HeaderNavigation navItems={navItems} />
             <div className="hidden lg:flex items-center gap-2">
-              <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} mounted={mounted} />
               <NotificationBell />
 
               <UserMenu

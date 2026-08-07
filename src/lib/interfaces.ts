@@ -463,3 +463,325 @@ export interface GameState {
   showGameFinishedBanner: boolean;
   countdown: number | null;
 }
+
+
+// types/tournament.ts
+export interface TournamentSummary {
+  id: string;
+  tournamentNumber: string;
+  playerName: string;
+  level: number;
+  matchTime: string;
+  isGlobalTime: boolean;
+  gamesPerMatch: number;
+  totalMatches: number;
+  startedAt: string;
+  endedAt?: string;
+  isGameOver: boolean;
+  totalScore?: number | 'xxx';
+}
+
+
+// types/game.ts
+
+/** Direction de déplacement sur le plateau */
+export enum Direction {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+}
+
+/** Niveau de difficulté (ancien Dtfil) */
+export enum DifficultyLevel {
+  MINIME = 'MINIME', // Min
+  CADET = 'CADET',   // Cad
+  JUNIOR = 'JUNIOR', // Jun
+  SENIOR = 'SENIOR', // Sen
+}
+
+/** État d'une case sur le plateau (ancien Etca) */
+export enum CellState {
+  EMPTY = 'EMPTY',       // Cre (Creux / Vide)
+  LOCKED = 'LOCKED',     // Lo
+  PLACED = 'PLACED',     // Pla
+  SELECTED = 'SELECTED', // Choi
+}
+
+/** Informations de score d'une manche de jeu (ancien Game) */
+export interface GameScore {
+  baseScore: number;     // notedebase
+  result: number;        // result
+  gameScore: number;     // notedjeu
+  targetNumber: number;  // nbreatind
+  bonus: number;         // bonus
+  combination?: string;  // combine
+}
+
+/** Structure de configuration d'une grille/matrice de jeu (ancien Matrix) */
+export interface GameMatrix {
+  name: string;          // nom
+  cells: string[];       // cases
+  numbers: string[];     // nbre
+  operators: string[];   // oper
+}
+
+/** Item de menu d'accueil ou de sélection (ancien Menumo) */
+export interface MenuItem {
+  title: string;
+  description: string;
+  iconUrl?: string;
+}
+
+// types/match.ts
+
+export interface MatchModel {
+  id: string;             // idpartie (MongoDB ObjectId sous forme de string)
+  tournamentId: string;   // idtournoi
+  orderIndex: number;     // numordrep
+  isGameOver: boolean;    // isgameover
+  userId?: string;        // iduser
+  partId?: string;        // idpart
+  tourId?: string;        // idtour
+  matchNumber?: string;   // numeromatch
+  startedAt: Date;        // datedebut
+  endedAt?: Date;         // datefin
+  score?: string;         // score
+}
+
+/** Factory function pour initialiser une nouvelle partie */
+export function createMatch(
+  tournamentId: string,
+  orderIndex: number,
+  matchNumber: string,
+  tourId?: string
+): Omit<MatchModel, 'id'> {
+  return {
+    tournamentId,
+    orderIndex,
+    matchNumber,
+    tourId,
+    isGameOver: false,
+    startedAt: new Date(),
+  };
+}
+
+// types/game.ts (Extrait / Complément)
+
+export enum MovementSense {
+  UP = 'UP',
+  DOWN = 'DOWN',
+  LEFT = 'LEFT',
+  RIGHT = 'RIGHT',
+}
+
+// types/theme.ts
+
+export interface BoardTheme {
+  id: number;                          // numero
+  name: string;                        // nom
+  cellBgColor: string;                 // coulfondcase
+  lockedCellBgColor: string;           // coulfondcaseverouille
+  placedPawnBgColor: string;           // coulfondpionplace
+  startCellBgColor: string;            // coulfondcasedepart
+  selectedCellBgColor: string;         // coulfondcaseselectionne
+  cellBorderColor: string;             // coulbordurecase
+  normalPawnBgColor: string;           // coulfondpionnormal
+  hoverPawnBgColor: string;            // coulfondpionover
+}
+
+/** Utility pour convertir le JSON Android brut vers notre type typé */
+export function parseTheme(rawJson: Record<string, unknown>): BoardTheme {
+  const getStringColor = (key: string, fallback: string) => 
+    typeof rawJson[key] === 'string' && rawJson[key] ? (rawJson[key] as string) : fallback;
+
+  return {
+    id: typeof rawJson.numero === 'number' ? rawJson.numero : 0,
+    name: typeof rawJson.nom === 'string' ? rawJson.nom : 'Thème par défaut',
+    cellBgColor: getStringColor('coulfondcase', '#ffffff'),
+    lockedCellBgColor: getStringColor('coulfondcaseverouille', '#9ca3af'),
+    placedPawnBgColor: getStringColor('coulfondpionplace', '#22c55e'),
+    startCellBgColor: getStringColor('coulfondcasedepart', '#eab308'),
+    selectedCellBgColor: getStringColor('coulfondcaseselectionne', '#3b82f6'),
+    cellBorderColor: getStringColor('coulbordurecase', '#cbd5e1'),
+    normalPawnBgColor: getStringColor('coulfondpionnormal', '#f8fafc'),
+    hoverPawnBgColor: getStringColor('coulfondpionover', '#6366f1'),
+  };
+}
+
+
+// types/tournament.ts
+
+ 
+export interface TournamentModel {
+  id: string;               // idtournoi (MongoDB _id)
+  playerName: string;       // nomjoueur (max 20 caractères)
+  tournamentNumber: string; // numtournoi
+  matchTimeLimit: string;   // tempsmatch ("-1" ou minutes)
+  isGlobalTime: boolean;    // tpsglobal (true = 0/global, false = 1/par match)
+  level: DifficultyLevel;   // niveau
+  colorThemeId: number;     // couleurs
+  gamesPerMatch: number;    // nombredejeu
+  totalMatches: number;     // nbmatch
+  isGameOver: boolean;      // isgameover
+  startedAt: Date;          // datedebut
+  endedAt?: Date;           // datefin
+  tourId?: string;          // idtour
+  userId?: string;          // iduser
+  score?: string;           // score
+}
+
+/** DTO pour la création d'un nouveau tournoi via formulaire / API */
+export interface CreateTournamentDto {
+  playerName: string;
+  matchTimeLimit: string;
+  isGlobalTime: boolean;
+  level: DifficultyLevel;
+  tournamentNumber: string;
+  colorThemeId: number;
+  gamesPerMatch: number;
+  totalMatches: number;
+}
+
+/** Factory function d'initialisation propre */
+export function createTournament(dto: CreateTournamentDto): Omit<TournamentModel, 'id'> {
+  return {
+    playerName: dto.playerName.slice(0, 20),
+    tournamentNumber: dto.tournamentNumber,
+    matchTimeLimit: dto.matchTimeLimit,
+    isGlobalTime: dto.isGlobalTime,
+    level: dto.level,
+    colorThemeId: dto.colorThemeId,
+    gamesPerMatch: dto.gamesPerMatch,
+    totalMatches: dto.totalMatches,
+    isGameOver: false,
+    startedAt: new Date(),
+  };
+}
+ 
+export interface TournamentFormState {
+  playerName: string;          // njoueur
+  tournamentNumber: string;    // numetour
+  matchesCount: number;        // nbrdmat
+  timeLimit: string;           // stpdjeu (ex: "5", "10", "15")
+  gamesPerMatch: number;       // spnbjeu
+  isGlobalTime: boolean;       // globalrb / perkchrb
+  themeId: number;             // sptheme
+  matrixLevelIndex: number;    // spniv
+  customMatchNumbers: string[];// Numéros de matchs saisis manuellement si besoin
+}
+
+export const DEFAULT_FORM_STATE: TournamentFormState = {
+  playerName: '',
+  tournamentNumber: '',
+  matchesCount: 1,
+  timeLimit: '5',
+  gamesPerMatch: 1,
+  isGlobalTime: false,
+  themeId: 0,
+  matrixLevelIndex: 0,
+  customMatchNumbers: [],
+};
+
+export interface MainMenuItem {
+  id: 'nouveau' | 'scores' | 'aide';
+  title: string;
+  description: string;
+  href: string;
+  icon: string; // Nom d'icône ou chemin SVG
+}
+
+export const MAIN_MENU_ITEMS: MainMenuItem[] = [
+  {
+    id: 'nouveau',
+    title: 'Nouveau',
+    description: 'Jeu Lolomaths - Lancer un tournoi ou un match',
+    href: '/tournoi/nouveau',
+    icon: 'play-circle',
+  },
+  {
+    id: 'scores',
+    title: 'Scores',
+    description: 'Lolomaths Analytics - Consulter vos statistiques',
+    href: '/scores',
+    icon: 'chart-bar',
+  },
+  {
+    id: 'aide',
+    title: 'Aide',
+    description: 'Apprendre Lolomaths - Règles et tutoriels',
+    href: '/star/lolomaths/help',
+    icon: 'question-mark-circle',
+  },
+];
+
+// Types de données principaux
+//export type StateCase = 'Cre' | 'Pla' | 'Choi' | 'Lo';
+ export type SensoryDirection = 'Up' | 'Down' | 'Left' | 'Right';
+
+export interface UneCase {
+  ncase: number;
+  indi: number; // Colonne (0..12)
+  indj: number; // Ligne (0..16)
+  txt: string;
+  itxt: string;
+  etat: StateCase;
+  tca: 1 | 2 | 3; // 1 = Plateau, 2 = Pion Chiffre, 3 = Pion Opérateur
+  isbou?: boolean;
+}
+
+export interface GameResult {
+  nbreatind: number;
+  result: number;
+  notedbase: number;
+  bonus: number;
+  notedjeu: number;
+  combine: string;
+}
+
+
+
+export enum StateCase {
+  Cre = 'Cre', // Vide / Disponible
+  Pla = 'Pla', // Pion placé
+  Choi = 'Choi', // Sélectionné
+  Lo = 'Lo'    // Verrouillé (valide des tours précédents)
+}
+
+export enum Sens {
+  Up = 'Up',
+  Down = 'Down',
+  Left = 'Left',
+  Right = 'Right'
+}
+
+export enum Direc {
+  Hor = 'Hor',
+  Ver = 'Ver'
+}
+
+export enum Dtfil {
+  Min = 0,
+  Cad = 1,
+  Jun = 2,
+  Sen = 3
+}
+
+export interface UneCase {
+  ncase: number;
+  indi: number; // Colonne (0..12)
+  indj: number; // Ligne (0..16)
+  txt: string;
+  itxt: string;
+  etat: StateCase;
+  tca: 1 | 2 | 3; // 1: Case Plateau, 2: Pion Chiffre, 3: Pion Opérateur
+  placep?: number;
+  isbou?: boolean;
+}
+
+export interface GameResult {
+  nbreatind: number;
+  result: number;
+  notedbase: number;
+  bonus: number;
+  notedjeu: number;
+  combine: string;
+}

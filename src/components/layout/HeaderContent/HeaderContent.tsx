@@ -235,7 +235,7 @@ export function HeaderLogo() {
         {/* Conteneur adapté aux proportions rectangulaires (128x36) */}
         <div className="relative h-9 w-36 sm:h-12 sm:w-48 flex items-center justify-center">
           <Image
-            src="/logolearning.png"
+            src="/logo.png"
             alt="Diambra"
             width={986}
             height={241}

@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   const upstreamUrl = new URL(cityApiBaseUrl);
+
   request.nextUrl.searchParams.forEach((value, key) => {
     upstreamUrl.searchParams.set(key, value);
   });

@@ -16,7 +16,7 @@ export default function ProfilPageClient() {
   }
 
   return (
-    <main className="bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-950 dark:to-purple-950/20 px-2 py-4">
+    <main className="w-full max-w-2xl mx-auto px-2 py-4">
       <HeaderSection />
 
       <BannersSection

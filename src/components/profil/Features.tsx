@@ -659,7 +659,7 @@ export const EndedBanner = ({ lastEndedGame }: { lastEndedGame: LastEndedGame | 
     </motion.div>
 );
 
-export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', onFinish }: {monjeuid:string, targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
+export const CountdownTimerLight = ({monjeuid, targetDate, onFinish }: {monjeuid:string, targetDate: Date; variant?: 'light' | 'dark'; onFinish?: () => void }) => {
     const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [hasFinished, setHasFinished] = React.useState(false);
 
@@ -688,32 +688,21 @@ export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', on
         return () => clearInterval(timer);
     }, [targetDate, hasFinished, onFinish]);
 
-    const timeUnits = [
-        { label: "J", value: timeLeft.days, icon: <Calendar className="w-4 h-4" /> },
-        { label: "H", value: timeLeft.hours, icon: <Timer className="w-4 h-4" /> },
-        { label: "Mn", value: timeLeft.minutes, icon: <Zap className="w-4 h-4" /> },
-        { label: "S", value: timeLeft.seconds, icon: <Sparkles className="w-4 h-4" /> }
-    ];
 
     return (
         <div className="relative">
              <CacheLink   href={`/star/choix/${monjeuid || ''}`} className="inline-flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-800 transition">
            
-            {/* Bannière principale avec effet néon */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-[3px] mb-6 shadow-2xl shadow-orange-500/50">
-                {/* Effet de brillance animé */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
 
-                {/* Effet de particules */}
                 <div className="absolute inset-0 opacity-30">
                     <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-300 rounded-full blur-2xl animate-pulse" />
                     <div className="absolute bottom-0 right-0 w-40 h-40 bg-red-300 rounded-full blur-2xl animate-pulse delay-1000" />
                 </div>
 
-                {/* Contenu principal */}
                 <div className="relative bg-gradient-to-br from-amber-600/95 to-red-600/95 backdrop-blur-sm rounded-2xl p-6 overflow-hidden">
 
-                    {/* Pattern décoratif */}
                     <div className="absolute inset-0 opacity-10">
                         <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -729,7 +718,6 @@ export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', on
                         </svg>
                     </div>
 
-                    {/* Icônes flottantes */}
                     <motion.div
                         animate={{ y: [0, -10, 0], rotate: [0, 5, -5, 0] }}
                         transition={{ duration: 3, repeat: Infinity }}
@@ -745,22 +733,20 @@ export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', on
                         <Trophy className="w-8 h-8" />
                     </motion.div>
 
-                    {/* Message principal */}
                     <div className="relative text-center space-y-4">
 
-                        {/* Titre principal avec effet 3D */}
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
                             className="relative"
                         >
-                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter">
+                            <h2 className="text-2xl md:text-4xl font-black text-white tracking-tighter">
                                 <span className="bg-gradient-to-r from-yellow-200 via-orange-200 to-red-200 bg-clip-text text-transparent">
                                     C'EST LE MOMENT
                                 </span>
                             </h2>
-                            <h3 className="text-5xl md:text-7xl font-black mt-2">
+                            <h3 className="text-3xl md:text-5xl font-black mt-2">
                                 <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 bg-clip-text text-transparent animate-pulse">
                                     DE GAGNER!
                                 </span>
@@ -775,7 +761,7 @@ export const CountdownTimerLight = ({monjeuid, targetDate, variant = 'light', on
                             className="text-white/80 text-sm font-medium flex items-center justify-center gap-2"
                         >
                             <Zap className="w-4 h-4 text-yellow-300" />
-                            ⚡ AVEC DIAMBRA ⚡
+                              AVEC DIAMBRA  
                             <Sparkles className="w-4 h-4 text-yellow-300" />
                         </motion.p>
 
@@ -841,15 +827,8 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
         transition={{ duration: 0.5, type: "spring" }}
         className="relative mb-8"
     >
-        {/* Fond avec effet 3D */}
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 rounded-3xl blur-2xl opacity-75 animate-pulse" />
-
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-600 via-orange-600 to-red-600 p-0.5 shadow-2xl">
-            {/* Effet de brillance */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer" />
-
-            {/* Pattern de fond */}
-            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl" />
                 <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl" />
                 <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -865,7 +844,6 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
             </div>
 
             <div className="relative bg-gradient-to-br from-amber-600/90 to-red-600/90 backdrop-blur-sm p-6 rounded-3xl">
-                {/* Header avec animation */}
                 <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                     <motion.div
                         initial={{ x: -20, opacity: 0 }}
@@ -890,15 +868,12 @@ export const ActiveBanner = ({ endDate, handleEndMatch, startDate, formatDate, g
                     </motion.div>
                 </div>
 
-                {/* Countdown Timer */}
                 <CountdownTimerLight monjeuid={gameConfig?.id || ''} targetDate={endDate} variant="light" onFinish={handleEndMatch} />
 
-                {/* Call to Action */}
                 <GlowButton href={`/star/choix/${gameConfig?.id || ''}`}>
                     🎮 JOUER MAINTENANT
                 </GlowButton>
 
-                {/* Dates */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

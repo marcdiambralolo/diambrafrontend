@@ -9,7 +9,7 @@ import { Providers, RootPortals, RootSkipLink } from "./providers";
 const SITE_CONFIG = {
   name: "Diambra",
   url: "https://www.diambra.net",
-  description: "🎯 Diambra ",
+  description: "🎯 Diambra",
   twitterHandle: "@DiambraCorporation",
   ogImage: "/logo.png",
   ogImageAlt: "Diambra Win",
@@ -42,13 +42,11 @@ const inter = Inter({
 const RootHeadMeta = memo(function RootHeadMeta() {
   return (
     <>
-      {/* PWA / Mobile */}
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="application-name" content={SITE_CONFIG.name} />
       <meta name="theme-color" content="#7C3AED" />
 
-      {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={SITE_CONFIG.name} />
       <meta property="og:title" content={`${SITE_CONFIG.name} — Défi Cérébral`} />
@@ -59,7 +57,6 @@ const RootHeadMeta = memo(function RootHeadMeta() {
       <meta property="og:image:width" content={SITE_CONFIG.ogImageWidth.toString()} />
       <meta property="og:image:height" content={SITE_CONFIG.ogImageHeight.toString()} />
 
-      {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content={SITE_CONFIG.twitterHandle} />
       <meta name="twitter:creator" content={SITE_CONFIG.twitterHandle} />
@@ -68,7 +65,6 @@ const RootHeadMeta = memo(function RootHeadMeta() {
       <meta name="twitter:image" content={SITE_CONFIG.ogImage} />
       <meta name="twitter:image:alt" content={SITE_CONFIG.ogImageAlt} />
 
-      {/* Additional SEO */}
       <meta name="keywords" content="jeu,  chiffres, réflexion, en ligne" />
       <meta name="author" content="Diambra" />
       <meta name="robots" content="index, follow" />
@@ -185,8 +181,6 @@ const SchemaScript = memo(function SchemaScript() {
   );
 });
 
-SchemaScript.displayName = 'SchemaScript';
-
 const RootMain = memo(function RootMain({ children }: { children: React.ReactNode }) {
   return (
     <main id="main-content" className="relative" role="main" aria-label="DIAMBRA">
@@ -194,8 +188,6 @@ const RootMain = memo(function RootMain({ children }: { children: React.ReactNod
     </main>
   );
 });
-
-RootMain.displayName = 'RootMain';
 
 export const metadata: Metadata = getRootMetadata();
 export const viewport = rootViewport;

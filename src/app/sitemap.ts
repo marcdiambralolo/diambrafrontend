@@ -2,15 +2,13 @@ import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.diambra.net';
-
   const lastModified = new Date().toISOString();
 
   const publicRoutes = [
     { path: '/', priority: 1.0, changefreq: 'daily' },
-    { path: '/a-propos', priority: 0.5, changefreq: 'yearly' },
     { path: '/about', priority: 0.5, changefreq: 'yearly' },
+    { path: '/a-propos', priority: 0.5, changefreq: 'yearly' },
     { path: '/terms', priority: 0.5, changefreq: 'yearly' },
-    { path: '/callback', priority: 0.3, changefreq: 'yearly' },
     { path: '/auth/login', priority: 0.4, changefreq: 'yearly' },
     { path: '/auth/register', priority: 0.4, changefreq: 'yearly' },
   ];

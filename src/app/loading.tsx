@@ -28,7 +28,6 @@ const Loader = memo(function Loader() {
         aria-busy="true"
       >
         <div className="h-[3px] w-20 rounded-full bg-gradient-to-r from-[#2E5AA6] via-[#4F83D1] to-indigo-500/90 opacity-90" />
-
         <div className="relative grid place-items-center">
           <div className="absolute h-16 w-16 rounded-full opacity-30 animate-pulse bg-gradient-to-r from-[#4F83D1] via-[#9BC2FF] to-indigo-400 dark:from-[#2E5AA6] dark:via-[#4F83D1] dark:to-indigo-700" />
           <div className="h-12 w-12 rounded-full border-[3px] border-transparent border-t-[#2E5AA6] dark:border-t-[#9BC2FF] border-r-[#4F83D1]/70 dark:border-r-[#9BC2FF]/70 animate-spin" />

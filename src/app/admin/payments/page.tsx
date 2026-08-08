@@ -1,6 +1,6 @@
 import PaymentsPageClient from '@/components/admin/payments/PaymentsPageClient';
 
-export default function PaymentsPage() {  
-  
+export default function PaymentsPage() {
+
   return <PaymentsPageClient />;
 }

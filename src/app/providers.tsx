@@ -54,6 +54,7 @@ function ReactQueryProvider({ children }: { children: ReactNode }) {
 }
 
 const RootSkipLink = memo(function RootSkipLink() {
+
     return (
         <a
             href="#main-content"
@@ -67,8 +68,6 @@ const RootSkipLink = memo(function RootSkipLink() {
     );
 });
 
-RootSkipLink.displayName = 'RootSkipLink';
-
 const RootPortals = memo(function RootPortals() {
     return (
         <>
@@ -77,8 +76,6 @@ const RootPortals = memo(function RootPortals() {
         </>
     );
 });
-
-RootPortals.displayName = 'RootPortals';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (

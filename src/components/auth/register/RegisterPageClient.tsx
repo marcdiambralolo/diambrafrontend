@@ -267,6 +267,7 @@ const RegisterForm: React.FC = () => {
             <RegisterInputField
               label="Email"
               name="username"
+              type="email"
               value={formData.username}
               onChange={handleChange}
               error={errors.username}
